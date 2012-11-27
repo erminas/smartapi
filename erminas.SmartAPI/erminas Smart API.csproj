@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1274A3F9-71E2-40B6-9F71-41048AF9F4C6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>erminas.SmartAPI</RootNamespace>
+    <AssemblyName>erminas Smart API</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\erminas.RedDot\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CMS\CCElements\Attributes\ElementReferenceAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\StringEnumXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\BasicAlignment.cs" />
+    <Compile Include="CMS\CCElements\CCContentElement.cs" />
+    <Compile Include="CMS\CCElements\CCExtendedContentElement.cs" />
+    <Compile Include="CMS\CCElements\ImageAlignment.cs" />
+    <Compile Include="CMS\CCElements\ProjectContent.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldNonDate.cs" />
+    <Compile Include="CMS\CCElements\TargetFormat.cs" />
+    <Compile Include="CMS\IPage.cs" />
+    <Compile Include="CMS\PageElements\AbstractMediaElement.cs" />
+    <Compile Include="CMS\PageElements\AnchorAsImage.cs" />
+    <Compile Include="CMS\PageElements\AnchorAsText.cs" />
+    <Compile Include="CMS\PageElements\Background.cs" />
+    <Compile Include="CMS\PageElements\DatabaseContent.cs" />
+    <Compile Include="CMS\PageElements\Headline.cs" />
+    <Compile Include="CMS\PageElements\ILinkElement.cs" />
+    <Compile Include="CMS\PageElements\ListEntry.cs" />
+    <Compile Include="CMS\PageElements\Media.cs" />
+    <Compile Include="CMS\PageElements\OptionList.cs" />
+    <Compile Include="CMS\PageElements\ProjectContent.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldEmail.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldNumeric.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldTextLegacy.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldUrl.cs" />
+    <Compile Include="CMS\PageElements\TextAscii.cs" />
+    <Compile Include="CMS\PageElements\Transfer.cs" />
+    <Compile Include="Exceptions\RedDotConnectionException.cs" />
+    <Compile Include="Exceptions\RedDotDataException.cs" />
+    <Compile Include="CMS\AbstractAttributeContainer.cs" />
+    <Compile Include="CMS\Category.cs" />
+    <Compile Include="CMS\CCElement.cs" />
+    <Compile Include="CMS\CCElements\AltType.cs" />
+    <Compile Include="CMS\CCElements\Anchor.cs" />
+    <Compile Include="CMS\CCElements\Area.cs" />
+    <Compile Include="CMS\CCElements\Attributes\AbstractGuidXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\AttributeFactory.cs" />
+    <Compile Include="CMS\CCElements\Attributes\BoolXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\DatabaseConnectionXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\DateTimeFormatAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\DelegatingAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\EditorOptionsAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\ElementXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\EnumWithCustomValuesXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\EnumXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\FolderXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\InfoElementAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\IntXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\IRDAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\LanguageVariantAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\LocaleXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\OptionListSelectionAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\ProjectVariantAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\RDXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\ReadOnlyAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\StringXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\SyllableXmlNodeAttribute.cs" />
+    <Compile Include="CMS\CCElements\Attributes\TextContentAttribute.cs" />
+    <Compile Include="CMS\CCElements\Background.cs" />
+    <Compile Include="CMS\CCElements\Browse.cs" />
+    <Compile Include="CMS\CCElements\Container.cs" />
+    <Compile Include="CMS\CCElements\DatabaseContent.cs" />
+    <Compile Include="CMS\CCElements\Frame.cs" />
+    <Compile Include="CMS\CCElements\Headline.cs" />
+    <Compile Include="CMS\CCElements\HitList.cs" />
+    <Compile Include="CMS\CCElements\Image.cs" />
+    <Compile Include="CMS\CCElements\ImageAnchor.cs" />
+    <Compile Include="CMS\CCElements\InfoAttribute.cs" />
+    <Compile Include="CMS\CCElements\IVW.cs" />
+    <Compile Include="CMS\CCElements\List.cs" />
+    <Compile Include="CMS\CCElements\ListEntry.cs" />
+    <Compile Include="CMS\CCElements\Media.cs" />
+    <Compile Include="CMS\CCElements\Attribute.cs" />
+    <Compile Include="CMS\CCElements\Info.cs" />
+    <Compile Include="CMS\CCElements\OptionList.cs" />
+    <Compile Include="CMS\CCElements\SiteMap.cs" />
+    <Compile Include="CMS\CCElements\StandardField.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldDate.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldEmail.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldNumeric.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldText.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldTime.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldURL.cs" />
+    <Compile Include="CMS\CCElements\StandardFieldUserDefined.cs" />
+    <Compile Include="CMS\CCElements\Text.cs" />
+    <Compile Include="CMS\CCElements\TextAnchor.cs" />
+    <Compile Include="CMS\CCElements\TextAscii.cs" />
+    <Compile Include="CMS\CCElements\TextHtml.cs" />
+    <Compile Include="CMS\CCElements\Transfer.cs" />
+    <Compile Include="CMS\DatabaseConnection.cs" />
+    <Compile Include="CMS\DateTimeFormat.cs" />
+    <Compile Include="CMS\DatabaseServer.cs" />
+    <Compile Include="CMS\ElementType.cs" />
+    <Compile Include="CMS\PublicationFolderSetting.cs" />
+    <Compile Include="CMS\PublicationSetting.cs" />
+    <Compile Include="CMS\ExtendedPageSearch.cs" />
+    <Compile Include="CMS\FileAttribute.cs" />
+    <Compile Include="CMS\IRedDotObject.cs" />
+    <Compile Include="CMS\Note.cs" />
+    <Compile Include="CMS\PageElement.cs" />
+    <Compile Include="CMS\PageElements\AbstractLinkElement.cs" />
+    <Compile Include="CMS\PageElements\AbstractValueElement.cs" />
+    <Compile Include="CMS\PageElements\Anchor.cs" />
+    <Compile Include="CMS\PageElements\Area.cs" />
+    <Compile Include="CMS\PageElements\Browse.cs" />
+    <Compile Include="CMS\PageElements\Container.cs" />
+    <Compile Include="CMS\PageElements\Frame.cs" />
+    <Compile Include="CMS\PageElements\HitList.cs" />
+    <Compile Include="CMS\PageElements\Image.cs" />
+    <Compile Include="CMS\IPageElement.cs" />
+    <Compile Include="CMS\PageElements\IValueElement.cs" />
+    <Compile Include="CMS\PageElements\List.cs" />
+    <Compile Include="CMS\PageElements\PageElementType.cs" />
+    <Compile Include="CMS\PageElements\SiteMap.cs" />
+    <Compile Include="CMS\PageElements\StandardField.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldDate.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldRegexBased.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldText.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldTime.cs" />
+    <Compile Include="CMS\PageElements\Text.cs" />
+    <Compile Include="CMS\PageElements\TextHtml.cs" />
+    <Compile Include="CMS\PageSearchPredicate.cs" />
+    <Compile Include="CMS\PartialRedDotObject.cs" />
+    <Compile Include="CMS\IAttributeContainer.cs" />
+    <Compile Include="CMS\Locale.cs" />
+    <Compile Include="CMS\PublicationFolder.cs" />
+    <Compile Include="CMS\Syllable.cs" />
+    <Compile Include="CMS\TemplateVariantList.cs" />
+    <Compile Include="CMS\CCElementList.cs" />
+    <Compile Include="CMS\File.cs" />
+    <Compile Include="CMS\Folder.cs" />
+    <Compile Include="CMS\Group.cs" />
+    <Compile Include="CMS\Keyword.cs" />
+    <Compile Include="CMS\LanguageVariant.cs" />
+    <Compile Include="CMS\Page.cs" />
+    <Compile Include="CMS\PageSearch.cs" />
+    <Compile Include="CMS\Project.cs" />
+    <Compile Include="CMS\ProjectVariant.cs" />
+    <Compile Include="CMS\PublicationPackage.cs" />
+    <Compile Include="CMS\PublicationTarget.cs" />
+    <Compile Include="CMS\RedDotObject.cs" />
+    <Compile Include="CMS\Session.cs" />
+    <Compile Include="CMS\ContentClass.cs" />
+    <Compile Include="CMS\ContentClassFolder.cs" />
+    <Compile Include="CMS\TemplateVariant.cs" />
+    <Compile Include="CMS\User.cs" />
+    <Compile Include="CMS\WebCompliance.cs" />
+    <Compile Include="CMS\Workflow.cs" />
+    <Compile Include="CMS\WorkflowAction.cs" />
+    <Compile Include="Utils\CachingContext.cs" />
+    <Compile Include="Utils\DictionaryExtension.cs" />
+    <Compile Include="Utils\IRDList.cs" />
+    <Compile Include="Utils\IndexedRDList.cs" />
+    <Compile Include="Utils\LanguageContext.cs" />
+    <Compile Include="Utils\RDList.cs" />
+    <Compile Include="Utils\StringConversion.cs" />
+    <Compile Include="Utils\IIndexedCachedList.cs" />
+    <Compile Include="Utils\IndexedCachedList.cs" />
+    <Compile Include="Utils\ICachedList.cs" />
+    <Compile Include="Utils\PasswordAuthentication.cs" />
+    <Compile Include="Utils\CachedList.cs" />
+    <Compile Include="Utils\RedDotObjectHandle.cs" />
+    <Compile Include="Utils\ServerLogin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\RedDotCmsXmlServer\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="CMS\CmsClient.cs" />
+    <Compile Include="Utils\SessionBuilder.cs" />
+    <Compile Include="Utils\WebServiceURLProber.cs" />
+    <Compile Include="Utils\XmlUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="mainpage.dox" />
+    <None Include="packages.config" />
+    <None Include="Service References\RedDotCmsXmlServer\RDCMSXMLServer.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\RedDotCmsXmlServer\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\RedDotCmsXmlServer\configuration91.svcinfo">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\RedDotCmsXmlServer\configuration.svcinfo">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\RedDotCmsXmlServer\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

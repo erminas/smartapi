@@ -1,0 +1,12 @@
+﻿/**
+\mainpage erminas SmartAPI
+Welcome to <a href="http://smartapi.de">erminas SmartAPI</a>, the free .NET RQL library for OpenText WSM Management Server (RedDot CMS)!
+
+SmartAPI is the extension of SmartEdit and SmartTree in regard of developing. Where SmartEdit allows you to edit conveniently and SmartTree makes administration in your browser possible, SmartAPI creates a comfortable programming interface for the OpenText WSM Management Server.
+
+The complete library is written in C# / .NET and can be used from within the CMS as plugin or from an external .NET (web) application. As .NET is being used there is no break in the technology you use and the application can be hosted directly in your Windows Server in the IIS. You do not need any other hardware or server installed.
+
+The goal of SmartAPI is to provide a comfortable, fully object-oriented and well-tested library for all developers and users of OpenText WSM. There is no expensive in-house development necessary but you can choose a ready-to-use library that just works.
+
+The library is licenced under GPLv3. If you need a commercial licence, please feel free to contact us under http://www.erminas.de/en/contact-us.html
+*/
