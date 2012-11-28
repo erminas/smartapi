@@ -15,7 +15,7 @@
  */
 
 using System.Xml;
-using erminas.Utilities;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -47,7 +47,7 @@ namespace erminas.SmartAPI.CMS
         {
             Name = node.GetName();
             Value = node.GetAttributeValue("value");
-            Type = (NoteType) node.GetIntAttributeValue("type").Value;
+            Type = (NoteType) node.GetIntAttributeValue("type").GetValueOrDefault();
         }
     }
 }

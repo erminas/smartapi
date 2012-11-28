@@ -17,7 +17,7 @@
 using System;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
-using erminas.Utilities;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
@@ -151,7 +151,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public ListType ListType
         {
-            get { return (GetAttribute("eltlisttype") as StringEnumXmlNodeAttribute<ListType>).Value; }
+            get { return ((StringEnumXmlNodeAttribute<ListType>) GetAttribute("eltlisttype")).Value; }
             set
             {
                 if (value == ListType.None)
@@ -160,7 +160,7 @@ namespace erminas.SmartAPI.CMS.CCElements
                         string.Format("It is not possible to reset the {0} to {1}, once it was set.",
                                       RDXmlNodeAttribute.ElementDescription["eltlisttype"], ListType.None));
                 }
-                (GetAttribute("eltlisttype") as StringEnumXmlNodeAttribute<ListType>).Value = value;
+                ((StringEnumXmlNodeAttribute<ListType>) GetAttribute("eltlisttype")).Value = value;
             }
         }
 

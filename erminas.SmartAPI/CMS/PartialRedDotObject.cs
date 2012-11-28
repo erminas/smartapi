@@ -119,7 +119,7 @@ namespace erminas.SmartAPI.CMS
         /// <returns> Value of the variable, after initialization was ensured </returns>
         protected T LazyLoad<T>(ref T value)
         {
-            if (!Equals(value, default(T)) || IsInitialized)
+            if (IsInitialized || !Equals(value, default(T)))
             {
                 return value;
             }

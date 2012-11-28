@@ -17,7 +17,7 @@
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using System.Xml;
-using erminas.Utilities;
+using erminas.SmartAPI.Utils;
 using log4net;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
@@ -759,12 +759,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public string GetXmlNodeValue()
         {
-            XmlAttribute attr = Parent.XmlNode.Attributes[Name];
-            if (attr == null || string.IsNullOrEmpty(attr.Value))
-            {
-                return null;
-            }
-            return attr.Value;
+            string value = Parent.XmlNode.GetAttributeValue(Name);
+            return string.IsNullOrEmpty(value) ? null : value;
         }
 
         public override int GetHashCode()

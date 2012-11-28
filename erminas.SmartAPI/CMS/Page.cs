@@ -21,7 +21,6 @@ using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.PageElements;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -465,7 +464,7 @@ namespace erminas.SmartAPI.CMS
         protected override void LoadXml(XmlNode node)
         {
             //TODO schoenere loesung fuer partielles nachladen von pages wegen unterschiedlicher anfragen fuer unterschiedliche infos
-            InitIfPresent(ref _id, "id", x => int.Parse(x));
+            InitIfPresent(ref _id, "id", int.Parse);
             InitIfPresent(ref _lang, "languagevariantid", x => Project.LanguageVariants[x]);
             InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x)));
             InitIfPresent(ref _headline, "headline", HttpUtility.HtmlDecode);

@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml;
 
-namespace erminas.Utilities
+namespace erminas.SmartAPI.Utils
 {
     public static class XmlUtil
     {
@@ -16,6 +17,10 @@ namespace erminas.Utilities
         /// <param name="value">Value of the attribute</param>
         public static void AddAttribute(this XmlNode node, string attributeName, string value)
         {
+            if (node.Attributes == null)
+            {
+                return;
+            }
             XmlAttribute attr = node.OwnerDocument.CreateAttribute(attributeName);
             attr.Value = value;
             node.Attributes.Append(attr);
@@ -29,7 +34,7 @@ namespace erminas.Utilities
         /// <returns></returns>
         public static XmlElement AddElement(this XmlNode node, string name)
         {
-            XmlDocument doc = node as XmlDocument;
+            var doc = node as XmlDocument;
             doc = doc ?? node.OwnerDocument;
             var element = doc.CreateElement(name);
             node.AppendChild(element);
@@ -46,6 +51,10 @@ namespace erminas.Utilities
         /// <param name="value">Value to set the attribute to</param>
         public static void SetAttributeValue(this XmlNode node, string attributeName, string value)
         {
+            if (node.Attributes == null)
+            {
+                return;
+            }
             var attr = node.Attributes[attributeName];
             if (attr == null)
             {
@@ -80,18 +89,30 @@ namespace erminas.Utilities
         /// <returns>Value of the attribute, null, if attribute doesn't exist</returns>
         public static string GetAttributeValue(this XmlNode node, string attributeName)
         {
+            if (node.Attributes == null)
+            {
+                return null;
+            }
             var attr = node.Attributes[attributeName];
             return attr == null ? null : attr.Value;
         }
 
         public static int? GetIntAttributeValue(this XmlNode node, string attributeName)
         {
+            if (node.Attributes == null)
+            {
+                return null;
+            }
             var attr = node.Attributes[attributeName];
             return attr == null ? (int?)null : int.Parse(attr.Value);
         }
 
         public static double? GetDoubleAttributeValue(this XmlNode node, string attributeName)
         {
+            if (node.Attributes == null)
+            {
+                return null;
+            }
             var attr = node.Attributes[attributeName];
             return attr == null ? (double?)null : Double.Parse(attr.Value, CultureInfo.InvariantCulture);
         }

@@ -44,17 +44,10 @@ namespace erminas.SmartAPI.Utils
 
         private static int VersionInfo(string baseURL)
         {
-            var versionURI = baseURL + "ioVersionInfo.asp";
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(versionURI);
-            request.Timeout = 30000;
-            using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
+            var versionURI = baseURL + (baseURL.EndsWith("/") ? "ioVersionInfo.asp" : "/ioVersionInfo.asp");
+            using (var client = new WebClient())
             {
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new Exception("Could not connect to RedDot server at " + baseURL);
-                }
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                string responseText = reader.ReadToEnd();
+                var responseText = client.DownloadString(versionURI);
                 var match = VERSION_REGEXP.Match(responseText);
                 if (match.Groups.Count != 3)
                 {

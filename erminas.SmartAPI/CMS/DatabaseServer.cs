@@ -26,7 +26,8 @@ namespace erminas.SmartAPI.CMS
     {
         #region DBTypeID enum
 
-        public enum DBTypeID
+        // ReSharper disable InconsistentNaming
+        public enum DbTypeId
         {
             Jet3 = 1,
             Jet4 = 2,
@@ -35,10 +36,11 @@ namespace erminas.SmartAPI.CMS
             ODBC = 5,
             Oracle_OLEDB = 8
         }
+        // ReSharper restore InconsistentNaming
 
         #endregion
 
-        private DBTypeID _dBType;
+        private DbTypeId _dBType;
 
         private bool _isCreateAllowed;
         private string _name;
@@ -74,7 +76,7 @@ namespace erminas.SmartAPI.CMS
             set { _name = value; }
         }
 
-        public DBTypeID DBType
+        public DbTypeId DBType
         {
             get { return LazyLoad(ref _dBType); }
         }
@@ -87,7 +89,7 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _isCreateAllowed, "createallowed", BoolConvert);
             InitIfPresent(ref _productGuid, "productguid", GuidConvert);
             InitIfPresent(ref _name, "name", x => x);
-            InitIfPresent(ref _dBType, "dbtypeid", x => (DBTypeID) int.Parse(x));
+            InitIfPresent(ref _dBType, "dbtypeid", x => (DbTypeId) int.Parse(x));
         }
 
         protected override XmlNode RetrieveWholeObject()

@@ -55,6 +55,7 @@
     <Compile Include="Enums\ImageAlignmentTest.cs" />
     <Compile Include="Enums\ListTypeTest.cs" />
     <Compile Include="Enums\MediaConversionModeTest.cs" />
+    <Compile Include="Enums\PdfOrientationTest.cs" />
     <Compile Include="Enums\ScrollingTest.cs" />
     <Compile Include="Enums\TargetFormatTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

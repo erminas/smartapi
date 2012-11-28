@@ -37,7 +37,6 @@ namespace erminas.SmartAPI.CMS
 
         protected override void LoadXml(XmlNode node)
         {
-            Guid tempGuid; // used for parsing
             XmlAttributeCollection attr = node.Attributes;
             if (attr != null)
             {
@@ -80,6 +79,7 @@ namespace erminas.SmartAPI.CMS
                     {
                         Lock = attr["lock"].Value;
                     }
+                    Guid tempGuid; // used for parsing
                     if (attr["folderguid"] != null && Guid.TryParse(attr["folderguid"].Value, out tempGuid))
                     {
                         FolderGuid = tempGuid;

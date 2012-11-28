@@ -23,7 +23,6 @@ using System.Xml.Linq;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.RedDotCmsXmlServer;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 using log4net;
 
 namespace erminas.SmartAPI.CMS
@@ -38,7 +37,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   Forcelogin=true means that if the user was already logged in the old session will be closed and a new one started.
         /// </summary>
-        private bool forceLogin = true;
+        private const bool FORCE_LOGIN = true;
 
         #endregion
 
@@ -194,7 +193,9 @@ namespace erminas.SmartAPI.CMS
             {
                 Disconnect();
             }
+// ReSharper disable EmptyGeneralCatchClause
             catch
+// ReSharper restore EmptyGeneralCatchClause
             {
                 // exceptions are no longer relevant
             }
@@ -239,6 +240,7 @@ namespace erminas.SmartAPI.CMS
         ///   Send RQL statement to CMS server and return result.
         /// </summary>
         /// <param name="rqlQuery"> Query to send to CMS server </param>
+        /// <param name="debugRQLQuery"> Query to save in log file (this is used to hide passwords in the log files) </param>
         /// <exception cref="RedDotConnectionException">CMS Server not found or couldn't establish connection</exception>
         /// <returns> Result of RQL query </returns>
         protected string SendRQLToServer(string rqlQuery, string debugRQLQuery = null)
@@ -315,7 +317,9 @@ namespace erminas.SmartAPI.CMS
                 // check if already logged in
                 var xmlNode = xmlNodes[0];
                 var oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
-                if (oldLoginGuid != "" && !forceLogin)
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+                if (oldLoginGuid != "" && !FORCE_LOGIN)
+// ReSharper restore ConditionIsAlwaysTrueOrFalse
                 {
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.AlreadyLoggedIn,
                                                         "User already logged in.");

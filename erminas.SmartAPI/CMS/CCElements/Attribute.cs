@@ -72,7 +72,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value = value; }
         }
     }
-
+    // ReSharper disable InconsistentNaming
     public enum MediaTypeAttribute
     {
         None = 0,
@@ -118,4 +118,5 @@ namespace erminas.SmartAPI.CMS.CCElements
         Width_IMG = 10,
         Words_OFFICE = 28,
     }
+    // ReSharper restore InconsistentNaming
 }

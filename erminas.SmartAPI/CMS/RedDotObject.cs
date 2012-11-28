@@ -19,7 +19,6 @@ using System.Globalization;
 using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {

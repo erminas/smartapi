@@ -16,7 +16,7 @@
 
 using System;
 using System.Xml;
-using erminas.Utilities;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.CMS
     public class WorkFlowAction : RedDotObject
     {
         #region ActionType enum
-
+        // ReSharper disable InconsistentNaming
         public enum ActionType
         {
             None = 0,
@@ -53,6 +53,7 @@ namespace erminas.SmartAPI.CMS
             PageDisconnectedFromStructure_Reaction = 1345,
             WriteWorkflowXmlFile = 1225
         };
+        // ReSharper restore InconsistentNaming
 
         #endregion
 

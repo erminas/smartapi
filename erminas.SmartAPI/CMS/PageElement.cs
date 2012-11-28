@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.CMS.PageElements;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -66,7 +65,6 @@ namespace erminas.SmartAPI.CMS
         protected PageElement(Project project, XmlNode node)
             : base(node)
         {
-            LoadXml(node);
             Project = project;
             LoadXml(node);
         }

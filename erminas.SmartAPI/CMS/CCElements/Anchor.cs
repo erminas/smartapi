@@ -51,7 +51,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             }
         }
 
-        public static HtmlTarget ToHtmlTarget(string value)
+        public static HtmlTarget ToHtmlTarget(this string value)
         {
             switch (value.ToLowerInvariant())
             {
@@ -180,8 +180,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public HtmlTarget HtmlTarget
         {
-            get { return (GetAttribute("elttarget") as StringEnumXmlNodeAttribute<HtmlTarget>).Value; }
-            set { (GetAttribute("elttarget") as StringEnumXmlNodeAttribute<HtmlTarget>).Value = value; }
+            get { return ((StringEnumXmlNodeAttribute<HtmlTarget>) GetAttribute("elttarget")).Value; }
+            set { ((StringEnumXmlNodeAttribute<HtmlTarget>) GetAttribute("elttarget")).Value = value; }
         }
     }
 }

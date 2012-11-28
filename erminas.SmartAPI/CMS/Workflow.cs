@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -40,7 +41,6 @@ namespace erminas.SmartAPI.CMS
 
         protected override void LoadXml(XmlNode node)
         {
-            Guid tempGuid; // used for parsing
             XmlAttributeCollection attr = node.Attributes;
             if (attr != null)
             {
@@ -75,6 +75,7 @@ namespace erminas.SmartAPI.CMS
                         Global = attr["global"].Value;
                     }
 
+                    Guid tempGuid; // used for parsing
                     if (attr["guid"] != null && Guid.TryParse(attr["guid"].Value, out tempGuid))
                     {
                         Guid = tempGuid;
@@ -92,12 +93,7 @@ namespace erminas.SmartAPI.CMS
         // TODO: Add a more useful action method which retains the 'flow' of the workflow!
         public List<WorkFlowAction> Actions()
         {
-            var actions = new List<WorkFlowAction>();
-            foreach (XmlNode node in XmlNode.SelectNodes("descendant::NODE"))
-            {
-                actions.Add(new WorkFlowAction(node));
-            }
-            return actions;
+            return (from XmlNode node in XmlNode.SelectNodes("descendant::NODE") select new WorkFlowAction(node)).ToList();
         }
 
         protected override XmlNode RetrieveWholeObject()

@@ -18,7 +18,7 @@ using System;
 using System.Globalization;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
-using erminas.Utilities;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {

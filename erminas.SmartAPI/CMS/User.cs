@@ -18,7 +18,6 @@ using System;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -61,6 +60,7 @@ namespace erminas.SmartAPI.CMS
         ///   Reads user data from XML-Element "USER" like: <pre>...</pre>
         /// </summary>
         /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
+        /// <param name="cmsClient">The cms client used to retrieve this user</param>
         /// <param name="xmlNode"> USER XML-Element to get data from </param>
         public User(CmsClient cmsClient, XmlNode xmlNode)
             : base(xmlNode)

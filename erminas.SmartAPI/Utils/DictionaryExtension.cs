@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace erminas.Utilities
+namespace erminas.SmartAPI.Utils
 {
     public static class DictionaryExtension
     {

@@ -86,14 +86,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string DefaultText
         {
-            get { return (GetAttribute("eltdefaulttextguid") as TextContentAttribute).Text; }
-            set { (GetAttribute("eltdefaulttextguid") as TextContentAttribute).Text = value; }
+            get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
+            set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
         }
 
         public string ExampleText
         {
-            get { return (GetAttribute("eltrdexampleguid") as TextContentAttribute).Text; }
-            set { (GetAttribute("eltrdexampleguid") as TextContentAttribute).Text = value; }
+            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
+            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
         }
 
         public override void Commit()

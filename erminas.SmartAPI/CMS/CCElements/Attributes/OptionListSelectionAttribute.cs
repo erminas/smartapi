@@ -21,7 +21,6 @@ using System.Web;
 using System.Xml;
 using System.Xml.Linq;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
@@ -30,14 +29,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private const string IDENTIFIER = "identifier";
         private const string SELECTION = "SELECTION";
 
-        private readonly XmlNode _node;
         private readonly OptionList _parent;
         private string _value;
 
         public OptionListSelectionAttribute(OptionList parent, string name, XmlNode node)
         {
             _parent = parent;
-            _node = node;
             Name = name;
             XmlNode settingsNode = ((XmlElement) node).GetElementsByTagName("SELECTIONS")[0];
             if (settingsNode != null)
@@ -69,7 +66,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 }
                 return _value;
             }
-            private set { _value = value; }
         }
 
         #region IRDAttribute Members
@@ -84,7 +80,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public void Assign(IRDAttribute o)
         {
-            var other = o as OptionListSelectionAttribute;
+            var other = (OptionListSelectionAttribute)o;
             XDocument sourceDoc = XDocument.Parse(other.Value);
             XDocument targetDoc = XDocument.Parse(Value);
 
@@ -166,8 +162,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 return false;
             }
 
-            IEnumerable<XElement> docItems = doc.Descendants("ITEM");
-            IEnumerable<XElement> otherDocItems = otherDoc.Descendants("ITEM");
+            IEnumerable<XElement> docItems = doc.Descendants("ITEM").ToList();
+            IEnumerable<XElement> otherDocItems = otherDoc.Descendants("ITEM").ToList();
             if (docItems.Count() != otherDocItems.Count())
             {
                 return false;

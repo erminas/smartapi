@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Globalization;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
@@ -58,7 +59,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     var lang = parent.LanguageVariant;
                     _text = _guid == Guid.Empty
                                 ? string.Empty
-                                : parent.ContentClass.Project.GetTextContent(_guid, lang, ((int) _type).ToString());
+                                : parent.ContentClass.Project.GetTextContent(_guid, lang, ((int) _type).ToString(CultureInfo.InvariantCulture));
                 }
                 return _text;
             }
@@ -78,7 +79,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override void Assign(IRDAttribute o)
         {
-            var attr = o as TextContentAttribute;
+            var attr = (TextContentAttribute)o;
             Text = attr.Text;
         }
 
@@ -100,7 +101,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             try
             {
                 SetValue(
-                    parent.ContentClass.Project.SetTextContent(_guid, lang, ((int) _type).ToString(), _text).
+                    parent.ContentClass.Project.SetTextContent(_guid, lang, ((int) _type).ToString(CultureInfo.InvariantCulture), _text).
                         ToRQLString());
             }
             catch (Exception)

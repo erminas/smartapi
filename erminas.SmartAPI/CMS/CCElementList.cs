@@ -17,9 +17,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 using log4net;
 
 namespace erminas.SmartAPI.CMS
@@ -117,7 +117,6 @@ namespace erminas.SmartAPI.CMS
 
         protected override void LoadXml(XmlNode node)
         {
-            Guid tempGuid; // used for parsing
             XmlAttributeCollection attr = node.Attributes;
             if (attr != null)
             {
@@ -145,6 +144,7 @@ namespace erminas.SmartAPI.CMS
                         ParentTable = attr["parenttable"].Value;
                     }
 
+                    Guid tempGuid; // used for parsing
                     if (attr["parentguid"] != null && Guid.TryParse(attr["parentguid"].Value, out tempGuid))
                     {
                         ParentGuid = tempGuid;
@@ -162,7 +162,7 @@ namespace erminas.SmartAPI.CMS
                             catch (Exception e)
                             {
                                 string elttypeStr = curElementNode.GetAttributeValue("elttype") ??
-                                                    ((int) ElementType.None).ToString();
+                                                    ((int) ElementType.None).ToString(CultureInfo.InvariantCulture);
                                 int typeValue;
                                 string typeStr = int.TryParse(elttypeStr, out typeValue)
                                                      ? ((ElementType) typeValue).ToString()

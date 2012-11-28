@@ -18,10 +18,52 @@ using System;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
+    #region PdfOrientation
+    public enum PdfOrientation
+    {
+        Default = 0,
+        Portrait,
+        Landscape
+    }
+
+    public static class PdfOrientationUtils
+    {
+        public static string ToRQLString(this PdfOrientation value)
+        {
+            switch (value)
+            {
+                case PdfOrientation.Default:
+                    return "default";
+                case PdfOrientation.Portrait:
+                    return "portrait";
+                case PdfOrientation.Landscape:
+                    return "landscape";
+                default: throw new ArgumentException(string.Format("Unknown {0} value: {1}",
+                                                                typeof(PdfOrientationUtils).Name, value));
+            }
+        }
+
+        public static PdfOrientation ToPdfOrientation(this string value)
+        {
+            switch (value.ToLowerInvariant())
+            {
+                case "default":
+                    return PdfOrientation.Default;
+                case "portrait":
+                    return PdfOrientation.Portrait;
+                case "landscape":
+                    return PdfOrientation.Landscape;
+                default:
+                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
+                                                              typeof(PdfOrientation).Name, value));
+            }
+        }
+    }
+    #endregion
+
     //TODO templatevariant auf attributes umstellen
     /// <summary>
     ///   Represents a single template on the RedDot server
@@ -49,13 +91,13 @@ namespace erminas.SmartAPI.CMS
         private string _data;
         private string _description;
         private string _fileExtension;
-        private bool? _hasContainerPageReference;
-        private bool? _isLocked;
-        private bool? _isStylesheetIncluded;
+        private bool _hasContainerPageReference;
+        private bool _isLocked;
+        private bool _isStylesheetIncluded;
         private string _name;
-        private bool? _noStartEndMarkers;
-        private string _pdfOrientation;
-        private State? _status;
+        private bool _noStartEndMarkers;
+        private PdfOrientation _pdfOrientation;
+        private State _status;
 
 
         public TemplateVariant(ContentClass contentClass, Guid guid)
@@ -74,7 +116,7 @@ namespace erminas.SmartAPI.CMS
         //TODO mit reddotobjecthandle ersetzen
         public TemplateVariantHandle Handle
         {
-            get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
+            get { return new TemplateVariantHandle { Name = Name, Guid = Guid }; }
         }
 
         /// <summary>
@@ -88,7 +130,7 @@ namespace erminas.SmartAPI.CMS
 
         public bool HasContainerPageReference
         {
-            get { return LazyLoad(ref _hasContainerPageReference).Value; }
+            get { return LazyLoad(ref _hasContainerPageReference); }
         }
 
         /// <summary>
@@ -154,7 +196,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public State ReleaseStatus
         {
-            get { return LazyLoad(ref _status).Value; }
+            get { return LazyLoad(ref _status); }
         }
 
         /// <summary>
@@ -162,14 +204,14 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public bool IsStylesheetIncludedInHeader
         {
-            get { return LazyLoad(ref _isStylesheetIncluded).Value; }
+            get { return LazyLoad(ref _isStylesheetIncluded); }
         }
 
         /// <summary>
         /// </summary>
         public bool ContainsAreaMarksInPage
         {
-            get { return !LazyLoad(ref _noStartEndMarkers).Value; }
+            get { return !LazyLoad(ref _noStartEndMarkers); }
         }
 
         /// <summary>
@@ -185,8 +227,7 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _fileExtension); }
         }
 
-        //TODO implement as enum
-        public string PDFOrientation
+        public PdfOrientation PdfOrientation
         {
             get { return LazyLoad(ref _pdfOrientation); }
             set { _pdfOrientation = value; }
@@ -194,7 +235,7 @@ namespace erminas.SmartAPI.CMS
 
         public bool IsLocked
         {
-            get { return LazyLoad(ref _isLocked).Value; }
+            get { return LazyLoad(ref _isLocked); }
         }
 
         public ContentClass ContentClass { get; private set; }
@@ -217,7 +258,7 @@ namespace erminas.SmartAPI.CMS
 
         protected override void LoadXml(XmlNode node)
         {
-            var element = ((XmlElement) node);
+            var element = ((XmlElement)node);
             if (!String.IsNullOrEmpty(element.InnerText))
             {
                 _data = element.InnerText;
@@ -227,19 +268,17 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
-                              {Name = node.GetAttributeValue("createusername")});
+                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)) { Name = node.GetAttributeValue("createusername") });
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
-                              {Name = node.GetAttributeValue("changedusername")});
+                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)) { Name = node.GetAttributeValue("changedusername") });
             InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
-            InitIfPresent(ref _pdfOrientation, "pdforientation", x => x);
-            InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", NullableBoolConvert);
-            InitIfPresent(ref _noStartEndMarkers, "nostartendmarkers", NullableBoolConvert);
-            InitIfPresent(ref _isLocked, "lock", NullableBoolConvert);
-            InitIfPresent(ref _hasContainerPageReference, "containerpagereference", NullableBoolConvert);
+            InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
+            InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", BoolConvert);
+            InitIfPresent(ref _noStartEndMarkers, "nostartendmarkers", BoolConvert);
+            InitIfPresent(ref _isLocked, "lock", BoolConvert);
+            InitIfPresent(ref _hasContainerPageReference, "containerpagereference", BoolConvert);
 
             if (BoolConvert(node.GetAttributeValue("draft")))
             {
@@ -272,7 +311,7 @@ namespace erminas.SmartAPI.CMS
                                   HttpUtility.HtmlEncode(FileExtension),
                                   IsStylesheetIncludedInHeader.ToRQLString(),
                                   ContainsAreaMarksInPage.ToRQLString(),
-                                  HasContainerPageReference.ToRQLString(), PDFOrientation),
+                                  HasContainerPageReference.ToRQLString(), PdfOrientation),
                     Project.RqlType.SessionKeyInProject);
             if (xmlDoc.DocumentElement.InnerText.Trim().Length == 0)
             {

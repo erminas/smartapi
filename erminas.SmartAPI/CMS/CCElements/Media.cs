@@ -93,7 +93,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get
             {
-                var folderAttr = GetAttribute("eltrdexamplesubdirguid") as FolderXmlNodeAttribute;
+                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltrdexamplesubdirguid");
                 var srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
@@ -117,8 +117,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public MediaConversionMode ConversionModeForSelectedDocuments
         {
-            get { return (GetAttribute("eltconvertmode") as StringEnumXmlNodeAttribute<MediaConversionMode>).Value; }
-            set { (GetAttribute("eltconvertmode") as StringEnumXmlNodeAttribute<MediaConversionMode>).Value = value; }
+            get { return ((StringEnumXmlNodeAttribute<MediaConversionMode>) GetAttribute("eltconvertmode")).Value; }
+            set { ((StringEnumXmlNodeAttribute<MediaConversionMode>) GetAttribute("eltconvertmode")).Value = value; }
         }
 
         public bool IsLinkNotAutomaticallyRemoved

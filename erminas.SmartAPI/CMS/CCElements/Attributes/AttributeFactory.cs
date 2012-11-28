@@ -16,14 +16,11 @@
 
 using System;
 using System.Collections.Generic;
-using log4net;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public abstract class AttributeFactory
     {
-        private static readonly ILog LOGGER = LogManager.GetLogger(typeof (AttributeFactory));
-
         private static readonly Dictionary<string, AttributeFactory> Factories = new Dictionary
             <string, AttributeFactory>
                                                                                      {
@@ -675,7 +672,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
     public class EnumAttributeWithCustomValuesFactory<T> : AttributeFactory where T : struct, IConvertible
     {
-        protected readonly Dictionary<T, string> _displayStrings;
+        protected readonly Dictionary<T, string> DisplayStrings;
 
         public EnumAttributeWithCustomValuesFactory()
             : this(null)
@@ -684,12 +681,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public EnumAttributeWithCustomValuesFactory(Dictionary<T, string> displayStrings)
         {
-            _displayStrings = displayStrings;
+            DisplayStrings = displayStrings;
         }
 
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new EnumWithCustomValuesXmlNodeAttribute<T>(element, name, _displayStrings);
+            return new EnumWithCustomValuesXmlNodeAttribute<T>(element, name, DisplayStrings);
         }
     }
 
@@ -714,7 +711,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new StringEnumXmlNodeAttribute<T>(element, name, _displayStrings, _toString, _fromString);
+            return new StringEnumXmlNodeAttribute<T>(element, name, DisplayStrings, _toString, _fromString);
         }
     }
 

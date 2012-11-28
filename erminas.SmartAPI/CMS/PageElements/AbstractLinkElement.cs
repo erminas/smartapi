@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
@@ -70,7 +69,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             const string SINGLE_PAGE = @"<PAGE deleted=""1"" guid=""{0}"" />";
 
             string pagesStr = pages.Aggregate("",
-                                              (x, page) => x = x + string.Format(SINGLE_PAGE, page.Guid.ToRQLString()));
+                                              (x, page) => x + string.Format(SINGLE_PAGE, page.Guid.ToRQLString()));
             Project.ExecuteRQL(String.Format(DISCONNECT_PAGES, Guid.ToRQLString(), pagesStr));
             LinkedPages.InvalidateCache();
         }

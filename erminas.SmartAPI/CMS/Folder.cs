@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -118,7 +117,7 @@ namespace erminas.SmartAPI.CMS
 
 
         /// <summary>
-        ///   RQL for deleting files for the folder with guid {0}. {1} List of Files to be deleted. Can contain mor than one <FILE>
+        ///   RQL for deleting files for the folder with guid {0}. {1} List of Files to be deleted. Can contain mor than one FILE element.
         /// </summary>
         private const string DELETE_FILES =
             @"<MEDIA><FOLDER guid=""{0}""><FILES action=""deletefiles"">{1}</FILES></FOLDER></MEDIA>";
@@ -134,7 +133,7 @@ namespace erminas.SmartAPI.CMS
         private const string FORCE_FILE_TO_BE_DELETED = @"<FILE deletereal=""1"" sourcename=""{0}""/>";
 
 
-        private bool? _isAssetManagerFolder;
+        private bool _isAssetManagerFolder;
         private Folder _linkedFolder;
         private string _name;
 
@@ -162,7 +161,7 @@ namespace erminas.SmartAPI.CMS
 
         public bool IsAssetManagerFolder
         {
-            get { return LazyLoad(ref _isAssetManagerFolder).Value; }
+            get { return LazyLoad(ref _isAssetManagerFolder); }
         }
 
         public Folder LinkedFolder
@@ -180,7 +179,7 @@ namespace erminas.SmartAPI.CMS
         protected override void LoadXml(XmlNode xmlNode)
         {
             InitIfPresent(ref _name, "name", x => x);
-            InitIfPresent(ref _isAssetManagerFolder, "catalog", x => x == "1");
+            InitIfPresent(ref _isAssetManagerFolder, "catalog", BoolConvert);
 
             Guid linkedProjectGuid;
             if (xmlNode.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
@@ -299,13 +298,7 @@ namespace erminas.SmartAPI.CMS
 
         public void SaveFiles(List<FileSource> sources)
         {
-            var filesToSave = new List<string>();
-
-            foreach (FileSource fileSource in sources)
-            {
-                string fileToUpload = string.Format(FILE_TO_SAVE, fileSource.Sourcename, fileSource.Sourcepath);
-                filesToSave.Add(fileToUpload);
-            }
+            var filesToSave = sources.Select(fileSource => string.Format(FILE_TO_SAVE, fileSource.Sourcename, fileSource.Sourcepath)).ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(String.Format(SAVE_FILES_IN_FOLDER, Guid.ToRQLString(),
@@ -321,13 +314,7 @@ namespace erminas.SmartAPI.CMS
         public void UpdateFiles(List<FileSource> files)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
-            var filesToUpdate = new List<string>();
-
-            foreach (FileSource file in files)
-            {
-                string fileToUpload = string.Format(FILE_TO_UPDATE, file.Sourcename);
-                filesToUpdate.Add(fileToUpload);
-            }
+            var filesToUpdate = files.Select(file => string.Format(FILE_TO_UPDATE, file.Sourcename)).ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(string.Format(UPDATE_FILES_IN_FOLDER, Guid.ToRQLString(),
@@ -343,15 +330,7 @@ namespace erminas.SmartAPI.CMS
         public void DeleteFiles(List<string> filenames, bool forceDelete)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
-            var filesToDelete = new List<string>();
-
-            foreach (string filename in filenames)
-            {
-                string fileToUpload = string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED,
-                                                    filename);
-
-                filesToDelete.Add(fileToUpload);
-            }
+            var filesToDelete = filenames.Select(filename => string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(string.Format(DELETE_FILES, Guid.ToRQLString(),

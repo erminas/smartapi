@@ -114,7 +114,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get
             {
-                var folderAttr = GetAttribute("eltsrcsubdirguid") as FolderXmlNodeAttribute;
+                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltsrcsubdirguid");
                 var srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
@@ -216,14 +216,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public Direction Direction
         {
-            get { return (GetAttribute("eltdirection") as EnumXmlNodeAttribute<Direction>).Value; }
-            set { (GetAttribute("eltdirection") as EnumXmlNodeAttribute<Direction>).Value = value; }
+            get { return ((EnumXmlNodeAttribute<Direction>) GetAttribute("eltdirection")).Value; }
+            set { ((EnumXmlNodeAttribute<Direction>) GetAttribute("eltdirection")).Value = value; }
         }
 
         public Appearance Appearance
         {
-            get { return (GetAttribute("eltnextpagetype") as EnumXmlNodeAttribute<Appearance>).Value; }
-            set { (GetAttribute("eltnextpagetype") as EnumXmlNodeAttribute<Appearance>).Value = value; }
+            get { return ((EnumXmlNodeAttribute<Appearance>) GetAttribute("eltnextpagetype")).Value; }
+            set { ((EnumXmlNodeAttribute<Appearance>) GetAttribute("eltnextpagetype")).Value = value; }
         }
     }
 }

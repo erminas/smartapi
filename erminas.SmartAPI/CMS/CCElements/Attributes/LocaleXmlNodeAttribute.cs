@@ -164,7 +164,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override void Assign(IRDAttribute o)
         {
-            var attr = o as LocaleXmlNodeAttribute;
+            var attr = (LocaleXmlNodeAttribute)o;
             SetValue(attr.GetXmlNodeValue());
         }
 

@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -67,7 +66,7 @@ namespace erminas.SmartAPI.CMS
                 (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
         }
 
-        public void SetPublishingTargetsAndCommit(IEnumerable<PublicationTarget> newTargets)
+        public void SetPublishingTargetsAndCommit(List<PublicationTarget> newTargets)
         {
             const string SAVE_EXPORT_TARGETS =
                 @"<PROJECT><EXPORTSETTING guid=""{0}""><EXPORTTARGETS action=""save"">{1}</EXPORTTARGETS></EXPORTSETTING></PROJECT>";

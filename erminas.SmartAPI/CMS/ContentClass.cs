@@ -22,7 +22,6 @@ using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -159,7 +158,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="#Refresh" />
+        ///   EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
         /// </summary>
         [ScriptIgnore]
         public CCEditableAreaSettings EditableAreaSettings
@@ -268,11 +267,10 @@ namespace erminas.SmartAPI.CMS
             IEnumerable<Keyword> keywords = new List<Keyword>();
             foreach (XmlElement node in xmlDoc.GetElementsByTagName("CATEGORY"))
             {
-                var curCategory = new Category(Project, node.GetGuid()) {Name = node.GetAttributeValue("value")};
+                var curCategory = new Category(Project, node.GetGuid()) { Name = node.GetAttributeValue("value") };
                 var newKeywords = from XmlNode curKeywordNode in xmlDoc.GetElementsByTagName("KEYWORD")
                                   select
-                                      new Keyword(Project, curKeywordNode.GetGuid())
-                                          {Name = curKeywordNode.GetAttributeValue("value"), Category = curCategory};
+                                      new Keyword(Project, curKeywordNode.GetGuid()) { Name = curKeywordNode.GetAttributeValue("value"), Category = curCategory };
                 keywords = keywords.Union(newKeywords);
             }
             return keywords.ToList();
@@ -450,7 +448,7 @@ namespace erminas.SmartAPI.CMS
         {
             // TODO: Read all data
             CreateBaseAttributes();
-            XmlNode settingsNode = ((XmlElement) xmlNode).GetElementsByTagName("SETTINGS")[0];
+            XmlNode settingsNode = ((XmlElement)xmlNode).GetElementsByTagName("SETTINGS")[0];
             if (settingsNode != null)
             {
                 EditableAreaSettings = new CCEditableAreaSettings(this, settingsNode);
@@ -750,7 +748,8 @@ namespace erminas.SmartAPI.CMS
             const string DELETE_CC = @"<TEMPLATE action=""delete"" guid=""{0}""/>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(DELETE_CC, Guid.ToRQLString()));
             XmlNode template = xmlDoc.GetElementsByTagName("TEMPLATE")[0];
-            if (template == null || template.Attributes["guid"].Value.ToUpper() != Guid.ToRQLString())
+            Guid guid;
+            if (template == null || !template.TryGetGuid(out guid) || guid != Guid)
             {
                 XmlNode msgNode = xmlDoc.GetElementsByTagName("MESSAGE")[0];
                 string msg = "could not delete content class: " + ToString();
@@ -777,7 +776,7 @@ namespace erminas.SmartAPI.CMS
             foreach (IRDAttribute attribute in Attributes)
             {
                 XmlAttribute curAttribute = doc.CreateAttribute(attribute.Name);
-                curAttribute.Value = ((RDXmlNodeAttribute) attribute).GetXmlNodeValue();
+                curAttribute.Value = ((RDXmlNodeAttribute)attribute).GetXmlNodeValue();
                 templateElement.Attributes.Append(curAttribute);
             }
 
@@ -806,32 +805,32 @@ namespace erminas.SmartAPI.CMS
 
             public string BorderColor
             {
-                get { return ((StringXmlNodeAttribute) GetAttribute("bordercolor")).Value; }
-                set { ((StringXmlNodeAttribute) GetAttribute("bordercolor")).Value = value; }
+                get { return ((StringXmlNodeAttribute)GetAttribute("bordercolor")).Value; }
+                set { ((StringXmlNodeAttribute)GetAttribute("bordercolor")).Value = value; }
             }
 
             public string BorerStyle
             {
-                get { return ((StringXmlNodeAttribute) GetAttribute("borderstyle")).Value; }
-                set { ((StringXmlNodeAttribute) GetAttribute("borderstyle")).Value = value; }
+                get { return ((StringXmlNodeAttribute)GetAttribute("borderstyle")).Value; }
+                set { ((StringXmlNodeAttribute)GetAttribute("borderstyle")).Value = value; }
             }
 
             public string BorderWidth
             {
-                get { return ((StringXmlNodeAttribute) GetAttribute("borderwidth")).Value; }
-                set { ((StringXmlNodeAttribute) GetAttribute("borderwidth")).Value = value; }
+                get { return ((StringXmlNodeAttribute)GetAttribute("borderwidth")).Value; }
+                set { ((StringXmlNodeAttribute)GetAttribute("borderwidth")).Value = value; }
             }
 
             public bool IsUsingBordersToHighlightPages
             {
-                get { return ((BoolXmlNodeAttribute) GetAttribute("showpagerange")).Value; }
-                set { ((BoolXmlNodeAttribute) GetAttribute("showpagerange")).Value = value; }
+                get { return ((BoolXmlNodeAttribute)GetAttribute("showpagerange")).Value; }
+                set { ((BoolXmlNodeAttribute)GetAttribute("showpagerange")).Value = value; }
             }
 
             public bool IsUsingBorderDefinitionFromProjectSetting
             {
-                get { return ((BoolXmlNodeAttribute) GetAttribute("usedefaultrangesettings")).Value; }
-                set { ((BoolXmlNodeAttribute) GetAttribute("usedefaultrangesettings")).Value = value; }
+                get { return ((BoolXmlNodeAttribute)GetAttribute("usedefaultrangesettings")).Value; }
+                set { ((BoolXmlNodeAttribute)GetAttribute("usedefaultrangesettings")).Value = value; }
             }
 
             public void Commit()
@@ -922,7 +921,7 @@ namespace erminas.SmartAPI.CMS
 
             public Type CreationType
             {
-                get { return (Type) Enum.Parse(typeof (Type), XmlNode.GetAttributeValue("type")); }
+                get { return (Type)Enum.Parse(typeof(Type), XmlNode.GetAttributeValue("type")); }
             }
 
             /// <summary>

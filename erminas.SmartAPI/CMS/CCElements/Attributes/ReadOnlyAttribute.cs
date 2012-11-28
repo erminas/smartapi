@@ -45,7 +45,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public void Assign(IRDAttribute o)
         {
-            return;
         }
 
         public string Description

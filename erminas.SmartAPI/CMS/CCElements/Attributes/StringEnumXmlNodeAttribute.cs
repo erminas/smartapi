@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using erminas.Utilities;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {

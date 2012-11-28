@@ -30,16 +30,16 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
-        public EnumXmlNodeAttribute(IAttributeContainer Parent, string name, Dictionary<T, string> displayStrings,
+        public EnumXmlNodeAttribute(IAttributeContainer parent, string name, Dictionary<T, string> displayStrings,
                                     bool initValue = true)
-            : base(Parent, name, initValue)
+            : base(parent, name, initValue)
         {
             _displayStrings = displayStrings;
         }
 
         public override object DisplayObject
         {
-            get { return _displayStrings != null ? _displayStrings[Value] : Value.ToString(); }
+            get { return _displayStrings != null ? _displayStrings[Value] : Value.ToString(CultureInfo.InvariantCulture); }
         }
 
         public virtual T Value

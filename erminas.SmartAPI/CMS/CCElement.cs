@@ -15,12 +15,12 @@
  */
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 using Attribute = erminas.SmartAPI.CMS.CCElements.Attribute;
 
 namespace erminas.SmartAPI.CMS
@@ -171,7 +171,7 @@ namespace erminas.SmartAPI.CMS
             XmlElement element = doc.CreateElement("ELEMENT");
             XmlAttribute typeAttr = doc.CreateAttribute("elttype");
             XmlAttribute guidAttr = doc.CreateAttribute("guid");
-            typeAttr.Value = ((int) elementType).ToString();
+            typeAttr.Value = ((int) elementType).ToString(CultureInfo.InvariantCulture);
             guidAttr.Value = new Guid().ToRQLString();
             element.Attributes.Append(typeAttr);
             element.Attributes.Append(guidAttr);
@@ -192,7 +192,9 @@ namespace erminas.SmartAPI.CMS
         ///     <item>
         ///       <description>The target content class is only modified on the server, thus the content class object does not contain the newly created element.
         ///         If you need an updated version of the content class, you have to retrieve it again with
-        ///         <see cref="Project.GetContentClass" />
+        ///         <code>
+        ///             new ContentClass(Project, Guid);
+        ///         </code>
         ///       </description>
         ///     </item>
         ///   </list>

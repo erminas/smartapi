@@ -68,7 +68,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get
             {
-                var folderAttr = GetAttribute("eltsrcsubdirguid") as FolderXmlNodeAttribute;
+                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltsrcsubdirguid");
                 var srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {

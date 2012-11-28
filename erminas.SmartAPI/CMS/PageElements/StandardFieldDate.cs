@@ -50,8 +50,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         public override void Commit()
         {
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days));
+            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days));
             //TODO check guid
             //xml
         }

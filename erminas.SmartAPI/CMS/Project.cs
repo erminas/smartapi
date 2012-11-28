@@ -22,7 +22,6 @@ using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements;
 using erminas.SmartAPI.Utils;
-using erminas.Utilities;
 
 namespace erminas.SmartAPI.CMS
 {
