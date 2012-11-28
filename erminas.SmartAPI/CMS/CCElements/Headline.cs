@@ -21,8 +21,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Headline : CCElement
     {
-        public Headline(ContentClass contentClass, XmlNode node)
-            : base(contentClass, node)
+        public Headline(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode",
                              "elthideinform", "eltrddescription", "eltdirectedit", "eltdragdrop");

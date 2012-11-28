@@ -29,8 +29,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class Attribute : CCElement
     {
-        public Attribute(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public Attribute(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltmediatypename", "eltmediatypeattribute", "eltlcid", "eltformatno");
             new StringEnumXmlNodeAttribute<FileSizeUnit>(this, "eltformatting", x => x.ToString(),
@@ -72,6 +71,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value = value; }
         }
     }
+
     // ReSharper disable InconsistentNaming
     public enum MediaTypeAttribute
     {
@@ -118,5 +118,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         Width_IMG = 10,
         Words_OFFICE = 28,
     }
+
     // ReSharper restore InconsistentNaming
 }

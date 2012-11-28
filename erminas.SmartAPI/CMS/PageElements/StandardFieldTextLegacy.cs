@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 {
     public class StandardFieldTextLegacy : StandardField<string>
     {
-        public StandardFieldTextLegacy(Project project, XmlNode node) : base(project, node)
+        public StandardFieldTextLegacy(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

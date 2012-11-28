@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
@@ -19,7 +18,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             get
             {
                 Guid projectGuid, ccGuid, elementGuid;
-                XmlNode xmlNode = _parent.XmlNode;
+                var xmlNode = _parent.XmlNode;
                 if (!xmlNode.TryGetGuid("eltprojectguid", out projectGuid) ||
                     !xmlNode.TryGetGuid("elttemplateguid", out ccGuid) ||
                     !xmlNode.TryGetGuid("eltelementguid", out elementGuid))
@@ -29,15 +28,15 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
                 string langId = xmlNode.GetAttributeValue("eltlanguagevariantid");
 
-                Project project = _parent.ContentClass.Project.Session.Projects.GetByGuid(projectGuid);
-                ContentClass contentClass = project.ContentClasses.GetByGuid(ccGuid);
+                var project = _parent.ContentClass.Project.Session.Projects.GetByGuid(projectGuid);
+                var contentClass = project.ContentClasses.GetByGuid(ccGuid);
 
                 return contentClass.
                     Elements[langId].GetByGuid(elementGuid);
             }
             set
             {
-                XmlNode xmlNode = _parent.XmlNode;
+                var xmlNode = _parent.XmlNode;
                 xmlNode.SetAttributeValue("eltlanguagevariantid", value.LanguageVariant.Language);
                 xmlNode.SetAttributeValue("eltelementguid", value.Guid.ToRQLString());
                 xmlNode.SetAttributeValue("elttemplateguid", value.ContentClass.Guid.ToRQLString());

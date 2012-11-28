@@ -38,12 +38,11 @@ namespace erminas.SmartAPI.CMS
         private LanguageVariant _languageVariant;
         private string _name;
 
-        public Category(Project project, XmlNode xmlNode)
-            : base(xmlNode)
+        public Category(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         public Category(Project project, Guid guid)
@@ -79,16 +78,18 @@ namespace erminas.SmartAPI.CMS
             Project.ExecuteRQL(string.Format(SAVE_CATEGORY, Guid.ToRQLString(), HttpUtility.HtmlEncode(Name)));
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             EnsuredInit(ref _name, "value", HttpUtility.HtmlDecode);
             InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_CATEGORY = @"<PROJECT><CATEGORY action=""load"" guid=""{0}""/></PROJECT>";
-            return Project.ExecuteRQL(string.Format(LOAD_CATEGORY, Guid.ToRQLString()));
+            return
+                (XmlElement)
+                Project.ExecuteRQL(string.Format(LOAD_CATEGORY, Guid.ToRQLString())).GetElementsByTagName("CATEGORY")[0];
         }
 
         private List<Keyword> GetKeywords()
@@ -98,7 +99,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_KEYWORDS, Guid.ToRQLString()));
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
 
-            return (from XmlNode curNode in xmlNodes select new Keyword(Project, curNode) {Category = this}).ToList();
+            return (from XmlElement curNode in xmlNodes select new Keyword(Project, curNode) {Category = this}).ToList();
         }
     }
 }

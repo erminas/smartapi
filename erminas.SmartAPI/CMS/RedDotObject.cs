@@ -51,12 +51,12 @@ namespace erminas.SmartAPI.CMS
         /// <remarks>
         ///   if the XML node is not null, a copy is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
-        protected RedDotObject(XmlNode xmlNode)
-            : base(xmlNode)
+        protected RedDotObject(XmlElement xmlElement)
+            : base(xmlElement)
         {
-            if (xmlNode != null)
+            if (xmlElement != null)
             {
-                XmlNode = xmlNode.Clone();
+                XmlNode = (XmlElement) xmlElement.Clone();
                 //TODO ensure init?
                 InitIfPresent(ref _guid, "guid", GuidConvert);
             }
@@ -134,17 +134,17 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   Method for loading the attribute values out of an XML node. Usually called during construction of the object.
         /// </summary>
-        protected abstract void LoadXml(XmlNode node);
+        protected abstract void LoadXml(XmlElement node);
 
         /// <summary>
         ///   Get the string representation of the current object, which is needed in RQL to create/change a RedDotObject on the server. Adds an attribute "action" with value "save" to an XML node, replaces all attribute values which are null or empty with <see
         ///    cref="Session.SESSIONKEY_PLACEHOLDER" /> and returns the string representation of the resulting node. The replacement of empty attributes is necessary for RQL to actually set the attributes to an empty value instead of ignoring the attribute. Note that the node itself gets modified, so use a copy, if changes must not be made.
         /// </summary>
-        /// <param name="node"> the XML node to be converted </param>
+        /// <param name="xmlElement"> the XML node to be converted </param>
         /// <returns> </returns>
-        protected static string GetSaveString(XmlNode node)
+        protected static string GetSaveString(XmlElement xmlElement)
         {
-            XmlAttributeCollection attributes = node.Attributes;
+            XmlAttributeCollection attributes = xmlElement.Attributes;
             foreach (XmlAttribute curAttr in attributes)
             {
                 if (string.IsNullOrEmpty(curAttr.Value))
@@ -153,10 +153,10 @@ namespace erminas.SmartAPI.CMS
                 }
             }
 
-            node.AddAttribute("action", "save");
+            xmlElement.AddAttribute("action", "save");
 
 
-            return node.NodeToString();
+            return xmlElement.NodeToString();
         }
 
         /// <summary>

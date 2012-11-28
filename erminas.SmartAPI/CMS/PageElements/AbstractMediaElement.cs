@@ -29,9 +29,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public AbstractMediaElement(Project project, XmlNode node) : base(project, node)
+        public AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public File Value

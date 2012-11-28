@@ -27,14 +27,14 @@ namespace erminas.SmartAPI.CMS
         private readonly NameIndexedRDList<PublicationFolderSetting> _exportFolderSettings;
         private List<PublicationTarget> _publishingTargets;
 
-        public PublicationSetting(PublicationPackage package, XmlNode node)
-            : base(node)
+        public PublicationSetting(PublicationPackage package, XmlElement xmlElement)
+            : base(xmlElement)
         {
             _exportFolderSettings = new NameIndexedRDList<PublicationFolderSetting>(LoadExportFolderSettings,
                                                                                     Caching.
                                                                                         Enabled);
             PublicationPackage = package;
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public PublicationPackage PublicationPackage { get; set; }
@@ -54,14 +54,14 @@ namespace erminas.SmartAPI.CMS
             get { return _exportFolderSettings; }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             ProjectVariant = new ProjectVariant(PublicationPackage.Project, node.GetGuid("projectvariantguid"));
 
             Name = node.GetAttributeValue("projectvariantname") + "/" + node.GetAttributeValue("languagevariantname");
             LanguageVariant =
                 PublicationPackage.Project.LanguageVariants.GetByGuid(node.GetGuid("languagevariantguid"));
-            XmlNodeList exportTargets = ((XmlElement) node).GetElementsByTagName("EXPORTTARGET");
+            XmlNodeList exportTargets = (node).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
                 (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
         }

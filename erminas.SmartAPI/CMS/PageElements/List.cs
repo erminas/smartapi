@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public List(Project project, XmlNode node) : base(project, node)
+        public List(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public AnchorAsImage(Project project, XmlNode node) : base(project, node)
+        public AnchorAsImage(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

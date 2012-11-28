@@ -315,7 +315,7 @@ namespace erminas.SmartAPI.CMS
             if (xmlNodes.Count > 0)
             {
                 // check if already logged in
-                var xmlNode = xmlNodes[0];
+                var xmlNode = (XmlElement) xmlNodes[0];
                 var oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
                 if (oldLoginGuid != "" && !FORCE_LOGIN)
@@ -344,7 +344,7 @@ namespace erminas.SmartAPI.CMS
                 }
                 LogonGuid = Guid.Parse(loginGuid);
 
-                var loginNode = xmlNodes[0];
+                var loginNode = (XmlElement) xmlNodes[0];
                 string userGuidStr = loginNode.GetAttributeValue("userguid");
                 if (string.IsNullOrEmpty(userGuidStr))
                 {
@@ -354,7 +354,7 @@ namespace erminas.SmartAPI.CMS
                         throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
                                                             "Could not login; Invalid user data");
                     }
-                    CurrentUser = new User(this, Guid.Parse(userNodes[0].GetAttributeValue("guid")));
+                    CurrentUser = new User(this, Guid.Parse(((XmlElement) userNodes[0]).GetAttributeValue("guid")));
                 }
                 else
                 {
@@ -369,7 +369,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private XmlNode GetForceLoginXmlNode(PasswordAuthentication pa, string oldLoginGuid)
+        private XmlElement GetForceLoginXmlNode(PasswordAuthentication pa, string oldLoginGuid)
         {
             LOG.InfoFormat("User login will be forced. Old login guid was: {0}", oldLoginGuid);
             //hide user password in log message
@@ -381,12 +381,12 @@ namespace erminas.SmartAPI.CMS
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(result);
             var xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
-            return xmlNodes.Count > 0 ? xmlNodes[0] : null;
+            return (XmlElement) (xmlNodes.Count > 0 ? xmlNodes[0] : null);
         }
 
-        private static string CheckAlreadyLoggedIn(XmlNode xmlNode)
+        private static string CheckAlreadyLoggedIn(XmlElement xmlElement)
         {
-            return xmlNode.GetAttributeValue("loginguid") ?? "";
+            return xmlElement.GetAttributeValue("loginguid") ?? "";
         }
 
         private void Logout(Guid logonGuid)
@@ -424,7 +424,7 @@ namespace erminas.SmartAPI.CMS
             var xmlNodes = xmlDoc.GetElementsByTagName("SERVER");
             if (xmlNodes.Count > 0)
             {
-                SessionKey = xmlNodes[0].GetGuid("key");
+                SessionKey = ((XmlElement) xmlNodes[0]).GetGuid("key");
                 SelectedProjectGuid = projectGuid;
                 return;
             }

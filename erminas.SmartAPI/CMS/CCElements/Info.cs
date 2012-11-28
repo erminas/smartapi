@@ -22,8 +22,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Info : CCElement
     {
-        public Info(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public Info(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             CreateAttributes("eltsubtype", "eltevalcalledpage", "eltuserfc3066",
                              "eltkeywordseparator", "eltformatno", "eltlcid",

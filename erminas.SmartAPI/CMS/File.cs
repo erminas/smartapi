@@ -38,13 +38,13 @@ namespace erminas.SmartAPI.CMS
 
         public readonly Project Project;
 
-        public File(Project project, XmlNode xmlNode)
+        public File(Project project, XmlElement xmlElement)
         {
             Project = project;
 
-            Name = xmlNode.GetAttributeValue("name");
-            CreationDate = xmlNode.GetAttributeValue("data");
-            Folder = new Folder(project, xmlNode.GetGuid("folderguid"));
+            Name = xmlElement.GetAttributeValue("name");
+            CreationDate = xmlElement.GetAttributeValue("data");
+            Folder = new Folder(project, xmlElement.GetGuid("folderguid"));
         }
 
         public int ReferenceCount()

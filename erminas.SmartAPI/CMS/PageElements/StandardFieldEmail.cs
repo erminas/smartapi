@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldEmail)]
     public class StandardFieldEmail : StandardField<string>
     {
-        public StandardFieldEmail(Project project, XmlNode node) : base(project, node)
+        public StandardFieldEmail(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

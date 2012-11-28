@@ -26,9 +26,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Headline(Project project, XmlNode node) : base(project, node)
+        public Headline(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         protected override string FromString(string value)

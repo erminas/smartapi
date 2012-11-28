@@ -21,7 +21,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public abstract class StandardFieldNonDate : StandardField
     {
-        protected StandardFieldNonDate(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        protected StandardFieldNonDate(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             CreateAttributes("eltdirectedit", "eltdragdrop");
         }

@@ -57,7 +57,7 @@ namespace erminas.SmartAPI.CMS
         ///   Create a new PartialRedDotObject and initialize it with an XmlNode. The object is completly initialized afterwards ( <see
         ///    cref="IsInitialized" /> )
         /// </summary>
-        protected PartialRedDotObject(XmlNode node) : base(node)
+        protected PartialRedDotObject(XmlElement xmlElement) : base(xmlElement)
         {
             IsInitialized = true;
         }
@@ -91,7 +91,7 @@ namespace erminas.SmartAPI.CMS
 
         public virtual void Refresh()
         {
-            XmlNode = RetrieveWholeObject().Clone();
+            XmlNode = (XmlElement) RetrieveWholeObject().Clone();
             LoadXml(XmlNode);
             IsInitialized = true;
         }
@@ -109,7 +109,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   Returns an XmlNode with which contains the complete information on this object. This gets called, if the object is only partially initialized and other information is needed.
         /// </summary>
-        protected abstract XmlNode RetrieveWholeObject();
+        protected abstract XmlElement RetrieveWholeObject();
 
         /// <summary>
         ///   If the object or a variable already is initialized, returns the variable value, otherwise calls <code>LoadXml(RetrieveWholeObject())</code> to initialized the object. And returns the variable value afterwards;
@@ -123,9 +123,7 @@ namespace erminas.SmartAPI.CMS
             {
                 return value;
             }
-            XmlNode = RetrieveWholeObject().Clone();
-            LoadXml(XmlNode);
-            IsInitialized = true;
+            Refresh();
             return value;
         }
     }

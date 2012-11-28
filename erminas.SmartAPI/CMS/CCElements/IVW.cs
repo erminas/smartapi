@@ -21,8 +21,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class IVW : CCElement
     {
-        public IVW(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public IVW(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             CreateAttributes("eltheight", "eltwidth", "eltsrc");
         }

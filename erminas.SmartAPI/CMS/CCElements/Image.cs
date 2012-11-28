@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Image : CCExtendedContentElement
     {
-        public Image(ContentClass cc, XmlNode node)
-            : base(cc, node)
+        public Image(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltonlyhrefvalue", "eltmaxsize", "eltconvert", "elttargetformat",
                              "eltmaxpicwidth", "eltmaxpicheight", "eltpicwidth", "eltpicheight", "eltpicdepth",

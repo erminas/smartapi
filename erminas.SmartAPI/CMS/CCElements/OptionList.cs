@@ -33,13 +33,12 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         private const string ELTDEFAULTVALUE = "eltdefaultvalue";
 
-        public OptionList(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public OptionList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguagedependentvalue", "eltlanguagedependentname", "eltuserdefinedallowed",
                              "eltrdexample", "eltrddescription", "eltorderby",
                              /*"eltparentelementname",*/ "eltparentelementguid");
-            new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlNode);
+            new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
         }
 
         public string DefaultValueString

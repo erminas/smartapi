@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IAttributeContainer
     {
-        XmlNode XmlNode { get; set; }
+        XmlElement XmlNode { get; set; }
         List<IRDAttribute> Attributes { get; }
         void RegisterAttribute(IRDAttribute attribute);
         void AssignAttributes(List<IRDAttribute> attributes);

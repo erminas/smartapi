@@ -26,11 +26,11 @@ namespace erminas.SmartAPI.CMS.CCElements
         public readonly string Name;
         public readonly InfoType Type;
 
-        public InfoAttribute(XmlNode node)
+        public InfoAttribute(XmlElement xmlElement)
         {
-            Type = (InfoType) Enum.Parse(typeof (InfoType), node.Name, true);
-            Id = int.Parse(node.GetAttributeValue("id"));
-            Name = node.GetAttributeValue("name");
+            Type = (InfoType) Enum.Parse(typeof (InfoType), xmlElement.Name, true);
+            Id = int.Parse(xmlElement.GetAttributeValue("id"));
+            Name = xmlElement.GetAttributeValue("name");
         }
     }
 

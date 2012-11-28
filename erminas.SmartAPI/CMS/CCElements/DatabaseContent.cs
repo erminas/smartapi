@@ -85,8 +85,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         #endregion
 
-        public DatabaseContent(ContentClass cc, XmlNode node)
-            : base(cc, node)
+        public DatabaseContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltislistentry", "eltlisttype", "eltdatabasename",
                              "elttablename", "eltcolumnname", "eltcolumniotype",

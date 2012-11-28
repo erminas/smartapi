@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class ImageAnchor : Anchor
     {
-        public ImageAnchor(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public ImageAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace",
                              "elthspace", "eltusermap", "eltautoheight",

@@ -24,9 +24,10 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class DatabaseServer : PartialRedDotObject
     {
-        #region DBTypeID enum
-
         // ReSharper disable InconsistentNaming
+
+        #region DbTypeId enum
+
         public enum DbTypeId
         {
             Jet3 = 1,
@@ -36,9 +37,10 @@ namespace erminas.SmartAPI.CMS
             ODBC = 5,
             Oracle_OLEDB = 8
         }
-        // ReSharper restore InconsistentNaming
 
         #endregion
+
+        // ReSharper restore InconsistentNaming
 
         private DbTypeId _dBType;
 
@@ -52,11 +54,10 @@ namespace erminas.SmartAPI.CMS
             Session = session;
         }
 
-        public DatabaseServer(Session session, XmlNode node)
-            : base(node)
+        public DatabaseServer(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public bool IsCreateAllowed
@@ -84,7 +85,7 @@ namespace erminas.SmartAPI.CMS
 
         public Session Session { get; set; }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             InitIfPresent(ref _isCreateAllowed, "createallowed", BoolConvert);
             InitIfPresent(ref _productGuid, "productguid", GuidConvert);
@@ -92,7 +93,7 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _dBType, "dbtypeid", x => (DbTypeId) int.Parse(x));
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             return Session.DatabaseServers.GetByGuid(Guid).XmlNode;
         }

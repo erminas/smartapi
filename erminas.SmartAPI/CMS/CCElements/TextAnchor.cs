@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class TextAnchor : Anchor
     {
-        public TextAnchor(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public TextAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltfontclass", "eltfontsize", "eltfontbold",
                              "eltfontface", "eltfontcolor");

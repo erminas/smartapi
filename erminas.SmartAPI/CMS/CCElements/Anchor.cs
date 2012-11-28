@@ -75,8 +75,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class Anchor : CCElement
     {
-        public Anchor(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltdonotremove",
                              "eltxhtmlcompliant", "eltdonothtmlencode",

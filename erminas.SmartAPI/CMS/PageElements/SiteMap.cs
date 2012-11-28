@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public SiteMap(Project project, XmlNode node) : base(project, node)
+        public SiteMap(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

@@ -31,14 +31,13 @@ namespace erminas.SmartAPI.CMS
             Project = project;
         }
 
-        public DatabaseConnection(Project project, XmlNode node)
-            : base(node)
+        public DatabaseConnection(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _description, "description", x => x);
@@ -47,17 +46,17 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _databaseName, "databasename", x => x);
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_DATABASE_CONNECTION = @"<DATABASE action=""load"" guid=""{0}""/>";
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_DATABASE_CONNECTION, Guid.ToRQLString()),
                                                     Project.RqlType.SessionKeyInProject);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
+            var xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
             if (xmlNodes.Count != 1)
             {
                 throw new ArgumentException("Could not find database connection with guid " + Guid.ToRQLString());
             }
-            return xmlNodes[0];
+            return (XmlElement) xmlNodes[0];
         }
 
         #region Properties

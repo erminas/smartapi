@@ -27,10 +27,10 @@ namespace erminas.SmartAPI.CMS
     {
         public readonly Project Project;
 
-        public Workflow(Project project, XmlNode xmlNode) : base(xmlNode)
+        public Workflow(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         public Workflow(Project project, Guid guid) : base(guid)
@@ -39,53 +39,50 @@ namespace erminas.SmartAPI.CMS
         }
 
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             XmlAttributeCollection attr = node.Attributes;
-            if (attr != null)
+            try
             {
-                try
+                if (attr["action"] != null)
                 {
-                    if (attr["action"] != null)
-                    {
-                        Action = attr["action"].Value;
-                    }
-                    if (attr["dialoglanguageid"] != null)
-                    {
-                        DialogLanguageId = attr["dialoglanguageid"].Value;
-                    }
-                    if (attr["languagevariantid"] != null)
-                    {
-                        LanguageVariantId = attr["languagevariantid"].Value;
-                    }
-                    if (attr["name"] != null)
-                    {
-                        Name = attr["name"].Value;
-                    }
-                    if (attr["inherit"] != null)
-                    {
-                        Inherit = attr["inherit"].Value;
-                    }
-                    if (attr["structureworkflow"] != null)
-                    {
-                        StructureWorkflow = attr["structureworkflow"].Value;
-                    }
-                    if (attr["global"] != null)
-                    {
-                        Global = attr["global"].Value;
-                    }
+                    Action = attr["action"].Value;
+                }
+                if (attr["dialoglanguageid"] != null)
+                {
+                    DialogLanguageId = attr["dialoglanguageid"].Value;
+                }
+                if (attr["languagevariantid"] != null)
+                {
+                    LanguageVariantId = attr["languagevariantid"].Value;
+                }
+                if (attr["name"] != null)
+                {
+                    Name = attr["name"].Value;
+                }
+                if (attr["inherit"] != null)
+                {
+                    Inherit = attr["inherit"].Value;
+                }
+                if (attr["structureworkflow"] != null)
+                {
+                    StructureWorkflow = attr["structureworkflow"].Value;
+                }
+                if (attr["global"] != null)
+                {
+                    Global = attr["global"].Value;
+                }
 
-                    Guid tempGuid; // used for parsing
-                    if (attr["guid"] != null && Guid.TryParse(attr["guid"].Value, out tempGuid))
-                    {
-                        Guid = tempGuid;
-                    }
-                }
-                catch (Exception e)
+                Guid tempGuid; // used for parsing
+                if (attr["guid"] != null && Guid.TryParse(attr["guid"].Value, out tempGuid))
                 {
-                    // couldn't read data
-                    throw new RedDotDataException("Couldn't read content class data..", e);
+                    Guid = tempGuid;
                 }
+            }
+            catch (Exception e)
+            {
+                // couldn't read data
+                throw new RedDotDataException("Couldn't read content class data..", e);
             }
         }
 
@@ -93,14 +90,17 @@ namespace erminas.SmartAPI.CMS
         // TODO: Add a more useful action method which retains the 'flow' of the workflow!
         public List<WorkFlowAction> Actions()
         {
-            return (from XmlNode node in XmlNode.SelectNodes("descendant::NODE") select new WorkFlowAction(node)).ToList();
+            return
+                (from XmlElement node in XmlNode.SelectNodes("descendant::NODE") select new WorkFlowAction(node)).ToList
+                    ();
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_WORKFLOW = @"<WORKFLOW action=""load"" guid=""{0}""/>";
 
             return
+                (XmlElement)
                 Project.ExecuteRQL(String.Format(LOAD_WORKFLOW, Guid.ToRQLString())).GetElementsByTagName("WORKFLOW")[0];
         }
 

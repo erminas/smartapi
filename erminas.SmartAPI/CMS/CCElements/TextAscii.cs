@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class TextAscii : Text
     {
-        public TextAscii(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public TextAscii(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
     }

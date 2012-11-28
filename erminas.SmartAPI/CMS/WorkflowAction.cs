@@ -23,8 +23,10 @@ namespace erminas.SmartAPI.CMS
     //todo implement correctly
     public class WorkFlowAction : RedDotObject
     {
-        #region ActionType enum
         // ReSharper disable InconsistentNaming
+
+        #region ActionType enum
+
         public enum ActionType
         {
             None = 0,
@@ -53,13 +55,14 @@ namespace erminas.SmartAPI.CMS
             PageDisconnectedFromStructure_Reaction = 1345,
             WriteWorkflowXmlFile = 1225
         };
-        // ReSharper restore InconsistentNaming
 
         #endregion
 
+        // ReSharper restore InconsistentNaming
+
         private ActionType _type;
 
-        internal WorkFlowAction(XmlNode xmlNode) : base(xmlNode)
+        internal WorkFlowAction(XmlElement xmlElement) : base(xmlElement)
         {
         }
 
@@ -86,7 +89,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
         }
     }

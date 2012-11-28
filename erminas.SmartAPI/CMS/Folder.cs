@@ -137,11 +137,10 @@ namespace erminas.SmartAPI.CMS
         private Folder _linkedFolder;
         private string _name;
 
-        public Folder(Project project, XmlNode xmlNode)
-            : base(xmlNode)
+        public Folder(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
             Init();
         }
 
@@ -176,7 +175,7 @@ namespace erminas.SmartAPI.CMS
             AllFiles = new CachedList<File>(GetAllFiles, Caching.Enabled);
         }
 
-        protected override void LoadXml(XmlNode xmlNode)
+        protected override void LoadXml(XmlElement xmlNode)
         {
             InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _isAssetManagerFolder, "catalog", BoolConvert);
@@ -189,7 +188,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_FOLDER = @"<PROJECT><FOLDER action=""load"" guid=""{0}""/></PROJECT>";
 
@@ -199,7 +198,7 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new Exception(String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
             }
-            return folders[0];
+            return (XmlElement) folders[0];
         }
 
         private List<File> RetrieveFiles(string rqlString)
@@ -207,7 +206,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = Project.ExecuteRQL(rqlString);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
 
-            return (from XmlNode xmlNode in xmlNodes select new File(Project, xmlNode)).ToList();
+            return (from XmlElement xmlNode in xmlNodes select new File(Project, xmlNode)).ToList();
         }
 
         public List<File> GetSubListOfFiles(int startCount, int fileCount)
@@ -292,13 +291,15 @@ namespace erminas.SmartAPI.CMS
         public FileAttribute FileInfos(String fileName)
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LIST_FILE_ATTRIBUTES, Guid.ToRQLString(), fileName));
-            XmlNode node = xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
+            var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
             return new FileAttribute(node);
         }
 
         public void SaveFiles(List<FileSource> sources)
         {
-            var filesToSave = sources.Select(fileSource => string.Format(FILE_TO_SAVE, fileSource.Sourcename, fileSource.Sourcepath)).ToList();
+            var filesToSave =
+                sources.Select(fileSource => string.Format(FILE_TO_SAVE, fileSource.Sourcename, fileSource.Sourcepath)).
+                    ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(String.Format(SAVE_FILES_IN_FOLDER, Guid.ToRQLString(),
@@ -330,7 +331,10 @@ namespace erminas.SmartAPI.CMS
         public void DeleteFiles(List<string> filenames, bool forceDelete)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
-            var filesToDelete = filenames.Select(filename => string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();
+            var filesToDelete =
+                filenames.Select(
+                    filename =>
+                    string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(string.Format(DELETE_FILES, Guid.ToRQLString(),

@@ -28,10 +28,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        protected Text(Project project, XmlNode node)
-            : base(project, node)
+        protected Text(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public string Description
@@ -45,10 +44,10 @@ namespace erminas.SmartAPI.CMS.PageElements
             return value;
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement xmlElement)
         {
             //TODO xml laden in non-virtual funktionen
-            base.LoadXml(node);
+            base.LoadXml(xmlElement);
             InitIfPresent(ref _description, "reddotdescription", x => x);
             InitIfPresent(ref _value, "value", x => x);
         }

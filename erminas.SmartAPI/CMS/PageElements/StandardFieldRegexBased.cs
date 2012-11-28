@@ -23,21 +23,19 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldUserDefined)]
     public sealed class StandardFieldRegexBased : StandardField<string>
     {
-        public static readonly Regex NumericCheckRegex = new Regex("(-)?\\d*((\\.|\\,)\\d*)?([eE](-)?\\d+)?");
+        public static readonly Regex NUMERIC_CHECK_REGEX = new Regex("(-)?\\d*((\\.|\\,)\\d*)?([eE](-)?\\d+)?");
         private int _maxSize;
         private Regex _regex;
 
-        public StandardFieldRegexBased(Project project, XmlNode node, Regex regex)
-            : base(project, node)
+        public StandardFieldRegexBased(Project project, XmlElement xmlElement, Regex regex) : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
             _regex = regex;
         }
 
-        public StandardFieldRegexBased(Project project, XmlNode node)
-            : base(project, node)
+        public StandardFieldRegexBased(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public override string Value
@@ -62,9 +60,9 @@ namespace erminas.SmartAPI.CMS.PageElements
             return value;
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement xmlElement)
         {
-            base.LoadXml(node);
+            base.LoadXml(xmlElement);
 
             InitIfPresent(ref _value, "value", x => x);
             InitIfPresent(ref _maxSize, "eltmaxsize", int.Parse);

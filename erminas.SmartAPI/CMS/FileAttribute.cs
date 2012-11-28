@@ -24,9 +24,9 @@ namespace erminas.SmartAPI.CMS
 {
     public class FileAttribute
     {
-        public FileAttribute(XmlNode node)
+        public FileAttribute(XmlElement xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public string OriginalAuthor { get; set; }
@@ -76,133 +76,131 @@ namespace erminas.SmartAPI.CMS
                                                                {"ext14", "Genre"}
                                                            };*/
 
-        protected void LoadXml(XmlNode node)
+        protected void LoadXml(XmlElement xmlElement)
         {
-            if (node != null && node.Attributes != null)
+
+            try
             {
-                try
+                if (xmlElement.GetAttributeValue("ext01") != null)
                 {
-                    if (node.GetAttributeValue("ext01") != null)
-                    {
-                        OriginalAuthor = node.GetAttributeValue("ext01");
-                    }
-
-                    if (node.GetAttributeValue("ext02") != null)
-                    {
-                        EntryDate =
-                            DateTime.FromOADate(double.Parse(node.GetAttributeValue("ext02"),
-                                                             CultureInfo.InvariantCulture)).ToString(
-                                                                 CultureInfo.CurrentCulture);
-                    }
-
-                    if (node.GetAttributeValue("ext03") != null)
-                    {
-                        LastEditor = node.GetAttributeValue("ext03");
-                    }
-
-                    if (node.GetAttributeValue("ext04") != null)
-                    {
-                        ModificationDate =
-                            DateTime.FromOADate(double.Parse(node.GetAttributeValue("ext04"),
-                                                             CultureInfo.InvariantCulture)).ToString(
-                                                                 CultureInfo.CurrentCulture);
-                    }
-
-                    if (node.GetAttributeValue("ext05") != null)
-                    {
-                        Height = node.GetAttributeValue("ext05") + " Pixel";
-                    }
-
-                    if (node.GetAttributeValue("ext06") != null)
-                    {
-                        Width = node.GetAttributeValue("ext06") + " Pixel";
-                    }
-
-                    if (node.GetAttributeValue("ext07") != null)
-                    {
-                        Colordepth = node.GetAttributeValue("ext07") + " Bit";
-                    }
-
-                    if (node.GetAttributeValue("ext08") != null)
-                    {
-                        Filesize = node.GetAttributeValue("ext08") + " Byte";
-                    }
-
-                    if (node.GetAttributeValue("ext09") != null)
-                    {
-                        Title = node.GetAttributeValue("ext09");
-                    }
-
-                    if (node.GetAttributeValue("ext10") != null)
-                    {
-                        Artist = node.GetAttributeValue("ext10");
-                    }
-
-                    if (node.GetAttributeValue("ext11") != null)
-                    {
-                        Album = node.GetAttributeValue("ext11");
-                    }
-
-                    if (node.GetAttributeValue("ext12") != null)
-                    {
-                        Year = node.GetAttributeValue("ext12");
-                    }
-
-                    if (node.GetAttributeValue("ext13") != null)
-                    {
-                        Comment = node.GetAttributeValue("ext13");
-                    }
-
-                    if (node.GetAttributeValue("ext14") != null)
-                    {
-                        Genre = node.GetAttributeValue("ext14");
-                    }
-
-                    if (node.GetAttributeValue("ext4124") != null)
-                    {
-                        DocTitle = node.GetAttributeValue("ext4124");
-                    }
-
-                    if (node.GetAttributeValue("ext4125") != null)
-                    {
-                        Keywords = node.GetAttributeValue("ext4125");
-                    }
-
-                    if (node.GetAttributeValue("ext4126") != null)
-                    {
-                        DocAuthor = node.GetAttributeValue("ext4126");
-                    }
-
-                    if (node.GetAttributeValue("ext4127") != null)
-                    {
-                        DocOriginalAuthor = node.GetAttributeValue("ext4127");
-                    }
-
-                    if (node.GetAttributeValue("ext4128") != null)
-                    {
-                        DocCreatedWith = node.GetAttributeValue("ext4128");
-                    }
-
-                    if (node.GetAttributeValue("ext4129") != null)
-                    {
-                        DocCreationDate = node.GetAttributeValue("ext4129");
-                    }
-
-                    if (node.GetAttributeValue("ext4130") != null)
-                    {
-                        DocModificationDate = node.GetAttributeValue("ext4130");
-                    }
-
-                    if (node.GetAttributeValue("ext4131") != null)
-                    {
-                        DocNumberOfPages = int.Parse(node.GetAttributeValue("ext4131"));
-                    }
+                    OriginalAuthor = xmlElement.GetAttributeValue("ext01");
                 }
-                catch (Exception e)
+
+                if (xmlElement.GetAttributeValue("ext02") != null)
                 {
-                    // couldn't read data
-                    throw new RedDotDataException("Couldn't read file data..", e);
+                    EntryDate =
+                        DateTime.FromOADate(double.Parse(xmlElement.GetAttributeValue("ext02"),
+                                                         CultureInfo.InvariantCulture)).ToString(
+                                                             CultureInfo.CurrentCulture);
                 }
+
+                if (xmlElement.GetAttributeValue("ext03") != null)
+                {
+                    LastEditor = xmlElement.GetAttributeValue("ext03");
+                }
+
+                if (xmlElement.GetAttributeValue("ext04") != null)
+                {
+                    ModificationDate =
+                        DateTime.FromOADate(double.Parse(xmlElement.GetAttributeValue("ext04"),
+                                                         CultureInfo.InvariantCulture)).ToString(
+                                                             CultureInfo.CurrentCulture);
+                }
+
+                if (xmlElement.GetAttributeValue("ext05") != null)
+                {
+                    Height = xmlElement.GetAttributeValue("ext05") + " Pixel";
+                }
+
+                if (xmlElement.GetAttributeValue("ext06") != null)
+                {
+                    Width = xmlElement.GetAttributeValue("ext06") + " Pixel";
+                }
+
+                if (xmlElement.GetAttributeValue("ext07") != null)
+                {
+                    Colordepth = xmlElement.GetAttributeValue("ext07") + " Bit";
+                }
+
+                if (xmlElement.GetAttributeValue("ext08") != null)
+                {
+                    Filesize = xmlElement.GetAttributeValue("ext08") + " Byte";
+                }
+
+                if (xmlElement.GetAttributeValue("ext09") != null)
+                {
+                    Title = xmlElement.GetAttributeValue("ext09");
+                }
+
+                if (xmlElement.GetAttributeValue("ext10") != null)
+                {
+                    Artist = xmlElement.GetAttributeValue("ext10");
+                }
+
+                if (xmlElement.GetAttributeValue("ext11") != null)
+                {
+                    Album = xmlElement.GetAttributeValue("ext11");
+                }
+
+                if (xmlElement.GetAttributeValue("ext12") != null)
+                {
+                    Year = xmlElement.GetAttributeValue("ext12");
+                }
+
+                if (xmlElement.GetAttributeValue("ext13") != null)
+                {
+                    Comment = xmlElement.GetAttributeValue("ext13");
+                }
+
+                if (xmlElement.GetAttributeValue("ext14") != null)
+                {
+                    Genre = xmlElement.GetAttributeValue("ext14");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4124") != null)
+                {
+                    DocTitle = xmlElement.GetAttributeValue("ext4124");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4125") != null)
+                {
+                    Keywords = xmlElement.GetAttributeValue("ext4125");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4126") != null)
+                {
+                    DocAuthor = xmlElement.GetAttributeValue("ext4126");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4127") != null)
+                {
+                    DocOriginalAuthor = xmlElement.GetAttributeValue("ext4127");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4128") != null)
+                {
+                    DocCreatedWith = xmlElement.GetAttributeValue("ext4128");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4129") != null)
+                {
+                    DocCreationDate = xmlElement.GetAttributeValue("ext4129");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4130") != null)
+                {
+                    DocModificationDate = xmlElement.GetAttributeValue("ext4130");
+                }
+
+                if (xmlElement.GetAttributeValue("ext4131") != null)
+                {
+                    DocNumberOfPages = int.Parse(xmlElement.GetAttributeValue("ext4131"));
+                }
+            }
+            catch (Exception e)
+            {
+                // couldn't read data
+                throw new RedDotDataException("Couldn't read file data..", e);
             }
         }
     }

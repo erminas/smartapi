@@ -25,8 +25,8 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         private readonly StringXmlNodeAttribute _regexAttribute;
 
-        public StandardFieldUserDefined(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public StandardFieldUserDefined(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             _regexAttribute = new StringXmlNodeAttribute(this, "eltverifytermregexp");
         }

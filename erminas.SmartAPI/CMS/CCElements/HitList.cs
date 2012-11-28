@@ -71,8 +71,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class HitList : List
     {
-        public HitList(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public HitList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace",
                              "eltusermap", "eltsupplement", "eltalt");

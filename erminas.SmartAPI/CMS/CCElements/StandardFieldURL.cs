@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardFieldURL : StandardFieldNonDate
     {
-        public StandardFieldURL(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public StandardFieldURL(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
     }

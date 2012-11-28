@@ -37,12 +37,12 @@ namespace erminas.SmartAPI.CMS
         private LanguageVariant _languageVariant;
 
 
-        protected CCElement(ContentClass contentClass, XmlNode xmlNode)
-            : base(xmlNode)
+        protected CCElement(ContentClass contentClass, XmlElement xmlElement)
+            : base(xmlElement)
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace erminas.SmartAPI.CMS
 
         public override string Name { get; set; }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             Name = this["eltname"];
             Type = (ElementType) int.Parse(this["elttype"]);
@@ -86,74 +86,74 @@ namespace erminas.SmartAPI.CMS
         ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="contentClass"> parent content class that contains the element </param>
-        /// <param name="xmlNode"> XML representation of the element </param>
+        /// <param name="xmlElement"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static CCElement CreateElement(ContentClass contentClass, XmlNode xmlNode)
+        public static CCElement CreateElement(ContentClass contentClass, XmlElement xmlElement)
         {
-            var type = (ElementType) int.Parse(xmlNode.GetAttributeValue("elttype"));
+            var type = (ElementType) int.Parse(xmlElement.GetAttributeValue("elttype"));
             switch (type)
             {
                 case ElementType.DatabaseContent:
-                    return new DatabaseContent(contentClass, xmlNode);
+                    return new DatabaseContent(contentClass, xmlElement);
                 case ElementType.TextHtml:
-                    return new TextHtml(contentClass, xmlNode);
+                    return new TextHtml(contentClass, xmlElement);
                 case ElementType.TextAscii:
-                    return new TextAscii(contentClass, xmlNode);
+                    return new TextAscii(contentClass, xmlElement);
                 case ElementType.StandardFieldText:
                 case ElementType.StandardFieldTextLegacy:
-                    return new StandardFieldText(contentClass, xmlNode);
+                    return new StandardFieldText(contentClass, xmlElement);
                 case ElementType.StandardFieldNumeric:
-                    return new StandardFieldNumeric(contentClass, xmlNode);
+                    return new StandardFieldNumeric(contentClass, xmlElement);
                 case ElementType.StandardFieldDate:
-                    return new StandardFieldDate(contentClass, xmlNode);
+                    return new StandardFieldDate(contentClass, xmlElement);
                 case ElementType.StandardFieldTime:
-                    return new StandardFieldTime(contentClass, xmlNode);
+                    return new StandardFieldTime(contentClass, xmlElement);
                 case ElementType.StandardFieldUserDefined:
-                    return new StandardFieldUserDefined(contentClass, xmlNode);
+                    return new StandardFieldUserDefined(contentClass, xmlElement);
                 case ElementType.StandardFieldEmail:
-                    return new StandardFieldEmail(contentClass, xmlNode);
+                    return new StandardFieldEmail(contentClass, xmlElement);
                 case ElementType.StandardFieldUrl:
-                    return new StandardFieldURL(contentClass, xmlNode);
+                    return new StandardFieldURL(contentClass, xmlElement);
                 case ElementType.Headline:
-                    return new Headline(contentClass, xmlNode);
+                    return new Headline(contentClass, xmlElement);
                 case ElementType.Background:
-                    return new Background(contentClass, xmlNode);
+                    return new Background(contentClass, xmlElement);
                 case ElementType.Image:
-                    return new Image(contentClass, xmlNode);
+                    return new Image(contentClass, xmlElement);
                 case ElementType.Media:
-                    return new Media(contentClass, xmlNode);
+                    return new Media(contentClass, xmlElement);
                 case ElementType.ListEntry:
-                    return new ListEntry(contentClass, xmlNode);
+                    return new ListEntry(contentClass, xmlElement);
                 case ElementType.Transfer:
-                    return new Transfer(contentClass, xmlNode);
+                    return new Transfer(contentClass, xmlElement);
                 case ElementType.Ivw:
-                    return new IVW(contentClass, xmlNode);
+                    return new IVW(contentClass, xmlElement);
                 case ElementType.OptionList:
-                    return new OptionList(contentClass, xmlNode);
+                    return new OptionList(contentClass, xmlElement);
                 case ElementType.Attribute:
-                    return new Attribute(contentClass, xmlNode);
+                    return new Attribute(contentClass, xmlElement);
                 case ElementType.Info:
-                    return new Info(contentClass, xmlNode);
+                    return new Info(contentClass, xmlElement);
                 case ElementType.Browse:
-                    return new Browse(contentClass, xmlNode);
+                    return new Browse(contentClass, xmlElement);
                 case ElementType.Area:
-                    return new Area(contentClass, xmlNode);
+                    return new Area(contentClass, xmlElement);
                 case ElementType.AnchorAsImage:
-                    return new ImageAnchor(contentClass, xmlNode);
+                    return new ImageAnchor(contentClass, xmlElement);
                 case ElementType.AnchorAsText:
-                    return new TextAnchor(contentClass, xmlNode);
+                    return new TextAnchor(contentClass, xmlElement);
                 case ElementType.Container:
-                    return new Container(contentClass, xmlNode);
+                    return new Container(contentClass, xmlElement);
                 case ElementType.Frame:
-                    return new Frame(contentClass, xmlNode);
+                    return new Frame(contentClass, xmlElement);
                 case ElementType.SiteMap:
-                    return new SiteMap(contentClass, xmlNode);
+                    return new SiteMap(contentClass, xmlElement);
                 case ElementType.HitList:
-                    return new HitList(contentClass, xmlNode);
+                    return new HitList(contentClass, xmlElement);
                 case ElementType.List:
-                    return new List(contentClass, xmlNode);
+                    return new List(contentClass, xmlElement);
                 case ElementType.ProjectContent:
-                    return new ProjectContent(contentClass, xmlNode);
+                    return new ProjectContent(contentClass, xmlElement);
                 default:
                     throw new ArgumentException("unknown element type: " + type);
             }
@@ -192,9 +192,7 @@ namespace erminas.SmartAPI.CMS
         ///     <item>
         ///       <description>The target content class is only modified on the server, thus the content class object does not contain the newly created element.
         ///         If you need an updated version of the content class, you have to retrieve it again with
-        ///         <code>
-        ///             new ContentClass(Project, Guid);
-        ///         </code>
+        ///         <code>new ContentClass(Project, Guid);</code>
         ///       </description>
         ///     </item>
         ///   </list>
@@ -219,7 +217,7 @@ namespace erminas.SmartAPI.CMS
                 }
             }
 
-            XmlNode node = newCcElement.XmlNode.Clone();
+            var node = (XmlElement) newCcElement.XmlNode.Clone();
             node.Attributes.RemoveNamedItem("guid");
             string creationString = GetSaveString(node);
 
@@ -234,12 +232,12 @@ namespace erminas.SmartAPI.CMS
             XmlDocument rqlResult =
                 contentClass.Project.ExecuteRQL(string.Format(CREATE_ELEMENT, contentClass.Guid.ToRQLString(),
                                                               creationString));
-            XmlNode resultElementNode = rqlResult.GetElementsByTagName("ELEMENT")[0];
+            var resultElementNode = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
             if (resultElementNode == null)
             {
                 throw new Exception("error during creation of element: " + Name);
             }
-            newCcElement.Guid = new Guid(resultElementNode.Attributes["guid"].Value);
+            newCcElement.Guid = resultElementNode.GetGuid();
 
             return newCcElement;
         }
@@ -252,7 +250,7 @@ namespace erminas.SmartAPI.CMS
             //RQL for committing changes
             //One parameter: xml representation of the element, containing an attribute "action" with value "save"
             const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
-            XmlNode node = XmlNode.Clone();
+            var node = (XmlElement) XmlNode.Clone();
             using (new LanguageContext(LanguageVariant))
             {
                 XmlDocument rqlResult =

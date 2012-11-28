@@ -21,8 +21,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public abstract class CCExtendedContentElement : CCContentElement
     {
-        protected CCExtendedContentElement(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        protected CCExtendedContentElement(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             CreateAttributes("eltbeginmark", "eltendmark", "eltrddescription");
         }

@@ -32,14 +32,14 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private readonly OptionList _parent;
         private string _value;
 
-        public OptionListSelectionAttribute(OptionList parent, string name, XmlNode node)
+        public OptionListSelectionAttribute(OptionList parent, string name, XmlElement xmlElement)
         {
             _parent = parent;
             Name = name;
-            XmlNode settingsNode = ((XmlElement) node).GetElementsByTagName("SELECTIONS")[0];
+            var settingsNode = xmlElement.GetElementsByTagName("SELECTIONS")[0];
             if (settingsNode != null)
             {
-                _value = node.OuterXml;
+                _value = xmlElement.OuterXml;
             }
             parent.RegisterAttribute(this);
         }
@@ -80,7 +80,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public void Assign(IRDAttribute o)
         {
-            var other = (OptionListSelectionAttribute)o;
+            var other = (OptionListSelectionAttribute) o;
             XDocument sourceDoc = XDocument.Parse(other.Value);
             XDocument targetDoc = XDocument.Parse(Value);
 

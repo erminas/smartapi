@@ -130,7 +130,8 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = _project.ExecuteRQL(pageElement.OuterXml);
 
             return
-                (from XmlNode curNode in xmlDoc.GetElementsByTagName("PAGE") select new Page(_project, curNode)).ToList();
+                (from XmlElement curNode in xmlDoc.GetElementsByTagName("PAGE") select new Page(_project, curNode)).
+                    ToList();
         }
     }
 

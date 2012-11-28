@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldUrl)]
     public class StandardFieldUrl : StandardField<Uri>
     {
-        public StandardFieldUrl(Project project, XmlNode node) : base(project, node)
+        public StandardFieldUrl(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

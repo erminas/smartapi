@@ -27,11 +27,11 @@ namespace erminas.SmartAPI.CMS
         protected readonly Project Project;
         private string _name;
 
-        public Syllable(Project project, XmlNode node)
-            : base(node)
+        public Syllable(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Project = project;
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public Syllable(Project project, Guid guid)
@@ -48,12 +48,12 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _name); }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             InitIfPresent(ref _name, "name", x => x);
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             return Project.Syllables.GetByGuid(Guid).XmlNode;
         }

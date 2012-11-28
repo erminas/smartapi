@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Area : CCElement
     {
-        public Area(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public Area(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltsupplement", "eltonlyhrefvalue", "eltshape", "elttarget",
                              "eltcoords");

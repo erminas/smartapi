@@ -60,8 +60,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class Browse : CCElement
     {
-        public Browse(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public Browse(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguageindependent",
                              "eltwidth", "eltheight", "eltborder",
@@ -114,7 +113,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get
             {
-                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltsrcsubdirguid");
+                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
                 var srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {

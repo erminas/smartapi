@@ -29,9 +29,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public DatabaseContent(Project project, XmlNode node) : base(project, node)
+        public DatabaseContent(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         protected override string FromString(string value)

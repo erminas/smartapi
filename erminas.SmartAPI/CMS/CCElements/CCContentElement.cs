@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public abstract class CCContentElement : CCElement
     {
-        protected CCContentElement(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        protected CCContentElement(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired",
                              "eltinvisibleinclient", "eltinvisibleinpage", "elthideinform",

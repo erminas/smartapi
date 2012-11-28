@@ -24,10 +24,10 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldTime)]
     public sealed class StandardFieldTime : StandardField<TimeSpan>
     {
-        public StandardFieldTime(Project project, XmlNode node)
-            : base(project, node)
+        public StandardFieldTime(Project project, XmlElement xmlElement)
+            : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public StandardFieldTime(Project project, Guid guid)
@@ -53,8 +53,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
             Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
-                                                 _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
-                                                 _value.Seconds/(24.0*60.0*60.0)));
+                                             _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
+                                             _value.Seconds/(24.0*60.0*60.0)));
             //TODO check guid
             //xml
         }

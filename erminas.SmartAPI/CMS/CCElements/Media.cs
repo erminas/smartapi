@@ -70,8 +70,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class Media : CCElement
     {
-        public Media(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public Media(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired",
                              "elthideinform", "eltsuffixes", "eltdonotremove", "eltconvert",
@@ -93,7 +92,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get
             {
-                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltrdexamplesubdirguid");
+                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid");
                 var srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {

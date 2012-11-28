@@ -33,17 +33,17 @@ namespace erminas.SmartAPI.CMS
 
         public readonly Workflow Workflow;
 
-        public Note(Workflow workflow, XmlNode node)
-            : base(node)
+        public Note(Workflow workflow, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Workflow = workflow;
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public string Value { get; private set; }
         public NoteType Type { get; private set; }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             Name = node.GetName();
             Value = node.GetAttributeValue("value");

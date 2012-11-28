@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldNumeric)]
     public class StandardFieldNumeric : StandardField<string>
     {
-        public StandardFieldNumeric(Project project, XmlNode node)
-            : base(project, node)
+        public StandardFieldNumeric(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
@@ -34,7 +33,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override string FromString(string value)
         {
-            if (StandardFieldRegexBased.NumericCheckRegex.IsMatch(value))
+            if (StandardFieldRegexBased.NUMERIC_CHECK_REGEX.IsMatch(value))
             {
                 return value;
             }

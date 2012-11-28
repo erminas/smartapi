@@ -62,11 +62,10 @@ namespace erminas.SmartAPI.CMS
             Project = project;
         }
 
-        protected PageElement(Project project, XmlNode node)
-            : base(node)
+        protected PageElement(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         #region IPageElement Members
@@ -112,15 +111,16 @@ namespace erminas.SmartAPI.CMS
             TYPES.Add(typeValue, type);
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             Name = node.GetAttributeValue("eltname");
             InitIfPresent(ref _page, "pageguid", x => new Page(Project, GuidConvert(x)));
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             return
+                (XmlElement)
                 Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString())).GetElementsByTagName("ELT")
                     [0];
         }
@@ -132,9 +132,9 @@ namespace erminas.SmartAPI.CMS
         /// <param name="project"> Page that contains the element </param>
         /// <param name="xmlNode"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static PageElement CreateElement(Project project, XmlNode xmlNode)
+        public static PageElement CreateElement(Project project, XmlElement xmlElement)
         {
-            var typeValue = (ElementType) int.Parse(xmlNode.GetAttributeValue("elttype"));
+            var typeValue = (ElementType) int.Parse(xmlElement.GetAttributeValue("elttype"));
             Type type;
             if (!TYPES.TryGetValue(typeValue, out type))
             {
@@ -143,7 +143,8 @@ namespace erminas.SmartAPI.CMS
 
             return
                 (PageElement)
-                type.GetConstructor(new[] {typeof (Project), typeof (XmlNode)}).Invoke(new object[] {project, xmlNode});
+                type.GetConstructor(new[] {typeof (Project), typeof (XmlNode)}).Invoke(new object[]
+                                                                                           {project, xmlElement});
         }
 
         /// <summary>
@@ -155,7 +156,7 @@ namespace erminas.SmartAPI.CMS
         public static PageElement CreateElement(Project project, Guid elementGuid)
         {
             XmlDocument xmlDoc = project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, elementGuid.ToRQLString()));
-            XmlNode xmlNode = xmlDoc.GetElementsByTagName("ELT")[0];
+            var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELT")[0];
             return CreateElement(project, xmlNode);
         }
     }

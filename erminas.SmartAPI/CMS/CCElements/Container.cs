@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Container : CCElement
     {
-        public Container(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltistargetcontainer", "eltisdynamic");
         }

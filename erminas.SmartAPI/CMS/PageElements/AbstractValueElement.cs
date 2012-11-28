@@ -33,8 +33,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        protected AbstractValueElement(Project project, XmlNode node)
-            : base(project, node)
+        protected AbstractValueElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

@@ -60,63 +60,58 @@ namespace erminas.SmartAPI.CMS
         ///   Reads user data from XML-Element "USER" like: <pre>...</pre>
         /// </summary>
         /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
-        /// <param name="cmsClient">The cms client used to retrieve this user</param>
+        /// <param name="cmsClient"> The cms client used to retrieve this user </param>
         /// <param name="xmlNode"> USER XML-Element to get data from </param>
-        public User(CmsClient cmsClient, XmlNode xmlNode)
-            : base(xmlNode)
+        public User(CmsClient cmsClient, XmlElement xmlElement) : base(xmlElement)
         {
             _cmsClient = cmsClient;
             // TODO: Read all data
 
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         // TODO: Nothing checked in here
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
-            XmlAttributeCollection attr = node.Attributes;
-            if (attr != null)
+            try
             {
-                try
+                _action = node.GetAttributeValue("action");
+                _id = node.GetAttributeValue("id");
+                Name = node.GetAttributeValue("name");
+                _fullname = node.GetAttributeValue("fullname");
+                _description = node.GetAttributeValue("description");
+                _flags1 = node.GetAttributeValue("flags1");
+                _flags2 = node.GetAttributeValue("flags2");
+                _maxLevel = node.GetAttributeValue("maxlevel");
+                _email = node.GetAttributeValue("email");
+                _acs = node.GetAttributeValue("acs");
+                _dialogLanguageId = node.GetAttributeValue("dialoglanguageid");
+                _userLanguage = node.GetAttributeValue("userlanguage");
+                _isServerManager = node.GetAttributeValue("isservermanager");
+                _loginDate = node.GetAttributeValue("logindate");
+                _te = node.GetAttributeValue("te");
+                _lm = node.GetAttributeValue("lm");
+                _navigationType = node.GetAttributeValue("navigationtype");
+                _lcid = node.GetAttributeValue("lcid");
+                _maxLogin = node.GetAttributeValue("maxlogin");
+                _preferredEditor = node.GetAttributeValue("preferrededitor");
+                _invertDirectEdit = node.GetAttributeValue("invertdirectedit");
+                _disablePassword = node.GetAttributeValue("disablepassword");
+                _userLimits = node.GetAttributeValue("userlimits");
+                if (node.GetAttributeValue("accountsystemguid") != null)
                 {
-                    _action = node.GetAttributeValue("action");
-                    _id = node.GetAttributeValue("id");
-                    Name = node.GetAttributeValue("name");
-                    _fullname = node.GetAttributeValue("fullname");
-                    _description = node.GetAttributeValue("description");
-                    _flags1 = node.GetAttributeValue("flags1");
-                    _flags2 = node.GetAttributeValue("flags2");
-                    _maxLevel = node.GetAttributeValue("maxlevel");
-                    _email = node.GetAttributeValue("email");
-                    _acs = node.GetAttributeValue("acs");
-                    _dialogLanguageId = node.GetAttributeValue("dialoglanguageid");
-                    _userLanguage = node.GetAttributeValue("userlanguage");
-                    _isServerManager = node.GetAttributeValue("isservermanager");
-                    _loginDate = node.GetAttributeValue("logindate");
-                    _te = node.GetAttributeValue("te");
-                    _lm = node.GetAttributeValue("lm");
-                    _navigationType = node.GetAttributeValue("navigationtype");
-                    _lcid = node.GetAttributeValue("lcid");
-                    _maxLogin = node.GetAttributeValue("maxlogin");
-                    _preferredEditor = node.GetAttributeValue("preferrededitor");
-                    _invertDirectEdit = node.GetAttributeValue("invertdirectedit");
-                    _disablePassword = node.GetAttributeValue("disablepassword");
-                    _userLimits = node.GetAttributeValue("userlimits");
-                    if (node.GetAttributeValue("accountsystemguid") != null)
-                    {
-                        _accountSystemGuid = GuidConvert(node.GetAttributeValue("accountsystemguid"));
-                    }
+                    _accountSystemGuid = GuidConvert(node.GetAttributeValue("accountsystemguid"));
                 }
-                catch (Exception e)
-                {
-                    // couldn't read data
-                    throw new RedDotDataException("Couldn't read content class data..", e);
-                }
+            }
+            catch (Exception e)
+            {
+                // couldn't read data
+                throw new RedDotDataException("Couldn't read content class data..", e);
             }
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             string answer = _cmsClient.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
@@ -124,7 +119,7 @@ namespace erminas.SmartAPI.CMS
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(answer);
 
-            return xmlDocument.GetElementsByTagName("USER")[0];
+            return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
         }
 
         #region Properties

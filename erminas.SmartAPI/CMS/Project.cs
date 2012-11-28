@@ -92,11 +92,10 @@ namespace erminas.SmartAPI.CMS
         private ProjectLockLevel _locklevel;
         private string _name;
 
-        public Project(Session session, XmlNode xmlNode)
-            : base(xmlNode)
+        public Project(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
             Init();
         }
 
@@ -251,7 +250,8 @@ namespace erminas.SmartAPI.CMS
             const string LOAD_SESSION_INFO = @"<USER action=""sessioninfo""/>";
 
             var xmlDoc = ExecuteRQL(LOAD_SESSION_INFO, RqlType.SessionKeyInProject);
-            string languageId = xmlDoc.GetElementsByTagName("USER")[0].GetAttributeValue("languagevariantid");
+            string languageId =
+                ((XmlElement) xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
             return _currentLanguageVariant = LanguageVariants[languageId];
         }
 
@@ -337,7 +337,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));
@@ -390,7 +390,7 @@ namespace erminas.SmartAPI.CMS
                 @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load""/></USER></ADMINISTRATION>";
             XmlDocument xmlDoc =
                 ExecuteRQL(string.Format(LOAD_ACCESS_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString()));
-            XmlNode xmlNode = xmlDoc.GetElementsByTagName("PROJECT")[0];
+            var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("PROJECT")[0];
             if (!string.IsNullOrEmpty(xmlNode.GetAttributeValue("guid")))
             {
                 return (UserAccessLevel) xmlNode.GetIntAttributeValue("userlevel").Value;
@@ -433,7 +433,7 @@ namespace erminas.SmartAPI.CMS
             return Session.SetTextContent(Guid, languageVariant, textElementGuid, typeString, content);
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             return Session.Projects.First(x => x.Guid.Equals(Guid)).XmlNode;
         }
@@ -444,7 +444,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_OF_PROJECT, Guid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
 
-            return (from XmlNode curNode in xmlNodes
+            return (from XmlElement curNode in xmlNodes
                     select new ContentClass(this, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")}).ToList();
         }
 
@@ -526,7 +526,7 @@ namespace erminas.SmartAPI.CMS
         {
             try
             {
-                XmlNode pageItem = xmlDoc.GetElementsByTagName("PAGE")[0];
+                var pageItem = (XmlElement) xmlDoc.GetElementsByTagName("PAGE")[0];
                 return new Page(this, pageItem);
             }
             catch (Exception e)
@@ -646,7 +646,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_FOLDERS_OF_PROJECT, Guid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
 
-            return (from XmlNode curNode in xmlNodes select new ContentClassFolder(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new ContentClassFolder(this, curNode)).ToList();
         }
 
         private List<Folder> GetFolders()
@@ -655,7 +655,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = ExecuteRQL(LIST_FILE_FOLDERS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FOLDER");
 
-            return (from XmlNode curNode in xmlNodes select new Folder(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new Folder(this, curNode)).ToList();
         }
 
 
@@ -667,7 +667,7 @@ namespace erminas.SmartAPI.CMS
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LANGUAGEVARIANT");
             var languageVariants = new List<LanguageVariant>();
 
-            foreach (XmlNode curNode in xmlNodes)
+            foreach (XmlElement curNode in xmlNodes)
             {
                 var variant = new LanguageVariant(this, curNode);
                 languageVariants.Add(variant);
@@ -686,7 +686,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_CONNECTION, RqlType.SessionKeyInProject);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
 
-            return (from XmlNode curNode in xmlNodes select new DatabaseConnection(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new DatabaseConnection(this, curNode)).ToList();
         }
 
         private List<InfoAttribute> GetInfoAttributes()
@@ -717,7 +717,8 @@ namespace erminas.SmartAPI.CMS
                 throw new Exception("could not load languages");
             }
 
-            return (from XmlNode item in languages.GetElementsByTagName("LIST") select new Locale(this, item)).ToList();
+            return
+                (from XmlElement item in languages.GetElementsByTagName("LIST") select new Locale(this, item)).ToList();
         }
 
         private List<ProjectVariant> GetProjectVariants()
@@ -737,7 +738,7 @@ namespace erminas.SmartAPI.CMS
         {
             XmlDocument xmlDoc = ExecuteRQL(@"<SYLLABLES action=""list""/>", RqlType.SessionKeyInProject);
             XmlNodeList syllablelist = xmlDoc.GetElementsByTagName("SYLLABLE");
-            return (from XmlNode curNode in syllablelist select new Syllable(this, curNode)).ToList();
+            return (from XmlElement curNode in syllablelist select new Syllable(this, curNode)).ToList();
         }
 
         private List<User> GetUsersOfProject()
@@ -748,7 +749,7 @@ namespace erminas.SmartAPI.CMS
                 XmlDocument xmlDoc = Session.ExecuteRQL(string.Format(GET_USERS, Guid.ToRQLString()), Guid);
                 XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("USER");
 
-                return (from XmlNode node in xmlNodes select new User(Session.CmsClient, node)).ToList();
+                return (from XmlElement node in xmlNodes select new User(Session.CmsClient, node)).ToList();
             }
             catch (Exception e)
             {
@@ -770,7 +771,7 @@ namespace erminas.SmartAPI.CMS
             const string LIST_KEYWORDS = "<PROJECT><CATEGORY><KEYWORDS action=\"list\" /></CATEGORY></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_KEYWORDS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
-            return (from XmlNode curNode in xmlNodes select new Keyword(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).ToList();
         }
 
         private List<Category> GetCategories()
@@ -778,7 +779,7 @@ namespace erminas.SmartAPI.CMS
             const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_CATEGORIES);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
-            return (from XmlNode curNode in xmlNodes select new Category(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new Category(this, curNode)).ToList();
         }
 
         #endregion

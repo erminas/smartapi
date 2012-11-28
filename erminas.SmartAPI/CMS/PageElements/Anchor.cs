@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Anchor(Project project, XmlNode node) : base(project, node)
+        public Anchor(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

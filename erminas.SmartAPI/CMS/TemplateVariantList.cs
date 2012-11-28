@@ -27,91 +27,88 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class TemplateVariantList : RedDotObject, IEnumerable<TemplateVariant>
     {
-        public TemplateVariantList(ContentClass contentClass, XmlNode node)
-            : base(node)
+        public TemplateVariantList(ContentClass contentClass, XmlElement xmlElement)
+            : base(xmlElement)
         {
             ContentClass = contentClass;
             TemplateVariants = new List<TemplateVariant>();
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             XmlAttributeCollection attr = node.Attributes;
-            if (attr != null)
+            try
             {
-                try
+                // Don't break if there is an error in this
+                if (attr["action"] != null)
                 {
-                    // Don't break if there is an error in this
-                    if (attr["action"] != null)
-                    {
-                        Action = attr["action"].Value;
-                    }
-                    if (attr["languagevariantid"] != null)
-                    {
-                        LanguageVariantId = attr["languagevariantid"].Value;
-                    }
-                    if (attr["dialoglanguageid"] != null)
-                    {
-                        DialogLanguageId = attr["dialoglanguageid"].Value;
-                    }
-                    if (attr["lockdate"] != null)
-                    {
-                        LockDate = attr["lockdate"].Value;
-                    }
-                    if (attr["lockusername"] != null)
-                    {
-                        Lockusername = attr["lockusername"].Value;
-                    }
-                    if (attr["lockusermail"] != null)
-                    {
-                        LockUsermail = attr["lockusermail"].Value;
-                    }
-                    if (attr["draft"] != null)
-                    {
-                        Draft = attr["draft"].Value;
-                    }
-                    if (attr["waitforrelease"] != null)
-                    {
-                        WaitForRelease = attr["waitforrelease"].Value;
-                    }
-                    if (attr["lock"] != null)
-                    {
-                        Lock = attr["lock"].Value;
-                    }
-                    Guid tempGuid; // used for parsing
-                    if (attr["folderguid"] != null && Guid.TryParse(attr["folderguid"].Value, out tempGuid))
-                    {
-                        FolderGuid = tempGuid;
-                    }
-                    if (attr["templateguid"] != null && Guid.TryParse(attr["templateguid"].Value, out tempGuid))
-                    {
-                        TemplateGuid = tempGuid;
-                    }
+                    Action = attr["action"].Value;
+                }
+                if (attr["languagevariantid"] != null)
+                {
+                    LanguageVariantId = attr["languagevariantid"].Value;
+                }
+                if (attr["dialoglanguageid"] != null)
+                {
+                    DialogLanguageId = attr["dialoglanguageid"].Value;
+                }
+                if (attr["lockdate"] != null)
+                {
+                    LockDate = attr["lockdate"].Value;
+                }
+                if (attr["lockusername"] != null)
+                {
+                    Lockusername = attr["lockusername"].Value;
+                }
+                if (attr["lockusermail"] != null)
+                {
+                    LockUsermail = attr["lockusermail"].Value;
+                }
+                if (attr["draft"] != null)
+                {
+                    Draft = attr["draft"].Value;
+                }
+                if (attr["waitforrelease"] != null)
+                {
+                    WaitForRelease = attr["waitforrelease"].Value;
+                }
+                if (attr["lock"] != null)
+                {
+                    Lock = attr["lock"].Value;
+                }
+                Guid tempGuid; // used for parsing
+                if (attr["folderguid"] != null && Guid.TryParse(attr["folderguid"].Value, out tempGuid))
+                {
+                    FolderGuid = tempGuid;
+                }
+                if (attr["templateguid"] != null && Guid.TryParse(attr["templateguid"].Value, out tempGuid))
+                {
+                    TemplateGuid = tempGuid;
+                }
 
-                    if (attr["lockuserguid"] != null && Guid.TryParse(attr["lockuserguid"].Value, out tempGuid))
-                    {
-                        LockUserGuid = tempGuid;
-                    }
+                if (attr["lockuserguid"] != null && Guid.TryParse(attr["lockuserguid"].Value, out tempGuid))
+                {
+                    LockUserGuid = tempGuid;
+                }
 
-                    if (node.NodeType == XmlNodeType.Element)
+                if (node.NodeType == XmlNodeType.Element)
+                {
+                    XmlNodeList templateVariantNodes = (node).GetElementsByTagName("TEMPLATEVARIANT");
+                    foreach (XmlElement curElementNode in templateVariantNodes)
                     {
-                        XmlNodeList templateVariantNodes = ((XmlElement) node).GetElementsByTagName("TEMPLATEVARIANT");
-                        foreach (XmlNode curElementNode in templateVariantNodes)
-                        {
-                            TemplateVariants.Add(new TemplateVariant(ContentClass, curElementNode));
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Illegal node type for template variant list");
+                        TemplateVariants.Add(new TemplateVariant(ContentClass, curElementNode));
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    // couldn't read data
-                    throw new RedDotDataException("Couldn't read content class data..", e);
+                    throw new Exception("Illegal node type for template variant list");
                 }
+            }
+            catch (Exception e)
+            {
+                // couldn't read data
+                throw new RedDotDataException("Couldn't read content class data..", e);
             }
         }
 

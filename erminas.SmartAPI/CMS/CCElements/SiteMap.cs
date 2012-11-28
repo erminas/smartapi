@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class SiteMap : CCElement
     {
-        public SiteMap(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public SiteMap(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltdepth", "eltsearchdepth", "elttableopen", "elttableclose",
                              "eltrowopen", "eltrowclose", "eltcolopen", "eltcolclose", "eltdropouts", "eltxslfile",
@@ -39,7 +39,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get
             {
-                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltfolderguid");
+                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltfolderguid");
                 var srcName = ((StringXmlNodeAttribute) GetAttribute("eltxslfile")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {

@@ -44,7 +44,7 @@ namespace erminas.SmartAPI.CMS
 
         public CachedList<PublicationSetting> ExportSettings { get; private set; }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             _name = node.GetAttributeValue("name");
         }
@@ -60,11 +60,11 @@ namespace erminas.SmartAPI.CMS
                  select new PublicationSetting(this, curSetting)).ToList();
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_PUBLICATION_PACKAGE = @"<PROJECT><EXPORTPACKET action=""load"" guid=""{0}""/></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
-            return xmlDoc.GetElementsByTagName("EXPORTPACKET")[0];
+            return (XmlElement) xmlDoc.GetElementsByTagName("EXPORTPACKET")[0];
         }
     }
 }

@@ -65,7 +65,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             const string FOLDER_GUID = "folderguid";
             _publicationFolder = String.IsNullOrEmpty(node.GetAttributeValue(FOLDER_GUID))
@@ -74,7 +74,7 @@ namespace erminas.SmartAPI.CMS
                                                              node.GetGuid(FOLDER_GUID));
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_FOLDER_SETTING =
                 @"<PROJECT><EXPORTSETTING guid=""{0}"" action=""load"" ><FOLDEREXPORTSETTING guid=""{1}""/></EXPORTSETTING></PROJECT>";
@@ -85,7 +85,7 @@ namespace erminas.SmartAPI.CMS
                                                                                            ToRQLString(),
                                                                                        Guid.ToRQLString()));
 
-            return xmlDoc.GetElementsByTagName("FOLDEREXPORTSETTING")[0];
+            return (XmlElement) xmlDoc.GetElementsByTagName("FOLDEREXPORTSETTING")[0];
         }
     }
 }

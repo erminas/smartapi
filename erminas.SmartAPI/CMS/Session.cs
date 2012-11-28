@@ -145,7 +145,7 @@ namespace erminas.SmartAPI.CMS
                 @"<ADMINISTRATION><USER guid=""{0}""><PROJECTS action=""list"" extendedinfo=""1""/></USER></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(String.Format(LIST_PROJECTS_FOR_USER, userGuid.ToRQLString()));
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("PROJECT");
-            return (from XmlNode curNode in xmlNodes select new Project(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new Project(this, curNode)).ToList();
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(string.Format(LOAD_USER, guid.ToRQLString()));
-            XmlNode userElement = xmlDoc.GetElementsByTagName("USER")[0];
+            var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
             if (userElement == null)
             {
                 throw new Exception("could not load user: " + guid.ToRQLString());
@@ -299,7 +299,7 @@ namespace erminas.SmartAPI.CMS
             const string LIST_PROJECTS = @"<ADMINISTRATION><PROJECTS action=""list""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_PROJECTS);
             XmlNodeList projectNodes = xmlDoc.GetElementsByTagName("PROJECT");
-            return (from XmlNode curNode in projectNodes select new Project(this, curNode)).ToList();
+            return (from XmlElement curNode in projectNodes select new Project(this, curNode)).ToList();
         }
 
         private List<DatabaseServer> GetDatabaseServers()
@@ -307,7 +307,7 @@ namespace erminas.SmartAPI.CMS
             const string LIST_DATABASE_SERVERS = @"<ADMINISTRATION><DATABASESERVERS action=""list""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
-            return (from XmlNode curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
         }
     }
 

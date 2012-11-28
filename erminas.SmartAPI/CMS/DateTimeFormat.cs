@@ -48,11 +48,11 @@ namespace erminas.SmartAPI.CMS
 
         private readonly DateTimeFormatTypes _formatTypes;
 
-        public DateTimeFormat(DateTimeFormatTypes dateTimeFormatTypes, XmlNode node)
+        public DateTimeFormat(DateTimeFormatTypes dateTimeFormatTypes, XmlElement xmlElement)
         {
-            Name = node.GetAttributeValue("name");
-            TypeId = int.Parse(node.GetAttributeValue("type"));
-            Example = node.GetAttributeValue("example");
+            Name = xmlElement.GetAttributeValue("name");
+            TypeId = int.Parse(xmlElement.GetAttributeValue("type"));
+            Example = xmlElement.GetAttributeValue("example");
             _formatTypes = dateTimeFormatTypes;
         }
 

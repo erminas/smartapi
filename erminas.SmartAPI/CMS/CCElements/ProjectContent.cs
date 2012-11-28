@@ -7,7 +7,7 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         private readonly ElementReferenceAttribute _elementReference;
 
-        public ProjectContent(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public ProjectContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltislistentry", "eltinvisibleinpage", "eltisreffield");
             _elementReference = new ElementReferenceAttribute(this);

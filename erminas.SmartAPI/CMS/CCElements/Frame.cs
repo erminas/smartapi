@@ -123,8 +123,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class Frame : CCElement
     {
-        public Frame(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltframename", "eltmarginwidth",
                              "eltmarginheight", "eltscrolling", "eltsrc",

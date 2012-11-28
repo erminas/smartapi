@@ -32,15 +32,15 @@ namespace erminas.SmartAPI.CMS
         public readonly string RFCLanguageId;
         private readonly Project _project;
 
-        public Locale(Project project, XmlNode item)
+        public Locale(Project project, XmlElement xmlElement)
         {
             _project = project;
-            Id = item.GetAttributeValue("id");
-            Country = item.GetAttributeValue("country");
-            Language = item.GetAttributeValue("language");
-            IsStandardLanguage = item.GetAttributeValue("id") == "1";
-            LCID = int.Parse(item.GetAttributeValue("lcid"));
-            RFCLanguageId = item.GetAttributeValue("rfclanguageid");
+            Id = xmlElement.GetAttributeValue("id");
+            Country = xmlElement.GetAttributeValue("country");
+            Language = xmlElement.GetAttributeValue("language");
+            IsStandardLanguage = xmlElement.GetAttributeValue("id") == "1";
+            LCID = int.Parse(xmlElement.GetAttributeValue("lcid"));
+            RFCLanguageId = xmlElement.GetAttributeValue("rfclanguageid");
             DateTimeFormats = new IndexedCachedList<int, DateTimeFormat>(GetFormats, x => x.TypeId, Caching.Enabled);
         }
 

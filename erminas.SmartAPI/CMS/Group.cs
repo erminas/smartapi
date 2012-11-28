@@ -44,10 +44,10 @@ namespace erminas.SmartAPI.CMS
         ///                                                   </pre>
         /// </summary>
         /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
-        /// <param name="xmlNode"> GROUP XML-Element to get data from </param>
-        public Group(XmlNode xmlNode) : base(xmlNode)
+        /// <param name="xmlElement"> </param>
+        public Group(XmlElement xmlElement) : base(xmlElement)
         {
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         /// <summary>
@@ -58,22 +58,19 @@ namespace erminas.SmartAPI.CMS
         public string Email { get; set; }
 
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             XmlAttributeCollection attr = node.Attributes;
-            if (attr != null)
+            try
             {
-                try
-                {
-                    Guid = Guid.Parse(attr["guid"].Value);
-                    Name = attr["name"].Value;
-                    Email = attr["email"].Value;
-                }
-                catch (Exception e)
-                {
-                    // couldn't read data
-                    throw new RedDotDataException("Couldn't read group data.", e);
-                }
+                Guid = Guid.Parse(attr["guid"].Value);
+                Name = attr["name"].Value;
+                Email = attr["email"].Value;
+            }
+            catch (Exception e)
+            {
+                // couldn't read data
+                throw new RedDotDataException("Couldn't read group data.", e);
             }
         }
     }

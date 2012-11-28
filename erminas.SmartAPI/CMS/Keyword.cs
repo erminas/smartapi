@@ -26,11 +26,11 @@ namespace erminas.SmartAPI.CMS
         public readonly Project Project;
         private Category _category;
 
-        public Keyword(Project project, XmlNode xmlNode)
-            : base(xmlNode)
+        public Keyword(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         public Keyword(Project project, Guid guid)
@@ -53,17 +53,18 @@ namespace erminas.SmartAPI.CMS
             Project.ExecuteRQL(string.Format(SAVE_KEYWORD, Guid.ToRQLString(), HttpUtility.HtmlEncode(Name)));
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             Name = node.GetAttributeValue("value");
             InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_KEYWORD =
                 @"<PROJECT><CATEGORY><KEYWORD action=""load"" guid=""{0}""/></CATEGORY></PROJECT>";
             return
+                (XmlElement)
                 Project.ExecuteRQL(string.Format(LOAD_KEYWORD, Guid.ToRQLString())).GetElementsByTagName("KEYWORD")[0];
         }
     }

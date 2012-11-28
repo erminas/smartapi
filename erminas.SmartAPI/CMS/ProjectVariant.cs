@@ -29,10 +29,10 @@ namespace erminas.SmartAPI.CMS
             Project = project;
         }
 
-        public ProjectVariant(Project project, XmlNode xmlNode) : base(xmlNode)
+        public ProjectVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         public bool IsUserDisplayVariant
@@ -61,7 +61,7 @@ namespace erminas.SmartAPI.CMS
 
         public Project Project { get; private set; }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             _name = node.GetAttributeValue("name");
         }
@@ -101,13 +101,13 @@ namespace erminas.SmartAPI.CMS
         //    }
         //    return variants;
         //}
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_PROJECT_VARIANT =
                 @"<PROJECT><PROJECTVARIANTS action=""load""><PROJECTVARIANT guid=""{0}"" /></PROJECTVARIANTS></PROJECT>";
 
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PROJECT_VARIANT, Guid.ToRQLString()));
-            return xmlDoc.GetElementsByTagName("PROJECTVARIANT")[0];
+            return (XmlElement) xmlDoc.GetElementsByTagName("PROJECTVARIANT")[0];
         }
     }
 }

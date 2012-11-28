@@ -116,11 +116,10 @@ namespace erminas.SmartAPI.CMS
         private DateTime _releaseDate;
         private PageReleaseStatus _releaseStatus;
 
-        public Page(Project project, XmlNode xmlNode)
-            : base(xmlNode)
+        public Page(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            Init(xmlNode);
+            Init(xmlElement);
             //reset isinitialized, because other information can still be retrieved
             //TODO find a clean solution for the various partial initialization states the page can be in
             IsInitialized = false;
@@ -256,7 +255,8 @@ namespace erminas.SmartAPI.CMS
                     Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int) value));
                 XmlNodeList pageElements = xmlDoc.GetElementsByTagName("PAGE");
                 if (pageElements.Count != 1 ||
-                    (int.Parse(pageElements[0].GetAttributeValue("actionflag")) & (int) value) != (int) value)
+                    (int.Parse(((XmlElement) pageElements[0]).GetAttributeValue("actionflag")) & (int) value) !=
+                    (int) value)
                 {
                     throw new Exception("Could not set release status to " + value);
                 }
@@ -271,7 +271,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public Workflow Workflow
         {
-            get { return new Workflow(Project, XmlNode.SelectSingleNode("descendant::WORKFLOW").GetGuid()); }
+            get { return new Workflow(Project, ((XmlElement) XmlNode.SelectSingleNode("descendant::WORKFLOW")).GetGuid()); }
         }
 
         /// <summary>
@@ -435,16 +435,16 @@ namespace erminas.SmartAPI.CMS
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
         }
 
-        private void Init(XmlNode xmlNode)
+        private void Init(XmlElement xmlElement)
         {
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
-        private PageElement TryCreateElement(XmlNode node)
+        private PageElement TryCreateElement(XmlElement xmlElement)
         {
             try
             {
-                return PageElement.CreateElement(Project, node);
+                return PageElement.CreateElement(Project, xmlElement);
             }
             catch (ArgumentException)
             {
@@ -454,14 +454,14 @@ namespace erminas.SmartAPI.CMS
 
         private List<PageElement> ToElementList(XmlNodeList elementNodes)
         {
-            return (from XmlNode curNode in elementNodes
+            return (from XmlElement curNode in elementNodes
                     let element = TryCreateElement(curNode)
                     where element != null
                     select element).ToList();
         }
 
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             //TODO schoenere loesung fuer partielles nachladen von pages wegen unterschiedlicher anfragen fuer unterschiedliche infos
             InitIfPresent(ref _id, "id", int.Parse);
@@ -507,7 +507,7 @@ namespace erminas.SmartAPI.CMS
             return default(PageReleaseStatus);
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string REQUEST_PAGE = @"<PAGE action=""load"" guid=""{0}""/>";
 
@@ -517,14 +517,14 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new Exception(string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
             }
-            return pages[0];
+            return (XmlElement) pages[0];
         }
 
         private List<PageElement> GetLinks()
         {
             const string LOAD_LINKS = @"<PAGE guid=""{0}""><LINKS action=""load"" /></PAGE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_LINKS, Guid.ToRQLString()));
-            return (from XmlNode curNode in xmlDoc.GetElementsByTagName("LINK")
+            return (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
                     select PageElement.CreateElement(Project, curNode)).ToList();
         }
 
@@ -542,7 +542,8 @@ namespace erminas.SmartAPI.CMS
             const string LOAD_KEYWORDS = @"<PROJECT><PAGE guid=""{0}""><KEYWORDS action=""load"" /></PAGE></PROJECT>";
             var xmlDoc = Project.ExecuteRQL(string.Format(LOAD_KEYWORDS, Guid.ToRQLString()));
             return
-                (from XmlNode curNode in xmlDoc.GetElementsByTagName("KEYWORD") select new Keyword(Project, curNode)).
+                (from XmlElement curNode in xmlDoc.GetElementsByTagName("KEYWORD") select new Keyword(Project, curNode))
+                    .
                     ToList();
         }
     }

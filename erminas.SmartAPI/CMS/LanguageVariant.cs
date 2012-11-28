@@ -24,10 +24,10 @@ namespace erminas.SmartAPI.CMS
         private bool _isChecked;
         private string _language;
 
-        public LanguageVariant(Project project, XmlNode xmlNode) : base(xmlNode)
+        public LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         public string Language
@@ -48,7 +48,7 @@ namespace erminas.SmartAPI.CMS
             Project.SelectLanguageVariant(this);
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             InitIfPresent(ref _isChecked, "checked", BoolConvert);
             InitIfPresent(ref _language, "language", x => x);

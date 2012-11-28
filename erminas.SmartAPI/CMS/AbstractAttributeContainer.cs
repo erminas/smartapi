@@ -32,7 +32,7 @@ namespace erminas.SmartAPI.CMS
             Attributes = new List<IRDAttribute>();
         }
 
-        public AbstractAttributeContainer(XmlNode node)
+        public AbstractAttributeContainer(XmlElement node)
         {
             XmlNode = node;
             Attributes = new List<IRDAttribute>();
@@ -69,7 +69,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         [ScriptIgnore]
-        public XmlNode XmlNode { get; set; }
+        public XmlElement XmlNode { get; set; }
 
         #endregion
 

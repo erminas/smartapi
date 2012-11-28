@@ -18,7 +18,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
-    internal class DelegatingAttribute<T> : IRDAttribute
+    internal class DelegatingAttribute<T> : IRDAttribute 
     {
         public readonly CCElement CcElement;
         private readonly string _description;
@@ -81,7 +81,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         public override int GetHashCode()
         {
             T value = _getValue();
-            return Name.GetHashCode() + 13*(value != null ? value.GetHashCode() : 0);
+            return Name.GetHashCode() + 13*(Equals(default(T), value) ? value.GetHashCode() : 0));
         }
     }
 }

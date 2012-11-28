@@ -26,8 +26,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         private readonly TextContentAttribute _exampleText;
         private readonly StringXmlNodeAttribute _maxSizeAttribute;
 
-        protected Text(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        protected Text(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltcrlftobr", "eltdeactivatetextfilter", "eltmaxsize",
                              "eltwholetext", "eltdirectedit", "eltdragdrop");

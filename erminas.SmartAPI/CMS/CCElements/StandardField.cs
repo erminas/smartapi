@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardField : CCExtendedContentElement
     {
-        public StandardField(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public StandardField(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltrdexample", /*"eltparentelementname",*/ "eltparentelementguid");
             new StringXmlNodeAttribute(this, "eltdefaultvalue");

@@ -31,7 +31,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             LinkedPages = new NameIndexedRDList<Page>(GetLinkedPages, Caching.Enabled);
         }
 
-        protected AbstractLinkElement(Project project, XmlNode node) : base(project, node)
+        protected AbstractLinkElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LinkedPages = new NameIndexedRDList<Page>(GetLinkedPages, Caching.Enabled);
         }

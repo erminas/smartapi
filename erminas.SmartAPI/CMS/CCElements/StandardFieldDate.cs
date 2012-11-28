@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardFieldDate : StandardField
     {
-        public StandardFieldDate(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public StandardFieldDate(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }

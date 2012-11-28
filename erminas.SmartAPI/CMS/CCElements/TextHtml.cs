@@ -59,8 +59,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class TextHtml : Text
     {
-        public TextHtml(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public TextHtml(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             //TODO checken, ob die werte in editoroptions nicht invertiert enthalten sind
             new EditorOptionsAttribute(this, "elteditoroptions");

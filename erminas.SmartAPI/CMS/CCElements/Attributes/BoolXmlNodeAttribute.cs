@@ -79,7 +79,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override void Assign(IRDAttribute o)
         {
-            var boolAttribute = (BoolXmlNodeAttribute)o;
+            var boolAttribute = (BoolXmlNodeAttribute) o;
             SetValue(boolAttribute._value ? "1" : "0");
         }
 

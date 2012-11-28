@@ -21,8 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardFieldTime : StandardFieldNonDate
     {
-        public StandardFieldTime(ContentClass contentClass, XmlNode xmlNode)
-            : base(contentClass, xmlNode)
+        public StandardFieldTime(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }

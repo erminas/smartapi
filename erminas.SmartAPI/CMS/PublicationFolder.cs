@@ -61,7 +61,7 @@ namespace erminas.SmartAPI.CMS
 
         public static readonly Guid ROOT_LEVEL_GUID = Guid.Parse("9BBF210F7923406291BE7AE47B4CA571");
         public static readonly Guid PUBLISHED_PAGES_GUID;
-        private static readonly XmlNode PUBLISHED_PAGES_NODE;
+        private static readonly XmlElement PUBLISHED_PAGES_NODE;
         private string _contentgroup;
         private ContentType _contenttype;
         private ContextInfoPreparationType _contextInfoPreparationType;
@@ -205,7 +205,7 @@ namespace erminas.SmartAPI.CMS
             //TODO check result
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             Name = node.GetAttributeValue("name");
             if (node.GetGuid() == PUBLISHED_PAGES_GUID)
@@ -238,7 +238,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             if (Guid != PUBLISHED_PAGES_GUID)
             {
@@ -246,6 +246,7 @@ namespace erminas.SmartAPI.CMS
                     @"<PROJECT><EXPORTFOLDER action=""load"" guid=""{0}""/></PROJECT>";
 
                 return
+                    (XmlElement)
                     Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_FOLDER, Guid.ToRQLString())).GetElementsByTagName(
                         "EXPORTFOLDER")[0];
             }

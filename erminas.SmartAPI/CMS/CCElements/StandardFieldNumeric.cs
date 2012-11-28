@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardFieldNumeric : StandardFieldNonDate
     {
-        public StandardFieldNumeric(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public StandardFieldNumeric(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltmaxsize");
         }

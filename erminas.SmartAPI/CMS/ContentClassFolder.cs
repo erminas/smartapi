@@ -28,13 +28,13 @@ namespace erminas.SmartAPI.CMS
     {
         private readonly Project _project;
 
-        public ContentClassFolder(Project project, XmlNode xmlNode)
-            : base(xmlNode)
+        public ContentClassFolder(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses,
                                                                  Caching.Enabled);
             _project = project;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public NameIndexedRDList<ContentClass> ContentClasses { get; private set; }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
             Name = node.GetAttributeValue("name");
         }
@@ -56,7 +56,7 @@ namespace erminas.SmartAPI.CMS
             _xmlDoc = _project.ExecuteRQL(string.Format(LIST_CC_OF_FOLDER, Guid.ToRQLString()));
 
             return
-                (from XmlNode curNode in _xmlDoc.GetElementsByTagName("TEMPLATE")
+                (from XmlElement curNode in _xmlDoc.GetElementsByTagName("TEMPLATE")
                  select new ContentClass(_project, curNode)).
                     ToList();
         }

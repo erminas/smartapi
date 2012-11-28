@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class List : CCElement
     {
-        public List(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public List(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltextendedlist", "eltfontclass", "eltfontsize", "eltfontbold",
                              "eltonlyhrefvalue", "eltxhtmlcompliant",

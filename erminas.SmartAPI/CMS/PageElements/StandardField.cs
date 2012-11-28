@@ -24,8 +24,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         private string _description;
         private string _sample;
 
-        protected StandardField(Project project, XmlNode node)
-            : base(project, node)
+        protected StandardField(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
@@ -44,9 +43,9 @@ namespace erminas.SmartAPI.CMS.PageElements
             get { return LazyLoad(ref _description); }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement xmlElement)
         {
-            base.LoadXml(node);
+            base.LoadXml(xmlElement);
 
             InitIfPresent(ref _sample, "eltrdsample", x => x);
             InitIfPresent(ref _sample, "eltrddescription", x => x);

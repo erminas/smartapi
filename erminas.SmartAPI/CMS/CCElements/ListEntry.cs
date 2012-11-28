@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class ListEntry : CCElement
     {
-        public ListEntry(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public ListEntry(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("elthideinform", "eltinvisibleinpage", "eltbeginmark",
                              "eltendmark", "eltwholetext", "eltfolderguid");

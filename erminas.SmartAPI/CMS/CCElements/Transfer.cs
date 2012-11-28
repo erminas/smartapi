@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Transfer : CCElement
     {
-        public Transfer(ContentClass contentClass, XmlNode xmlNode) : base(contentClass, xmlNode)
+        public Transfer(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltdonothtmlencode", "elthideinform");
         }

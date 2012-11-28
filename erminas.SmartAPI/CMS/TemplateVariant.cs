@@ -21,7 +21,9 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
+
     #region PdfOrientation
+
     public enum PdfOrientation
     {
         Default = 0,
@@ -41,8 +43,9 @@ namespace erminas.SmartAPI.CMS
                     return "portrait";
                 case PdfOrientation.Landscape:
                     return "landscape";
-                default: throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                                typeof(PdfOrientationUtils).Name, value));
+                default:
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
+                                                              typeof (PdfOrientationUtils).Name, value));
             }
         }
 
@@ -58,10 +61,11 @@ namespace erminas.SmartAPI.CMS
                     return PdfOrientation.Landscape;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof(PdfOrientation).Name, value));
+                                                              typeof (PdfOrientation).Name, value));
             }
         }
     }
+
     #endregion
 
     //TODO templatevariant auf attributes umstellen
@@ -106,17 +110,16 @@ namespace erminas.SmartAPI.CMS
             ContentClass = contentClass;
         }
 
-        public TemplateVariant(ContentClass contentClass, XmlNode xmlNode)
-            : base(xmlNode)
+        public TemplateVariant(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = contentClass;
-            LoadXml(xmlNode);
+            LoadXml(xmlElement);
         }
 
         //TODO mit reddotobjecthandle ersetzen
         public TemplateVariantHandle Handle
         {
-            get { return new TemplateVariantHandle { Name = Name, Guid = Guid }; }
+            get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
         }
 
         /// <summary>
@@ -256,9 +259,9 @@ namespace erminas.SmartAPI.CMS
                                                           doNotUseTidy.ToRQLString()));
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement node)
         {
-            var element = ((XmlElement)node);
+            var element = (node);
             if (!String.IsNullOrEmpty(element.InnerText))
             {
                 _data = element.InnerText;
@@ -268,10 +271,12 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)) { Name = node.GetAttributeValue("createusername") });
+                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
+                              {Name = node.GetAttributeValue("createusername")});
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)) { Name = node.GetAttributeValue("changedusername") });
+                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
+                              {Name = node.GetAttributeValue("changedusername")});
             InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
@@ -328,13 +333,13 @@ namespace erminas.SmartAPI.CMS
             throw new Exception(errorMsg);
         }
 
-        protected override XmlNode RetrieveWholeObject()
+        protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_TEMPLATEVARIANT =
                 @"<TEMPLATE><TEMPLATEVARIANT action=""load"" readonly=""1"" guid=""{0}"" /></TEMPLATE>";
             XmlDocument xmlDoc = ContentClass.Project.ExecuteRQL(string.Format(LOAD_TEMPLATEVARIANT, Guid.ToRQLString()));
 
-            return xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")[0];
+            return (XmlElement) xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")[0];
         }
 
         #region Nested type: TemplateVariantHandle

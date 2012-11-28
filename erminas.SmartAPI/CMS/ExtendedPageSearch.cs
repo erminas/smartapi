@@ -92,7 +92,7 @@ namespace erminas.SmartAPI.CMS
         public int Count()
         {
             XmlDocument xmlDoc = RunQuery(true);
-            return xmlDoc.GetElementsByTagName("PAGES")[0].GetIntAttributeValue("hits").Value;
+            return ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").Value;
         }
 
         private XmlDocument RunQuery(bool isCountOnly)
@@ -163,10 +163,14 @@ namespace erminas.SmartAPI.CMS
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Status = ((Page.PageState) int.Parse(curPage.GetAttributeValue("status")))
                             },
+                        // ReSharper disable PossibleInvalidOperationException
                         DateTime.FromOADate(creation.GetDoubleAttributeValue("date").Value),
-                        new User(_project.Session.CmsClient, creation.GetElementsByTagName("USER")[0].GetGuid()),
+                        new User(_project.Session.CmsClient,
+                                 ((XmlElement) creation.GetElementsByTagName("USER")[0]).GetGuid()),
                         DateTime.FromOADate(change.GetDoubleAttributeValue("date").Value),
-                        new User(_project.Session.CmsClient, change.GetElementsByTagName("USER")[0].GetGuid()),
+                        // ReSharper restore PossibleInvalidOperationException
+                        new User(_project.Session.CmsClient,
+                                 ((XmlElement) change.GetElementsByTagName("USER")[0]).GetGuid()),
                         new ContentClass(_project, contentClass.GetGuid())
                             {Name = contentClass.GetAttributeValue("name")}
                         ) {WorkflowInfo = ToWorkflow(curPage.GetElementsByTagName("WORKFLOW"))}).ToList();

@@ -23,10 +23,10 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private int _maxSize;
 
-        public StandardFieldText(Project project, XmlNode node)
-            : base(project, node)
+        public StandardFieldText(Project project, XmlElement xmlElement)
+            : base(project, xmlElement)
         {
-            LoadXml(node);
+            LoadXml(xmlElement);
         }
 
         public int MaxSize
@@ -34,9 +34,9 @@ namespace erminas.SmartAPI.CMS.PageElements
             get { return LazyLoad(ref _maxSize); }
         }
 
-        protected override void LoadXml(XmlNode node)
+        protected override void LoadXml(XmlElement xmlElement)
         {
-            base.LoadXml(node);
+            base.LoadXml(xmlElement);
 
             InitIfPresent(ref _value, "value", x => x);
             InitIfPresent(ref _maxSize, "eltmaxsize", int.Parse);
