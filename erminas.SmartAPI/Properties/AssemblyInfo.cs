@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Library for programatical access to RedDot Servers")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("erminas")]
-[assembly: AssemblyProduct("erminas Red.NET")]
+[assembly: AssemblyProduct("erminas SmartAPI")]
 [assembly: AssemblyCopyright("Copyright © erminas 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
