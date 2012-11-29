@@ -474,15 +474,11 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _pageState, "status", x => (PageState) int.Parse(x));
 
             _releaseStatus = ReleaseStatusFromFlags();
-
-            string xmlDate = XmlNode.GetAttributeValue("checkindate");
-
-            _checkinDate = string.IsNullOrEmpty(xmlDate)
-                               ? DateTime.MinValue
-                               : DateTimeConvert(xmlDate);
+            
+            _checkinDate = XmlNode.GetOADate("checkindate").GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
-            InitIfPresent(ref _releaseDate, "releasedate", DateTimeConvert);
+            InitIfPresent(ref _releaseDate, "releasedate", XmlUtil.ToOADate);
         }
 
         private PageReleaseStatus ReleaseStatusFromFlags()

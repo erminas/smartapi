@@ -43,10 +43,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override TimeSpan FromXmlNodeValue(string value)
         {
-            //replace , with ., to make sure it's in invariant culture format
-            //(not sure what affects the format on the reddot side and if this is always needed).
-            var timeStr = value.Replace(',', '.');
-            return DateTimeConvert(timeStr).TimeOfDay;
+            return value.ToOADate().TimeOfDay;
         }
 
         public override void Commit()

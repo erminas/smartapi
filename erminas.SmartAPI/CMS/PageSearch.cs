@@ -275,11 +275,7 @@ namespace erminas.SmartAPI.CMS
             {
                 User = new User(_project.Session.CmsClient, user.GetGuid()) {Name = user.GetName()};
                 HasUserReleasedPage = user.GetIntAttributeValue("released").GetValueOrDefault() == 1;
-                string date = user.GetAttributeValue("date");
-                if (date != null)
-                {
-                    PageReleaseDate = DateTime.FromOADate(Double.Parse(date));
-                }
+                PageReleaseDate = user.GetOADate("date").GetValueOrDefault();
             }
         }
 

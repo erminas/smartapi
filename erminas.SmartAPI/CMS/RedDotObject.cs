@@ -97,14 +97,6 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Convert a OLE automation date from string representation to a DateTime object.
-        /// </summary>
-        public static DateTime DateTimeConvert(string str)
-        {
-            return DateTime.FromOADate(Double.Parse(str, CultureInfo.InvariantCulture));
-        }
-
-        /// <summary>
         ///   Convert a string to a boolean value, e.g. for <see cref="InitIfPresent{T}" />
         /// </summary>
         /// <remarks>
