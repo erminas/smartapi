@@ -46,9 +46,9 @@ namespace erminas.SmartAPI.CMS
             {
                 foreach (object curAttr in curType.GetCustomAttributes(typeof (PageElementType), false))
                 {
-                    if (curType.GetConstructor(new[] {typeof (Project), typeof (XmlNode)}) == null)
+                    if (curType.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}) == null)
                     {
-                        throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlNode)",
+                        throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlElement)",
                                                           curType.Name));
                     }
                     TYPES.Add(((PageElementType) curAttr).Type, curType);
@@ -143,7 +143,9 @@ namespace erminas.SmartAPI.CMS
 
             return
                 (PageElement)
-                type.GetConstructor(new[] {typeof (Project), typeof (XmlNode)}).Invoke(new object[]
+// ReSharper disable PossibleNullReferenceException
+                type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
+// ReSharper restore PossibleNullReferenceException
                                                                                            {project, xmlElement});
         }
 

@@ -83,13 +83,13 @@ namespace erminas.SmartAPI.Utils
         public static int? GetIntAttributeValue(this XmlElement xmlElement, string attributeName)
         {
             var attr = xmlElement.Attributes[attributeName];
-            return attr == null ? (int?) null : int.Parse(attr.Value);
+            return attr == null ? (int?)null : int.Parse(attr.Value);
         }
 
         public static double? GetDoubleAttributeValue(this XmlElement xmlElement, string attributeName)
         {
             var attr = xmlElement.Attributes[attributeName];
-            return attr == null ? (double?) null : Double.Parse(attr.Value, CultureInfo.InvariantCulture);
+            return attr == null ? (double?)null : Double.Parse(attr.Value, CultureInfo.InvariantCulture);
         }
 
         public static Guid GetGuid(this XmlElement xmlElement)
@@ -124,5 +124,23 @@ namespace erminas.SmartAPI.Utils
         {
             return xmlElement.GetAttributeValue("name");
         }
+
+        public static DateTime? GetOADate(this XmlElement element, string attributeName = "date")
+        {
+            var strValue = element.GetAttributeValue(attributeName);
+            if (String.IsNullOrEmpty(strValue))
+            {
+                return null;
+            }
+
+            return strValue.ToOADate();
+        }
+
+        public static DateTime ToOADate(this string value)
+        {
+            var valueNormalizedToInvariantCulture = value.Replace(",", ".");
+            return DateTime.FromOADate(Double.Parse(valueNormalizedToInvariantCulture, CultureInfo.InvariantCulture));
+        }
+
     }
 }

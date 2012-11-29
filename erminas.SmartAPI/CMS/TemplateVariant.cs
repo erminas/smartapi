@@ -266,8 +266,8 @@ namespace erminas.SmartAPI.CMS
             {
                 _data = element.InnerText;
             }
-            InitIfPresent(ref _creationDate, "createdate", DateTimeConvert);
-            InitIfPresent(ref _changeDate, "changeddate", DateTimeConvert);
+            InitIfPresent(ref _creationDate, "createdate", XmlUtil.ToOADate);
+            InitIfPresent(ref _changeDate, "changeddate", XmlUtil.ToOADate);
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>

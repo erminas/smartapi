@@ -30,9 +30,9 @@ namespace erminas.SmartAPI.CMS
         }
 
         public string OriginalAuthor { get; set; }
-        public string EntryDate { get; set; }
+        public DateTime EntryDate { get; set; }
         public string LastEditor { get; set; }
-        public string ModificationDate { get; set; }
+        public DateTime ModificationDate { get; set; }
         public string Height { get; set; }
         public string Width { get; set; }
         public string Colordepth { get; set; }
@@ -88,10 +88,7 @@ namespace erminas.SmartAPI.CMS
 
                 if (xmlElement.GetAttributeValue("ext02") != null)
                 {
-                    EntryDate =
-                        DateTime.FromOADate(double.Parse(xmlElement.GetAttributeValue("ext02"),
-                                                         CultureInfo.InvariantCulture)).ToString(
-                                                             CultureInfo.CurrentCulture);
+                    EntryDate = xmlElement.GetOADate("ext02").GetValueOrDefault();
                 }
 
                 if (xmlElement.GetAttributeValue("ext03") != null)
@@ -101,10 +98,7 @@ namespace erminas.SmartAPI.CMS
 
                 if (xmlElement.GetAttributeValue("ext04") != null)
                 {
-                    ModificationDate =
-                        DateTime.FromOADate(double.Parse(xmlElement.GetAttributeValue("ext04"),
-                                                         CultureInfo.InvariantCulture)).ToString(
-                                                             CultureInfo.CurrentCulture);
+                    ModificationDate = xmlElement.GetOADate("ext04").GetValueOrDefault();
                 }
 
                 if (xmlElement.GetAttributeValue("ext05") != null)
