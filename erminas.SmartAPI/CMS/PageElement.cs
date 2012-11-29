@@ -48,7 +48,7 @@ namespace erminas.SmartAPI.CMS
                 {
                     if (curType.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}) == null)
                     {
-                        throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlNode)",
+                        throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlElement)",
                                                           curType.Name));
                     }
                     TYPES.Add(((PageElementType) curAttr).Type, curType);

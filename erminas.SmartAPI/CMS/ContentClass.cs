@@ -929,7 +929,7 @@ namespace erminas.SmartAPI.CMS
             /// </summary>
             public DateTime Date
             {
-                get { return _date ?? (_date = DateTimeConvert(XmlNode.GetAttributeValue("date"))).Value; }
+                get { return _date ?? (_date = XmlNode.GetOADate()).GetValueOrDefault(); }
             }
 
             protected override void LoadXml(XmlElement node)
