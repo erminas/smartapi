@@ -92,7 +92,7 @@ namespace erminas.SmartAPI.CMS
         public int Count()
         {
             XmlDocument xmlDoc = RunQuery(true);
-            return ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").Value;
+            return ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").GetValueOrDefault();
         }
 
         private XmlDocument RunQuery(bool isCountOnly)

@@ -46,7 +46,7 @@ namespace erminas.SmartAPI.CMS
             {
                 foreach (object curAttr in curType.GetCustomAttributes(typeof (PageElementType), false))
                 {
-                    if (curType.GetConstructor(new[] {typeof (Project), typeof (XmlNode)}) == null)
+                    if (curType.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}) == null)
                     {
                         throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlNode)",
                                                           curType.Name));
@@ -130,7 +130,7 @@ namespace erminas.SmartAPI.CMS
         ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="project"> Page that contains the element </param>
-        /// <param name="xmlNode"> XML representation of the element </param>
+        /// <param name="xmlElement"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
         public static PageElement CreateElement(Project project, XmlElement xmlElement)
         {
@@ -143,7 +143,9 @@ namespace erminas.SmartAPI.CMS
 
             return
                 (PageElement)
-                type.GetConstructor(new[] {typeof (Project), typeof (XmlNode)}).Invoke(new object[]
+// ReSharper disable PossibleNullReferenceException
+                type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
+// ReSharper restore PossibleNullReferenceException
                                                                                            {project, xmlElement});
         }
 
