@@ -240,6 +240,7 @@ namespace erminas.SmartAPI.CMS
         public int Id
         {
             get { return LazyLoad(ref _id); }
+            set { _id = value; }
         }
 
         /// <summary>

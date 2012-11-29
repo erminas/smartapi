@@ -92,7 +92,8 @@ namespace erminas.SmartAPI.CMS
         private ProjectLockLevel _locklevel;
         private string _name;
 
-        public Project(Session session, XmlElement xmlElement) : base(xmlElement)
+        public Project(Session session, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Session = session;
             LoadXml(xmlElement);
@@ -251,7 +252,7 @@ namespace erminas.SmartAPI.CMS
 
             var xmlDoc = ExecuteRQL(LOAD_SESSION_INFO, RqlType.SessionKeyInProject);
             string languageId =
-                ((XmlElement) xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
+                ((XmlElement)xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
             return _currentLanguageVariant = LanguageVariants[languageId];
         }
 
@@ -340,7 +341,7 @@ namespace erminas.SmartAPI.CMS
         protected override void LoadXml(XmlElement node)
         {
             InitIfPresent(ref _name, "name", x => x);
-            InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));
+            InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel)int.Parse(x));
         }
 
         /// <summary>
@@ -378,7 +379,7 @@ namespace erminas.SmartAPI.CMS
             //todo oder muss das als plain (ohne sessionkey) gesendet werden?
             //todo return value checken
             ExecuteRQL(string.Format(SET_USER_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString(),
-                                     "1", (int) accessLevel));
+                                     "1", (int)accessLevel));
         }
 
         /// <summary>
@@ -390,10 +391,10 @@ namespace erminas.SmartAPI.CMS
                 @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load""/></USER></ADMINISTRATION>";
             XmlDocument xmlDoc =
                 ExecuteRQL(string.Format(LOAD_ACCESS_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString()));
-            var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("PROJECT")[0];
+            var xmlNode = (XmlElement)xmlDoc.GetElementsByTagName("PROJECT")[0];
             if (!string.IsNullOrEmpty(xmlNode.GetAttributeValue("guid")))
             {
-                return (UserAccessLevel) xmlNode.GetIntAttributeValue("userlevel").Value;
+                return (UserAccessLevel)xmlNode.GetIntAttributeValue("userlevel").Value;
             }
 
             return UserAccessLevel.None;
@@ -445,7 +446,7 @@ namespace erminas.SmartAPI.CMS
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
 
             return (from XmlElement curNode in xmlNodes
-                    select new ContentClass(this, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")}).ToList();
+                    select new ContentClass(this, curNode.GetGuid()) { Name = curNode.GetAttributeValue("name") }).ToList();
         }
 
         #region PAGES
@@ -526,7 +527,7 @@ namespace erminas.SmartAPI.CMS
         {
             try
             {
-                var pageItem = (XmlElement) xmlDoc.GetElementsByTagName("PAGE")[0];
+                var pageItem = (XmlElement)xmlDoc.GetElementsByTagName("PAGE")[0];
                 return new Page(this, pageItem);
             }
             catch (Exception e)
@@ -762,7 +763,7 @@ namespace erminas.SmartAPI.CMS
             const string LIST_PAGES = @"<PROJECT><PAGES action=""list""/></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_PAGES);
             return
-                (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE") select new Page(this, curPage.GetGuid()))
+                (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE") select new Page(this, curPage.GetGuid()) { Headline = curPage.GetAttributeValue("headline"), Id = curPage.GetIntAttributeValue("id").GetValueOrDefault() })
                     .ToList();
         }
 
