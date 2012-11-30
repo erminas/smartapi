@@ -398,6 +398,21 @@ namespace erminas.SmartAPI.CMS
             Status = PageState.NotSet;
         }
 
+
+        /// <summary>
+        /// Delete the page irrevocably. Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
+        /// </summary>
+        public void DeleteIrrevocably()
+        {
+            Delete();
+            Page page;
+            Project.PagesOfCurrentLanguageVariant.Refresh();
+            if (Project.PagesOfCurrentLanguageVariant.TryGetByName(Name, out page))
+            {
+                DeleteFromRecycleBin();
+            }
+        }
+
         /// <summary>
         ///   Restore page from recycle bin
         /// </summary>
