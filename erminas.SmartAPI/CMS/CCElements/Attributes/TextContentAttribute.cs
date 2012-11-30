@@ -67,8 +67,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             }
             set
             {
+                _hasChanged = value != Text;
                 _text = value;
-                _hasChanged = true;
             }
         }
 
@@ -108,10 +108,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                                                _text).
                         ToRQLString());
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 throw new Exception("could not set " + _type.ToString().ToLower() + " text for " + parent.Name + "(" +
-                                    parent.Guid.ToRQLString() + ")");
+                                    parent.Guid.ToRQLString() + ")", e);
             }
             _hasChanged = false;
         }
