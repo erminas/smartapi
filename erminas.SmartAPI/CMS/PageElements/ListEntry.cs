@@ -28,7 +28,10 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public ListEntry(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected sealed override void LoadWholePageElement()
+        {
         }
     }
 }

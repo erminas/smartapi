@@ -88,9 +88,5 @@ namespace erminas.SmartAPI.CMS
                 return path;
             }
         }
-
-        protected override void LoadXml(XmlElement node)
-        {
-        }
     }
 }

@@ -45,7 +45,6 @@ namespace erminas.SmartAPI.CMS
         private DbTypeId _dBType;
 
         private bool _isCreateAllowed;
-        private string _name;
         private Guid _productGuid;
 
         public DatabaseServer(Session session, Guid guid)
@@ -57,7 +56,7 @@ namespace erminas.SmartAPI.CMS
         public DatabaseServer(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public bool IsCreateAllowed
@@ -71,12 +70,6 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _productGuid); }
         }
 
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
-
         public DbTypeId DBType
         {
             get { return LazyLoad(ref _dBType); }
@@ -85,12 +78,16 @@ namespace erminas.SmartAPI.CMS
 
         public Session Session { get; set; }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             InitIfPresent(ref _isCreateAllowed, "createallowed", BoolConvert);
             InitIfPresent(ref _productGuid, "productguid", GuidConvert);
-            InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _dBType, "dbtypeid", x => (DbTypeId) int.Parse(x));
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

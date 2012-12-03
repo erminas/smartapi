@@ -34,5 +34,14 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             return new Uri(value);
         }
+
+        protected override string ToXmlNodeValue(Uri value)
+        {
+            return value.ToString();
+        }
+
+        protected override void LoadWholeStandardField()
+        {
+        }
     }
 }

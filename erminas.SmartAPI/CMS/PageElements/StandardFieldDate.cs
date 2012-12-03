@@ -21,6 +21,9 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    /// <summary>
+    /// Standard field for dates. Takes input for SetValueFromString in the format yyyy-MM-dd.
+    /// </summary>
     [PageElementType(ElementType.StandardFieldDate)]
     public class StandardFieldDate : StandardField<DateTime>
     {
@@ -28,7 +31,6 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public StandardFieldDate(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
 
         public StandardFieldDate(Project project, Guid guid)
@@ -39,6 +41,15 @@ namespace erminas.SmartAPI.CMS.PageElements
         protected override DateTime FromString(string value)
         {
             return DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
+        protected override string ToXmlNodeValue(DateTime value)
+        {
+            return value.Subtract(BASE_DATE).Days.ToString(CultureInfo.InvariantCulture);
+        }
+
+        protected override void LoadWholeStandardField()
+        {
         }
 
         protected override DateTime FromXmlNodeValue(string value)

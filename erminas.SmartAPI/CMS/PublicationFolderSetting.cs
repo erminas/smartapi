@@ -30,14 +30,16 @@ namespace erminas.SmartAPI.CMS
             PublicationSetting = parent;
         }
 
-        public PublicationSetting PublicationSetting { get; set; }
-
-        public new string Name
+        public PublicationFolderSetting(PublicationSetting parent, XmlElement element)
+            : base(element)
         {
-            get { return base.Name; }
-            set { base.Name = value; }
+            PublicationSetting = parent;
+
+            LoadXml();
         }
 
+        public PublicationSetting PublicationSetting { get; set; }
+        
         public PublicationFolder PublicationFolder
         {
             get { return LazyLoad(ref _publicationFolder); }
@@ -65,13 +67,19 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             const string FOLDER_GUID = "folderguid";
-            _publicationFolder = String.IsNullOrEmpty(node.GetAttributeValue(FOLDER_GUID))
-                                     ? null
-                                     : new PublicationFolder(PublicationSetting.PublicationPackage.Project,
-                                                             node.GetGuid(FOLDER_GUID));
+            Guid tmpGuid;
+            _publicationFolder = XmlNode.TryGetGuid(FOLDER_GUID, out tmpGuid)
+                                     ? new PublicationFolder(PublicationSetting.PublicationPackage.Project,
+                                                             tmpGuid)
+                                     : null;
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

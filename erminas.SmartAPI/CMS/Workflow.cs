@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
@@ -27,63 +26,29 @@ namespace erminas.SmartAPI.CMS
     {
         public readonly Project Project;
 
-        public Workflow(Project project, XmlElement xmlElement) : base(xmlElement)
+        public Workflow(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
-        public Workflow(Project project, Guid guid) : base(guid)
+        public Workflow(Project project, Guid guid)
+            : base(guid)
         {
             Project = project;
         }
 
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            XmlAttributeCollection attr = node.Attributes;
-            try
-            {
-                if (attr["action"] != null)
-                {
-                    Action = attr["action"].Value;
-                }
-                if (attr["dialoglanguageid"] != null)
-                {
-                    DialogLanguageId = attr["dialoglanguageid"].Value;
-                }
-                if (attr["languagevariantid"] != null)
-                {
-                    LanguageVariantId = attr["languagevariantid"].Value;
-                }
-                if (attr["name"] != null)
-                {
-                    Name = attr["name"].Value;
-                }
-                if (attr["inherit"] != null)
-                {
-                    Inherit = attr["inherit"].Value;
-                }
-                if (attr["structureworkflow"] != null)
-                {
-                    StructureWorkflow = attr["structureworkflow"].Value;
-                }
-                if (attr["global"] != null)
-                {
-                    Global = attr["global"].Value;
-                }
+            Action = XmlNode.GetAttributeValue("action");
+            LanguageVariantId = XmlNode.GetAttributeValue("languagevariantid");
+            DialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
 
-                Guid tempGuid; // used for parsing
-                if (attr["guid"] != null && Guid.TryParse(attr["guid"].Value, out tempGuid))
-                {
-                    Guid = tempGuid;
-                }
-            }
-            catch (Exception e)
-            {
-                // couldn't read data
-                throw new RedDotDataException("Couldn't read content class data..", e);
-            }
+            Inherit = XmlNode.GetAttributeValue("inherit");
+            StructureWorkflow = XmlNode.GetAttributeValue("structureworkflow");
+            Global = XmlNode.GetAttributeValue("global");
         }
 
 
@@ -93,6 +58,11 @@ namespace erminas.SmartAPI.CMS
             return
                 (from XmlElement node in XmlNode.SelectNodes("descendant::NODE") select new WorkFlowAction(node)).ToList
                     ();
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

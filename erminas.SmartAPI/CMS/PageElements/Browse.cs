@@ -29,5 +29,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         public Browse(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
+
+        protected override void LoadWholePageElement()
+        {
+        }
     }
 }

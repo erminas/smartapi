@@ -31,14 +31,14 @@ namespace erminas.SmartAPI.CMS
     /// </remarks>
     public abstract class RedDotObject : AbstractAttributeContainer, IRedDotObject
     {
-        [ScriptIgnore] protected static XmlDocument _xmlDoc = new XmlDocument();
+        [ScriptIgnore] protected static XmlDocument XMLDoc = new XmlDocument();
 
         private Guid _guid = Guid.Empty;
+        protected string _name;
 
         protected RedDotObject()
         {
         }
-
 
         protected RedDotObject(Guid guid)
         {
@@ -46,20 +46,28 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Create a new RedDotObject out of an XML node.
+        ///   Create a new RedDotObject out of an XML element.
         /// </summary>
         /// <remarks>
-        ///   if the XML node is not null, a copy is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
+        ///   A copy of the XML element is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
+        /// <exception cref="ArgumentNullException">thrown, if xmlElement is null</exception>
         protected RedDotObject(XmlElement xmlElement)
             : base(xmlElement)
         {
-            if (xmlElement != null)
+            if (xmlElement == null)
             {
-                XmlNode = (XmlElement) xmlElement.Clone();
-                //TODO ensure init?
-                InitIfPresent(ref _guid, "guid", GuidConvert);
+                throw new ArgumentNullException("xmlElement");
             }
+            XmlNode = (XmlElement) xmlElement.Clone();
+
+            InitGuidAndName();
+        }
+
+        protected void InitGuidAndName()
+        {
+            InitIfPresent(ref _guid, "guid", GuidConvert);
+            InitIfPresent(ref _name, "name", x => x);
         }
 
         #region IRedDotObject Members
@@ -84,7 +92,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        public virtual string Name { get; set; }
+        public virtual string Name { get { return _name; } set { _name = value; } }
 
         #endregion
 
@@ -122,11 +130,6 @@ namespace erminas.SmartAPI.CMS
         {
             return BoolConvert(str);
         }
-
-        /// <summary>
-        ///   Method for loading the attribute values out of an XML node. Usually called during construction of the object.
-        /// </summary>
-        protected abstract void LoadXml(XmlElement node);
 
         /// <summary>
         ///   Get the string representation of the current object, which is needed in RQL to create/change a RedDotObject on the server. Adds an attribute "action" with value "save" to an XML node, replaces all attribute values which are null or empty with <see
@@ -201,6 +204,11 @@ namespace erminas.SmartAPI.CMS
         public override int GetHashCode()
         {
             return _guid.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Name + " (" + Guid.ToRQLString() + ")";
         }
     }
 }

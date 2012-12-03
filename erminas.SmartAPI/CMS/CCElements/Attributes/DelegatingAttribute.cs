@@ -76,6 +76,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return attr != null && Name == attr.Name && Equals(_getValue(), attr._getValue());
         }
 
+        public void Refresh()
+        {
+        }
+
         #endregion
 
         public override int GetHashCode()

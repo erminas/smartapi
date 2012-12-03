@@ -36,13 +36,12 @@ namespace erminas.SmartAPI.CMS
         public readonly Project Project;
 
         private LanguageVariant _languageVariant;
-        private string _name;
 
         public Category(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public Category(Project project, Guid guid)
@@ -51,16 +50,7 @@ namespace erminas.SmartAPI.CMS
             Project = project;
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
         }
-
-        /// <summary>
-        ///   Name of the category. Setting it is only clientside until <see cref="Commit" /> gets called.
-        /// </summary>
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
-
+        
         /// <summary>
         ///   The current language variant.
         /// </summary>
@@ -78,10 +68,15 @@ namespace erminas.SmartAPI.CMS
             Project.ExecuteRQL(string.Format(SAVE_CATEGORY, Guid.ToRQLString(), HttpUtility.HtmlEncode(Name)));
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             EnsuredInit(ref _name, "value", HttpUtility.HtmlDecode);
             InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

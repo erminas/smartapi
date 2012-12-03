@@ -51,8 +51,6 @@ namespace erminas.SmartAPI.CMS
     /// </remarks>
     public abstract class PartialRedDotObject : RedDotObject, IPartialRedDotObject
     {
-        private string _name;
-
         /// <summary>
         ///   Create a new PartialRedDotObject and initialize it with an XmlNode. The object is completly initialized afterwards ( <see
         ///    cref="IsInitialized" /> )
@@ -83,18 +81,21 @@ namespace erminas.SmartAPI.CMS
 
         #region IPartialRedDotObject Members
 
-        public override string Name
+        public override sealed string Name
         {
             get { return LazyLoad(ref _name); }
-            set { _name = value; }
         }
 
         public virtual void Refresh()
         {
             XmlNode = (XmlElement) RetrieveWholeObject().Clone();
-            LoadXml(XmlNode);
+
+            InitGuidAndName();
+            LoadWholeObject();
             IsInitialized = true;
         }
+
+        protected abstract void LoadWholeObject();
 
         public void EnsureInitialization()
         {

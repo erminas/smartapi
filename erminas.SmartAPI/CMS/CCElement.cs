@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         /// <summary>
@@ -55,11 +55,6 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public ElementType Type { get; private set; }
 
-        protected string this[string attributeName]
-        {
-            get { return XmlNode.GetAttributeValue(attributeName); }
-        }
-
         /// <summary>
         ///   Language variant of the element (a separate instance exists for every language variant on the server).
         /// </summary>
@@ -68,7 +63,7 @@ namespace erminas.SmartAPI.CMS
             get
             {
                 return _languageVariant ??
-                       (_languageVariant = ContentClass.Project.LanguageVariants[this[LANGUAGEVARIANTID]]);
+                       (_languageVariant = ContentClass.Project.LanguageVariants[XmlNode.GetAttributeValue(LANGUAGEVARIANTID)]);
             }
         }
 
@@ -76,10 +71,10 @@ namespace erminas.SmartAPI.CMS
 
         public override string Name { get; set; }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            Name = this["eltname"];
-            Type = (ElementType) int.Parse(this["elttype"]);
+            Name = XmlNode.GetAttributeValue("eltname");
+            Type = (ElementType) XmlNode.GetIntAttributeValue("elttype").GetValueOrDefault();
         }
 
         /// <summary>

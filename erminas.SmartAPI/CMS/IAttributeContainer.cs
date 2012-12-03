@@ -27,5 +27,7 @@ namespace erminas.SmartAPI.CMS
         void RegisterAttribute(IRDAttribute attribute);
         void AssignAttributes(List<IRDAttribute> attributes);
         IRDAttribute GetAttribute(string name);
+
+        void RefreshAttributeValues();
     }
 }

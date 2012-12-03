@@ -116,10 +116,11 @@ namespace erminas.SmartAPI.CMS
         private DateTime _releaseDate;
         private PageReleaseStatus _releaseStatus;
 
-        public Page(Project project, XmlElement xmlElement) : base(xmlElement)
+        public Page(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Project = project;
-            Init(xmlElement);
+            LoadXml();
             //reset isinitialized, because other information can still be retrieved
             //TODO find a clean solution for the various partial initialization states the page can be in
             IsInitialized = false;
@@ -138,7 +139,7 @@ namespace erminas.SmartAPI.CMS
         #region IPage Members
 
         /// <summary>
-        ///   All keywords associated with this page.
+        ///   All newKeywords associated with this page.
         /// </summary>
         public NameIndexedRDList<Keyword> Keywords { get; private set; }
 
@@ -253,11 +254,11 @@ namespace erminas.SmartAPI.CMS
             {
                 const string SET_RELEASE_STATUS = @"<PAGE action=""save"" guid=""{0}"" actionflag=""{1}""/>";
                 XmlDocument xmlDoc =
-                    Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int) value));
+                    Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int)value));
                 XmlNodeList pageElements = xmlDoc.GetElementsByTagName("PAGE");
                 if (pageElements.Count != 1 ||
-                    (int.Parse(((XmlElement) pageElements[0]).GetAttributeValue("actionflag")) & (int) value) !=
-                    (int) value)
+                    (int.Parse(((XmlElement)pageElements[0]).GetAttributeValue("actionflag")) & (int)value) !=
+                    (int)value)
                 {
                     throw new Exception("Could not set release status to " + value);
                 }
@@ -272,7 +273,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public Workflow Workflow
         {
-            get { return new Workflow(Project, ((XmlElement) XmlNode.SelectSingleNode("descendant::WORKFLOW")).GetGuid()); }
+            get { return new Workflow(Project, ((XmlElement)XmlNode.SelectSingleNode("descendant::WORKFLOW")).GetGuid()); }
         }
 
         /// <summary>
@@ -303,6 +304,8 @@ namespace erminas.SmartAPI.CMS
             const string DELETE_KEYWORD =
                 @"<PROJECT><PAGE guid=""{0}"" action=""unlink""><KEYWORD guid=""{1}"" /></PAGE></PROJECT>";
             Project.ExecuteRQL(string.Format(DELETE_KEYWORD, Guid.ToRQLString(), keyword.Guid.ToRQLString()));
+
+            Keywords.InvalidateCache();
         }
 
         /// <summary>
@@ -357,7 +360,7 @@ namespace erminas.SmartAPI.CMS
             const string SKIP_WORKFLOW =
                 @"<PAGE action=""save"" guid=""{0}"" globalsave=""0"" skip=""1"" actionflag=""{1}"" />";
 
-            Project.ExecuteRQL(string.Format(SKIP_WORKFLOW, Guid.ToRQLString(), (int) PageReleaseStatus.WorkFlow));
+            Project.ExecuteRQL(string.Format(SKIP_WORKFLOW, Guid.ToRQLString(), (int)PageReleaseStatus.WorkFlow));
         }
 
         /// <summary>
@@ -451,11 +454,6 @@ namespace erminas.SmartAPI.CMS
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
         }
 
-        private void Init(XmlElement xmlElement)
-        {
-            LoadXml(xmlElement);
-        }
-
         private PageElement TryCreateElement(XmlElement xmlElement)
         {
             try
@@ -476,21 +474,19 @@ namespace erminas.SmartAPI.CMS
                     select element).ToList();
         }
 
-
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             //TODO schoenere loesung fuer partielles nachladen von pages wegen unterschiedlicher anfragen fuer unterschiedliche infos
             InitIfPresent(ref _id, "id", int.Parse);
             InitIfPresent(ref _lang, "languagevariantid", x => Project.LanguageVariants[x]);
             InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x)));
-            InitIfPresent(ref _headline, "headline", HttpUtility.HtmlDecode);
-            InitIfPresent(ref _pageFlags, "flags", x => (PageFlags) int.Parse(x));
-            Name = HttpUtility.HtmlDecode(node.GetAttributeValue("name"));
+            InitIfPresent(ref _headline, "headline", x => x);
+            InitIfPresent(ref _pageFlags, "flags", x => (PageFlags)int.Parse(x));
             InitIfPresent(ref _ccGuid, "templateguid", Guid.Parse);
-            InitIfPresent(ref _pageState, "status", x => (PageState) int.Parse(x));
+            InitIfPresent(ref _pageState, "status", x => (PageState)int.Parse(x));
 
             _releaseStatus = ReleaseStatusFromFlags();
-            
+
             _checkinDate = XmlNode.GetOADate("checkindate").GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
@@ -519,6 +515,11 @@ namespace erminas.SmartAPI.CMS
             return default(PageReleaseStatus);
         }
 
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
+
         protected override XmlElement RetrieveWholeObject()
         {
             const string REQUEST_PAGE = @"<PAGE action=""load"" guid=""{0}""/>";
@@ -529,7 +530,7 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new Exception(string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
             }
-            return (XmlElement) pages[0];
+            return (XmlElement)pages[0];
         }
 
         private List<PageElement> GetLinks()
@@ -557,6 +558,40 @@ namespace erminas.SmartAPI.CMS
                 (from XmlElement curNode in xmlDoc.GetElementsByTagName("KEYWORD") select new Keyword(Project, curNode))
                     .
                     ToList();
+        }
+
+        public void AddKeyword(Keyword keyword)
+        {
+            if (Keywords.ContainsGuid(keyword.Guid))
+            {
+                return;
+            }
+
+            const string ADD_KEYWORD = @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS><KEYWORD guid=""{1}"" changed=""1"" /></KEYWORDS></PAGE>";
+            Project.ExecuteRQL(string.Format(ADD_KEYWORD, Guid.ToRQLString(), keyword.Guid.ToRQLString()), Project.RqlType.SessionKeyInProject);
+            //server sends empty reply
+
+            Keywords.InvalidateCache();
+        }
+
+        public void SetKeywords(List<Keyword> newKeywords)
+        {
+            const string SET_KEYWORDS = @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS>{1}</KEYWORDS></PAGE>";
+            const string REMOVE_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" delete=""1"" changed=""1"" />";
+            const string ADD_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" changed=""1"" />";
+
+            string toRemove = Keywords.Except(newKeywords).Aggregate("", (x, y) => x + string.Format(REMOVE_SINGLE_KEYWORD, y.Guid.ToRQLString()));
+
+            string toAdd = newKeywords.Except(Keywords).Aggregate("", (x, y) => x + string.Format(ADD_SINGLE_KEYWORD, y.Guid.ToRQLString()));
+
+            if (string.IsNullOrEmpty(toRemove) && string.IsNullOrEmpty(toAdd))
+            {
+                return;
+            }
+
+            Project.ExecuteRQL(string.Format(SET_KEYWORDS, Guid.ToRQLString(), toRemove + toAdd), Project.RqlType.SessionKeyInProject);
+
+            Keywords.InvalidateCache();
         }
     }
 }

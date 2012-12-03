@@ -29,5 +29,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         public Frame(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
+
+        protected sealed override void LoadWholePageElement()
+        {
+        }
     }
 }

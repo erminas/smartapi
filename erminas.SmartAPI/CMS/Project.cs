@@ -90,13 +90,12 @@ namespace erminas.SmartAPI.CMS
 
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
-        private string _name;
 
         public Project(Session session, XmlElement xmlElement)
             : base(xmlElement)
         {
             Session = session;
-            LoadXml(xmlElement);
+            LoadXml();
             Init();
         }
 
@@ -106,13 +105,7 @@ namespace erminas.SmartAPI.CMS
             Session = session;
             Init();
         }
-
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
-
+        
         /// <summary>
         ///   All info attributes in the project, indexed by id. The list is cached by default.
         /// </summary>
@@ -338,9 +331,8 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel)int.Parse(x));
         }
 
@@ -432,6 +424,11 @@ namespace erminas.SmartAPI.CMS
                                    string content)
         {
             return Session.SetTextContent(Guid, languageVariant, textElementGuid, typeString, content);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

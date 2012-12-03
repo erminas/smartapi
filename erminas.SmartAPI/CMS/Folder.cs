@@ -135,12 +135,12 @@ namespace erminas.SmartAPI.CMS
 
         private bool _isAssetManagerFolder;
         private Folder _linkedFolder;
-        private string _name;
 
-        public Folder(Project project, XmlElement xmlElement) : base(xmlElement)
+        public Folder(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
             Init();
         }
 
@@ -149,11 +149,6 @@ namespace erminas.SmartAPI.CMS
         {
             Project = project;
             Init();
-        }
-
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
         }
 
         public Project Project { get; set; }
@@ -175,17 +170,21 @@ namespace erminas.SmartAPI.CMS
             AllFiles = new CachedList<File>(GetAllFiles, Caching.Enabled);
         }
 
-        protected override void LoadXml(XmlElement xmlNode)
+        private void LoadXml()
         {
-            InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _isAssetManagerFolder, "catalog", BoolConvert);
 
             Guid linkedProjectGuid;
-            if (xmlNode.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
+            if (XmlNode.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
             {
                 _linkedFolder = new Folder(Project.Session.Projects.GetByGuid(linkedProjectGuid),
-                                           xmlNode.GetGuid("linkedfolderguid"));
+                                           XmlNode.GetGuid("linkedfolderguid"));
             }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()
@@ -198,7 +197,7 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new Exception(String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
             }
-            return (XmlElement) folders[0];
+            return (XmlElement)folders[0];
         }
 
         private List<File> RetrieveFiles(string rqlString)
@@ -291,7 +290,7 @@ namespace erminas.SmartAPI.CMS
         public FileAttribute FileInfos(String fileName)
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LIST_FILE_ATTRIBUTES, Guid.ToRQLString(), fileName));
-            var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
+            var node = (XmlElement)xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
             return new FileAttribute(node);
         }
 

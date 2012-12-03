@@ -25,7 +25,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         #region ElementDescriptions
 
-        [ScriptIgnore] public static readonly Dictionary<string, string> ElementDescription = new Dictionary
+        [ScriptIgnore]
+        public static readonly Dictionary<string, string> ElementDescription = new Dictionary
             <string, string>
                                                                                                   {
                                                                                                       {
@@ -705,6 +706,13 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 }
             }
             parent.RegisterAttribute(this);
+        }
+
+        public void Refresh()
+        {
+            var xmlNodeValue = GetXmlNodeValue();
+
+            UpdateValue(string.IsNullOrEmpty(xmlNodeValue) || xmlNodeValue == Session.SESSIONKEY_PLACEHOLDER ? null : xmlNodeValue);
         }
 
         #region IRDAttribute Members

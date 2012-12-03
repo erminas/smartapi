@@ -96,6 +96,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             }
         }
 
+        public void Refresh()
+        {
+        }
+
         #endregion
     }
 }

@@ -29,13 +29,13 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public StandardFieldRegexBased(Project project, XmlElement xmlElement, Regex regex) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+            LoadXml();
             _regex = regex;
         }
 
         public StandardFieldRegexBased(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public override string Value
@@ -60,13 +60,20 @@ namespace erminas.SmartAPI.CMS.PageElements
             return value;
         }
 
-        protected override void LoadXml(XmlElement xmlElement)
+        protected override string ToXmlNodeValue(string value)
         {
-            base.LoadXml(xmlElement);
+            return value;
+        }
 
-            InitIfPresent(ref _value, "value", x => x);
+        private void LoadXml()
+        {
             InitIfPresent(ref _maxSize, "eltmaxsize", int.Parse);
             InitIfPresent(ref _regex, "eltverifytermregexp", x => new Regex(x));
+        }
+
+        protected override void LoadWholeStandardField()
+        {
+            LoadXml();
         }
     }
 }

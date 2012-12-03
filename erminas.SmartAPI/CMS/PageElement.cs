@@ -65,7 +65,7 @@ namespace erminas.SmartAPI.CMS
         protected PageElement(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         #region IPageElement Members
@@ -111,11 +111,18 @@ namespace erminas.SmartAPI.CMS
             TYPES.Add(typeValue, type);
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            Name = node.GetAttributeValue("eltname");
             InitIfPresent(ref _page, "pageguid", x => new Page(Project, GuidConvert(x)));
         }
+
+        protected override sealed void LoadWholeObject()
+        {
+            LoadXml();
+            LoadWholePageElement();
+        }
+
+        protected abstract void LoadWholePageElement();
 
         protected override XmlElement RetrieveWholeObject()
         {

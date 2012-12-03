@@ -201,6 +201,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return defaultNames.SequenceEqual(otherDefaultNames);
         }
 
+        public void Refresh()
+        {
+            _value = null;
+        }
+
         public string Description
         {
             get { return "Selection"; }

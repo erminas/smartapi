@@ -40,5 +40,14 @@ namespace erminas.SmartAPI.CMS.PageElements
 
             throw new ArgumentException(string.Format("Not a valid numerical value: {0}", value), value);
         }
+
+        protected override string ToXmlNodeValue(string value)
+        {
+            return value;
+        }
+
+        protected override void LoadWholeStandardField()
+        {
+        }
     }
 }

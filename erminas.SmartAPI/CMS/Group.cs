@@ -14,10 +14,10 @@
  * If not, see <http://www.gnu.org/licenses/>. 
  */
 
-using System;
 using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -33,10 +33,6 @@ namespace erminas.SmartAPI.CMS
             Users = null;
         }
 
-        /* Element specific data */
-        /* END: Element specific data */
-
-
         /// <summary>
         ///   Reads group data from XML-Element "GROUP" like: <pre>
         ///                                                     <GROUP action="load" guid="[!guid_group!]" name="group_name"
@@ -45,9 +41,10 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="xmlElement"> </param>
-        public Group(XmlElement xmlElement) : base(xmlElement)
+        public Group(XmlElement xmlElement)
+            : base(xmlElement)
         {
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         /// <summary>
@@ -58,20 +55,9 @@ namespace erminas.SmartAPI.CMS
         public string Email { get; set; }
 
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            XmlAttributeCollection attr = node.Attributes;
-            try
-            {
-                Guid = Guid.Parse(attr["guid"].Value);
-                Name = attr["name"].Value;
-                Email = attr["email"].Value;
-            }
-            catch (Exception e)
-            {
-                // couldn't read data
-                throw new RedDotDataException("Couldn't read group data.", e);
-            }
+            Email = XmlNode.GetAttributeValue("email");
         }
     }
 }

@@ -59,6 +59,14 @@ namespace erminas.SmartAPI.CMS
             return _attributeMap[name];
         }
 
+        public void RefreshAttributeValues()
+        {
+            foreach (var rdAttribute in Attributes)
+            {
+                rdAttribute.Refresh();
+            }
+        }
+
         public void AssignAttributes(List<IRDAttribute> attributes)
         {
             foreach (IRDAttribute curAttribute in attributes)

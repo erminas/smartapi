@@ -24,8 +24,6 @@ namespace erminas.SmartAPI.CMS
 {
     public class PublicationPackage : PartialRedDotObject
     {
-        private string _name;
-
         public PublicationPackage(Project project, Guid guid)
             : base(guid)
         {
@@ -36,19 +34,8 @@ namespace erminas.SmartAPI.CMS
 
         public Project Project { get; set; }
 
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
-
         public CachedList<PublicationSetting> ExportSettings { get; private set; }
-
-        protected override void LoadXml(XmlElement node)
-        {
-            _name = node.GetAttributeValue("name");
-        }
-
+        
         private List<PublicationSetting> LoadExportSettings()
         {
             const string LOAD_PUBLICATION_PACKAGE =
@@ -58,6 +45,10 @@ namespace erminas.SmartAPI.CMS
             return
                 (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
                  select new PublicationSetting(this, curSetting)).ToList();
+        }
+
+        protected override void LoadWholeObject()
+        {
         }
 
         protected override XmlElement RetrieveWholeObject()

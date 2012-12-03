@@ -35,6 +35,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected AbstractValueElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
+            LoadXml();
         }
 
         public virtual T Value
@@ -53,7 +54,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         public virtual void Commit()
         {
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), HttpUtility.HtmlEncode(_value)));
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), HttpUtility.HtmlEncode(ToXmlNodeValue(_value))));
             if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
             {
                 throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
@@ -61,7 +62,24 @@ namespace erminas.SmartAPI.CMS.PageElements
         }
 
         #endregion
+        
+        private void LoadXml()
+        {
+            InitIfPresent(ref _value, "value", FromXmlNodeValue);
+        }
+
+        protected sealed override void LoadWholePageElement()
+        {
+            LoadXml();
+            LoadWholeValueElement();
+        }
+
+        protected abstract void LoadWholeValueElement();
+
+        protected abstract T FromXmlNodeValue(string arg);
 
         protected abstract T FromString(string value);
+
+        protected abstract string ToXmlNodeValue(T value);
     }
 }

@@ -98,7 +98,6 @@ namespace erminas.SmartAPI.CMS
         private bool _hasContainerPageReference;
         private bool _isLocked;
         private bool _isStylesheetIncluded;
-        private string _name;
         private bool _noStartEndMarkers;
         private PdfOrientation _pdfOrientation;
         private State _status;
@@ -113,22 +112,13 @@ namespace erminas.SmartAPI.CMS
         public TemplateVariant(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = contentClass;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         //TODO mit reddotobjecthandle ersetzen
         public TemplateVariantHandle Handle
         {
             get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
-        }
-
-        /// <summary>
-        ///   Name of the template
-        /// </summary>
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
         }
 
         public bool HasContainerPageReference
@@ -259,39 +249,34 @@ namespace erminas.SmartAPI.CMS
                                                           doNotUseTidy.ToRQLString()));
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            var element = (node);
-            if (!String.IsNullOrEmpty(element.InnerText))
+            if (!String.IsNullOrEmpty(XmlNode.InnerText))
             {
-                _data = element.InnerText;
+                _data = XmlNode.InnerText;
             }
             InitIfPresent(ref _creationDate, "createdate", XmlUtil.ToOADate);
             InitIfPresent(ref _changeDate, "changeddate", XmlUtil.ToOADate);
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
-                              {Name = node.GetAttributeValue("createusername")});
+                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)){Name = XmlNode.GetAttributeValue("createusername")});
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
-                              {Name = node.GetAttributeValue("changedusername")});
-            InitIfPresent(ref _name, "name", x => x);
+                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)) { Name = XmlNode.GetAttributeValue("changedusername") });
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
             InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", BoolConvert);
             InitIfPresent(ref _noStartEndMarkers, "nostartendmarkers", BoolConvert);
             InitIfPresent(ref _isLocked, "lock", BoolConvert);
             InitIfPresent(ref _hasContainerPageReference, "containerpagereference", BoolConvert);
-
-            if (BoolConvert(node.GetAttributeValue("draft")))
+            if (BoolConvert(XmlNode.GetAttributeValue("draft")))
             {
                 _status = State.Draft;
             }
             else
             {
-                _status = BoolConvert(node.GetAttributeValue("waitforrelease")) ? State.WaitsForRelease : State.Released;
+                _status = BoolConvert(XmlNode.GetAttributeValue("waitforrelease")) ? State.WaitsForRelease : State.Released;
             }
         }
 
@@ -331,6 +316,11 @@ namespace erminas.SmartAPI.CMS
                 throw new Exception(errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
             }
             throw new Exception(errorMsg);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

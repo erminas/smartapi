@@ -34,7 +34,7 @@ namespace erminas.SmartAPI.CMS
                                                                                     Caching.
                                                                                         Enabled);
             PublicationPackage = package;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public PublicationPackage PublicationPackage { get; set; }
@@ -54,14 +54,14 @@ namespace erminas.SmartAPI.CMS
             get { return _exportFolderSettings; }
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            ProjectVariant = new ProjectVariant(PublicationPackage.Project, node.GetGuid("projectvariantguid"));
+            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlNode.GetGuid("projectvariantguid"));
 
-            Name = node.GetAttributeValue("projectvariantname") + "/" + node.GetAttributeValue("languagevariantname");
+            Name = XmlNode.GetAttributeValue("projectvariantname") + "/" + XmlNode.GetAttributeValue("languagevariantname");
             LanguageVariant =
-                PublicationPackage.Project.LanguageVariants.GetByGuid(node.GetGuid("languagevariantguid"));
-            XmlNodeList exportTargets = (node).GetElementsByTagName("EXPORTTARGET");
+                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlNode.GetGuid("languagevariantguid"));
+            XmlNodeList exportTargets = (XmlNode).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
                 (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
         }

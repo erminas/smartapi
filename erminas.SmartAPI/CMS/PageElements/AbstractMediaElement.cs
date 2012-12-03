@@ -31,7 +31,6 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
 
         public File Value
@@ -52,6 +51,10 @@ namespace erminas.SmartAPI.CMS.PageElements
                                                 Value.Folder.Guid.ToRQLString());
 
             Project.ExecuteRQL(rqlStr, Project.RqlType.InsertSessionKeyValues);
+        }
+
+        protected sealed override void LoadWholePageElement()
+        {
         }
     }
 }

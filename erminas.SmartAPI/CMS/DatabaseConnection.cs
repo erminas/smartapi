@@ -34,16 +34,20 @@ namespace erminas.SmartAPI.CMS
         public DatabaseConnection(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            InitIfPresent(ref _name, "name", x => x);
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _databaseServer, "databaseserverguid",
                           x => new DatabaseServer(Project.Session, GuidConvert(x)));
             InitIfPresent(ref _databaseName, "databasename", x => x);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()
@@ -62,15 +66,6 @@ namespace erminas.SmartAPI.CMS
         #region Properties
 
         public Project Project { get; set; }
-
-        /// <summary>
-        ///   Name of the database connection.
-        /// </summary>
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
 
         /// <summary>
         ///   Description of the database connection
@@ -103,7 +98,6 @@ namespace erminas.SmartAPI.CMS
         private string _databaseName;
         private DatabaseServer _databaseServer;
         private string _description;
-        private string _name;
 
         #endregion
     }

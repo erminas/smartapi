@@ -21,13 +21,15 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    /// <summary>
+    /// Standard field for time. Takes input for SetValueFromString in the format "H:mm".
+    /// </summary>
     [PageElementType(ElementType.StandardFieldTime)]
     public sealed class StandardFieldTime : StandardField<TimeSpan>
     {
         public StandardFieldTime(Project project, XmlElement xmlElement)
             : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
 
         public StandardFieldTime(Project project, Guid guid)
@@ -41,6 +43,16 @@ namespace erminas.SmartAPI.CMS.PageElements
             return DateTime.ParseExact(value, FORMAT, CultureInfo.InvariantCulture).TimeOfDay;
         }
 
+        protected override string ToXmlNodeValue(TimeSpan value)
+        {
+            var date = new DateTime(0, 0, value.Days, value.Hours, value.Minutes, value.Seconds);
+            return date.ToOADate().ToString(CultureInfo.InvariantCulture);
+        }
+
+        protected override void LoadWholeStandardField()
+        {
+        }
+
         protected override TimeSpan FromXmlNodeValue(string value)
         {
             return value.ToOADate().TimeOfDay;
@@ -50,8 +62,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
             Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
-                                             _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
-                                             _value.Seconds/(24.0*60.0*60.0)));
+                                             _value.Hours / 24.0 + _value.Minutes / (24.0 * 60.0) +
+                                             _value.Seconds / (24.0 * 60.0 * 60.0)));
             //TODO check guid
             //xml
         }

@@ -34,7 +34,6 @@ namespace erminas.SmartAPI.CMS
             ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses,
                                                                  Caching.Enabled);
             _project = project;
-            LoadXml(xmlElement);
         }
 
         /// <summary>
@@ -42,21 +41,16 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public NameIndexedRDList<ContentClass> ContentClasses { get; private set; }
 
-        protected override void LoadXml(XmlElement node)
-        {
-            Name = node.GetAttributeValue("name");
-        }
-
         private List<ContentClass> GetContentClasses()
         {
             // RQL for listing all content classes of a folder. 
             // One Parameter: Folder Guid: {0}
             const string LIST_CC_OF_FOLDER = @"<TEMPLATES folderguid=""{0}"" action=""list""/>";
 
-            _xmlDoc = _project.ExecuteRQL(string.Format(LIST_CC_OF_FOLDER, Guid.ToRQLString()));
+            XMLDoc = _project.ExecuteRQL(string.Format(LIST_CC_OF_FOLDER, Guid.ToRQLString()));
 
             return
-                (from XmlElement curNode in _xmlDoc.GetElementsByTagName("TEMPLATE")
+                (from XmlElement curNode in XMLDoc.GetElementsByTagName("TEMPLATE")
                  select new ContentClass(_project, curNode)).
                     ToList();
         }

@@ -28,10 +28,23 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public Headline(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected override void LoadWholeValueElement()
+        {
+        }
+
+        protected override string FromXmlNodeValue(string arg)
+        {
+            return arg;
         }
 
         protected override string FromString(string value)
+        {
+            return value;
+        }
+
+        protected override string ToXmlNodeValue(string value)
         {
             return value;
         }

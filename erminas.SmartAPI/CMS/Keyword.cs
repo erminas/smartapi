@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS
             : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public Keyword(Project project, Guid guid)
@@ -53,10 +53,15 @@ namespace erminas.SmartAPI.CMS
             Project.ExecuteRQL(string.Format(SAVE_KEYWORD, Guid.ToRQLString(), HttpUtility.HtmlEncode(Name)));
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            Name = node.GetAttributeValue("value");
+            Name = XmlNode.GetAttributeValue("value");
             InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

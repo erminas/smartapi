@@ -29,5 +29,9 @@ namespace erminas.SmartAPI.CMS.PageElements
         public HitList(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
+
+        protected sealed override void LoadWholePageElement()
+        {
+        }
     }
 }

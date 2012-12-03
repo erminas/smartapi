@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected Text(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public string Description
@@ -44,12 +44,24 @@ namespace erminas.SmartAPI.CMS.PageElements
             return value;
         }
 
-        protected override void LoadXml(XmlElement xmlElement)
+        private void LoadXml()
         {
-            //TODO xml laden in non-virtual funktionen
-            base.LoadXml(xmlElement);
             InitIfPresent(ref _description, "reddotdescription", x => x);
-            InitIfPresent(ref _value, "value", x => x);
+        }
+
+        protected sealed override void LoadWholeValueElement()
+        {
+            LoadXml();
+        }
+
+        protected sealed override string FromXmlNodeValue(string arg)
+        {
+            return arg;
+        }
+
+        protected sealed override string ToXmlNodeValue(string value)
+        {
+            return value;
         }
     }
 }

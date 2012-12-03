@@ -34,5 +34,14 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             return value;
         }
+
+        protected override string ToXmlNodeValue(string value)
+        {
+            return value;
+        }
+
+        protected override void LoadWholeStandardField()
+        {
+        }
     }
 }
