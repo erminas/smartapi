@@ -105,7 +105,7 @@ namespace erminas.SmartAPI.CMS
             Session = session;
             Init();
         }
-        
+
         /// <summary>
         ///   All info attributes in the project, indexed by id. The list is cached by default.
         /// </summary>
@@ -347,11 +347,12 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   Kicks off an asynchronous project export. For success / failure check emails from RedDot.
         /// </summary>
-        public void Export()
+        public void Export(string targetPath = "", bool createFolderForEachExport = false, bool includeAdminData = false, bool includeArchive = false, bool logoutUsers = false, CMSServer editorialServer = null, CMSServer reddotServer = null, bool emailNotification = false, User sendTo = null, string subject = "", string message = "")
         {
-            const string EXPORT = @"<ADMINISTRATION><PROJECT action=""export"" projectguid=""{0}""</ADMINISTRATION>";
-            //todo oder muss das als plain (ohne sessionkey) gesendet werden?
-            ExecuteRQL(String.Format(EXPORT, Guid.ToRQLString()));
+            const string EXPORT = @"<ADMINISTRATION><PROJECT action=""export"" projectguid=""{0}"" {1} /></ADMINISTRATION>";
+            var settings = new ExportSettings(targetPath, createFolderForEachExport, includeAdminData, includeArchive, logoutUsers, editorialServer, reddotServer, emailNotification, sendTo, subject, message);
+
+            ExecuteRQL(String.Format(EXPORT, Guid.ToRQLString(), settings.ToRQLString()));
         }
 
         /// <summary>

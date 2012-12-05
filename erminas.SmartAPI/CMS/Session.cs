@@ -37,6 +37,11 @@ namespace erminas.SmartAPI.CMS
         public readonly NameIndexedRDList<DatabaseServer> DatabaseServers;
 
         /// <summary>
+        ///   All CMS servers on the server.
+        /// </summary>
+        public readonly NameIndexedRDList<CMSServer> CMSServers;
+
+        /// <summary>
         ///   All projects on the server.
         /// </summary>
         public readonly NameIndexedRDList<Project> Projects;
@@ -46,13 +51,16 @@ namespace erminas.SmartAPI.CMS
             Projects = new NameIndexedRDList<Project>(GetProjects, Caching.Enabled);
             DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers,
                                                                     Caching.Enabled);
+            CMSServers = new NameIndexedRDList<CMSServer>(GetCMSServers,
+                                                                    Caching.Enabled);
         }
 
         /// <summary>
         ///   Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
         /// </summary>
         /// <param name="login"> Login data </param>
-        public Session(ServerLogin login) : this()
+        public Session(ServerLogin login)
+            : this()
         {
             Login = login;
             CmsClient = new CmsClient(login);
@@ -157,7 +165,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(string.Format(LOAD_USER, guid.ToRQLString()));
-            var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
+            var userElement = (XmlElement)xmlDoc.GetElementsByTagName("USER")[0];
             if (userElement == null)
             {
                 throw new Exception("could not load user: " + guid.ToRQLString());
@@ -308,6 +316,14 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
             return (from XmlElement curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
+        }
+
+        private List<CMSServer> GetCMSServers()
+        {
+            const string LIST_CMS_SERVERS = @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
+            XmlDocument xmlDoc = ExecuteRQL(LIST_CMS_SERVERS);
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
+            return (from XmlElement curNode in xmlNodes select new CMSServer(this, curNode)).ToList();
         }
     }
 

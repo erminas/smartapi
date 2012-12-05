@@ -65,6 +65,7 @@
     <Compile Include="CMS\CCElements\ProjectContent.cs" />
     <Compile Include="CMS\CCElements\StandardFieldNonDate.cs" />
     <Compile Include="CMS\CCElements\TargetFormat.cs" />
+    <Compile Include="CMS\CMSServer.cs" />
     <Compile Include="CMS\IPage.cs" />
     <Compile Include="CMS\PageElements\AbstractMediaElement.cs" />
     <Compile Include="CMS\PageElements\AnchorAsImage.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="CMS\WorkflowAction.cs" />
     <Compile Include="Utils\CachingContext.cs" />
     <Compile Include="Utils\DictionaryExtension.cs" />
+    <Compile Include="Utils\ExportSettings.cs" />
     <Compile Include="Utils\IRDList.cs" />
     <Compile Include="Utils\IndexedRDList.cs" />
     <Compile Include="Utils\LanguageContext.cs" />
