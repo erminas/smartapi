@@ -28,6 +28,12 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class Session : IDisposable
     {
+        public enum DeleteFromDB
+        {
+            No = 0,
+            Yes = 1
+        }
+
         public const string SESSIONKEY_PLACEHOLDER = "{__SESSION_KEY__}";
         private static readonly ILog LOG = LogManager.GetLogger("Session");
 
@@ -325,6 +331,20 @@ namespace erminas.SmartAPI.CMS
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
             return (from XmlElement curNode in xmlNodes select new CMSServer(this, curNode)).ToList();
         }
+
+        public void DeleteProject(Guid projectGuid, DeleteFromDB deleteFromDb)
+        {
+            string DELETE_PROJECT = @"<ADMINISTRATION><PROJECT action=""delete"" guid=""{0}"" deletedb=""{1}"" user="""" password=""""/></ADMINISTRATION>";
+            ExecuteRQL(string.Format(DELETE_PROJECT, projectGuid.ToRQLString(), (int)deleteFromDb));
+        }
+
+        public void DeleteProjectWithAlternativeLogon(Guid projectGuid, string user, string pw)
+        {
+            string DELETE_PROJECT_WITH_ALTERNATIVE_LOGON = @"<ADMINISTRATION><PROJECT action=""delete"" guid=""{0}"" deletedb=""{1}"" user=""{2}"" password=""{3}""/></ADMINISTRATION>";
+            ExecuteRQL(string.Format(DELETE_PROJECT_WITH_ALTERNATIVE_LOGON, projectGuid.ToRQLString(), (int)DeleteFromDB.Yes, user, pw));
+        }
+
+
     }
 
     public class RQLException : Exception
