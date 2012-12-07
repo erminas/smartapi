@@ -21,19 +21,19 @@ using System.Xml;
 namespace erminas.SmartAPI.CMS.PageElements
 {
     [PageElementType(ElementType.StandardFieldUserDefined)]
-    public sealed class StandardFieldRegexBased : StandardField<string>
+    public sealed class StandardFieldUserDefined : StandardField<string>
     {
-        public static readonly Regex NUMERIC_CHECK_REGEX = new Regex("(-)?\\d*((\\.|\\,)\\d*)?([eE](-)?\\d+)?");
+        public static readonly Regex NUMERIC_CHECK_REGEX = new Regex("^(-)?((\\d+((\\.|\\,)\\d*)?)|((\\.|\\,)\\d+))([eE](-)?\\d+)?$");
         private int _maxSize;
         private Regex _regex;
 
-        public StandardFieldRegexBased(Project project, XmlElement xmlElement, Regex regex) : base(project, xmlElement)
+        public StandardFieldUserDefined(Project project, XmlElement xmlElement, Regex regex) : base(project, xmlElement)
         {
             LoadXml();
             _regex = regex;
         }
 
-        public StandardFieldRegexBased(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        public StandardFieldUserDefined(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             set
             {
-                if (!_regex.IsMatch(value))
+                if (!string.IsNullOrEmpty(value) && !_regex.IsMatch(value))
                 {
                     throw new ArgumentException("Value doesn't match regular expression");
                 }
@@ -56,11 +56,6 @@ namespace erminas.SmartAPI.CMS.PageElements
         }
 
         protected override string FromString(string value)
-        {
-            return value;
-        }
-
-        protected override string ToXmlNodeValue(string value)
         {
             return value;
         }

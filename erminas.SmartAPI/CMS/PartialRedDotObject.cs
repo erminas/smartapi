@@ -55,7 +55,8 @@ namespace erminas.SmartAPI.CMS
         ///   Create a new PartialRedDotObject and initialize it with an XmlNode. The object is completly initialized afterwards ( <see
         ///    cref="IsInitialized" /> )
         /// </summary>
-        protected PartialRedDotObject(XmlElement xmlElement) : base(xmlElement)
+        protected PartialRedDotObject(XmlElement xmlElement)
+            : base(xmlElement)
         {
             IsInitialized = true;
         }
@@ -64,7 +65,8 @@ namespace erminas.SmartAPI.CMS
         ///   Create a new PartialRedDotObject with a guid only The object is only partially initialized afterwards ( <see
         ///    cref="IsInitialized" /> )
         /// </summary>
-        protected PartialRedDotObject(Guid guid) : base(guid)
+        protected PartialRedDotObject(Guid guid)
+            : base(guid)
         {
             IsInitialized = false;
         }
@@ -88,10 +90,11 @@ namespace erminas.SmartAPI.CMS
 
         public virtual void Refresh()
         {
-            XmlNode = (XmlElement) RetrieveWholeObject().Clone();
-
+            XmlNode = (XmlElement)RetrieveWholeObject().Clone();
             InitGuidAndName();
             LoadWholeObject();
+
+            RefreshAttributeValues();
             IsInitialized = true;
         }
 

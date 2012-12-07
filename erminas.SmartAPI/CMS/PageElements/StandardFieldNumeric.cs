@@ -22,7 +22,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldNumeric)]
     public class StandardFieldNumeric : StandardField<string>
     {
-        public StandardFieldNumeric(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        public StandardFieldNumeric(Project project, XmlElement xmlElement)
+            : base(project, xmlElement)
         {
         }
 
@@ -33,7 +34,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override string FromString(string value)
         {
-            if (StandardFieldRegexBased.NUMERIC_CHECK_REGEX.IsMatch(value))
+            if (StandardFieldUserDefined.NUMERIC_CHECK_REGEX.IsMatch(value))
             {
                 return value;
             }
@@ -41,9 +42,16 @@ namespace erminas.SmartAPI.CMS.PageElements
             throw new ArgumentException(string.Format("Not a valid numerical value: {0}", value), value);
         }
 
-        protected override string ToXmlNodeValue(string value)
+        public override string Value
         {
-            return value;
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && !StandardFieldUserDefined.NUMERIC_CHECK_REGEX.IsMatch(value))
+                {
+                    throw new ArgumentException(string.Format("'{0}' is not a valid numeric value", value));
+                }
+                _value = value;
+            }
         }
 
         protected override void LoadWholeStandardField()

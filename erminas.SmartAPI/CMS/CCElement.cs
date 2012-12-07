@@ -250,7 +250,7 @@ namespace erminas.SmartAPI.CMS
             {
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
-                                                    Project.RqlType.InsertSessionKeyValues);
+                                                    Project.RqlType.SessionKeyInProject);
                 try
                 {
                     var resultElement = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];

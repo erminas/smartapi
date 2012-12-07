@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class Session : IDisposable
     {
-        public const string SESSIONKEY_PLACEHOLDER = "{__SESSION_KEY__}";
+        public const string SESSIONKEY_PLACEHOLDER = "#__SESSION_KEY__#";
         private static readonly ILog LOG = LogManager.GetLogger("Session");
 
         /// <summary>
@@ -52,7 +52,8 @@ namespace erminas.SmartAPI.CMS
         ///   Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
         /// </summary>
         /// <param name="login"> Login data </param>
-        public Session(ServerLogin login) : this()
+        public Session(ServerLogin login)
+            : this()
         {
             Login = login;
             CmsClient = new CmsClient(login);
@@ -157,7 +158,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(string.Format(LOAD_USER, guid.ToRQLString()));
-            var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
+            var userElement = (XmlElement)xmlDoc.GetElementsByTagName("USER")[0];
             if (userElement == null)
             {
                 throw new Exception("could not load user: " + guid.ToRQLString());
@@ -243,30 +244,6 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Select a project and execute an RQL query in its context with all instances of <see cref="SESSIONKEY_PLACEHOLDER" /> in the querystring getting replaced by #sessionkey.
-        /// </summary>
-        /// <param name="projectGuid"> Guid of the project </param>
-        /// <param name="query"> The RQL query string without the IODATA and PROJECT elements, every instance of <see
-        ///    cref="SESSIONKEY_PLACEHOLDER" /> in the string gets replaced by #sessionkey </param>
-        /// <returns> A XmlDocument containing the answer of the RedDot server </returns>
-        public XmlDocument ExecuteRQLReplaceSessionKey(Guid projectGuid, string query)
-        {
-            CmsClient.SelectProject(projectGuid);
-
-            string result = CmsClient.ExecuteRql(query, CmsClient.IODataFormat.ReplaceSessionKeyPlaceholder);
-            try
-            {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(result);
-                return xmlDoc;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Illegal response from server", e);
-            }
-        }
-
-        /// <summary>
         ///   Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
@@ -311,45 +288,4 @@ namespace erminas.SmartAPI.CMS
         }
     }
 
-    public class RQLException : Exception
-    {
-        private const string RESPONSE = "response";
-        private const string SERVER = "server";
-        private const string ERROR_MESSAGE = "error_message";
-
-        public RQLException(string server, string reason, string responseXML)
-        {
-            Server = server;
-            ErrorMessage = reason;
-            Response = responseXML;
-        }
-
-        protected RQLException(RQLException rqlException)
-            : this(rqlException.Server, rqlException.ErrorMessage, rqlException.Response)
-        {
-        }
-
-        public string Response
-        {
-            get { return (Data[RESPONSE] ?? "").ToString(); }
-            private set { Data.Add(RESPONSE, value); }
-        }
-
-        public string Server
-        {
-            get { return (Data[SERVER] ?? "").ToString(); }
-            private set { Data.Add(SERVER, value); }
-        }
-
-        public string ErrorMessage
-        {
-            get { return (Data[ERROR_MESSAGE] ?? "").ToString(); }
-            private set { Data.Add(ERROR_MESSAGE, value); }
-        }
-
-        public override string Message
-        {
-            get { return string.Format("RQL request to '{0}' failed. Error message: '{1}'", Server, ErrorMessage); }
-        }
-    }
 }

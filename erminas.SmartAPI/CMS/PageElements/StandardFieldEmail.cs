@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace erminas.SmartAPI.CMS.PageElements
@@ -22,8 +23,10 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldEmail)]
     public class StandardFieldEmail : StandardField<string>
     {
+        private Regex _emailVerificationRegex;
         public StandardFieldEmail(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
+            LoadXml();
         }
 
         public StandardFieldEmail(Project project, Guid guid) : base(project, guid)
@@ -32,16 +35,21 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override string FromString(string value)
         {
-            return value;
-        }
-
-        protected override string ToXmlNodeValue(string value)
-        {
+            if (!_emailVerificationRegex.IsMatch(value))
+            {
+                throw new ArgumentException(string.Format("Invalid email adress: {0}", value));
+            }
             return value;
         }
 
         protected override void LoadWholeStandardField()
         {
+            LoadXml();
+        }
+
+        private void LoadXml()
+        {
+            EnsuredInit(ref _emailVerificationRegex, "eltverifytermregexp", x => new Regex(x));
         }
     }
 }

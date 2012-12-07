@@ -114,6 +114,7 @@ namespace erminas.SmartAPI.CMS
         private void LoadXml()
         {
             InitIfPresent(ref _page, "pageguid", x => new Page(Project, GuidConvert(x)));
+
         }
 
         protected override sealed void LoadWholeObject()

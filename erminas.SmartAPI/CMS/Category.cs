@@ -37,7 +37,8 @@ namespace erminas.SmartAPI.CMS
 
         private LanguageVariant _languageVariant;
 
-        public Category(Project project, XmlElement xmlElement) : base(xmlElement)
+        public Category(Project project, XmlElement xmlElement)
+            : base(xmlElement)
         {
             Project = project;
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
@@ -50,7 +51,7 @@ namespace erminas.SmartAPI.CMS
             Project = project;
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
         }
-        
+
         /// <summary>
         ///   The current language variant.
         /// </summary>
@@ -94,7 +95,8 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_KEYWORDS, Guid.ToRQLString()));
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
 
-            return (from XmlElement curNode in xmlNodes select new Keyword(Project, curNode) {Category = this}).ToList();
+            var kategoryKeyword = new List<Keyword> {new Keyword(Project, Guid) {Name = "[category]", Category = this}};
+            return (from XmlElement curNode in xmlNodes select new Keyword(Project, curNode) { Category = this }).Union(kategoryKeyword).ToList();
         }
     }
 }

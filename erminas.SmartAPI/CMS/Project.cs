@@ -60,13 +60,7 @@ namespace erminas.SmartAPI.CMS
             /// <summary>
             ///   Insert the session key as attribute in the iodata element
             /// </summary>
-            SessionKeyInIodata,
-
-            /// <summary>
-            ///   Insert the session key as attribute in the project element and replace <see cref="Session.SESSIONKEY_PLACEHOLDER" /> with "#&lt;sessionkey&gt;". This is needed to erase values when saving objects as empty valued attributes get ignored by red dot <see
-            ///    cref="RedDotObject.GetSaveString" /> .
-            /// </summary>
-            InsertSessionKeyValues
+            SessionKeyInIodata
         };
 
         #endregion
@@ -105,7 +99,7 @@ namespace erminas.SmartAPI.CMS
             Session = session;
             Init();
         }
-        
+
         /// <summary>
         ///   All info attributes in the project, indexed by id. The list is cached by default.
         /// </summary>
@@ -406,8 +400,6 @@ namespace erminas.SmartAPI.CMS
                     return Session.ExecuteRQL(query, Guid);
                 case RqlType.SessionKeyInProject:
                     return Session.ExecuteRQLProject(Guid, query);
-                case RqlType.InsertSessionKeyValues:
-                    return Session.ExecuteRQLReplaceSessionKey(Guid, query);
                 default:
                     throw new ArgumentException(string.Format("Unknown query type: {0}", type));
             }
@@ -499,7 +491,7 @@ namespace erminas.SmartAPI.CMS
         /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
         /// <param name="headline"> The headline, or null (default) for the default headline </param>
         /// <returns> The newly created (and linked) page </returns>
-        public Page CreateAndLinkPage(ContentClass cc, Guid linkGuid, string headline = null)
+        public Page CreateAndConnectPage(ContentClass cc, Guid linkGuid, string headline = null)
         {
             const string CREATE_AND_LINK_PAGE =
                 @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
@@ -769,7 +761,8 @@ namespace erminas.SmartAPI.CMS
             const string LIST_KEYWORDS = "<PROJECT><CATEGORY><KEYWORDS action=\"list\" /></CATEGORY></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_KEYWORDS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
-            return (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).ToList();
+            IEnumerable<Keyword> categoryKeywords = from curCategory in Categories select new Keyword(this, curCategory.Guid) {Name = "[category]", Category = curCategory};
+            return (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).Union(categoryKeywords).ToList();
         }
 
         private List<Category> GetCategories()

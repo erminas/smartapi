@@ -20,6 +20,7 @@ using System.Linq;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.PageElements;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
@@ -146,7 +147,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All link elements of this page.
         /// </summary>
-        public NameIndexedRDList<PageElement> LinkElements { get; private set; }
+        public NameIndexedRDList<ILinkElement> LinkElements { get; private set; }
 
         /// <summary>
         ///   ReleaseStatus of the page.
@@ -285,13 +286,13 @@ namespace erminas.SmartAPI.CMS
         ///   Get a content/link element of this page with a specific name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
-        public PageElement this[string elementName]
+        public IPageElement this[string elementName]
         {
             get
             {
                 PageElement result;
                 return ContentElements.TryGetByName(elementName, out result)
-                           ? result
+                           ? (IPageElement) result
                            : LinkElements.GetByName(elementName);
             }
         }
@@ -347,7 +348,7 @@ namespace erminas.SmartAPI.CMS
             var link = MainLinkElement as ILinkElement;
             if (link != null)
             {
-                link.DisconnectPage(this);
+                link.Disconnect(this);
             }
         }
 
@@ -378,10 +379,16 @@ namespace erminas.SmartAPI.CMS
         public void Delete()
         {
             const string DELETE_PAGE = @"<PAGE action=""delete"" guid=""{0}""/>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(DELETE_PAGE, Guid.ToRQLString()));
-            if (xmlDoc.InnerText == "ok")
+            try
             {
-                throw new Exception("Could not delete page {" + Guid.ToRQLString() + "}");
+                XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(DELETE_PAGE, Guid.ToRQLString()));
+                if (!xmlDoc.InnerText.Contains("ok"))
+                {
+                    throw new PageDeletionException(string.Format("Could not delete page {0}", this));
+                }
+            } catch (RQLException e)
+            {
+                throw new PageDeletionException(e);
             }
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
@@ -408,12 +415,8 @@ namespace erminas.SmartAPI.CMS
         public void DeleteIrrevocably()
         {
             Delete();
-            Page page;
-            Project.PagesOfCurrentLanguageVariant.Refresh();
-            if (Project.PagesOfCurrentLanguageVariant.TryGetByName(Name, out page))
-            {
-                DeleteFromRecycleBin();
-            }
+            //page may no longer exist at this stage, but return value from server can't be checked anyway, so we just try to remove from recycle bin
+            DeleteFromRecycleBin();
         }
 
         /// <summary>
@@ -449,9 +452,10 @@ namespace erminas.SmartAPI.CMS
 
         private void InitProperties()
         {
-            LinkElements = new NameIndexedRDList<PageElement>(GetLinks, Caching.Enabled);
+            LinkElements = new NameIndexedRDList<ILinkElement>(GetLinks, Caching.Enabled);
             ContentElements = new NameIndexedRDList<PageElement>(GetContentElements, Caching.Enabled);
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
+            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
         }
 
         private PageElement TryCreateElement(XmlElement xmlElement)
@@ -533,12 +537,12 @@ namespace erminas.SmartAPI.CMS
             return (XmlElement)pages[0];
         }
 
-        private List<PageElement> GetLinks()
+        private List<ILinkElement> GetLinks()
         {
             const string LOAD_LINKS = @"<PAGE guid=""{0}""><LINKS action=""load"" /></PAGE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_LINKS, Guid.ToRQLString()));
             return (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
-                    select PageElement.CreateElement(Project, curNode)).ToList();
+                    select (ILinkElement)PageElement.CreateElement(Project, curNode)).ToList();
         }
 
         private List<PageElement> GetContentElements()
@@ -592,6 +596,17 @@ namespace erminas.SmartAPI.CMS
             Project.ExecuteRQL(string.Format(SET_KEYWORDS, Guid.ToRQLString(), toRemove + toAdd), Project.RqlType.SessionKeyInProject);
 
             Keywords.InvalidateCache();
+        }
+
+        public IRDList<ILinkElement> ReferencedBy { get; private set; }
+
+        private List<ILinkElement> GetReferencingLinks()
+        {
+            const string LIST_REFERENCES = @"<REFERENCE action=""list"" guid=""{0}"" />";
+            var xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+                    select (ILinkElement)PageElement.CreateElement(Project, curLink.GetGuid())).ToList();
         }
     }
 }

@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace erminas.SmartAPI.CMS.PageElements
@@ -28,6 +29,11 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public Container(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
+        }
+
+        public new void DisconnectPages(IEnumerable<IPage> pages)
+        {
+            base.DisconnectPages(pages);
         }
 
         protected sealed override void LoadWholePageElement()

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using erminas.SmartAPI.CMS.PageElements;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
-    public interface IPage : IPartialRedDotObject
+    public interface IPage : ILinkTarget, IPartialRedDotObject
     {
         /// <summary>
         ///   ReleaseStatus of the page.
@@ -74,7 +75,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All link elements of this page.
         /// </summary>
-        NameIndexedRDList<PageElement> LinkElements { get; }
+        NameIndexedRDList<ILinkElement> LinkElements { get; }
 
         /// <summary>
         ///   All content elements of this page.
@@ -85,7 +86,7 @@ namespace erminas.SmartAPI.CMS
         ///   Get a content/link element of this page with a specific name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
-        PageElement this[string elementName] { get; }
+        IPageElement this[string elementName] { get; }
 
         /// <summary>
         ///   Remove a keyword from this page.

@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     public abstract class AbstractValueElement<T> : PageElement, IValueElement
     {
         protected const string SAVE_VALUE =
-            @"<ELEMENTS action=""save""><ELT guid=""{0}"" value=""{1}""></ELT></ELEMENTS>";
+            @"<ELEMENTS action=""save""><ELT guid=""{0}"" value=""{1}"" type=""{2}""></ELT></ELEMENTS>";
 
         protected T _value;
 
@@ -33,7 +33,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        protected AbstractValueElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractValueElement(Project project, XmlElement xmlElement)
+            : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -48,13 +49,21 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public void SetValueFromString(string value)
         {
-            _value = FromString(value);
+            Value = string.IsNullOrEmpty(value) ? default(T) : FromString(value);
+        }
+
+        public void DeleteValue()
+        {
+            Value = default(T);
         }
 
         public virtual void Commit()
         {
+            //TODO bei null/"" SESSIONKEY setzen??
+            string xmlNodeValue = GetXmlNodeValue();
+            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue) ? Session.SESSIONKEY_PLACEHOLDER : HttpUtility.HtmlEncode(xmlNodeValue);
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), HttpUtility.HtmlEncode(ToXmlNodeValue(_value))));
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), htmlEncode, (int)Type));
             if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
             {
                 throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
@@ -62,7 +71,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         }
 
         #endregion
-        
+
         private void LoadXml()
         {
             InitIfPresent(ref _value, "value", FromXmlNodeValue);
@@ -80,6 +89,11 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected abstract T FromString(string value);
 
-        protected abstract string ToXmlNodeValue(T value);
+
+        protected virtual string GetXmlNodeValue()
+        {
+            return Value.ToString();
+        }
+
     }
 }

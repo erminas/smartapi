@@ -164,10 +164,10 @@ namespace erminas.SmartAPI.CMS
                                 Status = ((Page.PageState) int.Parse(curPage.GetAttributeValue("status")))
                             },
                         // ReSharper disable PossibleInvalidOperationException
-                        creation.GetOADate("date").Value,
+                        creation.GetOADate().Value,
                         new User(_project.Session.CmsClient,
                                  ((XmlElement) creation.GetElementsByTagName("USER")[0]).GetGuid()),
-                        change.GetOADate("date").Value,
+                        change.GetOADate().Value,
                         // ReSharper restore PossibleInvalidOperationException
                         new User(_project.Session.CmsClient,
                                  ((XmlElement) change.GetElementsByTagName("USER")[0]).GetGuid()),

@@ -58,10 +58,5 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             return arg;
         }
-
-        protected sealed override string ToXmlNodeValue(string value)
-        {
-            return value;
-        }
     }
 }

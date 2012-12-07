@@ -716,7 +716,7 @@ namespace erminas.SmartAPI.CMS
             guidAttr.Value = Guid.ToRQLString();
             templateElement.Attributes.Append(guidAttr);
 
-            Project.ExecuteRQL(GetSaveString(templateElement), Project.RqlType.InsertSessionKeyValues);
+            Project.ExecuteRQL(GetSaveString(templateElement), Project.RqlType.SessionKeyInProject);
         }
 
         #region Nested type: CCEditableAreaSettings
@@ -777,7 +777,7 @@ namespace erminas.SmartAPI.CMS
                 XmlDocument result =
                     _parent.Project.ExecuteRQL(string.Format(SAVE_CC_SETTINGS, _parent.Guid.ToRQLString(),
                                                              GetSaveString((XmlElement)XmlNode.Clone())),
-                                               Project.RqlType.InsertSessionKeyValues);
+                                               Project.RqlType.SessionKeyInProject);
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {

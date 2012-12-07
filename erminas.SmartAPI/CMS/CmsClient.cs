@@ -64,12 +64,6 @@ namespace erminas.SmartAPI.CMS
             SessionKeyInProjectElement,
 
             /// <summary>
-            ///   Insert a PROJECT element the query gets inserted to. Replaces all occurrences of <see
-            ///    cref="Session.SESSIONKEY_PLACEHOLDER" /> with #sessionkey .
-            /// </summary>
-            ReplaceSessionKeyPlaceholder,
-
-            /// <summary>
             ///   Insert the query into a plain IODATA element.
             /// </summary>
             Plain
@@ -211,23 +205,20 @@ namespace erminas.SmartAPI.CMS
         /// <returns> String returned from the server </returns>
         public string ExecuteRql(string query, IODataFormat ioDataFormat)
         {
+            string tmpQuery = query.Replace(Session.SESSIONKEY_PLACEHOLDER, "#" + _sessionKeyStr);
             string rqlQuery;
             switch (ioDataFormat)
             {
                 case IODataFormat.SessionKeyAndLogonGuid:
-                    rqlQuery = string.Format(RQL_IODATA_SESSIONKEY, _loginGuidStr, _sessionKeyStr, query);
+                    rqlQuery = string.Format(RQL_IODATA_SESSIONKEY, _loginGuidStr, _sessionKeyStr, tmpQuery);
                     break;
                 case IODataFormat.LogonGuidOnly:
-                    rqlQuery = string.Format(RQL_IODATA_LOGONGUID, _loginGuidStr, query);
+                    rqlQuery = string.Format(RQL_IODATA_LOGONGUID, _loginGuidStr, tmpQuery);
                     break;
                 case IODataFormat.Plain:
-                    rqlQuery = string.Format(RQL_IODATA, query);
+                    rqlQuery = string.Format(RQL_IODATA, tmpQuery);
                     break;
                 case IODataFormat.SessionKeyInProjectElement:
-                    rqlQuery = string.Format(RQL_IODATA_PROJECT_SESSIONKEY, _loginGuidStr, _sessionKeyStr, query);
-                    break;
-                case IODataFormat.ReplaceSessionKeyPlaceholder:
-                    string tmpQuery = query.Replace(Session.SESSIONKEY_PLACEHOLDER, "#" + _sessionKeyStr);
                     rqlQuery = string.Format(RQL_IODATA_PROJECT_SESSIONKEY, _loginGuidStr, _sessionKeyStr, tmpQuery);
                     break;
                 default:
@@ -303,7 +294,7 @@ namespace erminas.SmartAPI.CMS
             }
             catch (RQLException e)
             {
-                if (!e.Message.Contains("#RDError101"))
+                if (e.ErrorCode != ErrorCode.RDError101)
                 {
                     throw;
                 }

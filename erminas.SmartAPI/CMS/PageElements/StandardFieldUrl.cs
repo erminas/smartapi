@@ -32,12 +32,18 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override Uri FromString(string value)
         {
-            return new Uri(value);
+            try
+            {
+                return string.IsNullOrEmpty(value) ? null : new Uri(value);
+            } catch (UriFormatException e)
+            {
+                throw new ArgumentException(string.Format("Invalid URL: {0}", value), e);
+            }
         }
 
-        protected override string ToXmlNodeValue(Uri value)
+        protected override string GetXmlNodeValue()
         {
-            return value.ToString();
+            return Value != null ? Value.ToString() : "";
         }
 
         protected override void LoadWholeStandardField()

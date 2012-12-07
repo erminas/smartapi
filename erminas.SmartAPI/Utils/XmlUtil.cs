@@ -8,7 +8,7 @@ namespace erminas.SmartAPI.Utils
     public static class XmlUtil
     {
         /// <summary>
-        ///   Creates an attribute via the owner document of <see cref="node" /> , sets its value and appends it to <see cref="node" /> .
+        ///   Creates an attribute via the owner document of <see cref="xmlElement" /> , sets its value and appends it to <see cref="xmlElement" /> .
         /// </summary>
         /// <param name="xmlElement"> The node, the attribute gets added to </param>
         /// <param name="attributeName"> Name of the attribute </param>
