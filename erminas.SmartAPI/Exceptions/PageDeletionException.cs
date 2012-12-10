@@ -1,5 +1,4 @@
 ﻿using System;
-using erminas.SmartAPI.CMS;
 
 namespace erminas.SmartAPI.Exceptions
 {
@@ -10,6 +9,7 @@ namespace erminas.SmartAPI.Exceptions
         ElementsOfPageStillGetReferenced
     }
 
+    [Serializable]
     public class PageDeletionException : Exception
     {
         public readonly PageDeletionError Error;

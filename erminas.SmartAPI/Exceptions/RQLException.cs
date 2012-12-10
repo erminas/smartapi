@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace erminas.SmartAPI.CMS
+namespace erminas.SmartAPI.Exceptions
 {
     #region ErrorCode
     public enum ErrorCode
@@ -61,6 +61,7 @@ namespace erminas.SmartAPI.CMS
 
     #endregion
 
+    [Serializable]
     public class RQLException : Exception
     {
         private const string RESPONSE = "response";

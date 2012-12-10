@@ -19,9 +19,9 @@ using System;
 namespace erminas.SmartAPI.CMS.PageElements
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class PageElementType : Attribute
+    public sealed class PageElementType : Attribute
     {
-        public readonly ElementType Type;
+        public ElementType Type { get; set; }
 
         public PageElementType(ElementType type)
         {

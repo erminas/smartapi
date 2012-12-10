@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 
 namespace erminas.SmartAPI.Exceptions
 {
+    [Serializable]
     public class RedDotDataException : ApplicationException
     {
         public RedDotDataException()

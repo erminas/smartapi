@@ -22,6 +22,7 @@ using System.Text;
 using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS

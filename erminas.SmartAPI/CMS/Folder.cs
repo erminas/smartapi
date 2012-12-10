@@ -250,7 +250,7 @@ namespace erminas.SmartAPI.CMS
             return RetrieveFiles(rqlString);
         }
 
-        private object ComparisonOperatorToString(ComparisonOperator @operator)
+        private static string ComparisonOperatorToString(ComparisonOperator @operator)
         {
             switch (@operator)
             {
