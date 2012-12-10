@@ -30,6 +30,7 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class Page : PartialRedDotObject, IPage
     {
+        private const string DELETE_PAGE = @"<PAGE action=""delete"" guid=""{0}"" forcedelete2910=""{1}"" forcedelete2911=""{1}""/>";
         // Flags are defined in the RQL manual.
 
         #region PageFlags enum
@@ -375,18 +376,35 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///   Throws a PageDeletionException, if references still point to elements of this pageor an element is assigned as target container to a link.
         /// </summary>
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
+        public void DeleteSafely()
+        {
+            DeleteImpl(forceDeletion: false);
+        }
+
+        /// <summary>
+        ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///   Forces the deletion, even if references still point to elements of this pageor an element is assigned as target container to a link.
+        /// </summary>
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void Delete()
         {
-            const string DELETE_PAGE = @"<PAGE action=""delete"" guid=""{0}""/>";
+            DeleteImpl(forceDeletion: true);   
+        }
+
+        private void DeleteImpl(bool forceDeletion)
+        {
             try
             {
-                XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(DELETE_PAGE, Guid.ToRQLString()));
+                XmlDocument xmlDoc = Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion));
                 if (!xmlDoc.InnerText.Contains("ok"))
                 {
                     throw new PageDeletionException(string.Format("Could not delete page {0}", this));
                 }
-            } catch (RQLException e)
+            }
+            catch (RQLException e)
             {
                 throw new PageDeletionException(e);
             }
@@ -401,7 +419,7 @@ namespace erminas.SmartAPI.CMS
         public void DeleteFromRecycleBin()
         {
             const string DELETE_FINALLY =
-                @"<PAGE action=""deletefinally"" guid=""{0}"" alllanguages="""" forcedelete2910="""" forcedelete2911=""""/>";
+                @"<PAGE action=""deletefinally"" guid=""{0}"" alllanguages="""" forcedelete2910=""1"" forcedelete2911=""1""/>";
             Project.ExecuteRQL(string.Format(DELETE_FINALLY, Guid.ToRQLString()));
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
@@ -411,6 +429,7 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         /// Delete the page irrevocably. Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
+        ///   Forces the deletion, even if references still point to elements of this pageor an element is assigned as target container to a link.
         /// </summary>
         public void DeleteIrrevocably()
         {

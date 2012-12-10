@@ -20,7 +20,7 @@ using System.Xml;
 namespace erminas.SmartAPI.CMS.PageElements
 {
     [PageElementType(ElementType.List)]
-    public class List : AbstractLinkElement
+    public class List : AbstractMultiLinkElement
     {
         public List(Project project, Guid guid) : base(project, guid)
         {
@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        protected sealed override void LoadWholePageElement()
+        protected sealed override void LoadWholeLinkElement()
         {
         }
     }

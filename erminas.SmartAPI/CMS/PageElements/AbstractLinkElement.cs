@@ -22,9 +22,21 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    
+
     public abstract class AbstractLinkElement : PageElement, ILinkElement
     {
+        private LinkType _linkType;
         public IRDList<IPage> ConnectedPages { get; private set; }
+        public LinkType LinkType
+        {
+            get { return LazyLoad(ref _linkType); }
+        }
+
+        public bool IsReference
+        {
+            get { return LinkType == LinkType.Reference; }
+        }
 
         protected AbstractLinkElement(Project project, Guid guid)
             : base(project, guid)
@@ -38,6 +50,12 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+            LoadXml();
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _linkType, "islink", x => (LinkType)int.Parse(x));
         }
 
         public void Reference(ILinkTarget target)
@@ -107,6 +125,14 @@ namespace erminas.SmartAPI.CMS.PageElements
 
             Project.ExecuteRQL(CONNECT.RQLFormat(page, this));
         }
+
+        protected override sealed void LoadWholePageElement()
+        {
+            LoadXml();
+            LoadWholeLinkElement();
+        }
+
+        protected abstract void LoadWholeLinkElement();
 
         protected void DisconnectPages(IEnumerable<IPage> pages)
         {

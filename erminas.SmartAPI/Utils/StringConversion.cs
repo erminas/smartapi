@@ -54,6 +54,11 @@ namespace erminas.SmartAPI.Utils
                 return ((Guid) o).ToRQLString();
             }
 
+            if (o is Boolean)
+            {
+                return ((Boolean) o).ToRQLString();
+            }
+
             return o is IRedDotObject ? ((IRedDotObject) o).Guid.ToRQLString() : o;
         }
     }

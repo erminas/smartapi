@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        protected sealed override void LoadWholePageElement()
+        protected sealed override void LoadWholeLinkElement()
         {
         }
     }

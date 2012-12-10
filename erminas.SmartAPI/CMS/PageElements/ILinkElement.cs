@@ -18,6 +18,13 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    public enum LinkType
+    {
+        NotAStructuralElement = 0,
+        SimpleLink = 1,
+        MultiLink = 2,
+        Reference = 10
+    }
     public interface ILinkElement : IPageElement, ILinkTarget
     {
         void Reference(ILinkTarget target);
@@ -25,5 +32,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         void Connect(IPage page);
         void Disconnect(IPage page);
         IRDList<IPage> ConnectedPages { get; }
+        LinkType LinkType { get; }
+        bool IsReference { get; }
     }
 }

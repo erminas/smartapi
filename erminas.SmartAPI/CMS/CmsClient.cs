@@ -66,7 +66,12 @@ namespace erminas.SmartAPI.CMS
             /// <summary>
             ///   Insert the query into a plain IODATA element.
             /// </summary>
-            Plain
+            Plain,
+
+            /// <summary>
+            /// Use session key, logon guid and format="1" in the IODATA element. Insert the query into the IODATA element.
+            /// </summary>
+            FormattedText
         }
 
         #endregion
@@ -85,7 +90,7 @@ namespace erminas.SmartAPI.CMS
 
         private const string RQL_SELECT_PROJECT =
             @"<ADMINISTRATION action=""validate"" guid=""{0}"" useragent=""script""><PROJECT guid=""{1}""/></ADMINISTRATION>";
-
+        private const string RQL_IODATA_FORMATTED_TEXT = @"<IODATA loginguid=""{0}"" sessionkey=""{1}"" format=""1"">{2}</IODATA>";
         private static readonly ILog LOG = LogManager.GetLogger("CmsClient");
         private string _loginGuidStr;
         private string _sessionKeyStr;
@@ -110,7 +115,8 @@ namespace erminas.SmartAPI.CMS
         ///   Create a CMS Client, connect to the given server and log in
         /// </summary>
         /// <param name="serverLogin"> Server and login data </param>
-        public CmsClient(ServerLogin serverLogin) : this(serverLogin, true)
+        public CmsClient(ServerLogin serverLogin)
+            : this(serverLogin, true)
         {
         }
 
@@ -187,9 +193,9 @@ namespace erminas.SmartAPI.CMS
             {
                 Disconnect();
             }
-// ReSharper disable EmptyGeneralCatchClause
+            // ReSharper disable EmptyGeneralCatchClause
             catch
-// ReSharper restore EmptyGeneralCatchClause
+            // ReSharper restore EmptyGeneralCatchClause
             {
                 // exceptions are no longer relevant
             }
@@ -221,6 +227,10 @@ namespace erminas.SmartAPI.CMS
                 case IODataFormat.SessionKeyInProjectElement:
                     rqlQuery = string.Format(RQL_IODATA_PROJECT_SESSIONKEY, _loginGuidStr, _sessionKeyStr, tmpQuery);
                     break;
+
+                case IODataFormat.FormattedText:
+                    rqlQuery = string.Format(RQL_IODATA_FORMATTED_TEXT, _loginGuidStr, _sessionKeyStr, tmpQuery);
+                    break;
                 default:
                     throw new ArgumentException(String.Format("Unknown IODataFormat: {0}", ioDataFormat));
             }
@@ -244,9 +254,9 @@ namespace erminas.SmartAPI.CMS
                 object resultInfo = "";
 
                 BasicHttpBinding binding = new BasicHttpBinding();
-                binding.ReaderQuotas.MaxStringContentLength = 2097152*10; //20MB
-                binding.ReaderQuotas.MaxArrayLength = 2097152*10; //20mb
-                binding.MaxReceivedMessageSize = 2097152*10; //20mb
+                binding.ReaderQuotas.MaxStringContentLength = 2097152 * 10; //20MB
+                binding.ReaderQuotas.MaxArrayLength = 2097152 * 10; //20mb
+                binding.MaxReceivedMessageSize = 2097152 * 10; //20mb
 
 
                 EndpointAddress add = new EndpointAddress(CmsServerConnectionUrl);
@@ -306,11 +316,11 @@ namespace erminas.SmartAPI.CMS
             if (xmlNodes.Count > 0)
             {
                 // check if already logged in
-                var xmlNode = (XmlElement) xmlNodes[0];
+                var xmlNode = (XmlElement)xmlNodes[0];
                 var oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
-// ReSharper disable ConditionIsAlwaysTrueOrFalse
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
                 if (oldLoginGuid != "" && !FORCE_LOGIN)
-// ReSharper restore ConditionIsAlwaysTrueOrFalse
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
                 {
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.AlreadyLoggedIn,
                                                         "User already logged in.");
@@ -335,7 +345,7 @@ namespace erminas.SmartAPI.CMS
                 }
                 LogonGuid = Guid.Parse(loginGuid);
 
-                var loginNode = (XmlElement) xmlNodes[0];
+                var loginNode = (XmlElement)xmlNodes[0];
                 string userGuidStr = loginNode.GetAttributeValue("userguid");
                 if (string.IsNullOrEmpty(userGuidStr))
                 {
@@ -345,7 +355,7 @@ namespace erminas.SmartAPI.CMS
                         throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
                                                             "Could not login; Invalid user data");
                     }
-                    CurrentUser = new User(this, Guid.Parse(((XmlElement) userNodes[0]).GetAttributeValue("guid")));
+                    CurrentUser = new User(this, Guid.Parse(((XmlElement)userNodes[0]).GetAttributeValue("guid")));
                 }
                 else
                 {
@@ -372,7 +382,7 @@ namespace erminas.SmartAPI.CMS
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(result);
             var xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
-            return (XmlElement) (xmlNodes.Count > 0 ? xmlNodes[0] : null);
+            return (XmlElement)(xmlNodes.Count > 0 ? xmlNodes[0] : null);
         }
 
         private static string CheckAlreadyLoggedIn(XmlElement xmlElement)
@@ -415,7 +425,7 @@ namespace erminas.SmartAPI.CMS
             var xmlNodes = xmlDoc.GetElementsByTagName("SERVER");
             if (xmlNodes.Count > 0)
             {
-                SessionKey = ((XmlElement) xmlNodes[0]).GetGuid("key");
+                SessionKey = ((XmlElement)xmlNodes[0]).GetGuid("key");
                 SelectedProjectGuid = projectGuid;
                 return;
             }

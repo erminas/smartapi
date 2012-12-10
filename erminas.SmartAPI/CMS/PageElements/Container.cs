@@ -15,13 +15,12 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
     [PageElementType(ElementType.Container)]
-    public class Container : AbstractLinkElement
+    public class Container : AbstractMultiLinkElement
     {
         public Container(Project project, Guid guid) : base(project, guid)
         {
@@ -30,13 +29,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         public Container(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
-
-        public new void DisconnectPages(IEnumerable<IPage> pages)
-        {
-            base.DisconnectPages(pages);
-        }
-
-        protected sealed override void LoadWholePageElement()
+        
+        protected sealed override void LoadWholeLinkElement()
         {
         }
     }

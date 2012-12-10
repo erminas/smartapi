@@ -15,7 +15,9 @@
  */
 
 using System;
+using System.Web;
 using System.Xml;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
@@ -28,7 +30,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        protected Text(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected Text(Project project, XmlElement xmlElement)
+            : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -36,7 +39,6 @@ namespace erminas.SmartAPI.CMS.PageElements
         public string Description
         {
             get { return LazyLoad(ref _description); }
-            set { _description = value; }
         }
 
         protected override string FromString(string value)
@@ -49,14 +51,29 @@ namespace erminas.SmartAPI.CMS.PageElements
             InitIfPresent(ref _description, "reddotdescription", x => x);
         }
 
+        public override void Commit()
+        {
+            string xmlNodeValue = GetXmlNodeValue();
+            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue) ? Session.SESSIONKEY_PLACEHOLDER : HttpUtility.UrlEncode(xmlNodeValue);
+            XmlDocument xmlDoc =
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), htmlEncode, (int)Type));
+            if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
+            {
+                throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
+            }
+        }
+
         protected sealed override void LoadWholeValueElement()
         {
             LoadXml();
+            const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
+            string result = Project.Session.CmsClient.ExecuteRql(LOAD_VALUE.RQLFormat(this), CmsClient.IODataFormat.FormattedText);
+            _value = HttpUtility.UrlDecode(result);
         }
 
         protected sealed override string FromXmlNodeValue(string arg)
         {
-            return arg;
+            return null;
         }
     }
 }

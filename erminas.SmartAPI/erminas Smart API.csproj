@@ -71,12 +71,14 @@
     <Compile Include="CMS\ILinkTarget.cs" />
     <Compile Include="CMS\IPage.cs" />
     <Compile Include="CMS\PageElements\AbstractMediaElement.cs" />
+    <Compile Include="CMS\PageElements\AbstractMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\AnchorAsImage.cs" />
     <Compile Include="CMS\PageElements\AnchorAsText.cs" />
     <Compile Include="CMS\PageElements\Background.cs" />
     <Compile Include="CMS\PageElements\DatabaseContent.cs" />
     <Compile Include="CMS\PageElements\Headline.cs" />
     <Compile Include="CMS\PageElements\ILinkElement.cs" />
+    <Compile Include="CMS\PageElements\IMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\ListEntry.cs" />
     <Compile Include="CMS\PageElements\Media.cs" />
     <Compile Include="CMS\PageElements\OptionList.cs" />

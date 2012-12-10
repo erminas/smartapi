@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
-    public abstract class AbstractValueElement<T> : PageElement, IValueElement
+    public abstract class AbstractValueElement<T> : PageElement, IValueElement<T>
     {
         protected const string SAVE_VALUE =
             @"<ELEMENTS action=""save""><ELT guid=""{0}"" value=""{1}"" type=""{2}""></ELT></ELEMENTS>";
@@ -92,7 +92,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected virtual string GetXmlNodeValue()
         {
-            return Value.ToString();
+            return Equals(Value, null) ? null : Value.ToString();
         }
 
     }
