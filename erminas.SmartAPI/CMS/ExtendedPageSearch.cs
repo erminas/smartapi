@@ -165,11 +165,11 @@ namespace erminas.SmartAPI.CMS
                             },
                         // ReSharper disable PossibleInvalidOperationException
                         creation.GetOADate().Value,
-                        new User(_project.Session.CmsClient,
+                        new User(_project.Session,
                                  ((XmlElement) creation.GetElementsByTagName("USER")[0]).GetGuid()),
                         change.GetOADate().Value,
                         // ReSharper restore PossibleInvalidOperationException
-                        new User(_project.Session.CmsClient,
+                        new User(_project.Session,
                                  ((XmlElement) change.GetElementsByTagName("USER")[0]).GetGuid()),
                         new ContentClass(_project, contentClass.GetGuid())
                             {Name = contentClass.GetAttributeValue("name")}

@@ -39,7 +39,7 @@ namespace erminas.SmartAPI.CMS
         ///                                                       email="name@company.com" />
         ///                                                   </pre>
         /// </summary>
-        /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
+        /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="xmlElement"> </param>
         public Group(XmlElement xmlElement)
             : base(xmlElement)

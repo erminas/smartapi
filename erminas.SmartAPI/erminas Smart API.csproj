@@ -89,10 +89,12 @@
     <Compile Include="CMS\PageElements\StandardFieldUrl.cs" />
     <Compile Include="CMS\PageElements\TextAscii.cs" />
     <Compile Include="CMS\PageElements\Transfer.cs" />
+    <Compile Include="CMS\VersionAttribute.cs" />
+    <Compile Include="Exceptions\InvalidServerVersionException.cs" />
     <Compile Include="Exceptions\RQLException.cs" />
     <Compile Include="Exceptions\PageDeletionException.cs" />
     <Compile Include="Exceptions\RedDotConnectionException.cs" />
-    <Compile Include="Exceptions\RedDotDataException.cs" />
+    <Compile Include="Exceptions\FileDataException.cs" />
     <Compile Include="CMS\AbstractAttributeContainer.cs" />
     <Compile Include="CMS\Category.cs" />
     <Compile Include="CMS\CCElement.cs" />
@@ -213,6 +215,8 @@
     <Compile Include="CMS\WebCompliance.cs" />
     <Compile Include="CMS\Workflow.cs" />
     <Compile Include="CMS\WorkflowAction.cs" />
+    <Compile Include="Exceptions\SmartAPIException.cs" />
+    <Compile Include="Exceptions\SmartAPIInternalException.cs" />
     <Compile Include="Utils\CachingContext.cs" />
     <Compile Include="Utils\DictionaryExtension.cs" />
     <Compile Include="Utils\IRDList.cs" />
@@ -233,9 +237,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="CMS\CmsClient.cs" />
     <Compile Include="Utils\SessionBuilder.cs" />
-    <Compile Include="Utils\WebServiceURLProber.cs" />
     <Compile Include="Utils\XmlUtil.cs" />
   </ItemGroup>
   <ItemGroup>

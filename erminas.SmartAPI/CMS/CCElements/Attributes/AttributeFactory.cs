@@ -21,9 +21,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public abstract class AttributeFactory
     {
-        private static readonly Dictionary<string, AttributeFactory> Factories = new Dictionary
+        private static readonly Dictionary<string, AttributeFactory> FACTORIES = new Dictionary
             <string, AttributeFactory>
                                                                                      {
+                                                                                         {
+                                                                                             "adoptheadlinetoalllanguages",
+                                                                                             new BoolAttributeFactory()},
                                                                                          {
                                                                                              "approverequired",
                                                                                              new BoolAttributeFactory()
@@ -551,14 +554,14 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public static void AddFactory(string attributeName, AttributeFactory factory)
         {
-            Factories.Add(attributeName, factory);
+            FACTORIES.Add(attributeName, factory);
         }
 
         public static IRDAttribute CreateAttribute(IAttributeContainer element, string attributeName)
         {
             try
             {
-                AttributeFactory factory = Factories[attributeName];
+                AttributeFactory factory = FACTORIES[attributeName];
                 return factory.CreateAttributeInternal(element, attributeName);
             }
             catch (KeyNotFoundException)
@@ -582,7 +585,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new LanguageVariantAttribute((CCElement) element, name);
+            return new LanguageVariantAttribute((CCElement)element, name);
         }
     }
 
@@ -590,7 +593,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new ProjectVariantAttribute((CCElement) element, name);
+            return new ProjectVariantAttribute((CCElement)element, name);
         }
     }
 
@@ -598,7 +601,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new InfoElementAttribute((CCElement) element, name);
+            return new InfoElementAttribute((CCElement)element, name);
         }
     }
 
@@ -606,7 +609,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new DateTimeFormatAttribute((CCElement) element, name);
+            return new DateTimeFormatAttribute((CCElement)element, name);
         }
     }
 
@@ -614,7 +617,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new LocaleXmlNodeAttribute((CCElement) element, name);
+            return new LocaleXmlNodeAttribute((CCElement)element, name);
         }
     }
 
@@ -646,7 +649,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new FolderXmlNodeAttribute((CCElement) element, name);
+            return new FolderXmlNodeAttribute((CCElement)element, name);
         }
     }
 
@@ -727,7 +730,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new SyllableXmlNodeAttribute((ContentClass) element, name);
+            return new SyllableXmlNodeAttribute((ContentClass)element, name);
         }
     }
 }

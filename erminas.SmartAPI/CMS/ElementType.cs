@@ -21,7 +21,6 @@ namespace erminas.SmartAPI.CMS
     /// <summary>
     ///   Possible types of elements
     /// </summary>
-    [Flags]
     public enum ElementType
     {
         None = 0,

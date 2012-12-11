@@ -271,11 +271,11 @@ namespace erminas.SmartAPI.CMS
             public readonly DateTime PageReleaseDate;
             public readonly User User;
 
-            public UserInfo(Project _project, XmlElement user)
+            public UserInfo(Project project, XmlElement user)
             {
-                User = new User(_project.Session.CmsClient, user.GetGuid()) {Name = user.GetName()};
+                User = new User(project.Session, user.GetGuid()) {Name = user.GetName()};
                 HasUserReleasedPage = user.GetIntAttributeValue("released").GetValueOrDefault() == 1;
-                PageReleaseDate = user.GetOADate("date").GetValueOrDefault();
+                PageReleaseDate = user.GetOADate().GetValueOrDefault();
             }
         }
 

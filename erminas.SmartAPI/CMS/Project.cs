@@ -739,7 +739,7 @@ namespace erminas.SmartAPI.CMS
                 XmlDocument xmlDoc = Session.ExecuteRQL(string.Format(GET_USERS, Guid.ToRQLString()), Guid);
                 XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("USER");
 
-                return (from XmlElement node in xmlNodes select new User(Session.CmsClient, node)).ToList();
+                return (from XmlElement node in xmlNodes select new User(Session, node)).ToList();
             }
             catch (Exception e)
             {

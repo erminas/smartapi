@@ -243,6 +243,23 @@ namespace erminas.SmartAPI.CMS
             set { _templateVariants = value; }
         }
 
+        [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        public bool IsChangingHeadlineEffectiveForAllLanguageVariants
+        {
+            get
+            {
+                Project.Session.EnsureVersion();
+                EnsureInitialization();
+                return ((BoolXmlNodeAttribute)GetAttribute("adoptheadlinetoalllanguages")).Value;
+            }
+            set
+            {
+                Project.Session.EnsureVersion();
+                EnsureInitialization();//TODO eigentlich muessen nur die attribute fuers schreiben vorhanden sein
+                ((BoolXmlNodeAttribute)GetAttribute("adoptheadlinetoalllanguages")).Value = value;
+            }
+        }
+        
         /// <summary>
         ///   Get an element by language/element name
         /// </summary>
@@ -348,7 +365,7 @@ namespace erminas.SmartAPI.CMS
         {
             //TODO ugly hack for refreshing
             Attributes.Clear();
-            CreateAttributes("approverequired", "description", "framesetafterlist", "name", "praefixguid", "suffixguid");
+            CreateAttributes("approverequired", "description", "framesetafterlist", "name", "praefixguid", "suffixguid", "adoptheadlinetoalllanguages");
         }
 
         /// <summary>

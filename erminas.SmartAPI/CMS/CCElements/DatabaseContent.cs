@@ -52,11 +52,11 @@ namespace erminas.SmartAPI.CMS.CCElements
             {
                 return ListType.None;
             }
-            switch (value.ToLowerInvariant())
+            switch (value.ToUpperInvariant())
             {
-                case "issupplement":
+                case "ISSUPPLEMENT":
                     return ListType.Supplement;
-                case "linksintext":
+                case "LINKSINTEXT":
                     return ListType.DisplayAsLink;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",

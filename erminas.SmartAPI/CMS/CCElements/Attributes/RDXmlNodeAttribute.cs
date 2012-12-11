@@ -30,6 +30,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             <string, string>
                                                                                                   {
                                                                                                       {
+                                                                                                          "adoptheadlinetoalllanguages",
+                                                                                                          "Changing headline is effective for all language variants"
+                                                                                                      },
+                                                                                                      {
                                                                                                           "eltname"
                                                                                                           ,
                                                                                                           "Name"

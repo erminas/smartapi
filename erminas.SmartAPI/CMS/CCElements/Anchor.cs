@@ -53,19 +53,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public static HtmlTarget ToHtmlTarget(this string value)
         {
-            switch (value.ToLowerInvariant())
+            if (string.IsNullOrEmpty(value))
             {
-                case "_blank":
+                return HtmlTarget.None;
+            }
+            switch (value.ToUpperInvariant())
+            {
+                case "_BLANK":
                     return HtmlTarget.Blank;
-                case "_parent":
+                case "_PARENT":
                     return HtmlTarget.Parent;
-                case "_top":
+                case "_TOP":
                     return HtmlTarget.Top;
-                case "_self":
+                case "_SELF":
                     return HtmlTarget.Self;
-                case "":
-                case null:
-                    return HtmlTarget.None;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (HtmlTarget).Name, value));

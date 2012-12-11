@@ -23,10 +23,19 @@ namespace erminas.SmartAPI.Utils
     /// </summary>
     public class ServerLogin
     {
+        public ServerLogin(){}
+
+        public ServerLogin(string url, PasswordAuthentication authData)
+        {
+            Address = new Uri(url);
+            AuthData = authData;
+        }
+
         /// <summary>
         ///   (Optional) Name of the login.
         /// </summary>
         public string Name { get; set; }
+
 
         /// <summary>
         ///   Address of the server. If you do not know the version of the RedDot server use <see cref="WebServiceURLProber.RqlUri" /> to get the correct address.

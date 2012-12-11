@@ -20,25 +20,25 @@ using System.Runtime.Serialization;
 namespace erminas.SmartAPI.Exceptions
 {
     [Serializable]
-    public class RedDotDataException : ApplicationException
+    public class FileDataException : SmartAPIException
     {
-        public RedDotDataException()
+        public FileDataException()
         {
             // Add implementation.
         }
 
-        public RedDotDataException(string message) : base(message)
+        public FileDataException(string message) : base(message)
         {
             // Add implementation.
         }
 
-        public RedDotDataException(string message, Exception inner) : base(message, inner)
+        public FileDataException(string message, Exception inner) : base(message, inner)
         {
             // Add implementation.
         }
 
         // This constructor is needed for serialization.
-        protected RedDotDataException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected FileDataException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             // Add implementation.
         }

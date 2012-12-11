@@ -57,13 +57,13 @@ namespace erminas.SmartAPI.CMS.CCElements
             {
                 return Scrolling.NotSet;
             }
-            switch (value.ToLowerInvariant())
+            switch (value.ToUpperInvariant())
             {
-                case "auto":
+                case "AUTO":
                     return Scrolling.Auto;
-                case "yes":
+                case "YES":
                     return Scrolling.Yes;
-                case "no":
+                case "NO":
                     return Scrolling.No;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
@@ -103,15 +103,16 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public static Frameborder ToFrameborder(string value)
         {
-            switch (value.ToLowerInvariant())
+            if (string.IsNullOrEmpty(value))
             {
-                case "yes":
+                return Frameborder.NotSet;
+            }
+            switch (value.ToUpperInvariant())
+            {
+                case "YES":
                     return Frameborder.Yes;
-                case "no":
+                case "NO":
                     return Frameborder.No;
-                case "":
-                case null:
-                    return Frameborder.NotSet;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (Frameborder).Name, value));

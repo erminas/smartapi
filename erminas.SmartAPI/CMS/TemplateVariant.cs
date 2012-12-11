@@ -51,13 +51,13 @@ namespace erminas.SmartAPI.CMS
 
         public static PdfOrientation ToPdfOrientation(this string value)
         {
-            switch (value.ToLowerInvariant())
+            switch (value.ToUpperInvariant())
             {
-                case "default":
+                case "DEFAULT":
                     return PdfOrientation.Default;
-                case "portrait":
+                case "PORTRAIT":
                     return PdfOrientation.Portrait;
-                case "landscape":
+                case "LANDSCAPE":
                     return PdfOrientation.Landscape;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
@@ -260,10 +260,10 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)){Name = XmlNode.GetAttributeValue("createusername")});
+                          new User(ContentClass.Project.Session, Guid.Parse(x)){Name = XmlNode.GetAttributeValue("createusername")});
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x)) { Name = XmlNode.GetAttributeValue("changedusername") });
+                          new User(ContentClass.Project.Session, Guid.Parse(x)) { Name = XmlNode.GetAttributeValue("changedusername") });
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
             InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", BoolConvert);

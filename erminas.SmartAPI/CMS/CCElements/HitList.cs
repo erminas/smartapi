@@ -51,15 +51,16 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public static HitListType ToHitListType(string value)
         {
-            switch (value.ToLowerInvariant())
+            if (string.IsNullOrEmpty(value))
             {
-                case "grafik":
+                return HitListType.NotSet;
+            }
+            switch (value.ToUpperInvariant())
+            {
+                case "GRAFIK":
                     return HitListType.MatchingImages;
-                case "text":
+                case "TEXT":
                     return HitListType.MatchingTexts;
-                case "":
-                case null:
-                    return HitListType.NotSet;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (HitListType).Name, value));

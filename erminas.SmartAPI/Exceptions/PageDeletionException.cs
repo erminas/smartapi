@@ -10,7 +10,7 @@ namespace erminas.SmartAPI.Exceptions
     }
 
     [Serializable]
-    public class PageDeletionException : Exception
+    public class PageDeletionException : SmartAPIException
     {
         public readonly PageDeletionError Error;
 

@@ -62,8 +62,13 @@ namespace erminas.SmartAPI.CMS.PageElements
             //TODO bei null/"" SESSIONKEY setzen??
             string xmlNodeValue = GetXmlNodeValue();
             string htmlEncode = string.IsNullOrEmpty(xmlNodeValue) ? Session.SESSIONKEY_PLACEHOLDER : HttpUtility.HtmlEncode(xmlNodeValue);
+            ExecuteCommit(htmlEncode);
+        }
+
+        protected void ExecuteCommit(string valueToSave)
+        {
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), htmlEncode, (int)Type));
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int)Type));
             if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
             {
                 throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));

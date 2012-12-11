@@ -55,19 +55,14 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             string xmlNodeValue = GetXmlNodeValue();
             string htmlEncode = string.IsNullOrEmpty(xmlNodeValue) ? Session.SESSIONKEY_PLACEHOLDER : HttpUtility.UrlEncode(xmlNodeValue);
-            XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), htmlEncode, (int)Type));
-            if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
-            {
-                throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
-            }
+            ExecuteCommit(htmlEncode);
         }
 
         protected sealed override void LoadWholeValueElement()
         {
             LoadXml();
             const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
-            string result = Project.Session.CmsClient.ExecuteRql(LOAD_VALUE.RQLFormat(this), CmsClient.IODataFormat.FormattedText);
+            string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this), Session.IODataFormat.FormattedText);
             _value = HttpUtility.UrlDecode(result);
         }
 

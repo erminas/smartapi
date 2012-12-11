@@ -62,7 +62,7 @@ namespace erminas.SmartAPI.Exceptions
     #endregion
 
     [Serializable]
-    public class RQLException : Exception
+    public class RQLException : SmartAPIException
     {
         private const string RESPONSE = "response";
         private const string SERVER = "server";

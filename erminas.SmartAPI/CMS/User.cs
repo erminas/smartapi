@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class User : PartialRedDotObject
     {
-        private readonly CmsClient _cmsClient;
+        public readonly Session Session;
         private Guid _accountSystemGuid;
         private string _acs;
         private string _action;
@@ -51,22 +51,22 @@ namespace erminas.SmartAPI.CMS
         private string _userLanguage;
         private string _userLimits;
 
-        public User(CmsClient cmsClient, Guid userGuid)
+        public User(Session session, Guid userGuid)
             : base(userGuid)
         {
-            _cmsClient = cmsClient;
+            Session = session;
         }
 
         /// <summary>
         ///   Reads user data from XML-Element "USER" like: <pre>...</pre>
         /// </summary>
-        /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
-        /// <param name="cmsClient"> The cms client used to retrieve this user </param>
+        /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
+        /// <param name="session"> The cms session used to retrieve this user </param>
         /// <param name="xmlElement"> USER XML-Element to get data from </param>
-        public User(CmsClient cmsClient, XmlElement xmlElement)
+        public User(Session session, XmlElement xmlElement)
             : base(xmlElement)
         {
-            _cmsClient = cmsClient;
+            Session = session;
             // TODO: Read all data
 
             LoadXml();
@@ -109,8 +109,8 @@ namespace erminas.SmartAPI.CMS
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-            string answer = _cmsClient.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                                  CmsClient.IODataFormat.LogonGuidOnly);
+            string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
+                                                  Session.IODataFormat.LogonGuidOnly);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(answer);
 
