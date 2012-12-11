@@ -50,7 +50,7 @@ namespace erminas.SmartAPI.CMS.PageElements
                                 : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
                                                 Value.Folder.Guid.ToRQLString());
 
-            Project.ExecuteRQL(rqlStr, Project.RqlType.SessionKeyInProject);
+            Project.ExecuteRQL(rqlStr);
         }
 
         protected sealed override void LoadWholePageElement()
