@@ -22,13 +22,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Info : CCElement
     {
-        public Info(ContentClass contentClass, XmlElement xmlElement)
-            : base(contentClass, xmlElement)
+        public Info(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltsubtype", "eltevalcalledpage", "eltuserfc3066",
-                             "eltkeywordseparator", "eltformatno", "eltlcid",
-                             "eltformatting", "eltdonothtmlencode", "eltusemainlink",
-                             "eltprojectvariantguid", "eltlanguagevariantguid");
+            CreateAttributes("eltsubtype", "eltevalcalledpage", "eltuserfc3066", "eltkeywordseparator", "eltformatno",
+                             "eltlcid", "eltformatting", "eltdonothtmlencode", "eltusemainlink", "eltprojectvariantguid",
+                             "eltlanguagevariantguid");
         }
 
         public override ContentClassCategory Category

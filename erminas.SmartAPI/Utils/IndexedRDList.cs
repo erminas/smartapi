@@ -77,8 +77,7 @@ namespace erminas.SmartAPI.Utils
     /// <typeparam name="T"> TypeId of the stored elements </typeparam>
     public class NameIndexedRDList<T> : IndexedRDList<String, T> where T : class, IRedDotObject
     {
-        public NameIndexedRDList(Func<List<T>> retrieveFunc, Caching caching)
-            : base(retrieveFunc, x => x.Name, caching)
+        public NameIndexedRDList(Func<List<T>> retrieveFunc, Caching caching) : base(retrieveFunc, x => x.Name, caching)
         {
         }
 

@@ -26,19 +26,16 @@ namespace erminas.SmartAPI.CMS
     {
         public readonly Project Project;
 
-        public Workflow(Project project, XmlElement xmlElement)
-            : base(xmlElement)
+        public Workflow(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();
         }
 
-        public Workflow(Project project, Guid guid)
-            : base(guid)
+        public Workflow(Project project, Guid guid) : base(guid)
         {
             Project = project;
         }
-
 
         private void LoadXml()
         {
@@ -50,7 +47,6 @@ namespace erminas.SmartAPI.CMS
             StructureWorkflow = XmlNode.GetAttributeValue("structureworkflow");
             Global = XmlNode.GetAttributeValue("global");
         }
-
 
         // TODO: Add a more useful action method which retains the 'flow' of the workflow!
         public List<WorkFlowAction> Actions()

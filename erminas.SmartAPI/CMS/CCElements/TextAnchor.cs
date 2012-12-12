@@ -23,8 +23,7 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public TextAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltfontclass", "eltfontsize", "eltfontbold",
-                             "eltfontface", "eltfontcolor");
+            CreateAttributes("eltfontclass", "eltfontsize", "eltfontbold", "eltfontface", "eltfontcolor");
         }
 
         public string FontClass

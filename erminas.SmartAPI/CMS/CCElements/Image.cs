@@ -24,17 +24,12 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public Image(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltonlyhrefvalue", "eltmaxsize", "eltconvert", "elttargetformat",
-                             "eltmaxpicwidth", "eltmaxpicheight", "eltpicwidth", "eltpicheight", "eltpicdepth",
-                             "eltfilename", "eltsuffixes", "eltcompression",
-                             "eltfolderguid", "eltrdexamplesubdirguid",
-                             "eltrdexample", "eltdragdrop",
-                             "eltwidth", "eltheight",
-                             "eltborder", "eltautoborder", "eltautowidth",
-                             "eltautoheight", "eltvspace", "elthspace",
-                             "eltalt",
-                             "eltusermap", "eltsupplement", "eltsrcsubdirguid",
-                             "eltsrc");
+            CreateAttributes("eltonlyhrefvalue", "eltmaxsize", "eltconvert", "elttargetformat", "eltmaxpicwidth",
+                             "eltmaxpicheight", "eltpicwidth", "eltpicheight", "eltpicdepth", "eltfilename",
+                             "eltsuffixes", "eltcompression", "eltfolderguid", "eltrdexamplesubdirguid", "eltrdexample",
+                             "eltdragdrop", "eltwidth", "eltheight", "eltborder", "eltautoborder", "eltautowidth",
+                             "eltautoheight", "eltvspace", "elthspace", "eltalt", "eltusermap", "eltsupplement",
+                             "eltsrcsubdirguid", "eltsrc");
             new EnumXmlNodeAttribute<AltType>(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<ImageAlignment>(this, "eltalign", ImageAlignmentUtils.ToRQLString,
                                                            ImageAlignmentUtils.ToImageAlignment);
@@ -58,7 +53,6 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
         }
-
 
         public ImageAlignment Align
         {
@@ -147,7 +141,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;

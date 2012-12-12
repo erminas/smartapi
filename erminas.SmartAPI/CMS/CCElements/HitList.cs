@@ -44,8 +44,7 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case HitListType.MatchingTexts:
                     return "Text";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (HitListType).Name, value));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HitListType).Name, value));
             }
         }
 
@@ -74,8 +73,8 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public HitList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace",
-                             "eltusermap", "eltsupplement", "eltalt");
+            CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace", "eltusermap", "eltsupplement",
+                             "eltalt");
 
             new BoolXmlNodeAttribute(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,

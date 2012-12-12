@@ -15,7 +15,6 @@
  */
 
 using System;
-using System.Globalization;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -56,7 +55,6 @@ namespace erminas.SmartAPI.CMS
         public string DocModificationDate { get; set; }
         public int DocNumberOfPages { get; set; }
 
-
         /*
         private static readonly Dictionary<string, string> RQLMapping = new Dictionary<string, string>()
                                                            {
@@ -78,7 +76,6 @@ namespace erminas.SmartAPI.CMS
 
         protected void LoadXml(XmlElement xmlElement)
         {
-
             try
             {
                 if (xmlElement.GetAttributeValue("ext01") != null)
@@ -190,8 +187,7 @@ namespace erminas.SmartAPI.CMS
                 {
                     DocNumberOfPages = int.Parse(xmlElement.GetAttributeValue("ext4131"));
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 // couldn't read data
                 throw new FileDataException("Couldn't read file data..", e);

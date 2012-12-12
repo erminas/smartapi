@@ -25,13 +25,11 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private string _description;
 
-        protected Text(Project project, Guid guid)
-            : base(project, guid)
+        protected Text(Project project, Guid guid) : base(project, guid)
         {
         }
 
-        protected Text(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        protected Text(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -54,11 +52,13 @@ namespace erminas.SmartAPI.CMS.PageElements
         public override void Commit()
         {
             string xmlNodeValue = GetXmlNodeValue();
-            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue) ? Session.SESSIONKEY_PLACEHOLDER : HttpUtility.UrlEncode(xmlNodeValue);
+            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
+                                    ? Session.SESSIONKEY_PLACEHOLDER
+                                    : HttpUtility.UrlEncode(xmlNodeValue);
             ExecuteCommit(htmlEncode);
         }
 
-        protected sealed override void LoadWholeValueElement()
+        protected override sealed void LoadWholeValueElement()
         {
             LoadXml();
             const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
@@ -66,7 +66,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             _value = HttpUtility.UrlDecode(result);
         }
 
-        protected sealed override string FromXmlNodeValue(string arg)
+        protected override sealed string FromXmlNodeValue(string arg)
         {
             return null;
         }

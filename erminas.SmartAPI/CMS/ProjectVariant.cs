@@ -22,14 +22,12 @@ namespace erminas.SmartAPI.CMS
 {
     public class ProjectVariant : PartialRedDotObject
     {
-        public ProjectVariant(Project project, Guid guid)
-            : base(guid)
+        public ProjectVariant(Project project, Guid guid) : base(guid)
         {
             Project = project;
         }
 
-        public ProjectVariant(Project project, XmlElement xmlElement)
-            : base(xmlElement)
+        public ProjectVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
         }
@@ -53,7 +51,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         public Project Project { get; private set; }
-        
+
         protected override void LoadWholeObject()
         {
         }
@@ -64,7 +62,7 @@ namespace erminas.SmartAPI.CMS
                 @"<PROJECT><PROJECTVARIANTS action=""load""><PROJECTVARIANT guid=""{0}"" /></PROJECTVARIANTS></PROJECT>";
 
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PROJECT_VARIANT, Guid.ToRQLString()));
-            return (XmlElement)xmlDoc.GetElementsByTagName("PROJECTVARIANT")[0];
+            return (XmlElement) xmlDoc.GetElementsByTagName("PROJECTVARIANT")[0];
         }
     }
 }

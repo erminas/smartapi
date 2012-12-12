@@ -89,23 +89,21 @@ namespace erminas.SmartAPI.RedDotCmsXmlServer
         {
         }
 
-        public XmlServerSoapPortClient(string endpointConfigurationName) :
-            base(endpointConfigurationName)
+        public XmlServerSoapPortClient(string endpointConfigurationName) : base(endpointConfigurationName)
         {
         }
 
-        public XmlServerSoapPortClient(string endpointConfigurationName, string remoteAddress) :
-            base(endpointConfigurationName, remoteAddress)
+        public XmlServerSoapPortClient(string endpointConfigurationName, string remoteAddress)
+            : base(endpointConfigurationName, remoteAddress)
         {
         }
 
-        public XmlServerSoapPortClient(string endpointConfigurationName, EndpointAddress remoteAddress) :
-            base(endpointConfigurationName, remoteAddress)
+        public XmlServerSoapPortClient(string endpointConfigurationName, EndpointAddress remoteAddress)
+            : base(endpointConfigurationName, remoteAddress)
         {
         }
 
-        public XmlServerSoapPortClient(Binding binding, EndpointAddress remoteAddress) :
-            base(binding, remoteAddress)
+        public XmlServerSoapPortClient(Binding binding, EndpointAddress remoteAddress) : base(binding, remoteAddress)
         {
         }
 
@@ -121,7 +119,7 @@ namespace erminas.SmartAPI.RedDotCmsXmlServer
 
         public string Execute(string sParamA, ref object sErrorA, ref object sResultInfoA)
         {
-            ExecuteRequest inValue = new ExecuteRequest();
+            var inValue = new ExecuteRequest();
             inValue.sParamA = sParamA;
             inValue.sErrorA = sErrorA;
             inValue.sResultInfoA = sResultInfoA;

@@ -33,8 +33,7 @@ namespace erminas.SmartAPI.CMS
 
         public readonly Workflow Workflow;
 
-        public Note(Workflow workflow, XmlElement xmlElement)
-            : base(xmlElement)
+        public Note(Workflow workflow, XmlElement xmlElement) : base(xmlElement)
         {
             Workflow = workflow;
             LoadXml();
@@ -46,7 +45,7 @@ namespace erminas.SmartAPI.CMS
         private void LoadXml()
         {
             Value = XmlNode.GetAttributeValue("value");
-            Type = (NoteType)XmlNode.GetIntAttributeValue("type").GetValueOrDefault();
+            Type = (NoteType) XmlNode.GetIntAttributeValue("type").GetValueOrDefault();
         }
     }
 }

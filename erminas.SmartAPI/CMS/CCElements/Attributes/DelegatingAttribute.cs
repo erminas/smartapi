@@ -18,7 +18,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
-    internal class DelegatingAttribute<T> : IRDAttribute 
+    internal class DelegatingAttribute<T> : IRDAttribute
     {
         public readonly CCElement CcElement;
         private readonly string _description;

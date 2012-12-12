@@ -21,11 +21,11 @@ namespace erminas.SmartAPI.CMS.PageElements
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class PageElementType : Attribute
     {
-        public ElementType Type { get; set; }
-
         public PageElementType(ElementType type)
         {
             Type = type;
         }
+
+        public ElementType Type { get; set; }
     }
 }

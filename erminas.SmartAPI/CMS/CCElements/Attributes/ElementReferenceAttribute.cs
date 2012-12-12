@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
@@ -18,7 +19,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             get
             {
                 Guid projectGuid, ccGuid, elementGuid;
-                var xmlNode = _parent.XmlNode;
+                XmlElement xmlNode = _parent.XmlNode;
                 if (!xmlNode.TryGetGuid("eltprojectguid", out projectGuid) ||
                     !xmlNode.TryGetGuid("elttemplateguid", out ccGuid) ||
                     !xmlNode.TryGetGuid("eltelementguid", out elementGuid))
@@ -28,15 +29,14 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
                 string langId = xmlNode.GetAttributeValue("eltlanguagevariantid");
 
-                var project = _parent.ContentClass.Project.Session.Projects.GetByGuid(projectGuid);
-                var contentClass = project.ContentClasses.GetByGuid(ccGuid);
+                Project project = _parent.ContentClass.Project.Session.Projects.GetByGuid(projectGuid);
+                ContentClass contentClass = project.ContentClasses.GetByGuid(ccGuid);
 
-                return contentClass.
-                    Elements[langId].GetByGuid(elementGuid);
+                return contentClass.Elements[langId].GetByGuid(elementGuid);
             }
             set
             {
-                var xmlNode = _parent.XmlNode;
+                XmlElement xmlNode = _parent.XmlNode;
                 xmlNode.SetAttributeValue("eltlanguagevariantid", value.LanguageVariant.Language);
                 xmlNode.SetAttributeValue("eltelementguid", value.Guid.ToRQLString());
                 xmlNode.SetAttributeValue("elttemplateguid", value.ContentClass.Guid.ToRQLString());
@@ -83,11 +83,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             CCElement otherCCElement = other.Value;
             try
             {
-                var project = _parent.ContentClass.Project.Session.Projects[otherCCElement.ContentClass.Project.Name];
-                var cc = project.ContentClasses[otherCCElement.ContentClass.Name];
+                Project project =
+                    _parent.ContentClass.Project.Session.Projects[otherCCElement.ContentClass.Project.Name];
+                ContentClass cc = project.ContentClasses[otherCCElement.ContentClass.Name];
                 Value = cc.Elements[otherCCElement.LanguageVariant.Language].GetByName(otherCCElement.Name);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception(
                     string.Format("Can't find project/content class/element {0}/{1}/{2} on server",

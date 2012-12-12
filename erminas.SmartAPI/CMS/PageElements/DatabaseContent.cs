@@ -42,8 +42,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             return value;
         }
-        
-        protected sealed override void LoadWholeValueElement()
+
+        protected override sealed void LoadWholeValueElement()
         {
         }
     }

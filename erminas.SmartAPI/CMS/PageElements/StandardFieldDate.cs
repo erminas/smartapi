@@ -29,13 +29,11 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private readonly DateTime BASE_DATE = new DateTime(1899, 12, 30);
 
-        public StandardFieldDate(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        public StandardFieldDate(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        public StandardFieldDate(Project project, Guid guid)
-            : base(project, guid)
+        public StandardFieldDate(Project project, Guid guid) : base(project, guid)
         {
         }
 
@@ -44,8 +42,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             try
             {
                 return DateTime.Parse(value);
-            }
-            catch (FormatException e)
+            } catch (FormatException e)
             {
                 throw new ArgumentException(string.Format("Invalid date value: {0}", value), e);
             }
@@ -53,7 +50,9 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override string GetXmlNodeValue()
         {
-            return Value == default(DateTime) ? "" : Value.Subtract(BASE_DATE).Days.ToString(CultureInfo.InvariantCulture);
+            return Value == default(DateTime)
+                       ? ""
+                       : Value.Subtract(BASE_DATE).Days.ToString(CultureInfo.InvariantCulture);
         }
 
         protected override void LoadWholeStandardField()
@@ -68,7 +67,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         public override void Commit()
         {
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days, (int)Type));
+            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
+                                             (int) Type));
             //TODO check guid
             //xml
         }

@@ -31,8 +31,7 @@ namespace erminas.SmartAPI.CMS
     {
         private const string RETRIEVE_PAGE_ELEMENT = @"<ELT action=""load"" guid=""{0}""/>";
 
-        private static readonly Dictionary<ElementType, Type> TYPES =
-            new Dictionary<ElementType, Type>();
+        private static readonly Dictionary<ElementType, Type> TYPES = new Dictionary<ElementType, Type>();
 
         protected readonly Project Project;
 
@@ -56,8 +55,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected PageElement(Project project, Guid guid)
-            : base(guid)
+        protected PageElement(Project project, Guid guid) : base(guid)
         {
             Project = project;
         }
@@ -114,7 +112,6 @@ namespace erminas.SmartAPI.CMS
         private void LoadXml()
         {
             InitIfPresent(ref _page, "pageguid", x => new Page(Project, GuidConvert(x)));
-
         }
 
         protected override sealed void LoadWholeObject()
@@ -133,7 +130,6 @@ namespace erminas.SmartAPI.CMS
                     [0];
         }
 
-
         /// <summary>
         ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
@@ -149,12 +145,10 @@ namespace erminas.SmartAPI.CMS
                 throw new ArgumentException(string.Format("Unknown element type: {0}", typeValue));
             }
 
-            return
-                (PageElement)
-// ReSharper disable PossibleNullReferenceException
-                type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
-// ReSharper restore PossibleNullReferenceException
-                                                                                           {project, xmlElement});
+            return (PageElement) // ReSharper disable PossibleNullReferenceException
+                   type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
+                                                                                                 // ReSharper restore PossibleNullReferenceException
+                                                                                                 {project, xmlElement});
         }
 
         /// <summary>

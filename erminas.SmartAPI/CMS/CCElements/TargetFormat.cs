@@ -25,8 +25,8 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case TargetFormat.SameAsOriginalFormat:
                     return "source";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (TargetFormat).Name, format));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (TargetFormat).Name,
+                                                              format));
             }
         }
 

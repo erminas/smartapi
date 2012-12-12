@@ -99,8 +99,7 @@ namespace erminas.SmartAPI.CMS
             _type = type;
         }
 
-        public PublicationFolder(Project project, Guid guid)
-            : base(guid)
+        public PublicationFolder(Project project, Guid guid) : base(guid)
         {
             Project = project;
             _contextInfoPreparationType = ContextInfoPreparationType.None;

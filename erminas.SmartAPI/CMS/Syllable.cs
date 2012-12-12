@@ -26,14 +26,12 @@ namespace erminas.SmartAPI.CMS
     {
         protected readonly Project Project;
 
-        public Syllable(Project project, XmlElement xmlElement)
-            : base(xmlElement)
+        public Syllable(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
         }
 
-        public Syllable(Project project, Guid guid)
-            : base(guid)
+        public Syllable(Project project, Guid guid) : base(guid)
         {
             Project = project;
         }

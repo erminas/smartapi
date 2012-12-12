@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             Project.ExecuteRQL(rqlStr);
         }
 
-        protected sealed override void LoadWholePageElement()
+        protected override sealed void LoadWholePageElement()
         {
         }
     }

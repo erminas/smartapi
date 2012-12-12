@@ -28,16 +28,16 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected T _value;
 
-        protected AbstractValueElement(Project project, Guid guid)
-            : base(project, guid)
+        protected AbstractValueElement(Project project, Guid guid) : base(project, guid)
         {
         }
 
-        protected AbstractValueElement(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        protected AbstractValueElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
+
+        #region IValueElement<T> Members
 
         public virtual T Value
         {
@@ -45,44 +45,44 @@ namespace erminas.SmartAPI.CMS.PageElements
             set { _value = value; }
         }
 
-        #region IValueElement Members
-
         public void SetValueFromString(string value)
         {
             Value = string.IsNullOrEmpty(value) ? default(T) : FromString(value);
-        }
-
-        public void DeleteValue()
-        {
-            Value = default(T);
         }
 
         public virtual void Commit()
         {
             //TODO bei null/"" SESSIONKEY setzen??
             string xmlNodeValue = GetXmlNodeValue();
-            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue) ? Session.SESSIONKEY_PLACEHOLDER : HttpUtility.HtmlEncode(xmlNodeValue);
+            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
+                                    ? Session.SESSIONKEY_PLACEHOLDER
+                                    : HttpUtility.HtmlEncode(xmlNodeValue);
             ExecuteCommit(htmlEncode);
+        }
+
+        #endregion
+
+        public void DeleteValue()
+        {
+            Value = default(T);
         }
 
         protected void ExecuteCommit(string valueToSave)
         {
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int)Type));
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) Type));
             if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
             {
                 throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
             }
         }
 
-        #endregion
-
         private void LoadXml()
         {
             InitIfPresent(ref _value, "value", FromXmlNodeValue);
         }
 
-        protected sealed override void LoadWholePageElement()
+        protected override sealed void LoadWholePageElement()
         {
             LoadXml();
             LoadWholeValueElement();
@@ -94,11 +94,9 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected abstract T FromString(string value);
 
-
         protected virtual string GetXmlNodeValue()
         {
             return Equals(Value, null) ? null : Value.ToString();
         }
-
     }
 }

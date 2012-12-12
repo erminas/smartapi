@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private int? _id;
 
-        public InfoElementAttribute(CCElement parent, string name)
-            : base(parent, name, true)
+        public InfoElementAttribute(CCElement parent, string name) : base(parent, name, true)
         {
         }
 

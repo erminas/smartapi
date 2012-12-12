@@ -28,8 +28,7 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class TemplateVariantList : RedDotObject, IEnumerable<TemplateVariant>
     {
-        public TemplateVariantList(ContentClass contentClass, XmlElement xmlElement)
-            : base(xmlElement)
+        public TemplateVariantList(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = contentClass;
             TemplateVariants = new List<TemplateVariant>();

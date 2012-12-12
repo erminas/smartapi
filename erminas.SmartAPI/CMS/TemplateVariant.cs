@@ -102,9 +102,7 @@ namespace erminas.SmartAPI.CMS
         private PdfOrientation _pdfOrientation;
         private State _status;
 
-
-        public TemplateVariant(ContentClass contentClass, Guid guid)
-            : base(guid)
+        public TemplateVariant(ContentClass contentClass, Guid guid) : base(guid)
         {
             ContentClass = contentClass;
         }
@@ -139,8 +137,7 @@ namespace erminas.SmartAPI.CMS
                 XmlDocument result =
                     ContentClass.Project.ExecuteRQL(
                         String.Format(SAVE_DATA, ContentClass.Guid.ToRQLString(), Guid.ToRQLString(),
-                                      HttpUtility.HtmlEncode(value)),
-                        Project.RqlType.SessionKeyInProject);
+                                      HttpUtility.HtmlEncode(value)), Project.RqlType.SessionKeyInProject);
                 if (!result.DocumentElement.InnerText.Contains(ContentClass.Guid.ToRQLString()))
                 {
                     var e =
@@ -245,8 +242,7 @@ namespace erminas.SmartAPI.CMS
 
             ContentClass.Project.ExecuteRQL(string.Format(ASSIGN_PROJECT_VARIANT, ContentClass.Guid.ToRQLString(),
                                                           Guid.ToRQLString(), variant.Guid.ToRQLString(),
-                                                          doNotPublish.ToRQLString(),
-                                                          doNotUseTidy.ToRQLString()));
+                                                          doNotPublish.ToRQLString(), doNotUseTidy.ToRQLString()));
         }
 
         private void LoadXml()
@@ -260,10 +256,12 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
-                          new User(ContentClass.Project.Session, Guid.Parse(x)){Name = XmlNode.GetAttributeValue("createusername")});
+                          new User(ContentClass.Project.Session, Guid.Parse(x))
+                              {Name = XmlNode.GetAttributeValue("createusername")});
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
-                          new User(ContentClass.Project.Session, Guid.Parse(x)) { Name = XmlNode.GetAttributeValue("changedusername") });
+                          new User(ContentClass.Project.Session, Guid.Parse(x))
+                              {Name = XmlNode.GetAttributeValue("changedusername")});
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
             InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", BoolConvert);
@@ -276,7 +274,9 @@ namespace erminas.SmartAPI.CMS
             }
             else
             {
-                _status = BoolConvert(XmlNode.GetAttributeValue("waitforrelease")) ? State.WaitsForRelease : State.Released;
+                _status = BoolConvert(XmlNode.GetAttributeValue("waitforrelease"))
+                              ? State.WaitsForRelease
+                              : State.Released;
             }
         }
 
@@ -298,11 +298,9 @@ namespace erminas.SmartAPI.CMS
                 target.Project.ExecuteRQL(
                     string.Format(ADD_TEMPLATE_VARIANT, target.Guid.ToRQLString(), HttpUtility.HtmlEncode(Name),
                                   HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
-                                  HttpUtility.HtmlEncode(FileExtension),
-                                  IsStylesheetIncludedInHeader.ToRQLString(),
-                                  ContainsAreaMarksInPage.ToRQLString(),
-                                  HasContainerPageReference.ToRQLString(), PdfOrientation),
-                    Project.RqlType.SessionKeyInProject);
+                                  HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
+                                  ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
+                                  PdfOrientation), Project.RqlType.SessionKeyInProject);
             if (xmlDoc.DocumentElement.InnerText.Trim().Length == 0)
             {
                 return;

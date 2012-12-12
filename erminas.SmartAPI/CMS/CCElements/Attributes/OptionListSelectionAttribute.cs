@@ -36,7 +36,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
             _parent = parent;
             Name = name;
-            var settingsNode = xmlElement.GetElementsByTagName("SELECTIONS")[0];
+            XmlNode settingsNode = xmlElement.GetElementsByTagName("SELECTIONS")[0];
             if (settingsNode != null)
             {
                 _value = xmlElement.OuterXml;
@@ -95,8 +95,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             //match guids of selections, by finding at least one item with same [languageid, name]
             List<SourceTarget> matchedItems = (from targetItem in targetDoc.Descendants("ITEM")
                                                where !string.IsNullOrEmpty(targetItem.Attribute("name").Value)
-                                               join sourceItem in sourceDoc.Descendants("ITEM")
-                                                   on
+                                               join sourceItem in sourceDoc.Descendants("ITEM") on
                                                    new
                                                        {
                                                            name = targetItem.Attribute("name").Value,
@@ -109,9 +108,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                                        }
                                                select
                                                    new SourceTarget
-                                                       {Source = sourceItem.Parent, Target = targetItem.Parent}
-                                              ).Distinct().ToList();
-
+                                                       {Source = sourceItem.Parent, Target = targetItem.Parent}).
+                Distinct().ToList();
 
             string targetDefaultSelection = (from match in matchedItems
                                              where match.Source.Attribute(IDENTIFIER).Value.Equals(sourceDefault)
@@ -121,8 +119,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             resultSelections.Add(from sourceSelection in sourceDoc.Descendants(SELECTION)
                                  where
                                      !(from mItem in matchedItems select mItem.Source.Attribute(IDENTIFIER).Value).
-                                          Contains(
-                                              sourceSelection.Attribute(IDENTIFIER).Value)
+                                          Contains(sourceSelection.Attribute(IDENTIFIER).Value)
                                  select
                                      new XElement(SELECTION,
                                                   new XAttribute(IDENTIFIER,
@@ -131,13 +128,9 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                                                      ? "1"
                                                                      : "NaN"), sourceSelection.Elements()));
 
-
             //"change" matched items
             resultSelections.Add(from x in matchedItems
-                                 select new XElement(SELECTION,
-                                                     x.Target.Attribute(IDENTIFIER),
-                                                     x.Source.Descendants()));
-
+                                 select new XElement(SELECTION, x.Target.Attribute(IDENTIFIER), x.Source.Descendants()));
 
             targetDefaultSelection = targetDefaultSelection ?? "1";
 
@@ -220,23 +213,21 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 Dictionary<string, List<OptionListEntry>> entries = (from item in doc.Descendants("ITEM")
                                                                      group item by item.Attribute("languageid").Value
                                                                      into langgroups
-                                                                     select new
-                                                                                {
-                                                                                    Language = langgroups.Key,
-                                                                                    Entries = (from entry in langgroups
-                                                                                               select
-                                                                                                   new OptionListEntry(
-                                                                                                   entry.Attribute(
-                                                                                                       "name").Value,
-                                                                                                   entry.Value,
-                                                                                                   entry.Parent.
-                                                                                                       Attribute(
-                                                                                                           IDENTIFIER).
-                                                                                                       Value ==
-                                                                                                   defaultValueString)).
-                                                                         ToList()
-                                                                                }).ToDictionary(key => key.Language,
-                                                                                                value => value.Entries);
+                                                                     select
+                                                                         new
+                                                                             {
+                                                                                 Language = langgroups.Key,
+                                                                                 Entries = (from entry in langgroups
+                                                                                            select
+                                                                                                new OptionListEntry(
+                                                                                                entry.Attribute("name").
+                                                                                                    Value, entry.Value,
+                                                                                                entry.Parent.Attribute(
+                                                                                                    IDENTIFIER).Value ==
+                                                                                                defaultValueString)).ToList
+                                                                         ()
+                                                                             }).ToDictionary(key => key.Language,
+                                                                                             value => value.Entries);
 
                 return new OptionListValue {Entries = entries};
             }

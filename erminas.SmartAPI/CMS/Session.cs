@@ -116,27 +116,23 @@ namespace erminas.SmartAPI.CMS
         private Session()
         {
             Projects = new NameIndexedRDList<Project>(GetProjects, Caching.Enabled);
-            DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers,
-                                                                    Caching.Enabled);
+            DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers, Caching.Enabled);
         }
 
         /// <summary>
         ///   Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
         /// </summary>
         /// <param name="login"> Login data </param>
-        public Session(ServerLogin login)
-            : this()
+        public Session(ServerLogin login) : this()
         {
             ServerLogin = login;
             Login();
         }
 
-
         /// <summary>
         ///   Create an session object for an already existing session on the server, e.g. when opening a plugin from within a running session.
         /// </summary>
-        public Session(ServerLogin login, Guid loginGuid, Guid sessionKey, Guid projectGuid)
-            : this()
+        public Session(ServerLogin login, Guid loginGuid, Guid sessionKey, Guid projectGuid) : this()
         {
             ServerLogin = login;
             _loginGuidStr = loginGuid.ToRQLString();
@@ -191,38 +187,6 @@ namespace erminas.SmartAPI.CMS
 
         public Version Version { get; private set; }
 
-        internal void EnsureVersion()
-        {
-            var stack = new StackTrace();
-// ReSharper disable PossibleNullReferenceException
-            var stackFrame = stack.GetFrames()[1];
-// ReSharper restore PossibleNullReferenceException
-            var methodBase = stackFrame.GetMethod();
-            MemberInfo info = methodBase;
-            if (methodBase.IsSpecialName && (methodBase.Name.StartsWith("get_") || methodBase.Name.StartsWith("set_")))
-            {
-                info = methodBase.DeclaringType.GetProperty(methodBase.Name.Substring(4), BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic); //strip get_/set_
-            }
-
-            var lessThanAttributes = info.GetCustomAttributes(typeof(VersionIsLessThan), false);
-            var greaterOrEqualAttributes = info.GetCustomAttributes(typeof(VersionIsGreaterThanOrEqual), false);
-            if (lessThanAttributes.Count() != 1 && greaterOrEqualAttributes.Count() != 1)
-            {
-                throw new SmartAPIInternalException(string.Format("Missing version constraint attributes on {0}",
-                                                                  info));
-            }
-
-            if (lessThanAttributes.Any())
-            {
-                lessThanAttributes.Cast<VersionIsLessThan>().First().Validate(Version, info.Name);
-            }
-
-            if (greaterOrEqualAttributes.Any())
-            {
-                greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>().First().Validate(Version, info.Name);
-            }
-        }
-
         #region IDisposable Members
 
         public void Dispose()
@@ -240,6 +204,40 @@ namespace erminas.SmartAPI.CMS
         }
 
         #endregion
+
+        internal void EnsureVersion()
+        {
+            var stack = new StackTrace();
+// ReSharper disable PossibleNullReferenceException
+            StackFrame stackFrame = stack.GetFrames()[1];
+// ReSharper restore PossibleNullReferenceException
+            MethodBase methodBase = stackFrame.GetMethod();
+            MemberInfo info = methodBase;
+            if (methodBase.IsSpecialName && (methodBase.Name.StartsWith("get_") || methodBase.Name.StartsWith("set_")))
+            {
+                info = methodBase.DeclaringType.GetProperty(methodBase.Name.Substring(4),
+                                                            BindingFlags.DeclaredOnly | BindingFlags.Public |
+                                                            BindingFlags.Instance | BindingFlags.NonPublic);
+                    //strip get_/set_
+            }
+
+            object[] lessThanAttributes = info.GetCustomAttributes(typeof (VersionIsLessThan), false);
+            object[] greaterOrEqualAttributes = info.GetCustomAttributes(typeof (VersionIsGreaterThanOrEqual), false);
+            if (lessThanAttributes.Count() != 1 && greaterOrEqualAttributes.Count() != 1)
+            {
+                throw new SmartAPIInternalException(string.Format("Missing version constraint attributes on {0}", info));
+            }
+
+            if (lessThanAttributes.Any())
+            {
+                lessThanAttributes.Cast<VersionIsLessThan>().First().Validate(Version, info.Name);
+            }
+
+            if (greaterOrEqualAttributes.Any())
+            {
+                greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>().First().Validate(Version, info.Name);
+            }
+        }
 
         /// <summary>
         ///   Execute an RQL statement. The format of the query (usage of session key/logon guid can be chosen).
@@ -299,7 +297,6 @@ namespace erminas.SmartAPI.CMS
                 binding.ReaderQuotas.MaxArrayLength = 2097152*10; //20mb
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
 
-
                 var add = new EndpointAddress(CmsServerConnectionUrl);
 
                 try
@@ -313,15 +310,13 @@ namespace erminas.SmartAPI.CMS
                     }
                     LOG.DebugFormat("Received RQL [{0}]: {1}", ServerLogin.Name, result);
                     return result;
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     LOG.Error(e.Message);
                     LOG.Debug(e.StackTrace);
                     throw;
                 }
-            }
-            catch (EndpointNotFoundException e)
+            } catch (EndpointNotFoundException e)
             {
                 LOG.ErrorFormat("Server not found: {0}", CmsServerConnectionUrl);
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
@@ -345,8 +340,7 @@ namespace erminas.SmartAPI.CMS
             {
                 string result = SendRQLToServer(rql, debugOutputRQL);
                 xmlDoc.LoadXml(result);
-            }
-            catch (RQLException e)
+            } catch (RQLException e)
             {
                 if (e.ErrorCode != ErrorCode.RDError101)
                 {
@@ -387,8 +381,7 @@ namespace erminas.SmartAPI.CMS
                     {
                         throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
                                                             "Could not retrieve version info of RedDot server at " +
-                                                            baseURL + "\n" +
-                                                            responseText);
+                                                            baseURL + "\n" + responseText);
                     }
 
                     Version = new Version(match.Groups[2].Value);
@@ -397,24 +390,19 @@ namespace erminas.SmartAPI.CMS
                                                   ? "webservice/RDCMSXMLServer.WSDL"
                                                   : "WebService/RQLWebService.svc");
                 }
-            }
-            catch (RedDotConnectionException)
+            } catch (RedDotConnectionException)
             {
                 throw;
-            }
-            catch (WebException e)
+            } catch (WebException e)
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
-                                                    "Could not retrieve version info of RedDot server at " +
-                                                    baseURL + "\n" +
-                                                    e.Message, e);
-            }
-            catch (Exception e)
+                                                    "Could not retrieve version info of RedDot server at " + baseURL +
+                                                    "\n" + e.Message, e);
+            } catch (Exception e)
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.Unknown,
-                                                    "Could not retrieve version info of RedDot server at " +
-                                                    baseURL + "\n" +
-                                                    e.Message, e);
+                                                    "Could not retrieve version info of RedDot server at " + baseURL +
+                                                    "\n" + e.Message, e);
             }
         }
 
@@ -424,8 +412,7 @@ namespace erminas.SmartAPI.CMS
             var xmlNode = (XmlElement) xmlNodes[0];
             string oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
             // ReSharper disable ConditionIsAlwaysTrueOrFalse
-            if (oldLoginGuid != "" && !FORCE_LOGIN)
-                // ReSharper restore ConditionIsAlwaysTrueOrFalse
+            if (oldLoginGuid != "" && !FORCE_LOGIN) // ReSharper restore ConditionIsAlwaysTrueOrFalse
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.AlreadyLoggedIn,
                                                     "User already logged in.");
@@ -494,7 +481,6 @@ namespace erminas.SmartAPI.CMS
             ExecuteRql(string.Format(RQL_LOGOUT, logonGuid.ToRQLString()), IODataFormat.LogonGuidOnly);
         }
 
-
         /// <summary>
         ///   Select a project. Subsequent queries will be executed in the context of this project.
         /// </summary>
@@ -508,12 +494,11 @@ namespace erminas.SmartAPI.CMS
             string result;
             try
             {
-                result = ExecuteRql(
-                    string.Format(RQL_SELECT_PROJECT, _loginGuidStr, projectGuid.ToRQLString().ToUpperInvariant()),
-                    IODataFormat.LogonGuidOnly
-                    );
-            }
-            catch (RQLException e)
+                result =
+                    ExecuteRql(
+                        string.Format(RQL_SELECT_PROJECT, _loginGuidStr, projectGuid.ToRQLString().ToUpperInvariant()),
+                        IODataFormat.LogonGuidOnly);
+            } catch (RQLException e)
             {
                 result = e.Response;
             }
@@ -541,7 +526,6 @@ namespace erminas.SmartAPI.CMS
             // invalidate this object
             LogonGuid = default(Guid);
         }
-
 
         /// <summary>
         ///   Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
@@ -578,11 +562,10 @@ namespace erminas.SmartAPI.CMS
                 @"<IODATA loginguid=""{0}"" format=""1"" sessionkey=""{1}""><PROJECT><TEXT action=""save"" guid=""{2}"" texttype=""{3}"" >{4}</TEXT></PROJECT></IODATA>";
             SelectProject(projectGuid);
             languageVariant.Select();
-            string rqlResult = SendRQLToServer(string.Format(SAVE_TEXT_CONTENT, _loginGuidStr, _sessionKeyStr,
-                                                             textElementGuid == Guid.Empty
-                                                                 ? ""
-                                                                 : textElementGuid.ToRQLString(), typeString,
-                                                             HttpUtility.HtmlEncode(content)));
+            string rqlResult =
+                SendRQLToServer(string.Format(SAVE_TEXT_CONTENT, _loginGuidStr, _sessionKeyStr,
+                                              textElementGuid == Guid.Empty ? "" : textElementGuid.ToRQLString(),
+                                              typeString, HttpUtility.HtmlEncode(content)));
 
             string resultGuidStr = XElement.Load(new StringReader(rqlResult)).Value;
             Guid newGuid;
@@ -593,7 +576,6 @@ namespace erminas.SmartAPI.CMS
             }
             return newGuid;
         }
-
 
         /// <summary>
         ///   Get a project by Guid. The difference between new Project(Session, Guid) and this is that this uses a cached list of all projects to retrieve the project, while new Project() leads to a complete (albeit lazy) reload of all the project information.
@@ -679,8 +661,7 @@ namespace erminas.SmartAPI.CMS
                 var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception("Illegal response from server", e);
             }
@@ -699,8 +680,7 @@ namespace erminas.SmartAPI.CMS
                 var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception("Illegal response from server", e);
             }
@@ -721,8 +701,7 @@ namespace erminas.SmartAPI.CMS
                 var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 LOG.Error("Illegal response from server: '" + result + "'", e);
                 throw new Exception("Illegal response from server", e);

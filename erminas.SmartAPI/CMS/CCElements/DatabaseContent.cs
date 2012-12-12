@@ -41,8 +41,7 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case ListType.DisplayAsLink:
                     return "linksintext";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (ListType).Name, type));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (ListType).Name, type));
             }
         }
 
@@ -87,10 +86,9 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public DatabaseContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltislistentry", "eltlisttype", "eltdatabasename",
-                             "elttablename", "eltcolumnname", "eltcolumniotype",
-                             "eltrelatedfolderguid", "eltformatting", "eltbincolumnname",
-                             "eltborder", "eltvspace", "elthspace", "eltsupplement", "eltalt");
+            CreateAttributes("eltislistentry", "eltlisttype", "eltdatabasename", "elttablename", "eltcolumnname",
+                             "eltcolumniotype", "eltrelatedfolderguid", "eltformatting", "eltbincolumnname", "eltborder",
+                             "eltvspace", "elthspace", "eltsupplement", "eltalt");
             new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,
                                                            BasicAlignmentUtils.ToBasicAlignment);
 

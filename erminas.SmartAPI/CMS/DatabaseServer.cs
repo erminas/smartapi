@@ -47,8 +47,7 @@ namespace erminas.SmartAPI.CMS
         private bool _isCreateAllowed;
         private Guid _productGuid;
 
-        public DatabaseServer(Session session, Guid guid)
-            : base(guid)
+        public DatabaseServer(Session session, Guid guid) : base(guid)
         {
             Session = session;
         }
@@ -74,7 +73,6 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _dBType); }
         }
-
 
         public Session Session { get; set; }
 

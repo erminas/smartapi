@@ -22,12 +22,27 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
-    
-
     public abstract class AbstractLinkElement : PageElement, ILinkElement
     {
         private LinkType _linkType;
+
+        protected AbstractLinkElement(Project project, Guid guid) : base(project, guid)
+        {
+            ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
+            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+        }
+
+        protected AbstractLinkElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        {
+            ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
+            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+            LoadXml();
+        }
+
+        #region ILinkElement Members
+
         public IRDList<IPage> ConnectedPages { get; private set; }
+
         public LinkType LinkType
         {
             get { return LazyLoad(ref _linkType); }
@@ -36,26 +51,6 @@ namespace erminas.SmartAPI.CMS.PageElements
         public bool IsReference
         {
             get { return LinkType == LinkType.Reference; }
-        }
-
-        protected AbstractLinkElement(Project project, Guid guid)
-            : base(project, guid)
-        {
-            ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
-            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
-        }
-
-        protected AbstractLinkElement(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
-        {
-            ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
-            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
-            LoadXml();
-        }
-
-        private void LoadXml()
-        {
-            InitIfPresent(ref _linkType, "islink", x => (LinkType)int.Parse(x));
         }
 
         public void Reference(ILinkTarget target)
@@ -68,11 +63,11 @@ namespace erminas.SmartAPI.CMS.PageElements
             {
                 if (target is IPage)
                 {
-                    ReferencePage((IPage)target);
+                    ReferencePage((IPage) target);
                 }
                 else
                 {
-                    ReferenceElement((ILinkElement)target);
+                    ReferenceElement((ILinkElement) target);
                 }
                 ConnectedPages.InvalidateCache();
             }
@@ -81,6 +76,34 @@ namespace erminas.SmartAPI.CMS.PageElements
         public void DeleteReference()
         {
             Reference(null);
+        }
+
+        public IRDList<ILinkElement> ReferencedBy { get; private set; }
+
+        public void Disconnect(IPage page)
+        {
+            DisconnectPages(new List<IPage> {page});
+        }
+
+        public void Connect(IPage page)
+        {
+            const string CONNECT_PREPARE =
+                @"<LINK action=""save"" reddotcacheguid="""" guid=""{0}"" value=""" + Session.SESSIONKEY_PLACEHOLDER +
+                @""" />";
+
+            Project.ExecuteRQL(CONNECT_PREPARE.RQLFormat(this));
+
+            const string CONNECT =
+                @"<LINKSFROM action=""save"" pageid="""" pageguid=""{0}"" reddotcacheguid=""""><LINK guid=""{1}""/></LINKSFROM>";
+
+            Project.ExecuteRQL(CONNECT.RQLFormat(page, this));
+        }
+
+        #endregion
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _linkType, "islink", x => (LinkType) int.Parse(x));
         }
 
         private void ReferencePage(IPage target)
@@ -94,7 +117,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         private void UnlinkReference()
         {
             const string UNLINK_ELEMENT =
-               @"<LINK guid=""{0}""><LINK action=""unlink"" reddotcacheguid=""""/><URL action=""unlink""/></LINK>";
+                @"<LINK guid=""{0}""><LINK action=""unlink"" reddotcacheguid=""""/><URL action=""unlink""/></LINK>";
             //we can't really check the success, because an empty iodata element is returned on success as on (at least some) errors
             Project.ExecuteRQL(UNLINK_ELEMENT.RQLFormat(this));
         }
@@ -106,24 +129,6 @@ namespace erminas.SmartAPI.CMS.PageElements
             //we can't really check the success, because an empty iodata element is returned on success as on (at least some) errors
             Project.ExecuteRQL(LINK_TO_ELEMENT.RQLFormat(this, element));
             ConnectedPages.InvalidateCache();
-        }
-
-        public IRDList<ILinkElement> ReferencedBy { get; private set; }
-
-        public void Disconnect(IPage page)
-        {
-            DisconnectPages(new List<IPage> { page });
-        }
-
-        public void Connect(IPage page)
-        {
-            const string CONNECT_PREPARE = @"<LINK action=""save"" reddotcacheguid="""" guid=""{0}"" value=""" + Session.SESSIONKEY_PLACEHOLDER + @""" />";
-
-            Project.ExecuteRQL(CONNECT_PREPARE.RQLFormat(this));
-
-            const string CONNECT = @"<LINKSFROM action=""save"" pageid="""" pageguid=""{0}"" reddotcacheguid=""""><LINK guid=""{1}""/></LINKSFROM>";
-
-            Project.ExecuteRQL(CONNECT.RQLFormat(page, this));
         }
 
         protected override sealed void LoadWholePageElement()
@@ -139,8 +144,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             const string DISCONNECT_PAGES = @"<LINK action=""save"" guid=""{0}""><PAGES>{1}</PAGES></LINK>";
             const string SINGLE_PAGE = @"<PAGE deleted=""1"" guid=""{0}"" />";
 
-            string pagesStr = pages.Aggregate("",
-                                              (x, page) => x + string.Format(SINGLE_PAGE, page.Guid.ToRQLString()));
+            string pagesStr = pages.Aggregate("", (x, page) => x + string.Format(SINGLE_PAGE, page.Guid.ToRQLString()));
             Project.ExecuteRQL(String.Format(DISCONNECT_PAGES, Guid.ToRQLString(), pagesStr));
             ConnectedPages.InvalidateCache();
         }
@@ -148,19 +152,20 @@ namespace erminas.SmartAPI.CMS.PageElements
         private List<IPage> GetLinkedPages()
         {
             const string LIST_LINKED_PAGES = @"<LINK guid=""{0}""><PAGES action=""list"" /></LINK>";
-            var xmlDoc = Project.ExecuteRQL(string.Format(LIST_LINKED_PAGES, Guid.ToRQLString()));
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_LINKED_PAGES, Guid.ToRQLString()));
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
-                    let page = (IPage)new Page(Project, curPage.GetGuid()) { Headline = curPage.GetAttributeValue("headline") }
+                    let page =
+                        (IPage) new Page(Project, curPage.GetGuid()) {Headline = curPage.GetAttributeValue("headline")}
                     select page).ToList();
         }
 
         private List<ILinkElement> GetReferencingLinks()
         {
             const string LIST_REFERENCES = @"<REFERENCE action=""list"" guid=""{0}"" />";
-            var xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+            XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
 
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement)CreateElement(Project, curLink.GetGuid())).ToList();
+                    select (ILinkElement) CreateElement(Project, curLink.GetGuid())).ToList();
         }
     }
 }

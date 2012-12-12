@@ -7,7 +7,6 @@ namespace erminas.SmartAPI.Exceptions
     {
         public InvalidServerVersionException(string message) : base(message)
         {
-            
         }
     }
 }

@@ -85,16 +85,14 @@ namespace erminas.SmartAPI.CMS
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
 
-        public Project(Session session, XmlElement xmlElement)
-            : base(xmlElement)
+        public Project(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
             LoadXml();
             Init();
         }
 
-        public Project(Session session, Guid guid)
-            : base(guid)
+        public Project(Session session, Guid guid) : base(guid)
         {
             Session = session;
             Init();
@@ -237,9 +235,9 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_SESSION_INFO = @"<USER action=""sessioninfo""/>";
 
-            var xmlDoc = ExecuteRQL(LOAD_SESSION_INFO, RqlType.SessionKeyInProject);
+            XmlDocument xmlDoc = ExecuteRQL(LOAD_SESSION_INFO, RqlType.SessionKeyInProject);
             string languageId =
-                ((XmlElement)xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
+                ((XmlElement) xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
             return _currentLanguageVariant = LanguageVariants[languageId];
         }
 
@@ -253,23 +251,16 @@ namespace erminas.SmartAPI.CMS
 
         private void Init()
         {
-            PublicationTargets = new RDList<PublicationTarget>(GetPublicationTargets,
-                                                               Caching.Enabled);
-            PublicationFolders = new RDList<PublicationFolder>(GetPublicationFolders,
-                                                               Caching.Enabled);
-            PublicationPackages = new RDList<PublicationPackage>(GetPublicationPackages,
-                                                                 Caching.Enabled);
-            InfoAttributes = new IndexedCachedList<int, InfoAttribute>(GetInfoAttributes, x => x.Id,
-                                                                       Caching.Enabled);
+            PublicationTargets = new RDList<PublicationTarget>(GetPublicationTargets, Caching.Enabled);
+            PublicationFolders = new RDList<PublicationFolder>(GetPublicationFolders, Caching.Enabled);
+            PublicationPackages = new RDList<PublicationPackage>(GetPublicationPackages, Caching.Enabled);
+            InfoAttributes = new IndexedCachedList<int, InfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
             Locales = new IndexedCachedList<int, Locale>(GetLocales, x => x.LCID, Caching.Enabled);
 
             ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
-            ContentClassFolders = new NameIndexedRDList<ContentClassFolder>(GetContentClassFolders,
-                                                                            Caching.
-                                                                                Enabled);
+            ContentClassFolders = new NameIndexedRDList<ContentClassFolder>(GetContentClassFolders, Caching.Enabled);
             Folders = new NameIndexedRDList<Folder>(GetFolders, Caching.Enabled);
-            ProjectVariants = new NameIndexedRDList<ProjectVariant>(GetProjectVariants,
-                                                                    Caching.Enabled);
+            ProjectVariants = new NameIndexedRDList<ProjectVariant>(GetProjectVariants, Caching.Enabled);
             LanguageVariants = new IndexedRDList<string, LanguageVariant>(GetLanguageVariants, x => x.Language,
                                                                           Caching.Enabled);
 
@@ -327,7 +318,7 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel)int.Parse(x));
+            InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));
         }
 
         /// <summary>
@@ -364,8 +355,7 @@ namespace erminas.SmartAPI.CMS
 
             //todo oder muss das als plain (ohne sessionkey) gesendet werden?
             //todo return value checken
-            ExecuteRQL(string.Format(SET_USER_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString(),
-                                     "1", (int)accessLevel));
+            ExecuteRQL(string.Format(SET_USER_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString(), "1", (int) accessLevel));
         }
 
         /// <summary>
@@ -377,10 +367,10 @@ namespace erminas.SmartAPI.CMS
                 @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load""/></USER></ADMINISTRATION>";
             XmlDocument xmlDoc =
                 ExecuteRQL(string.Format(LOAD_ACCESS_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString()));
-            var xmlNode = (XmlElement)xmlDoc.GetElementsByTagName("PROJECT")[0];
+            var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("PROJECT")[0];
             if (!string.IsNullOrEmpty(xmlNode.GetAttributeValue("guid")))
             {
-                return (UserAccessLevel)xmlNode.GetIntAttributeValue("userlevel").Value;
+                return (UserAccessLevel) xmlNode.GetIntAttributeValue("userlevel").Value;
             }
 
             return UserAccessLevel.None;
@@ -435,7 +425,7 @@ namespace erminas.SmartAPI.CMS
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
 
             return (from XmlElement curNode in xmlNodes
-                    select new ContentClass(this, curNode.GetGuid()) { Name = curNode.GetAttributeValue("name") }).ToList();
+                    select new ContentClass(this, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")}).ToList();
         }
 
         #region PAGES
@@ -454,7 +444,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public IndexedRDList<int, Page> GetPagesForLanguageVariant(string language)
         {
-            var languageVariant = LanguageVariants[language];
+            LanguageVariant languageVariant = LanguageVariants[language];
             using (new LanguageContext(languageVariant))
             {
                 return _pagesByLanguage.GetOrAdd(language, () => new IndexedRDList<int, Page>(() =>
@@ -493,8 +483,7 @@ namespace erminas.SmartAPI.CMS
         /// <returns> The newly created (and linked) page </returns>
         public Page CreateAndConnectPage(ContentClass cc, Guid linkGuid, string headline = null)
         {
-            const string CREATE_AND_LINK_PAGE =
-                @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
+            const string CREATE_AND_LINK_PAGE = @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
             XmlDocument xmlDoc =
                 ExecuteRQL(string.Format(CREATE_AND_LINK_PAGE, linkGuid.ToRQLString(), PageCreationString(cc, headline)));
             return CreatePageFromCreationReply(xmlDoc);
@@ -502,8 +491,7 @@ namespace erminas.SmartAPI.CMS
 
         private static string PageCreationString(ContentClass cc, string headline = null)
         {
-            const string PAGE_CREATION_STRING =
-                @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
+            const string PAGE_CREATION_STRING = @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
 
             string headlineString = headline == null
                                         ? ""
@@ -511,15 +499,13 @@ namespace erminas.SmartAPI.CMS
             return string.Format(PAGE_CREATION_STRING, cc.Guid.ToRQLString(), headlineString);
         }
 
-
         private Page CreatePageFromCreationReply(XmlDocument xmlDoc)
         {
             try
             {
-                var pageItem = (XmlElement)xmlDoc.GetElementsByTagName("PAGE")[0];
+                var pageItem = (XmlElement) xmlDoc.GetElementsByTagName("PAGE")[0];
                 return new Page(this, pageItem);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception("Could not create page", e);
             }
@@ -593,29 +579,28 @@ namespace erminas.SmartAPI.CMS
         {
             const string LIST_WORKFLOWS = @"<WORKFLOWS action=""list"" />";
             XmlDocument xmlDoc = ExecuteRQL(LIST_WORKFLOWS);
-            return (from XmlElement curWorkflow in xmlDoc.GetElementsByTagName("WORKFLOW")
-                    select new Workflow(this, curWorkflow)).ToList();
+            return
+                (from XmlElement curWorkflow in xmlDoc.GetElementsByTagName("WORKFLOW")
+                 select new Workflow(this, curWorkflow)).ToList();
         }
 
         private List<PublicationPackage> GetPublicationPackages()
         {
             const string LIST_PUBLICATION_PACKAGES = @"<PROJECT><EXPORTPACKET action=""list""/></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLICATION_PACKAGES);
-            return
-                (from XmlElement curPackage in xmlDoc.GetElementsByTagName("EXPORTPACKET")
-                 select new PublicationPackage(this, curPackage.GetGuid())).ToList();
+            return (from XmlElement curPackage in xmlDoc.GetElementsByTagName("EXPORTPACKET")
+                    select new PublicationPackage(this, curPackage.GetGuid())).ToList();
         }
-
 
         private List<PublicationTarget> GetPublicationTargets()
         {
             const string LIST_PUBLISHING_TARGETS = @"<PROJECT><EXPORTS action=""list""/></PROJECT>";
 
             XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLISHING_TARGETS);
-            return (from XmlElement curElement in xmlDoc.GetElementsByTagName("EXPORT")
-                    select new PublicationTarget(this, curElement)).ToList();
+            return
+                (from XmlElement curElement in xmlDoc.GetElementsByTagName("EXPORT")
+                 select new PublicationTarget(this, curElement)).ToList();
         }
-
 
         private List<PublicationFolder> GetPublicationFolders()
         {
@@ -647,7 +632,6 @@ namespace erminas.SmartAPI.CMS
 
             return (from XmlElement curNode in xmlNodes select new Folder(this, curNode)).ToList();
         }
-
 
         private List<LanguageVariant> GetLanguageVariants()
         {
@@ -690,11 +674,10 @@ namespace erminas.SmartAPI.CMS
             }
             return
                 (from XmlElement info in infos.GetElementsByTagName("PAGEINFO") select new InfoAttribute(info)).Union(
-                    (from XmlElement info in infos.GetElementsByTagName("PROJECTINFO") select new InfoAttribute(info)))
-                    .Union(
+                    (from XmlElement info in infos.GetElementsByTagName("PROJECTINFO") select new InfoAttribute(info))).
+                    Union(
                         (from XmlElement info in infos.GetElementsByTagName("SESSIONOBJECT")
-                         select new InfoAttribute(info))
-                    ).ToList();
+                         select new InfoAttribute(info))).ToList();
         }
 
         private List<Locale> GetLocales()
@@ -720,8 +703,9 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new Exception("could not load project variants");
             }
-            return (from XmlElement variant in variants.GetElementsByTagName("PROJECTVARIANT")
-                    select new ProjectVariant(this, variant)).ToList();
+            return
+                (from XmlElement variant in variants.GetElementsByTagName("PROJECTVARIANT")
+                 select new ProjectVariant(this, variant)).ToList();
         }
 
         private List<Syllable> GetSyllables()
@@ -740,8 +724,7 @@ namespace erminas.SmartAPI.CMS
                 XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("USER");
 
                 return (from XmlElement node in xmlNodes select new User(Session, node)).ToList();
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception("Could not load users of Project: " + Guid.ToRQLString(), e);
             }
@@ -751,9 +734,13 @@ namespace erminas.SmartAPI.CMS
         {
             const string LIST_PAGES = @"<PROJECT><PAGES action=""list""/></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_PAGES);
-            return
-                (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE") select new Page(this, curPage.GetGuid()) { Headline = curPage.GetAttributeValue("headline"), Id = curPage.GetIntAttributeValue("id").GetValueOrDefault() })
-                    .ToList();
+            return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
+                    select
+                        new Page(this, curPage.GetGuid())
+                            {
+                                Headline = curPage.GetAttributeValue("headline"),
+                                Id = curPage.GetIntAttributeValue("id").GetValueOrDefault()
+                            }).ToList();
         }
 
         private List<Keyword> GetKeywords()
@@ -761,8 +748,12 @@ namespace erminas.SmartAPI.CMS
             const string LIST_KEYWORDS = "<PROJECT><CATEGORY><KEYWORDS action=\"list\" /></CATEGORY></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_KEYWORDS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
-            IEnumerable<Keyword> categoryKeywords = from curCategory in Categories select new Keyword(this, curCategory.Guid) {Name = "[category]", Category = curCategory};
-            return (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).Union(categoryKeywords).ToList();
+            IEnumerable<Keyword> categoryKeywords = from curCategory in Categories
+                                                    select
+                                                        new Keyword(this, curCategory.Guid)
+                                                            {Name = "[category]", Category = curCategory};
+            return
+                (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).Union(categoryKeywords).ToList();
         }
 
         private List<Category> GetCategories()

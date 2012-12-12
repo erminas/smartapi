@@ -72,12 +72,11 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public Media(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired",
-                             "elthideinform", "eltsuffixes", "eltdonotremove", "eltconvert",
-                             "eltmaxsize", "eltcompression", "elttargetformat", "eltonlynonwebsources",
-                             "eltmaxpicwidth", "eltmaxpicheight", "eltpicwidth", "eltpicheight", "eltpicdepth",
-                             "eltfilename", "eltdragdrop", "eltrdexample", "eltrdexamplesubdirguid", "eltsrc",
-                             "eltsrcsubdirguid");
+            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "elthideinform",
+                             "eltsuffixes", "eltdonotremove", "eltconvert", "eltmaxsize", "eltcompression",
+                             "elttargetformat", "eltonlynonwebsources", "eltmaxpicwidth", "eltmaxpicheight",
+                             "eltpicwidth", "eltpicheight", "eltpicdepth", "eltfilename", "eltdragdrop", "eltrdexample",
+                             "eltrdexamplesubdirguid", "eltsrc", "eltsrcsubdirguid");
             new StringEnumXmlNodeAttribute<MediaConversionMode>(this, "eltconvertmode",
                                                                 MediaConversionModeUtils.ToRQLString,
                                                                 MediaConversionModeUtils.ToMediaConversionMode);
@@ -93,7 +92,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;
@@ -192,7 +191,6 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value = value; }
         }
 
-
         public TargetFormat TargetFormat
         {
             get { return ((StringEnumXmlNodeAttribute<TargetFormat>) GetAttribute("elttargetformat")).Value; }
@@ -226,7 +224,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;
@@ -244,7 +242,6 @@ namespace erminas.SmartAPI.CMS.CCElements
             }
         }
 
-
         public bool IsNotRelevantForWorklow
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
@@ -257,16 +254,20 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
         }
 
+        public bool IsNotUsedInForm
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
+        }
+
+        #region ICanBeRequiredForEditing Members
+
         public bool IsEditingMandatory
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
         }
 
-        public bool IsNotUsedInForm
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
-        }
+        #endregion
     }
 }

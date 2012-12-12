@@ -60,7 +60,6 @@ namespace erminas.SmartAPI.CMS
 
         public Project Project { get; private set; }
 
-
         private void LoadXml()
         {
             InitIfPresent(ref _urlPrefix, "urlprefix", x => x);

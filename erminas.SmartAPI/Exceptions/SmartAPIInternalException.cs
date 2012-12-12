@@ -6,7 +6,7 @@ namespace erminas.SmartAPI.Exceptions
     [Serializable]
     public class SmartAPIInternalException : Exception
     {
-         public SmartAPIInternalException()
+        public SmartAPIInternalException()
         {
         }
 
@@ -14,14 +14,12 @@ namespace erminas.SmartAPI.Exceptions
         {
         }
 
-        public SmartAPIInternalException(string message, Exception innerException)
-            : base(message, innerException)
+        public SmartAPIInternalException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
-        public SmartAPIInternalException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        public SmartAPIInternalException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-        }   
+        }
     }
 }

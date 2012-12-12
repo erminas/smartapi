@@ -23,7 +23,9 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldUserDefined)]
     public sealed class StandardFieldUserDefined : StandardField<string>
     {
-        public static readonly Regex NUMERIC_CHECK_REGEX = new Regex("^(-)?((\\d+((\\.|\\,)\\d*)?)|((\\.|\\,)\\d+))([eE](-)?\\d+)?$");
+        public static readonly Regex NUMERIC_CHECK_REGEX =
+            new Regex("^(-)?((\\d+((\\.|\\,)\\d*)?)|((\\.|\\,)\\d+))([eE](-)?\\d+)?$");
+
         private int _maxSize;
         private Regex _regex;
 

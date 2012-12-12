@@ -62,11 +62,9 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public Browse(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltlanguageindependent",
-                             "eltwidth", "eltheight", "eltborder",
-                             "eltvspace", "elthspace", "eltusermap", "eltsupplement",
-                             "eltonlyhrefvalue", "eltxhtmlcompliant",
-                             "eltsrc", "eltalt", "eltsrcsubdirguid", "eltrddescription", "eltrdexample");
+            CreateAttributes("eltlanguageindependent", "eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace",
+                             "eltusermap", "eltsupplement", "eltonlyhrefvalue", "eltxhtmlcompliant", "eltsrc", "eltalt",
+                             "eltsrcsubdirguid", "eltrddescription", "eltrdexample");
             new EnumXmlNodeAttribute<Direction>(this, "eltdirection");
             new EnumXmlNodeAttribute<Appearance>(this, "eltnextpagetype");
             new StringXmlNodeAttribute(this, "eltdefaultvalue");
@@ -91,7 +89,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;
@@ -114,7 +112,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;

@@ -21,11 +21,10 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Headline : CCElement
     {
-        public Headline(ContentClass contentClass, XmlElement xmlElement)
-            : base(contentClass, xmlElement)
+        public Headline(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode",
-                             "elthideinform", "eltrddescription", "eltdirectedit", "eltdragdrop");
+            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode", "elthideinform",
+                             "eltrddescription", "eltdirectedit", "eltdragdrop");
         }
 
         public override ContentClassCategory Category
@@ -39,12 +38,12 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 ContentClass.Project.Session.EnsureVersion();
-                return ((BoolXmlNodeAttribute)GetAttribute("eltignoreworkflow")).Value;
+                return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value;
             }
             set
             {
                 ContentClass.Project.Session.EnsureVersion();
-                ((BoolXmlNodeAttribute)GetAttribute("eltignoreworkflow")).Value = value;
+                ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value;
             }
         }
 
@@ -54,43 +53,43 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 ContentClass.Project.Session.EnsureVersion();
-                return ((BoolXmlNodeAttribute)GetAttribute("eltlanguageindependent")).Value;
+                return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value;
             }
             set
             {
                 ContentClass.Project.Session.EnsureVersion();
-                ((BoolXmlNodeAttribute)GetAttribute("eltlanguageindependent")).Value = value;
+                ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value;
             }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return ((BoolXmlNodeAttribute)GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute)GetAttribute("elthideinform")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
         }
 
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return ((BoolXmlNodeAttribute)GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute)GetAttribute("eltdonothtmlencode")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
         }
 
         public string Description
         {
-            get { return ((StringXmlNodeAttribute)GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute)GetAttribute("eltrddescription")).Value = value; }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
         }
 
         public bool IsDirectEditActivated
         {
-            get { return ((BoolXmlNodeAttribute)GetAttribute("eltdirectedit")).Value; }
-            set { ((BoolXmlNodeAttribute)GetAttribute("eltdirectedit")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
         }
 
         public bool IsDragAndDropActivated
         {
-            get { return ((BoolXmlNodeAttribute)GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute)GetAttribute("eltdragdrop")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
         }
     }
 }

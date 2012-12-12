@@ -3,7 +3,6 @@ using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS
 {
-
     public abstract class VersionAttribute : Attribute
     {
         protected VersionAttribute(int major, int minor, int build, int rev)
@@ -13,9 +12,8 @@ namespace erminas.SmartAPI.CMS
 
         public Version Version { get; set; }
 
-        public abstract void Validate(Version actualVersion, string method);
-
         public string VersionName { get; set; }
+        public abstract void Validate(Version actualVersion, string method);
     }
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
@@ -30,8 +28,11 @@ namespace erminas.SmartAPI.CMS
         {
             if (actualVersion < Version)
             {
-                var versionNameString = string.IsNullOrEmpty(VersionName) ? "" : " (" + VersionName + ")";
-                throw new InvalidServerVersionException(string.Format("Invalid server version. {0} only works on servers with version greater than or equal {1}{3}, but the current server version is {2}", method, Version, actualVersion, versionNameString));
+                string versionNameString = string.IsNullOrEmpty(VersionName) ? "" : " (" + VersionName + ")";
+                throw new InvalidServerVersionException(
+                    string.Format(
+                        "Invalid server version. {0} only works on servers with version greater than or equal {1}{3}, but the current server version is {2}",
+                        method, Version, actualVersion, versionNameString));
             }
         }
     }
@@ -39,8 +40,7 @@ namespace erminas.SmartAPI.CMS
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class VersionIsLessThan : VersionAttribute
     {
-        public VersionIsLessThan(int major, int minor = 0, int build = 0, int rev = 0)
-            : base(major, minor, build, rev)
+        public VersionIsLessThan(int major, int minor = 0, int build = 0, int rev = 0) : base(major, minor, build, rev)
         {
         }
 
@@ -48,8 +48,11 @@ namespace erminas.SmartAPI.CMS
         {
             if (actualVersion >= Version)
             {
-                var versionNameString = string.IsNullOrEmpty(VersionName) ? "" : " (" + VersionName + ")";
-                throw new InvalidServerVersionException(string.Format("Invalid server version. {0} only works on servers with version less than {1}{3}, but the current server version is {2}", method, Version, actualVersion, versionNameString));
+                string versionNameString = string.IsNullOrEmpty(VersionName) ? "" : " (" + VersionName + ")";
+                throw new InvalidServerVersionException(
+                    string.Format(
+                        "Invalid server version. {0} only works on servers with version less than {1}{3}, but the current server version is {2}",
+                        method, Version, actualVersion, versionNameString));
             }
         }
     }

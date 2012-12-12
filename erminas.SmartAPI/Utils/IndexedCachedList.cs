@@ -78,8 +78,7 @@ namespace erminas.SmartAPI.Utils
             try
             {
                 return IsCachingEnabled ? _index[key] : List.First(x => _indexFunc(x).Equals(key));
-            }
-            catch (InvalidOperationException e)
+            } catch (InvalidOperationException e)
             {
                 throw new KeyNotFoundException(String.Format("No element with key '{0}' found", key), e);
             }

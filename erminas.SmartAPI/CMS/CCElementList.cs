@@ -18,7 +18,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Utils;
 using log4net;
@@ -30,10 +29,9 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class CCElementList : RedDotObject, IEnumerable<CCElement>
     {
-        private static readonly ILog LOGGER = LogManager.GetLogger(typeof(CCElementList));
+        private static readonly ILog LOGGER = LogManager.GetLogger(typeof (CCElementList));
 
-        public CCElementList(ContentClass project, XmlElement xmlElement)
-            : base(xmlElement)
+        public CCElementList(ContentClass project, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = project;
             Elements = new List<CCElement>();
@@ -48,7 +46,6 @@ namespace erminas.SmartAPI.CMS
         {
             get { return Elements.Find(x => x.Name == name); }
         }
-
 
         /// <summary>
         ///   Get an element of the list by its position in the list
@@ -131,20 +128,19 @@ namespace erminas.SmartAPI.CMS
                 ParentGuid = tempGuid;
             }
 
-            var elementChildren = XmlNode.GetElementsByTagName("ELEMENT");
+            XmlNodeList elementChildren = XmlNode.GetElementsByTagName("ELEMENT");
             foreach (XmlElement curElementNode in elementChildren)
             {
                 try
                 {
                     Elements.Add(CCElement.CreateElement(ContentClass, curElementNode));
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     string elttypeStr = curElementNode.GetAttributeValue("elttype") ??
-                                        ((int)ElementType.None).ToString(CultureInfo.InvariantCulture);
+                                        ((int) ElementType.None).ToString(CultureInfo.InvariantCulture);
                     int typeValue;
                     string typeStr = int.TryParse(elttypeStr, out typeValue)
-                                         ? ((ElementType)typeValue).ToString()
+                                         ? ((ElementType) typeValue).ToString()
                                          : "unknown";
                     string str = "Could not create element '" + curElementNode.GetAttributeValue("eltname") +
                                  "' of type '" + typeStr + "'";

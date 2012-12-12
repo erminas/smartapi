@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.Utils
         {
             var doc = node as XmlDocument;
             doc = doc ?? node.OwnerDocument;
-            var element = doc.CreateElement(name);
+            XmlElement element = doc.CreateElement(name);
             node.AppendChild(element);
             return element;
         }
@@ -43,7 +43,7 @@ namespace erminas.SmartAPI.Utils
         /// <param name="value"> Value to set the attribute to </param>
         public static void SetAttributeValue(this XmlElement xmlElement, string attributeName, string value)
         {
-            var attr = xmlElement.Attributes[attributeName];
+            XmlAttribute attr = xmlElement.Attributes[attributeName];
             if (attr == null)
             {
                 AddAttribute(xmlElement, attributeName, value);
@@ -76,20 +76,20 @@ namespace erminas.SmartAPI.Utils
         /// <returns> Value of the attribute, null, if attribute doesn't exist </returns>
         public static string GetAttributeValue(this XmlElement xmlElement, string attributeName)
         {
-            var attr = xmlElement.Attributes[attributeName];
+            XmlAttribute attr = xmlElement.Attributes[attributeName];
             return attr == null ? null : attr.Value;
         }
 
         public static int? GetIntAttributeValue(this XmlElement xmlElement, string attributeName)
         {
-            var attr = xmlElement.Attributes[attributeName];
-            return attr == null ? (int?)null : int.Parse(attr.Value);
+            XmlAttribute attr = xmlElement.Attributes[attributeName];
+            return attr == null ? (int?) null : int.Parse(attr.Value);
         }
 
         public static double? GetDoubleAttributeValue(this XmlElement xmlElement, string attributeName)
         {
-            var attr = xmlElement.Attributes[attributeName];
-            return attr == null ? (double?)null : Double.Parse(attr.Value, CultureInfo.InvariantCulture);
+            XmlAttribute attr = xmlElement.Attributes[attributeName];
+            return attr == null ? (double?) null : Double.Parse(attr.Value, CultureInfo.InvariantCulture);
         }
 
         public static Guid GetGuid(this XmlElement xmlElement)
@@ -109,7 +109,7 @@ namespace erminas.SmartAPI.Utils
 
         public static bool TryGetGuid(this XmlElement xmlElement, string attributeName, out Guid guid)
         {
-            var strValue = xmlElement.GetAttributeValue(attributeName);
+            string strValue = xmlElement.GetAttributeValue(attributeName);
             if (string.IsNullOrEmpty(strValue))
             {
                 guid = Guid.Empty;
@@ -127,7 +127,7 @@ namespace erminas.SmartAPI.Utils
 
         public static DateTime? GetOADate(this XmlElement element, string attributeName = "date")
         {
-            var strValue = element.GetAttributeValue(attributeName);
+            string strValue = element.GetAttributeValue(attributeName);
             if (String.IsNullOrEmpty(strValue))
             {
                 return null;
@@ -138,9 +138,8 @@ namespace erminas.SmartAPI.Utils
 
         public static DateTime ToOADate(this string value)
         {
-            var valueNormalizedToInvariantCulture = value.Replace(",", ".");
+            string valueNormalizedToInvariantCulture = value.Replace(",", ".");
             return DateTime.FromOADate(Double.Parse(valueNormalizedToInvariantCulture, CultureInfo.InvariantCulture));
         }
-
     }
 }

@@ -44,8 +44,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             {
                 base.UpdateValue(value);
                 _customValue = null;
-            }
-            catch (ArgumentException)
+            } catch (ArgumentException)
             {
                 _customValue = value;
                 SetXmlNodeValue(value);

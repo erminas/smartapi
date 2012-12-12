@@ -94,27 +94,22 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   RQL for saving a file {1} in a folder {0}. IMPORTANT: For {1} Create a File by using String FILE_TO_SAVE to insert 1...n files and fill in required values No parameters
         /// </summary>
-        private const string SAVE_FILES_IN_FOLDER =
-            @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";
+        private const string SAVE_FILES_IN_FOLDER = @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";
 
         /// <summary>
         ///   RQL for a file to be saved. Has to be inserted in SAVE_FILES_IN_FOLDER. No parameters
         /// </summary>
-        private const string FILE_TO_SAVE =
-            @"<FILE action=""save"" sourcename=""{0}"" sourcepath=""{1}""/>";
+        private const string FILE_TO_SAVE = @"<FILE action=""save"" sourcename=""{0}"" sourcepath=""{1}""/>";
 
         /// <summary>
         ///   RQL for updating files {0} from source in a folder. No parameters
         /// </summary>
-        private const string UPDATE_FILES_IN_FOLDER =
-            @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";
+        private const string UPDATE_FILES_IN_FOLDER = @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";
 
         /// <summary>
         ///   RQL for a file to be updated. Has to be inserted in UPDATE_FILES_IN_FOLDER No parameters
         /// </summary>
-        private const string FILE_TO_UPDATE =
-            @"<FILE action=""update"" sourcename=""{0}""/>";
-
+        private const string FILE_TO_UPDATE = @"<FILE action=""update"" sourcename=""{0}""/>";
 
         /// <summary>
         ///   RQL for deleting files for the folder with guid {0}. {1} List of Files to be deleted. Can contain mor than one FILE element.
@@ -132,20 +127,17 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         private const string FORCE_FILE_TO_BE_DELETED = @"<FILE deletereal=""1"" sourcename=""{0}""/>";
 
-
         private bool _isAssetManagerFolder;
         private Folder _linkedFolder;
 
-        public Folder(Project project, XmlElement xmlElement)
-            : base(xmlElement)
+        public Folder(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();
             Init();
         }
 
-        public Folder(Project project, Guid guid)
-            : base(guid)
+        public Folder(Project project, Guid guid) : base(guid)
         {
             Project = project;
             Init();
@@ -197,7 +189,7 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new Exception(String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
             }
-            return (XmlElement)folders[0];
+            return (XmlElement) folders[0];
         }
 
         private List<File> RetrieveFiles(string rqlString)
@@ -245,8 +237,7 @@ namespace erminas.SmartAPI.CMS
                                                         int value)
         {
             string rqlString = String.Format(FILTER_FILES_BY_COMMAND, Guid.ToRQLString(), AttributeToString(attribute),
-                                             ComparisonOperatorToString(@operator),
-                                             value);
+                                             ComparisonOperatorToString(@operator), value);
             return RetrieveFiles(rqlString);
         }
 
@@ -286,17 +277,16 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-
         public FileAttribute FileInfos(String fileName)
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LIST_FILE_ATTRIBUTES, Guid.ToRQLString(), fileName));
-            var node = (XmlElement)xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
+            var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
             return new FileAttribute(node);
         }
 
         public void SaveFiles(List<FileSource> sources)
         {
-            var filesToSave =
+            List<string> filesToSave =
                 sources.Select(fileSource => string.Format(FILE_TO_SAVE, fileSource.Sourcename, fileSource.Sourcepath)).
                     ToList();
 
@@ -310,11 +300,10 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-
         public void UpdateFiles(List<FileSource> files)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
-            var filesToUpdate = files.Select(file => string.Format(FILE_TO_UPDATE, file.Sourcename)).ToList();
+            List<string> filesToUpdate = files.Select(file => string.Format(FILE_TO_UPDATE, file.Sourcename)).ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(string.Format(UPDATE_FILES_IN_FOLDER, Guid.ToRQLString(),
@@ -330,7 +319,7 @@ namespace erminas.SmartAPI.CMS
         public void DeleteFiles(List<string> filenames, bool forceDelete)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
-            var filesToDelete =
+            List<string> filesToDelete =
                 filenames.Select(
                     filename =>
                     string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();

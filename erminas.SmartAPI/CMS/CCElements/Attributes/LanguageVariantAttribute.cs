@@ -20,8 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class LanguageVariantAttribute : AbstractGuidXmlNodeAttribute<LanguageVariant>
     {
-        public LanguageVariantAttribute(CCElement parent, string name)
-            : base(parent, name)
+        public LanguageVariantAttribute(CCElement parent, string name) : base(parent, name)
         {
         }
 
@@ -43,11 +42,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         public override bool Equals(object o)
         {
             var xmlNodeAttribute = o as LanguageVariantAttribute;
-            return xmlNodeAttribute != null && Name == xmlNodeAttribute.Name && (Value == null
-                                                                                     ? xmlNodeAttribute.Value == null
-                                                                                     : Equals(Value.Language,
-                                                                                              xmlNodeAttribute.Value.
-                                                                                                  Language));
+            return xmlNodeAttribute != null && Name == xmlNodeAttribute.Name &&
+                   (Value == null
+                        ? xmlNodeAttribute.Value == null
+                        : Equals(Value.Language, xmlNodeAttribute.Value.Language));
         }
 
         public override int GetHashCode()

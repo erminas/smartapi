@@ -23,8 +23,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private T _value;
 
-        protected AbstractGuidXmlNodeAttribute(RedDotObject parent, string name)
-            : base(parent, name, false)
+        protected AbstractGuidXmlNodeAttribute(RedDotObject parent, string name) : base(parent, name, false)
         {
         }
 
@@ -93,7 +92,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override void Assign(IRDAttribute o)
         {
-            var value = ((AbstractGuidXmlNodeAttribute<T>) o).Value;
+            T value = ((AbstractGuidXmlNodeAttribute<T>) o).Value;
             SetValue(value == null ? null : value.Name);
         }
 

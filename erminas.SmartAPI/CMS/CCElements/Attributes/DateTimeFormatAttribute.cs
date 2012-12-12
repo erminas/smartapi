@@ -23,8 +23,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private int? _type;
 
-        public DateTimeFormatAttribute(CCElement parent, string name)
-            : base(parent, name, true)
+        public DateTimeFormatAttribute(CCElement parent, string name) : base(parent, name, true)
         {
         }
 
@@ -40,7 +39,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 {
                     return "user defined";
                 }
-                var value = GetDateTimeFormat();
+                DateTimeFormat value = GetDateTimeFormat();
                 if (value == null)
                 {
                     return null;

@@ -23,8 +23,8 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public ListEntry(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("elthideinform", "eltinvisibleinpage", "eltbeginmark",
-                             "eltendmark", "eltwholetext", "eltfolderguid");
+            CreateAttributes("elthideinform", "eltinvisibleinpage", "eltbeginmark", "eltendmark", "eltwholetext",
+                             "eltfolderguid");
         }
 
         public override ContentClassCategory Category

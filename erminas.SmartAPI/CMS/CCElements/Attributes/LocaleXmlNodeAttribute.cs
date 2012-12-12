@@ -140,8 +140,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         private int? _lcid;
 
-        public LocaleXmlNodeAttribute(CCElement cc, string name)
-            : base(cc, name)
+        public LocaleXmlNodeAttribute(CCElement cc, string name) : base(cc, name)
         {
         }
 

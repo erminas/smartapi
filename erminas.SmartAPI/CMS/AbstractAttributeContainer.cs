@@ -43,7 +43,6 @@ namespace erminas.SmartAPI.CMS
         [ScriptIgnore]
         public List<IRDAttribute> Attributes { get; private set; }
 
-
         public void RegisterAttribute(IRDAttribute attribute)
         {
             if (_attributeMap.ContainsKey(attribute.Name))
@@ -61,7 +60,7 @@ namespace erminas.SmartAPI.CMS
 
         public void RefreshAttributeValues()
         {
-            foreach (var rdAttribute in Attributes)
+            foreach (IRDAttribute rdAttribute in Attributes)
             {
                 rdAttribute.Refresh();
             }

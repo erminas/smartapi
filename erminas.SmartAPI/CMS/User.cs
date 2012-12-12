@@ -51,8 +51,7 @@ namespace erminas.SmartAPI.CMS
         private string _userLanguage;
         private string _userLimits;
 
-        public User(Session session, Guid userGuid)
-            : base(userGuid)
+        public User(Session session, Guid userGuid) : base(userGuid)
         {
             Session = session;
         }
@@ -63,8 +62,7 @@ namespace erminas.SmartAPI.CMS
         /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="session"> The cms session used to retrieve this user </param>
         /// <param name="xmlElement"> USER XML-Element to get data from </param>
-        public User(Session session, XmlElement xmlElement)
-            : base(xmlElement)
+        public User(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
             // TODO: Read all data
@@ -110,11 +108,11 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                                  Session.IODataFormat.LogonGuidOnly);
+                                               Session.IODataFormat.LogonGuidOnly);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(answer);
 
-            return (XmlElement)xmlDocument.GetElementsByTagName("USER")[0];
+            return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
         }
 
         #region Properties

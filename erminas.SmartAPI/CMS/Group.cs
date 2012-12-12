@@ -41,8 +41,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="xmlElement"> </param>
-        public Group(XmlElement xmlElement)
-            : base(xmlElement)
+        public Group(XmlElement xmlElement) : base(xmlElement)
         {
             LoadXml();
         }
@@ -53,7 +52,6 @@ namespace erminas.SmartAPI.CMS
         public List<User> Users { get; set; }
 
         public string Email { get; set; }
-
 
         private void LoadXml()
         {

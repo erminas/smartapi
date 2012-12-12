@@ -28,11 +28,9 @@ namespace erminas.SmartAPI.CMS
     {
         private readonly Project _project;
 
-        public ContentClassFolder(Project project, XmlElement xmlElement)
-            : base(xmlElement)
+        public ContentClassFolder(Project project, XmlElement xmlElement) : base(xmlElement)
         {
-            ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses,
-                                                                 Caching.Enabled);
+            ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
             _project = project;
         }
 
@@ -51,8 +49,7 @@ namespace erminas.SmartAPI.CMS
 
             return
                 (from XmlElement curNode in XMLDoc.GetElementsByTagName("TEMPLATE")
-                 select new ContentClass(_project, curNode)).
-                    ToList();
+                 select new ContentClass(_project, curNode)).ToList();
         }
     }
 }

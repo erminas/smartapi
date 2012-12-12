@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Background : CCElement
     {
-        public Background(ContentClass cc, XmlElement xmlElement)
-            : base(cc, xmlElement)
+        public Background(ContentClass cc, XmlElement xmlElement) : base(cc, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "elthideinform", "eltinvisibleinclient",
                              "eltdragdrop", "eltsrcsubdirguid", "eltsrc");
@@ -69,7 +68,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;

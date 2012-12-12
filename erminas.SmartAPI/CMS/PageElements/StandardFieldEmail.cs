@@ -24,6 +24,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     public class StandardFieldEmail : StandardField<string>
     {
         private Regex _emailVerificationRegex;
+
         public StandardFieldEmail(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();

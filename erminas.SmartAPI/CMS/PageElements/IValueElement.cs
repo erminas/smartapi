@@ -18,8 +18,8 @@ namespace erminas.SmartAPI.CMS.PageElements
 {
     public interface IValueElement<T> : IPageElement
     {
-        void SetValueFromString(string value);
         T Value { get; set; }
+        void SetValueFromString(string value);
         void Commit();
     }
 }

@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using erminas.SmartAPI.CMS;
 
@@ -41,9 +42,9 @@ namespace erminas.SmartAPI.Utils
             return value ? "1" : "0";
         }
 
-        public static string RQLFormat(this string value, params object[] args )
+        public static string RQLFormat(this string value, params object[] args)
         {
-            var newArgs = from x in args select ConvertRQL(x);
+            IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
             return string.Format(value, newArgs.ToArray());
         }
 

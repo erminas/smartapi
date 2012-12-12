@@ -20,8 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class ElementXmlNodeAttribute : AbstractGuidXmlNodeAttribute<CCElement>
     {
-        public ElementXmlNodeAttribute(IAttributeContainer parent, string name)
-            : base((RedDotObject) parent, name)
+        public ElementXmlNodeAttribute(IAttributeContainer parent, string name) : base((RedDotObject) parent, name)
         {
         }
 

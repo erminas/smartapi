@@ -56,18 +56,19 @@ namespace erminas.SmartAPI.CMS
 
         private List<DateTimeFormat> GetFormats()
         {
-            var dateEntries = (from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.Date)
-                               select
-                                   new DateTimeFormat(DateTimeFormatTypes.Date | DateTimeFormatTypes.DateTime, curEntry))
-                .ToList();
+            List<DateTimeFormat> dateEntries =
+                (from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.Date)
+                 select new DateTimeFormat(DateTimeFormatTypes.Date | DateTimeFormatTypes.DateTime, curEntry)).ToList();
 
-            var timeEntries = from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.Time)
-                              select new DateTimeFormat(DateTimeFormatTypes.Time, curEntry);
+            IEnumerable<DateTimeFormat> timeEntries =
+                from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.Time)
+                select new DateTimeFormat(DateTimeFormatTypes.Time, curEntry);
 
-            var dateTimeEntries = from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.DateTime)
-                                  let entry = new DateTimeFormat(DateTimeFormatTypes.DateTime, curEntry)
-                                  where dateEntries.All(x => x.TypeId != entry.TypeId)
-                                  select entry;
+            IEnumerable<DateTimeFormat> dateTimeEntries =
+                from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.DateTime)
+                let entry = new DateTimeFormat(DateTimeFormatTypes.DateTime, curEntry)
+                where dateEntries.All(x => x.TypeId != entry.TypeId)
+                select entry;
 
             return dateEntries.Union(timeEntries).Union(dateTimeEntries).ToList();
         }
@@ -76,8 +77,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_TIME_FORMATS =
                 @"<PROJECT><TEMPLATE><ELEMENT action=""load"" ><{0}FORMATS action=""list"" lcid=""{1}""/></ELEMENT></TEMPLATE></PROJECT>";
-            string formatTypeString =
-                types.ToString().ToUpper();
+            string formatTypeString = types.ToString().ToUpper();
             XmlDocument result = _project.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID));
 
             var timeformats = result.GetElementsByTagName(formatTypeString + "FORMATS")[0] as XmlElement;

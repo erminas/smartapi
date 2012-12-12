@@ -9,6 +9,15 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        private bool IsArbitraryCategory
+        {
+            get
+            {
+                string value = ((ContentClass) Parent).XmlNode.GetAttributeValue(Name);
+                return value == "-1" || String.IsNullOrEmpty(value);
+            }
+        }
+
         protected override Category RetrieveByGuid(Guid guid)
         {
             return ((ContentClass) Parent).Project.Categories.GetByGuid(guid);
@@ -16,16 +25,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override Category RetrieveByName(string name)
         {
-            return ((ContentClass)Parent).Project.Categories.GetByName(name);
-        }
-        
-        private bool IsArbitraryCategory
-        {
-            get
-            {
-                var value = ((ContentClass) Parent).XmlNode.GetAttributeValue(Name);
-                return value == "-1" || String.IsNullOrEmpty(value);
-            }
+            return ((ContentClass) Parent).Project.Categories.GetByName(name);
         }
 
         public void SetUseArbitraryCategory()
@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            var updateValue = IsArbitraryCategoryValue(value) ? null : value;
+            string updateValue = IsArbitraryCategoryValue(value) ? null : value;
 
             base.UpdateValue(updateValue);
         }
@@ -48,8 +48,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         public override void Assign(IRDAttribute o)
         {
             var categoryXmlNodeAttribute = ((CategoryXmlNodeAttribute) o);
-            var value = categoryXmlNodeAttribute.Value;
-            
+            Category value = categoryXmlNodeAttribute.Value;
+
             if (categoryXmlNodeAttribute.IsArbitraryCategory)
             {
                 SetUseArbitraryCategory();

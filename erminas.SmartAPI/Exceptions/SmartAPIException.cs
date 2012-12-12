@@ -14,13 +14,12 @@ namespace erminas.SmartAPI.Exceptions
         {
         }
 
-        public SmartAPIException(string message, Exception innerException)
-            : base(message, innerException)
+        public SmartAPIException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
-        public SmartAPIException(SerializationInfo info, StreamingContext context): base(info, context)
+        public SmartAPIException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-        }   
+        }
     }
 }

@@ -32,7 +32,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             _contentClass = cc;
         }
 
-
         protected override Folder RetrieveByGuid(Guid guid)
         {
             return _contentClass.Project.Folders.GetByGuid(guid);

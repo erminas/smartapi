@@ -15,7 +15,6 @@
  */
 
 using System;
-using System.Globalization;
 using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.Utils;
@@ -52,8 +51,7 @@ namespace erminas.SmartAPI.CMS
         ///   A copy of the XML element is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
         /// <exception cref="ArgumentNullException">thrown, if xmlElement is null</exception>
-        protected RedDotObject(XmlElement xmlElement)
-            : base(xmlElement)
+        protected RedDotObject(XmlElement xmlElement) : base(xmlElement)
         {
             if (xmlElement == null)
             {
@@ -62,12 +60,6 @@ namespace erminas.SmartAPI.CMS
             XmlNode = (XmlElement) xmlElement.Clone();
 
             InitGuidAndName();
-        }
-
-        protected void InitGuidAndName()
-        {
-            InitIfPresent(ref _guid, "guid", GuidConvert);
-            InitIfPresent(ref _name, "name", x => x);
         }
 
         #region IRedDotObject Members
@@ -92,9 +84,19 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        public virtual string Name { get { return _name; } set { _name = value; } }
+        public virtual string Name
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
 
         #endregion
+
+        protected void InitGuidAndName()
+        {
+            InitIfPresent(ref _guid, "guid", GuidConvert);
+            InitIfPresent(ref _name, "name", x => x);
+        }
 
         /// <summary>
         ///   Convert a string to a guid, e.g. for <see cref="InitIfPresent{T}" />
@@ -150,7 +152,6 @@ namespace erminas.SmartAPI.CMS
 
             xmlElement.AddAttribute("action", "save");
 
-
             return xmlElement.NodeToString();
         }
 
@@ -197,7 +198,10 @@ namespace erminas.SmartAPI.CMS
         public override bool Equals(object other)
         {
             var o = other as RedDotObject;
-            if (o == null) return false;
+            if (o == null)
+            {
+                return false;
+            }
             return ReferenceEquals(this, other) || o._guid.Equals(_guid);
         }
 

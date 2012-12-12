@@ -23,8 +23,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private int _maxSize;
 
-        public StandardFieldText(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        public StandardFieldText(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }

@@ -13,10 +13,12 @@ namespace erminas.SmartAPI.CMS.PageElements
         protected AbstractMultiLinkElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
-        
+
+        #region IMultiLinkElement Members
+
         public void ConnectPages(IEnumerable<IPage> pages)
         {
-            foreach(var curPage in pages)
+            foreach (IPage curPage in pages)
             {
                 Connect(curPage);
             }
@@ -26,5 +28,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             base.DisconnectPages(pages);
         }
+
+        #endregion
     }
 }

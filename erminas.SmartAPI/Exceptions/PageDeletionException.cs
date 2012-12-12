@@ -14,10 +14,9 @@ namespace erminas.SmartAPI.Exceptions
     {
         public readonly PageDeletionError Error;
 
-        public PageDeletionException(RQLException e)
-            : base(e.Message, e)
+        public PageDeletionException(RQLException e) : base(e.Message, e)
         {
-            switch(e.ErrorCode)
+            switch (e.ErrorCode)
             {
                 case ErrorCode.RDError2910:
                     Error = PageDeletionError.ElementsOfPageStillGetReferenced;
@@ -31,7 +30,7 @@ namespace erminas.SmartAPI.Exceptions
             }
         }
 
-        public PageDeletionException(string message) : base (message)
+        public PageDeletionException(string message) : base(message)
         {
             Error = PageDeletionError.Unknown;
         }

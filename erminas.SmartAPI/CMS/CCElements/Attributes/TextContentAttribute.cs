@@ -38,8 +38,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private bool _hasChanged;
         private string _text;
 
-        public TextContentAttribute(CCElement parent, TextType type, string name)
-            : base(parent, name)
+        public TextContentAttribute(CCElement parent, TextType type, string name) : base(parent, name)
         {
             _type = type;
         }
@@ -56,7 +55,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 if (_text == null)
                 {
                     var parent = ((CCElement) Parent);
-                    var lang = parent.LanguageVariant;
+                    LanguageVariant lang = parent.LanguageVariant;
                     _text = _guid == Guid.Empty
                                 ? string.Empty
                                 : parent.ContentClass.Project.GetTextContent(_guid, lang,
@@ -105,13 +104,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 SetValue(
                     parent.ContentClass.Project.SetTextContent(_guid, lang,
                                                                ((int) _type).ToString(CultureInfo.InvariantCulture),
-                                                               _text).
-                        ToRQLString());
-            }
-            catch (Exception e)
+                                                               _text).ToRQLString());
+            } catch (Exception e)
             {
-                throw new Exception("could not set " + _type.ToString().ToLower() + " text for " + parent.Name + "(" +
-                                    parent.Guid.ToRQLString() + ")", e);
+                throw new Exception(
+                    "could not set " + _type.ToString().ToLower() + " text for " + parent.Name + "(" +
+                    parent.Guid.ToRQLString() + ")", e);
             }
             _hasChanged = false;
         }

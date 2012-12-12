@@ -25,8 +25,7 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class DatabaseConnection : PartialRedDotObject
     {
-        public DatabaseConnection(Project project, Guid guid)
-            : base(guid)
+        public DatabaseConnection(Project project, Guid guid) : base(guid)
         {
             Project = project;
         }
@@ -55,7 +54,7 @@ namespace erminas.SmartAPI.CMS
             const string LOAD_DATABASE_CONNECTION = @"<DATABASE action=""load"" guid=""{0}""/>";
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_DATABASE_CONNECTION, Guid.ToRQLString()),
                                                     Project.RqlType.SessionKeyInProject);
-            var xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
             if (xmlNodes.Count != 1)
             {
                 throw new ArgumentException("Could not find database connection with guid " + Guid.ToRQLString());

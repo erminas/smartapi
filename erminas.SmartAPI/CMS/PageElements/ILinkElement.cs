@@ -25,14 +25,15 @@ namespace erminas.SmartAPI.CMS.PageElements
         MultiLink = 2,
         Reference = 10
     }
+
     public interface ILinkElement : IPageElement, ILinkTarget
     {
+        IRDList<IPage> ConnectedPages { get; }
+        LinkType LinkType { get; }
+        bool IsReference { get; }
         void Reference(ILinkTarget target);
         void DeleteReference();
         void Connect(IPage page);
         void Disconnect(IPage page);
-        IRDList<IPage> ConnectedPages { get; }
-        LinkType LinkType { get; }
-        bool IsReference { get; }
     }
 }

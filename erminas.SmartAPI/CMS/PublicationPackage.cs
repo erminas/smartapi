@@ -24,27 +24,24 @@ namespace erminas.SmartAPI.CMS
 {
     public class PublicationPackage : PartialRedDotObject
     {
-        public PublicationPackage(Project project, Guid guid)
-            : base(guid)
+        public PublicationPackage(Project project, Guid guid) : base(guid)
         {
-            ExportSettings = new CachedList<PublicationSetting>(LoadExportSettings,
-                                                                Caching.Enabled);
+            ExportSettings = new CachedList<PublicationSetting>(LoadExportSettings, Caching.Enabled);
             Project = project;
         }
 
         public Project Project { get; set; }
 
         public CachedList<PublicationSetting> ExportSettings { get; private set; }
-        
+
         private List<PublicationSetting> LoadExportSettings()
         {
             const string LOAD_PUBLICATION_PACKAGE =
                 @"<PROJECT><EXPORTPACKET action=""loadpacket"" guid=""{0}"" /></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
 
-            return
-                (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
-                 select new PublicationSetting(this, curSetting)).ToList();
+            return (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
+                    select new PublicationSetting(this, curSetting)).ToList();
         }
 
         protected override void LoadWholeObject()

@@ -29,8 +29,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         public Container(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
-        
-        protected sealed override void LoadWholeLinkElement()
+
+        protected override sealed void LoadWholeLinkElement()
         {
         }
     }
