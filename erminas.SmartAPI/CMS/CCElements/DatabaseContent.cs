@@ -157,7 +157,7 @@ namespace erminas.SmartAPI.CMS.CCElements
                 {
                     throw new ArgumentException(
                         string.Format("It is not possible to reset the {0} to {1}, once it was set.",
-                                      RDXmlNodeAttribute.ElementDescription["eltlisttype"], ListType.None));
+                                      RDXmlNodeAttribute.ELEMENT_DESCRIPTION["eltlisttype"], ListType.None));
                 }
                 ((StringEnumXmlNodeAttribute<ListType>) GetAttribute("eltlisttype")).Value = value;
             }

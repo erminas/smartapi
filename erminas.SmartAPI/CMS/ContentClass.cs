@@ -61,27 +61,6 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _prefix); }
         }
 
-        //[ScriptIgnore]
-        //public string FolderRelease { get; set; }
-
-        //[ScriptIgnore]
-        //public string SharedRights { get; set; }
-
-        //[ScriptIgnore]
-        //public string SelectInNewPage { get; set; }
-
-        //[ScriptIgnore]
-        //public string IgnoreGlobalWorkflow { get; set; }
-
-        //[ScriptIgnore]
-        //public string FilenameRequired { get; set; }
-
-        //[ScriptIgnore]
-        //public string FramesetAfterList { get; set; }
-
-        //[ScriptIgnore]
-        //public string ApproveRequired { get; set; }
-
         /// <summary>
         ///   Description
         /// </summary>
@@ -91,18 +70,6 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _description); }
             set { _description = value; }
         }
-
-        //[ScriptIgnore]
-        //public string TemplateRights { get; set; }
-
-        //[ScriptIgnore]
-        //public string DialogLanguageId { get; set; }
-
-        //[ScriptIgnore]
-        //public string UseConnection { get; set; }
-
-        //[ScriptIgnore]
-        //public string ParentObjectname { get; set; }
 
         [ScriptIgnore]
         public LanguageVariant LanguageVariant
@@ -259,7 +226,47 @@ namespace erminas.SmartAPI.CMS
                 ((BoolXmlNodeAttribute)GetAttribute("adoptheadlinetoalllanguages")).Value = value;
             }
         }
-        
+
+        public bool IsKeywordRequired
+        {
+            get
+            {
+                EnsureInitialization();
+                return ((BoolXmlNodeAttribute)GetAttribute("keywordrequired")).Value;
+            }
+            set
+            {
+                EnsureInitialization();
+                ((BoolXmlNodeAttribute)GetAttribute("keywordrequired")).Value = value;
+            }
+        }
+
+        public Category RequiredKeywordCategory
+        {
+            get { 
+                EnsureInitialization();
+                return ((CategoryXmlNodeAttribute)GetAttribute("requiredcategory")).Value;
+            }
+            set { 
+                EnsureInitialization();
+                if (value != null && !IsKeywordRequired)
+                {
+                    IsKeywordRequired = true;
+                }
+
+                var categoryXmlNodeAttribute = ((CategoryXmlNodeAttribute)GetAttribute("requiredcategory"));
+
+                if (value == null)
+                {
+                    categoryXmlNodeAttribute.SetUseArbitraryCategory();
+                }
+                else
+                {
+                    categoryXmlNodeAttribute.Value = value;
+                }
+            }
+        }
+
         /// <summary>
         ///   Get an element by language/element name
         /// </summary>
@@ -325,47 +332,59 @@ namespace erminas.SmartAPI.CMS
 
                 PreassignedKeywords.InvalidateCache();
 
-                foreach (var curKeyword in keywordsToAdd)
+                AssignKeywords(keywordsToAdd);
+
+                UnlinkKeywords(keywordsToRemove);
+            }
+        }
+
+        private void UnlinkKeywords(IEnumerable<Keyword> keywordsToRemove)
+        {
+            foreach (var curKeyword in keywordsToRemove)
+            {
+                const string REMOVE_KEYWORD =
+                    @"<TEMPLATE action=""unlink"" guid=""{0}""><KEYWORD guid=""{1}""/></TEMPLATE>";
+
+                var xmlDoc = Project.ExecuteRQL(string.Format(REMOVE_KEYWORD, Guid.ToRQLString(),
+                                                              curKeyword.Guid.ToRQLString()),
+                                                Project.RqlType.SessionKeyInProject);
+
+                if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    const string ASSIGN_KEYWORD =
-                        @"<TEMPLATE action=""assign"" guid=""{0}""><CATEGORY guid=""{1}""/><KEYWORD guid=""{2}""/></TEMPLATE>";
-
-                    var xmlDoc = Project.ExecuteRQL(string.Format(ASSIGN_KEYWORD, Guid.ToRQLString(),
-                                                                  curKeyword.Category.Guid.ToRQLString(),
-                                                                  curKeyword.Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
-
-                    if (!xmlDoc.InnerText.Contains("ok"))
-                    {
-                        throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
-                                                          curKeyword.Name, Name));
-                    }
-                }
-
-
-                foreach (var curKeyword in keywordsToRemove)
-                {
-                    const string REMOVE_KEYWORD =
-                        @"<TEMPLATE action=""unlink"" guid=""{0}""><KEYWORD guid=""{1}""/></TEMPLATE>";
-
-                    var xmlDoc = Project.ExecuteRQL(string.Format(REMOVE_KEYWORD, Guid.ToRQLString(),
-                                                                  curKeyword.Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
-
-                    if (!xmlDoc.InnerText.Contains("ok"))
-                    {
-                        throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
-                                                          curKeyword.Name, Name));
-                    }
+                    throw new Exception(string.Format("Could not unlink keyword {0} from content class {1}",
+                                                      curKeyword.Name, Name));
                 }
             }
         }
 
+        private void AssignKeywords(IEnumerable<Keyword> keywordsToAdd)
+        {
+            foreach (var curKeyword in keywordsToAdd)
+            {
+                const string ASSIGN_KEYWORD =
+                    @"<TEMPLATE action=""assign"" guid=""{0}""><CATEGORY guid=""{1}""/><KEYWORD guid=""{2}""/></TEMPLATE>";
+
+                var xmlDoc = Project.ExecuteRQL(string.Format(ASSIGN_KEYWORD, Guid.ToRQLString(),
+                                                              curKeyword.Category.Guid.ToRQLString(),
+                                                              curKeyword.Guid.ToRQLString()),
+                                                Project.RqlType.SessionKeyInProject);
+
+                if (!WasKeywordActionSuccessful(xmlDoc))
+                {
+                    throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
+                                                      curKeyword.Name, Name));
+                }
+            }
+        }
+
+        private static bool WasKeywordActionSuccessful(XmlNode node)
+        {
+            return node.InnerText.Contains("ok");
+        }
+
         private void CreateBaseAttributes()
         {
-            //TODO ugly hack for refreshing
-            Attributes.Clear();
-            CreateAttributes("approverequired", "description", "framesetafterlist", "name", "praefixguid", "suffixguid", "adoptheadlinetoalllanguages");
+            CreateAttributes("approverequired", "description", "framesetafterlist", "name", "praefixguid", "suffixguid", "adoptheadlinetoalllanguages", "keywordrequired", "requiredcategory");
         }
 
         /// <summary>
@@ -377,14 +396,14 @@ namespace erminas.SmartAPI.CMS
                 @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
             const string SINGLE_ASSIGNMENT =
                 @"<TEMPLATEVARIANT guid=""{0}""><PROJECTVARIANTS action=""assign""><PROJECTVARIANT donotgenerate=""0"" donotusetidy=""0"" guid=""{1}"" /></PROJECTVARIANTS></TEMPLATEVARIANT>";
+
             var builder = new StringBuilder();
             foreach (var curEntry in assignments)
             {
-                builder.Append(string.Format(SINGLE_ASSIGNMENT, curEntry.Key.Guid.ToRQLString(),
-                                             curEntry.Value.Guid.ToRQLString()));
+                builder.Append(SINGLE_ASSIGNMENT.RQLFormat(curEntry.Key, curEntry.Value));
             }
 
-            Project.ExecuteRQL(string.Format(ASSIGN_PROJECT_VARIANT, Guid.ToRQLString(), builder),
+            Project.ExecuteRQL(ASSIGN_PROJECT_VARIANT.RQLFormat(this, builder),
                                Project.RqlType.SessionKeyInProject);
         }
 
@@ -468,8 +487,10 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            // TODO: Read all data
-            CreateBaseAttributes();
+            if (!Attributes.Any())
+            {
+                CreateBaseAttributes();
+            }
             var settingsNode = (XmlElement)XmlNode.GetElementsByTagName("SETTINGS")[0];
             if (settingsNode != null)
             {
@@ -524,48 +545,29 @@ namespace erminas.SmartAPI.CMS
             }
 
             var xmlDoc = new XmlDocument();
+            var template = CreateTemplateXmlElement(xmlDoc, folder);
 
+            AddTemplateDescriptions(project, template);
+
+            AddTemplateVariants(template);
+
+            AddProjectVariants(project, template);
+
+            return CreateContentClass(project, template);
+        }
+
+        private static XmlElement CreateTemplateXmlElement(XmlDocument xmlDoc, ContentClassFolder folder)
+        {
             XmlElement template = xmlDoc.AddElement("TEMPLATE");
             template.AddAttribute("action", "addnew");
             template.AddAttribute("folderguid", folder.Guid.ToRQLString());
+            return template;
+        }
 
-            XmlElement templateDescriptions = template.AddElement("TEMPLATEDESCRIPTIONS");
-            foreach (LanguageVariant languageVariant in project.LanguageVariants)
-            {
-                XmlElement templateDescription = templateDescriptions.AddElement("TEMPLATEDESCRIPTION");
-                templateDescription.AddAttribute("dialoglanguageid", languageVariant.Language);
-                templateDescription.AddAttribute("name", Name);
-                if (!string.IsNullOrEmpty(Description))
-                {
-                    templateDescription.AddAttribute("description", Description);
-                }
-            }
-
-            XmlElement templateVariants = template.AddElement("TEMPLATEVARIANTS");
-            foreach (TemplateVariant curTemplateVariant in TemplateVariants)
-            {
-                XmlElement templateVariant = templateVariants.AddElement("TEMPLATEVARIANT");
-                templateVariant.AddAttribute("name", curTemplateVariant.Name);
-                XmlText textNode = xmlDoc.CreateTextNode(curTemplateVariant.Data);
-                templateVariant.AppendChild(textNode);
-            }
-
-            XmlElement projectVariants = template.AddElement("PROJECTVARIANTS");
-            projectVariants.AddAttribute("action", "assign");
-            foreach (ProjectVariant curVariant in Project.ProjectVariants)
-            {
-                XmlElement projectVariant = projectVariants.AddElement("PROJECTVARIANT");
-                ProjectVariant otherVariant;
-                if (!project.ProjectVariants.TryGetByName(curVariant.Name, out otherVariant))
-                {
-                    throw new Exception(string.Format("Could not find project variant {0} in project {1}",
-                                                      curVariant.Name, project.Name));
-                }
-                projectVariant.AddAttribute("guid", otherVariant.Guid.ToRQLString());
-            }
-
-            XmlNode creationResultNode = project.ExecuteRQL(template.NodeToString());
-            XmlNode guidTextNode = creationResultNode.FirstChild;
+        private ContentClass CreateContentClass(Project project, XmlElement template)
+        {
+            var creationResultNode = project.ExecuteRQL(template.NodeToString());
+            var guidTextNode = creationResultNode.FirstChild;
             Guid newCCGuid;
             if (guidTextNode == null || guidTextNode.NodeType != XmlNodeType.Element || guidTextNode.FirstChild == null ||
                 !Guid.TryParse(guidTextNode.FirstChild.Value.Trim(), out newCCGuid))
@@ -575,6 +577,54 @@ namespace erminas.SmartAPI.CMS
 
             var targetCC = new ContentClass(project, newCCGuid);
             return targetCC;
+        }
+
+        private void AddProjectVariants(Project project, XmlElement template)
+        {
+            var projectVariants = template.AddElement("PROJECTVARIANTS");
+            projectVariants.AddAttribute("action", "assign");
+            foreach (var curVariant in Project.ProjectVariants)
+            {
+                var projectVariant = projectVariants.AddElement("PROJECTVARIANT");
+                ProjectVariant otherVariant;
+                if (!project.ProjectVariants.TryGetByName(curVariant.Name, out otherVariant))
+                {
+                    throw new Exception(string.Format("Could not find project variant {0} in project {1}",
+                                                      curVariant.Name, project.Name));
+                }
+                projectVariant.AddAttribute("guid", otherVariant.Guid.ToRQLString());
+            }
+        }
+
+        private void AddTemplateVariants(XmlElement template)
+        {
+            var ownerDocument = template.OwnerDocument;
+
+            var templateVariants = template.AddElement("TEMPLATEVARIANTS");
+            foreach (TemplateVariant curTemplateVariant in TemplateVariants)
+            {
+                var templateVariant = templateVariants.AddElement("TEMPLATEVARIANT");
+                templateVariant.AddAttribute("name", curTemplateVariant.Name);
+                // ReSharper disable PossibleNullReferenceException
+                var textNode = ownerDocument.CreateTextNode(curTemplateVariant.Data);
+                // ReSharper restore PossibleNullReferenceException
+                templateVariant.AppendChild(textNode);
+            }
+        }
+
+        private void AddTemplateDescriptions(Project project, XmlElement template)
+        {
+            var templateDescriptions = template.AddElement("TEMPLATEDESCRIPTIONS");
+            foreach (var languageVariant in project.LanguageVariants)
+            {
+                var templateDescription = templateDescriptions.AddElement("TEMPLATEDESCRIPTION");
+                templateDescription.AddAttribute("dialoglanguageid", languageVariant.Language);
+                templateDescription.AddAttribute("name", Name);
+                if (!string.IsNullOrEmpty(Description))
+                {
+                    templateDescription.AddAttribute("description", Description);
+                }
+            }
         }
 
         private void CopyElementsToCC(ContentClass targetCC)

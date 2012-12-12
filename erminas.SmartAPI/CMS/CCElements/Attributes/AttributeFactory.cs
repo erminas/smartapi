@@ -16,541 +16,552 @@
 
 using System;
 using System.Collections.Generic;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public abstract class AttributeFactory
     {
-        private static readonly Dictionary<string, AttributeFactory> FACTORIES = new Dictionary
-            <string, AttributeFactory>
-                                                                                     {
-                                                                                         {
-                                                                                             "adoptheadlinetoalllanguages",
-                                                                                             new BoolAttributeFactory()},
-                                                                                         {
-                                                                                             "approverequired",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "bordercolor",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "borderstyle",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "borderwidth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "description",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltalt",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltautoborder",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltautoheight",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltautowidth",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltbeginmark",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltbincolumnname",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltborder",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltcolclose",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltcolopen",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltcolumnname",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltcompression",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltconvert",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltconvertmode",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltcoords",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltcrlftobr",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdeactivatetextfilter",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdefaulttext",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdefaultvalue",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdepth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdirectedit",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdonothtmlencode",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdonotremove",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdragdrop",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltdropouts",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltendmark",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltevalcalledpage",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltextendedlist",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfilename",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfolderguid",
-                                                                                             new FolderAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltformatting",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltformatno",
-                                                                                             new DateTimeFormatAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfontbold",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfontclass",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfontcolor",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfontface",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltfontsize",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltframename",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltframeborder",
-                                                                                             new StringEnumAttributeFactory
-                                                                                             <Frameborder>(
-                                                                                             FrameborderUtils.
-                                                                                                 ToRQLString,
-                                                                                             FrameborderUtils.
-                                                                                                 ToFrameborder)
-                                                                                             },
-                                                                                         {
-                                                                                             "eltheight",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "elthideinform",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "elthittype",
-                                                                                             new StringEnumAttributeFactory
-                                                                                             <HitListType>(
-                                                                                             HitListTypeUtils.
-                                                                                                 ToRQLString,
-                                                                                             HitListTypeUtils.
-                                                                                                 ToHitListType)
-                                                                                             },
-                                                                                         {
-                                                                                             "elthspace",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltignoreworkflow",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltimagesupplement",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltinvisibleinclient",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltinvisibleinpage",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltisdynamic",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltislistentry",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltisreffield",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltistargetcontainer",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltkeywordseparator",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltlanguagedependentvalue"
-                                                                                             ,
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltlanguagedependentname",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltlanguageindependent",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltlanguagevariantguid",
-                                                                                             new LanguageVariantAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltlcid",
-                                                                                             new LocaleAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltlisttype",
-                                                                                             new StringEnumAttributeFactory
-                                                                                             <ListType>(
-                                                                                             new Dictionary
-                                                                                                 <ListType, string>
-                                                                                                 {
-                                                                                                     {
-                                                                                                         ListType.
-                                                                                                         DisplayAsLink,
-                                                                                                         "Display as link"
-                                                                                                         },
-                                                                                                     {
-                                                                                                         ListType.
-                                                                                                         Supplement,
-                                                                                                         "Supplement"
-                                                                                                         },
-                                                                                                     {
-                                                                                                         ListType.None,
-                                                                                                         "Not set"
-                                                                                                         }
-                                                                                                 },
-                                                                                             ListTypeUtils.ToRQLString,
-                                                                                             ListTypeUtils.ToListType)
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmarginheight",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmarginwidth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmaxpicheight",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmaxpicwidth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmaxsize",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmediatypeattribute",
-                                                                                             new EnumAttributeWithCustomValuesFactory
-                                                                                             <
-                                                                                             MediaTypeAttribute>()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltmediatypename",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltname",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltnoresize",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltonlyhrefvalue",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltonlynonwebsources",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltoptionlistdata",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltorderby",
-                                                                                             new EnumAttributeFactory
-                                                                                             <SortMode>(null)
-                                                                                             },
-                                                                                         {
-                                                                                             "eltprojectvariantguid",
-                                                                                             new ProjectVariantAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         //{"eltparentelementname", new StringAttributeFactory()},
-                                                                                         {
-                                                                                             "eltparentelementguid",
-                                                                                             new ElementAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltpicdepth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltpicheight",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltpicwidth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrddescription",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrdexample",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrdexamplesubdirguid",
-                                                                                             new FolderAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrelatedfolderguid",
-                                                                                             new FolderAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrequired",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrowclose",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltrowopen",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltscrolling",
-                                                                                             new StringEnumAttributeFactory
-                                                                                             <Scrolling>(
-                                                                                             ScrollingUtils.ToRQLString,
-                                                                                             ScrollingUtils.ToScrolling)
-                                                                                             },
-                                                                                         {
-                                                                                             "eltsearchdepth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltshape",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltsrc",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltsrcsubdirguid",
-                                                                                             new FolderAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltsubtype",
-                                                                                             new InfoElementAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltsuffixes",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltsupplement",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "elttarget",
-                                                                                             new StringEnumAttributeFactory
-                                                                                             <HtmlTarget>(
-                                                                                             HtmlTargetUtils.ToRQLString,
-                                                                                             HtmlTargetUtils.
-                                                                                                 ToHtmlTarget)
-                                                                                             },
-                                                                                         {
-                                                                                             "elttableclose",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "elttablename",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "elttableopen",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "elttargetformat",
-                                                                                             new StringEnumAttributeFactory
-                                                                                             <TargetFormat>(
-                                                                                             TargetFormatUtils.
-                                                                                                 ToRQLString,
-                                                                                             TargetFormatUtils.
-                                                                                                 ToTargetFormat)
-                                                                                             },
-                                                                                         {
-                                                                                             "eltusemainlink",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltuserdefinedallowed",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltuserfc3066",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltusermap",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltvspace",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltwholetext",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltwidth",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltxhtmlcompliant",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "eltxslfile",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "framesetafterlist",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "guid",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "languagevariantid",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "name",
-                                                                                             new StringAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "praefixguid",
-                                                                                             new SyllableAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         {
-                                                                                             "showpagerange",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                         {
-                                                                                             "suffixguid",
-                                                                                             new SyllableAttributeFactory
-                                                                                             ()
-                                                                                             },
-                                                                                         {
-                                                                                             "usedefaultrangesettings",
-                                                                                             new BoolAttributeFactory()
-                                                                                             },
-                                                                                     };
+        private static readonly Dictionary<string, AttributeFactory> FACTORIES =
+            new Dictionary<string, AttributeFactory>
+                {
+                    {
+                        "adoptheadlinetoalllanguages"
+                        ,
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "approverequired",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "bordercolor",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "borderstyle",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "borderwidth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "description",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltalt",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltautoborder",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltautoheight",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltautowidth",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltbeginmark",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltbincolumnname",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltborder",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltcolclose",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltcolopen",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltcolumnname",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltcompression",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltconvert",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltconvertmode",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltcoords",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltcrlftobr",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltdeactivatetextfilter",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltdefaulttext",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltdefaultvalue",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltdepth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltdirectedit",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltdonothtmlencode",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltdonotremove",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltdragdrop",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltdropouts",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltendmark",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltevalcalledpage",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltextendedlist",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltfilename",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltfolderguid",
+                        new FolderAttributeFactory()
+                        },
+                    {
+                        "eltformatting",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltformatno",
+                        new DateTimeFormatAttributeFactory
+                        ()
+                        },
+                    {
+                        "eltfontbold",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltfontclass",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltfontcolor",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltfontface",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltfontsize",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltframename",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltframeborder",
+                        new StringEnumAttributeFactory
+                        <Frameborder>(
+                        FrameborderUtils.
+                            ToRQLString,
+                        FrameborderUtils.
+                            ToFrameborder)
+                        },
+                    {
+                        "eltheight",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "elthideinform",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "elthittype",
+                        new StringEnumAttributeFactory
+                        <HitListType>(
+                        HitListTypeUtils.
+                            ToRQLString,
+                        HitListTypeUtils.
+                            ToHitListType)
+                        },
+                    {
+                        "elthspace",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltignoreworkflow",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltimagesupplement",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltinvisibleinclient",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltinvisibleinpage",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltisdynamic",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltislistentry",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltisreffield",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltistargetcontainer",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltkeywordseparator",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltlanguagedependentvalue"
+                        ,
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltlanguagedependentname",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltlanguageindependent",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltlanguagevariantguid",
+                        new LanguageVariantAttributeFactory
+                        ()
+                        },
+                    {
+                        "eltlcid",
+                        new LocaleAttributeFactory()
+                        },
+                    {
+                        "eltlisttype",
+                        new StringEnumAttributeFactory
+                        <ListType>(
+                        new Dictionary
+                            <ListType, string>
+                            {
+                                {
+                                    ListType.
+                                    DisplayAsLink,
+                                    "Display as link"
+                                    },
+                                {
+                                    ListType.
+                                    Supplement,
+                                    "Supplement"
+                                    },
+                                {
+                                    ListType.None,
+                                    "Not set"
+                                    }
+                            },
+                        ListTypeUtils.ToRQLString,
+                        ListTypeUtils.ToListType)
+                        },
+                    {
+                        "eltmarginheight",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltmarginwidth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltmaxpicheight",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltmaxpicwidth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltmaxsize",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltmediatypeattribute",
+                        new EnumAttributeWithCustomValuesFactory
+                        <
+                        MediaTypeAttribute>()
+                        },
+                    {
+                        "eltmediatypename",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltname",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltnoresize",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltonlyhrefvalue",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltonlynonwebsources",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltoptionlistdata",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltorderby",
+                        new EnumAttributeFactory
+                        <SortMode>(null)
+                        },
+                    {
+                        "eltprojectvariantguid",
+                        new ProjectVariantAttributeFactory
+                        ()
+                        },
+                    {
+                        "eltparentelementguid",
+                        new ElementAttributeFactory
+                        ()
+                        },
+                    {
+                        "eltpicdepth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltpicheight",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltpicwidth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltrddescription",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltrdexample",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltrdexamplesubdirguid",
+                        new FolderAttributeFactory()
+                        },
+                    {
+                        "eltrelatedfolderguid",
+                        new FolderAttributeFactory()
+                        },
+                    {
+                        "eltrequired",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltrowclose",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltrowopen",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltscrolling",
+                        new StringEnumAttributeFactory
+                        <Scrolling>(
+                        ScrollingUtils.ToRQLString,
+                        ScrollingUtils.ToScrolling)
+                        },
+                    {
+                        "eltsearchdepth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltshape",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltsrc",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltsrcsubdirguid",
+                        new FolderAttributeFactory()
+                        },
+                    {
+                        "eltsubtype",
+                        new InfoElementAttributeFactory
+                        ()
+                        },
+                    {
+                        "eltsuffixes",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltsupplement",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "elttarget",
+                        new StringEnumAttributeFactory
+                        <HtmlTarget>(
+                        HtmlTargetUtils.ToRQLString,
+                        HtmlTargetUtils.
+                            ToHtmlTarget)
+                        },
+                    {
+                        "elttableclose",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "elttablename",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "elttableopen",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "elttargetformat",
+                        new StringEnumAttributeFactory
+                        <TargetFormat>(
+                        TargetFormatUtils.
+                            ToRQLString,
+                        TargetFormatUtils.
+                            ToTargetFormat)
+                        },
+                    {
+                        "eltusemainlink",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltuserdefinedallowed",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltuserfc3066",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltusermap",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltvspace",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltwholetext",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltwidth",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "eltxhtmlcompliant",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "eltxslfile",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "framesetafterlist",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "guid",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "keywordrequired",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "languagevariantid",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "name",
+                        new StringAttributeFactory()
+                        },
+                    {
+                        "praefixguid",
+                        new SyllableAttributeFactory
+                        ()
+                        },
+                    {
+                        "requiredcategory",
+                        new CategoryAttributeFactory
+                        ()
+                        },
+                    {
+                        "showpagerange",
+                        new BoolAttributeFactory()
+                        },
+                    {
+                        "suffixguid",
+                        new SyllableAttributeFactory
+                        ()
+                        },
+                    {
+                        "usedefaultrangesettings",
+                        new BoolAttributeFactory()
+                        },
+                };
 
         public static void AddFactory(string attributeName, AttributeFactory factory)
         {
@@ -573,7 +584,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         protected abstract RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name);
     }
 
-    public class MissingAttributeException : Exception
+    public class MissingAttributeException : SmartAPIInternalException
     {
         public MissingAttributeException(string attributeName)
             : base("Missing attribute definition: " + attributeName)
@@ -585,7 +596,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new LanguageVariantAttribute((CCElement)element, name);
+            return new LanguageVariantAttribute((CCElement) element, name);
         }
     }
 
@@ -593,7 +604,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new ProjectVariantAttribute((CCElement)element, name);
+            return new ProjectVariantAttribute((CCElement) element, name);
         }
     }
 
@@ -601,7 +612,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new InfoElementAttribute((CCElement)element, name);
+            return new InfoElementAttribute((CCElement) element, name);
         }
     }
 
@@ -609,7 +620,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new DateTimeFormatAttribute((CCElement)element, name);
+            return new DateTimeFormatAttribute((CCElement) element, name);
         }
     }
 
@@ -617,7 +628,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new LocaleXmlNodeAttribute((CCElement)element, name);
+            return new LocaleXmlNodeAttribute((CCElement) element, name);
         }
     }
 
@@ -649,7 +660,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new FolderXmlNodeAttribute((CCElement)element, name);
+            return new FolderXmlNodeAttribute((CCElement) element, name);
         }
     }
 
@@ -730,7 +741,15 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new SyllableXmlNodeAttribute((ContentClass)element, name);
+            return new SyllableXmlNodeAttribute((ContentClass) element, name);
+        }
+    }
+
+    public class CategoryAttributeFactory : AttributeFactory
+    {
+        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        {
+            return new CategoryXmlNodeAttribute((ContentClass) element, name);
         }
     }
 }

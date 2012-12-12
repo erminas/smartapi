@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMS\CCElements\Attributes\CategoryXmlNodeAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\ElementReferenceAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\StringEnumXmlNodeAttribute.cs" />
     <Compile Include="CMS\CCElements\BasicAlignment.cs" />
