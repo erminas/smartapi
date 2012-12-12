@@ -68,7 +68,8 @@ namespace erminas.SmartAPI.CMS
             /// <summary>
             /// Use session key, logon guid and format="1" in the IODATA element. Insert the query into the IODATA element.
             /// </summary>
-            FormattedText
+            FormattedText,
+            SessionKeyOnly
         }
 
         #endregion
@@ -78,6 +79,7 @@ namespace erminas.SmartAPI.CMS
         private const string RQL_IODATA = "<IODATA>{0}</IODATA>";
         private const string RQL_IODATA_LOGONGUID = @"<IODATA loginguid=""{0}"">{1}</IODATA>";
         private const string RQL_IODATA_SESSIONKEY = @"<IODATA loginguid=""{0}"" sessionkey=""{1}"">{2}</IODATA>";
+        private const string RQL_IODATA_SESSIONKEY_ONLY = @"<IODATA sessionkey=""{0}"" loginguid="""">{1}</IODATA>";
 
         private const string RQL_IODATA_PROJECT_SESSIONKEY =
             @"<IODATA loginguid=""{0}""><PROJECT sessionkey=""{1}"">{2}</PROJECT></IODATA>";
@@ -263,9 +265,12 @@ namespace erminas.SmartAPI.CMS
                 case IODataFormat.SessionKeyInProjectElement:
                     rqlQuery = string.Format(RQL_IODATA_PROJECT_SESSIONKEY, _loginGuidStr, _sessionKeyStr, tmpQuery);
                     break;
-
                 case IODataFormat.FormattedText:
                     rqlQuery = string.Format(RQL_IODATA_FORMATTED_TEXT, _loginGuidStr, _sessionKeyStr, tmpQuery);
+                    break;
+
+                case IODataFormat.SessionKeyOnly:
+                    rqlQuery = string.Format(RQL_IODATA_SESSIONKEY_ONLY, _sessionKeyStr, tmpQuery);
                     break;
                 default:
                     throw new ArgumentException(String.Format("Unknown IODataFormat: {0}", ioDataFormat));

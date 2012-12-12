@@ -318,7 +318,7 @@ namespace erminas.SmartAPI.CMS
 
         public void DeleteAllPagesOfLanguageVariantInRecycleBin(string language)
         {
-            using (new LanguageContext(LanguageVariants["language"]))
+            using (new LanguageContext(LanguageVariants[language]))
             {
                 const string DELETE_ALL_IN_CURRENT_LANGUAGE = @"<PAGES action=""deleteallfinally"" alllanguages=""0""/>";
                 ExecuteRQL(DELETE_ALL_IN_CURRENT_LANGUAGE);

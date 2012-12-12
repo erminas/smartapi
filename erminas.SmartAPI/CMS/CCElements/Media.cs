@@ -68,7 +68,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     #endregion
 
-    public class Media : CCElement
+    public class Media : CCElement, ICanBeRequiredForEditing
     {
         public Media(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {

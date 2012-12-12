@@ -74,7 +74,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         }
     }
 
-    public class Anchor : CCElement
+    public class Anchor : CCElement, ICanBeRequiredForEditing
     {
         public Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {

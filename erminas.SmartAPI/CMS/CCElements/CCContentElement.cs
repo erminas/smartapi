@@ -19,7 +19,7 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public abstract class CCContentElement : CCElement
+    public abstract class CCContentElement : CCElement, ICanBeRequiredForEditing
     {
         protected CCContentElement(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {

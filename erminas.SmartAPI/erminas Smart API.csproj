@@ -65,6 +65,7 @@
     <Compile Include="CMS\CCElements\BasicAlignment.cs" />
     <Compile Include="CMS\CCElements\CCContentElement.cs" />
     <Compile Include="CMS\CCElements\CCExtendedContentElement.cs" />
+    <Compile Include="CMS\CCElements\ICanBeRequiredForEditing.cs" />
     <Compile Include="CMS\CCElements\ImageAlignment.cs" />
     <Compile Include="CMS\CCElements\ProjectContent.cs" />
     <Compile Include="CMS\CCElements\StandardFieldNonDate.cs" />

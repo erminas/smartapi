@@ -118,6 +118,13 @@ namespace erminas.SmartAPI.CMS
         private DateTime _releaseDate;
         private PageReleaseStatus _releaseStatus;
 
+        public static double MaxWaitForDeletionInMs { get; set; }
+
+        static Page()
+        {
+            MaxWaitForDeletionInMs = 1000;
+        }
+
         public Page(Project project, XmlElement xmlElement)
             : base(xmlElement)
         {
@@ -387,6 +394,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
         ///   Forces the deletion, even if references still point to elements of this pageor an element is assigned as target container to a link.
+        ///   If you want to remove the page completely (also from recycle bin), use <see cref="DeleteIrrevocably"/> instead.
         /// </summary>
         /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void Delete()
@@ -414,13 +422,23 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Delete the page from the recycle bin
+        /// Delete the page from the recycle bin.
+        /// This is an asynchronous process on the server so the removal may not be immediatly visible.
         /// </summary>
         public void DeleteFromRecycleBin()
         {
             const string DELETE_FINALLY =
-                @"<PAGE action=""deletefinally"" guid=""{0}"" alllanguages="""" forcedelete2910=""1"" forcedelete2911=""1""/>";
+                @"<PAGE action=""deletefinally"" guid=""{0}"" alllanguages="""" forcedelete2910="""" forcedelete2911=""""/>";
             Project.ExecuteRQL(string.Format(DELETE_FINALLY, Guid.ToRQLString()));
+
+            const string MARK_DIRTY = @"<PAGEBUILDER><PAGES sessionkey=""{0}"" action=""pagevaluesetdirty""><PAGE sessionkey=""{0}"" guid=""{1}"" languages=""{2}""/></PAGES></PAGEBUILDER>";
+            Project.Session.ExecuteRql(MARK_DIRTY.RQLFormat(Project.Session.SessionKey ,this, LanguageVariant.Language),
+                                       Session.IODataFormat.SessionKeyOnly);
+
+            const string LINKING = @"<PAGEBUILDER><LINKING sessionkey=""{0}""><PAGES><PAGE sessionkey=""{0}"" guid=""{1}""/></PAGES></LINKING></PAGEBUILDER>";
+            Project.Session.ExecuteRql(LINKING.RQLFormat(Project.Session.SessionKey, this),
+                                       Session.IODataFormat.SessionKeyOnly);
+
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
             Status = PageState.NotSet;
@@ -428,13 +446,37 @@ namespace erminas.SmartAPI.CMS
 
 
         /// <summary>
-        /// Delete the page irrevocably. Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
-        ///   Forces the deletion, even if references still point to elements of this pageor an element is assigned as target container to a link.
+        /// Delete the page Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
+        /// Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
+        /// If page is not in draft status, deletion has to happen in two stages: 1) move to recycle bin 2) remove from recycle bin.
+        /// As page deletion occurs asynchronously on the server, we have to wait/check when the page is in the recycle bin.
+        /// The maximum time to wait for this to happen, before a PageDeletionException gets thrown can be configured via <see cref="MaxWaitForDeletionInMs"/>.
+        /// If you want to delete multiple pages a call only to Delete() and a collective removal from the recycle bin afterwards is faster than a call
+        /// to DeleteIrrevocably on every single page.
         /// </summary>
         public void DeleteIrrevocably()
         {
-            Delete();
-            //page may no longer exist at this stage, but return value from server can't be checked anyway, so we just try to remove from recycle bin
+            var curStatus = Status;
+
+            if (curStatus != PageState.WillBeRemovedCompletely && curStatus != PageState.IsInRecycleBin)
+            {
+                Delete();
+                if (curStatus == PageState.SavedAsDraft)
+                {
+                    return;
+                }
+                var startTime = DateTime.Now;
+                do
+                {
+                    Refresh();
+                } while (Status != PageState.IsInRecycleBin && (DateTime.Now - startTime).TotalMilliseconds < MaxWaitForDeletionInMs);
+
+                if (Status != PageState.IsInRecycleBin)
+                {
+                    throw new PageDeletionException(string.Format("Page couldn't be completely deleted: {0}", this));
+                }
+            }
+
             DeleteFromRecycleBin();
         }
 
