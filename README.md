@@ -12,14 +12,11 @@ The goal of SmartAPI is to provide a comfortable, fully object-oriented and well
 First steps
 ---
 ```csharp
-// Check which URL is used for connection to RQL Service.
-// This depends on the RedDot CMS / OT WSM MS Version used.
-var rqlUri = WebServiceURLProber.RqlUri("http://my-reddot-server/cms");
  
 // RedDot Login with (user/password)
 var authData = new PasswordAuthentication("user", "password");
  
-var login = new ServerLogin {Address = rqlUri, AuthData = authData};
+var login = new ServerLogin {Address = new Uri("http://my-reddot-server/cms"), AuthData = authData};
  
 // Session is the entry point to interact with the RedDot server.
 // Creating the session object automatically creates a connection.
