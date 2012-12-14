@@ -24,30 +24,15 @@ namespace erminas.SmartAPI.CMS
 {
     public class PublicationPackage : PartialRedDotObject
     {
-        private string _name;
-
-        public PublicationPackage(Project project, Guid guid)
-            : base(guid)
+        public PublicationPackage(Project project, Guid guid) : base(guid)
         {
-            ExportSettings = new CachedList<PublicationSetting>(LoadExportSettings,
-                                                                Caching.Enabled);
+            ExportSettings = new CachedList<PublicationSetting>(LoadExportSettings, Caching.Enabled);
             Project = project;
         }
 
         public Project Project { get; set; }
 
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
-
         public CachedList<PublicationSetting> ExportSettings { get; private set; }
-
-        protected override void LoadXml(XmlElement node)
-        {
-            _name = node.GetAttributeValue("name");
-        }
 
         private List<PublicationSetting> LoadExportSettings()
         {
@@ -55,9 +40,12 @@ namespace erminas.SmartAPI.CMS
                 @"<PROJECT><EXPORTPACKET action=""loadpacket"" guid=""{0}"" /></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
 
-            return
-                (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
-                 select new PublicationSetting(this, curSetting)).ToList();
+            return (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
+                    select new PublicationSetting(this, curSetting)).ToList();
+        }
+
+        protected override void LoadWholeObject()
+        {
         }
 
         protected override XmlElement RetrieveWholeObject()

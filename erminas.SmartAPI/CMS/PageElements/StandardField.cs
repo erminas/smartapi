@@ -26,10 +26,11 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected StandardField(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
+            LoadXml();
         }
 
-        protected StandardField(Project project, Guid guid)
-            : base(project, guid)
+        protected StandardField(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
@@ -43,16 +44,21 @@ namespace erminas.SmartAPI.CMS.PageElements
             get { return LazyLoad(ref _description); }
         }
 
-        protected override void LoadXml(XmlElement xmlElement)
+        private void LoadXml()
         {
-            base.LoadXml(xmlElement);
-
             InitIfPresent(ref _sample, "eltrdsample", x => x);
             InitIfPresent(ref _sample, "eltrddescription", x => x);
-            InitIfPresent(ref _value, "value", FromXmlNodeValue);
         }
 
-        protected virtual T FromXmlNodeValue(string value)
+        protected override void LoadWholeValueElement()
+        {
+            LoadXml();
+            LoadWholeStandardField();
+        }
+
+        protected abstract void LoadWholeStandardField();
+
+        protected override T FromXmlNodeValue(string value)
         {
             return FromString(value);
         }

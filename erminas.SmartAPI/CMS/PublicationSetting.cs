@@ -27,18 +27,15 @@ namespace erminas.SmartAPI.CMS
         private readonly NameIndexedRDList<PublicationFolderSetting> _exportFolderSettings;
         private List<PublicationTarget> _publishingTargets;
 
-        public PublicationSetting(PublicationPackage package, XmlElement xmlElement)
-            : base(xmlElement)
+        public PublicationSetting(PublicationPackage package, XmlElement xmlElement) : base(xmlElement)
         {
             _exportFolderSettings = new NameIndexedRDList<PublicationFolderSetting>(LoadExportFolderSettings,
-                                                                                    Caching.
-                                                                                        Enabled);
+                                                                                    Caching.Enabled);
             PublicationPackage = package;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public PublicationPackage PublicationPackage { get; set; }
-
 
         public IEnumerable<PublicationTarget> PublishingTargets
         {
@@ -54,14 +51,15 @@ namespace erminas.SmartAPI.CMS
             get { return _exportFolderSettings; }
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            ProjectVariant = new ProjectVariant(PublicationPackage.Project, node.GetGuid("projectvariantguid"));
+            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlNode.GetGuid("projectvariantguid"));
 
-            Name = node.GetAttributeValue("projectvariantname") + "/" + node.GetAttributeValue("languagevariantname");
+            Name = XmlNode.GetAttributeValue("projectvariantname") + "/" +
+                   XmlNode.GetAttributeValue("languagevariantname");
             LanguageVariant =
-                PublicationPackage.Project.LanguageVariants.GetByGuid(node.GetGuid("languagevariantguid"));
-            XmlNodeList exportTargets = (node).GetElementsByTagName("EXPORTTARGET");
+                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlNode.GetGuid("languagevariantguid"));
+            XmlNodeList exportTargets = (XmlNode).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
                 (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
         }
@@ -76,22 +74,23 @@ namespace erminas.SmartAPI.CMS
                                                   (current, curTarget) =>
                                                   current +
                                                   string.Format(SINGLE_EXPORT_TARGET, curTarget.Guid.ToRQLString(), "1"));
-            string removeTargets = _publishingTargets.Where(x =>
-                                                            !newTargets.Any(y => y.Guid == x.Guid)).Aggregate("",
-                                                                                                              (current,
-                                                                                                               curTarget)
-                                                                                                              =>
-                                                                                                              current +
-                                                                                                              string.
-                                                                                                                  Format
-                                                                                                                  (SINGLE_EXPORT_TARGET,
-                                                                                                                   curTarget
+            string removeTargets = _publishingTargets.Where(x => !newTargets.Any(y => y.Guid == x.Guid)).Aggregate("",
+                                                                                                                   (
+                                                                                                                       current,
+                                                                                                                       curTarget)
+                                                                                                                   =>
+                                                                                                                   current +
+                                                                                                                   string
                                                                                                                        .
-                                                                                                                       Guid
-                                                                                                                       .
-                                                                                                                       ToRQLString
-                                                                                                                       (),
-                                                                                                                   "0"));
+                                                                                                                       Format
+                                                                                                                       (SINGLE_EXPORT_TARGET,
+                                                                                                                        curTarget
+                                                                                                                            .
+                                                                                                                            Guid
+                                                                                                                            .
+                                                                                                                            ToRQLString
+                                                                                                                            (),
+                                                                                                                        "0"));
 
             XmlDocument xmlDoc =
                 PublicationPackage.Project.ExecuteRQL(string.Format(SAVE_EXPORT_TARGETS, Guid.ToRQLString(),

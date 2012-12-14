@@ -20,13 +20,18 @@ using System.Xml;
 namespace erminas.SmartAPI.CMS.PageElements
 {
     [PageElementType(ElementType.Container)]
-    public class Container : AbstractLinkElement
+    public class Container : AbstractMultiLinkElement
     {
-        public Container(Project project, Guid guid) : base(project, guid)
+        public Container(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public Container(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        {
+        }
+
+        protected override sealed void LoadWholeLinkElement()
         {
         }
     }

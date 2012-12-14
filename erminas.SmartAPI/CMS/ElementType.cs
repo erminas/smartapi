@@ -14,14 +14,11 @@
  * If not, see <http://www.gnu.org/licenses/>. 
  */
 
-using System;
-
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
     ///   Possible types of elements
     /// </summary>
-    [Flags]
     public enum ElementType
     {
         None = 0,

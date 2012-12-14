@@ -18,7 +18,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
-    internal class DelegatingAttribute<T> : IRDAttribute 
+    internal class DelegatingAttribute<T> : IRDAttribute
     {
         public readonly CCElement CcElement;
         private readonly string _description;
@@ -74,6 +74,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
             var attr = o as DelegatingAttribute<T>;
             return attr != null && Name == attr.Name && Equals(_getValue(), attr._getValue());
+        }
+
+        public void Refresh()
+        {
         }
 
         #endregion

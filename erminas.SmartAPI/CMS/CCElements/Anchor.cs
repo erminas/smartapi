@@ -46,26 +46,26 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case HtmlTarget.Self:
                     return "_self";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (HtmlTarget).Name, value));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HtmlTarget).Name, value));
             }
         }
 
         public static HtmlTarget ToHtmlTarget(this string value)
         {
-            switch (value.ToLowerInvariant())
+            if (string.IsNullOrEmpty(value))
             {
-                case "_blank":
+                return HtmlTarget.None;
+            }
+            switch (value.ToUpperInvariant())
+            {
+                case "_BLANK":
                     return HtmlTarget.Blank;
-                case "_parent":
+                case "_PARENT":
                     return HtmlTarget.Parent;
-                case "_top":
+                case "_TOP":
                     return HtmlTarget.Top;
-                case "_self":
+                case "_SELF":
                     return HtmlTarget.Self;
-                case "":
-                case null:
-                    return HtmlTarget.None;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (HtmlTarget).Name, value));
@@ -73,18 +73,14 @@ namespace erminas.SmartAPI.CMS.CCElements
         }
     }
 
-    public class Anchor : CCElement
+    public class Anchor : CCElement, ICanBeRequiredForEditing
     {
         public Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltdonotremove",
-                             "eltxhtmlcompliant", "eltdonothtmlencode",
-                             "eltlanguageindependent", "eltlanguagevariantguid", "eltprojectvariantguid",
-                             "eltfolderguid", "eltcrlftobr", "eltonlyhrefvalue",
-                             "eltrequired",
-                             "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid", "eltrddescription",
-                             "elttarget"
-                );
+            CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltdonotremove", "eltxhtmlcompliant",
+                             "eltdonothtmlencode", "eltlanguageindependent", "eltlanguagevariantguid",
+                             "eltprojectvariantguid", "eltfolderguid", "eltcrlftobr", "eltonlyhrefvalue", "eltrequired",
+                             "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid", "eltrddescription", "elttarget");
             new StringXmlNodeAttribute(this, "eltvalue");
         }
 
@@ -153,12 +149,6 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltcrlftobr")).Value = value; }
         }
 
-        public bool IsEditingMandatory
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
-        }
-
         public string ExampleText
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value; }
@@ -182,5 +172,15 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((StringEnumXmlNodeAttribute<HtmlTarget>) GetAttribute("elttarget")).Value; }
             set { ((StringEnumXmlNodeAttribute<HtmlTarget>) GetAttribute("elttarget")).Value = value; }
         }
+
+        #region ICanBeRequiredForEditing Members
+
+        public bool IsEditingMandatory
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
+        }
+
+        #endregion
     }
 }

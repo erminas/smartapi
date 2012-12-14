@@ -25,22 +25,22 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case TargetFormat.SameAsOriginalFormat:
                     return "source";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (TargetFormat).Name, format));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (TargetFormat).Name,
+                                                              format));
             }
         }
 
         public static TargetFormat ToTargetFormat(string value)
         {
-            switch (value.ToLowerInvariant())
+            switch (value.ToUpperInvariant())
             {
-                case "jpg":
+                case "JPG":
                     return TargetFormat.Jpeg;
-                case "gif":
+                case "GIF":
                     return TargetFormat.Gif;
-                case "png":
+                case "PNG":
                     return TargetFormat.Png;
-                case "source":
+                case "SOURCE":
                     return TargetFormat.SameAsOriginalFormat;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",

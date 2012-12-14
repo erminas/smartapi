@@ -17,9 +17,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.PageElements;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
@@ -116,10 +119,15 @@ namespace erminas.SmartAPI.CMS
         private DateTime _releaseDate;
         private PageReleaseStatus _releaseStatus;
 
+        static Page()
+        {
+            MaxWaitForRemovalFromRecycleBinInMs = 1000;
+        }
+
         public Page(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            Init(xmlElement);
+            LoadXml();
             //reset isinitialized, because other information can still be retrieved
             //TODO find a clean solution for the various partial initialization states the page can be in
             IsInitialized = false;
@@ -127,25 +135,26 @@ namespace erminas.SmartAPI.CMS
             InitProperties();
         }
 
-
-        public Page(Project project, Guid guid)
-            : base(guid)
+        public Page(Project project, Guid guid, LanguageVariant languageVariant) : base(guid)
         {
             Project = project;
+            _lang = languageVariant;
             InitProperties();
         }
+
+        public static int MaxWaitForRemovalFromRecycleBinInMs { get; set; }
 
         #region IPage Members
 
         /// <summary>
-        ///   All keywords associated with this page.
+        ///   All newKeywords associated with this page.
         /// </summary>
         public NameIndexedRDList<Keyword> Keywords { get; private set; }
 
         /// <summary>
         ///   All link elements of this page.
         /// </summary>
-        public NameIndexedRDList<PageElement> LinkElements { get; private set; }
+        public NameIndexedRDList<ILinkElement> LinkElements { get; private set; }
 
         /// <summary>
         ///   ReleaseStatus of the page.
@@ -161,7 +170,8 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public LanguageVariant LanguageVariant
         {
-            get { return LazyLoad(ref _lang); }
+            get { return _lang; }
+            internal set { _lang = value; }
         }
 
         /// <summary>
@@ -221,7 +231,7 @@ namespace erminas.SmartAPI.CMS
                 {
                     return null;
                 }
-                _mainLinkElement = PageElement.CreateElement(Project, _mainLinkGuid);
+                _mainLinkElement = PageElement.CreateElement(Project, _mainLinkGuid, LanguageVariant);
                 return _mainLinkElement;
             }
         }
@@ -240,6 +250,7 @@ namespace erminas.SmartAPI.CMS
         public int Id
         {
             get { return LazyLoad(ref _id); }
+            set { _id = value; }
         }
 
         /// <summary>
@@ -250,20 +261,26 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _releaseStatus); }
             set
             {
-                const string SET_RELEASE_STATUS = @"<PAGE action=""save"" guid=""{0}"" actionflag=""{1}""/>";
-                XmlDocument xmlDoc =
-                    Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int) value));
-                XmlNodeList pageElements = xmlDoc.GetElementsByTagName("PAGE");
-                if (pageElements.Count != 1 ||
-                    (int.Parse(((XmlElement) pageElements[0]).GetAttributeValue("actionflag")) & (int) value) !=
-                    (int) value)
+                using (new LanguageContext(LanguageVariant))
                 {
-                    throw new Exception("Could not set release status to " + value);
+                    SaveReleaseStatus(value);
                 }
-                IsInitialized = false;
-                _releaseStatus = value;
-                Status = PageState.NotSet;
+                ResetReleaseStatusTo(value);
             }
+        }
+
+        private void ResetReleaseStatusTo(PageReleaseStatus value)
+        {
+            IsInitialized = false;
+            _releaseStatus = value;
+            Status = PageState.NotSet;
+        }
+
+        private void SaveReleaseStatus(PageReleaseStatus value)
+        {
+            const string SET_RELEASE_STATUS = @"<PAGE action=""save"" guid=""{0}"" actionflag=""{1}""/>";
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int) value));
+            CheckReleaseStatusSettingSuccess(value, xmlDoc);
         }
 
         /// <summary>
@@ -283,13 +300,13 @@ namespace erminas.SmartAPI.CMS
         ///   Get a content/link element of this page with a specific name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
-        public PageElement this[string elementName]
+        public IPageElement this[string elementName]
         {
             get
             {
                 PageElement result;
                 return ContentElements.TryGetByName(elementName, out result)
-                           ? result
+                           ? (IPageElement) result
                            : LinkElements.GetByName(elementName);
             }
         }
@@ -302,6 +319,8 @@ namespace erminas.SmartAPI.CMS
             const string DELETE_KEYWORD =
                 @"<PROJECT><PAGE guid=""{0}"" action=""unlink""><KEYWORD guid=""{1}"" /></PAGE></PROJECT>";
             Project.ExecuteRQL(string.Format(DELETE_KEYWORD, Guid.ToRQLString(), keyword.Guid.ToRQLString()));
+
+            Keywords.InvalidateCache();
         }
 
         /// <summary>
@@ -343,7 +362,7 @@ namespace erminas.SmartAPI.CMS
             var link = MainLinkElement as ILinkElement;
             if (link != null)
             {
-                link.DisconnectPage(this);
+                link.Disconnect(this);
             }
         }
 
@@ -370,28 +389,39 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///   Forces the deletion, even if references still point to elements of this pageor an element is assigned as target container to a link.
+        ///   If you want to make sure it is completly removed from the server, even if has been released, 
+        ///   use <see cref="DeleteIrrevocably"/> instead of calling this method and <see cref="DeleteFromRecycleBin"/>.
         /// </summary>
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void Delete()
         {
-            const string DELETE_PAGE = @"<PAGE action=""delete"" guid=""{0}""/>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(DELETE_PAGE, Guid.ToRQLString()));
-            if (xmlDoc.InnerText == "ok")
-            {
-                throw new Exception("Could not delete page {" + Guid.ToRQLString() + "}");
-            }
-            IsInitialized = false;
-            _releaseStatus = PageReleaseStatus.NotSet;
-            Status = PageState.NotSet;
+            DeleteImpl(forceDeletion: true);
         }
 
         /// <summary>
-        ///   Delete the page from the recycle bin
+        /// Delete the page from the recycle bin.
+        /// This is an asynchronous process on the server so the removal may not be immediatly visible.
         /// </summary>
         public void DeleteFromRecycleBin()
         {
-            const string DELETE_FINALLY =
-                @"<PAGE action=""deletefinally"" guid=""{0}"" alllanguages="""" forcedelete2910="""" forcedelete2911=""""/>";
-            Project.ExecuteRQL(string.Format(DELETE_FINALLY, Guid.ToRQLString()));
+            using (new LanguageContext(LanguageVariant))
+            {
+                const string DELETE_FINALLY =
+                    @"<PAGE action=""deletefinally"" guid=""{0}"" alllanguages="""" forcedelete2910="""" forcedelete2911=""""/>";
+                Project.ExecuteRQL(string.Format(DELETE_FINALLY, Guid.ToRQLString()));
+
+                const string MARK_DIRTY =
+                    @"<PAGEBUILDER><PAGES sessionkey=""{0}"" action=""pagevaluesetdirty""><PAGE sessionkey=""{0}"" guid=""{1}"" languages=""{2}""/></PAGES></PAGEBUILDER>";
+                Project.Session.ExecuteRql(
+                    MARK_DIRTY.RQLFormat(Project.Session.SessionKey, this, LanguageVariant.Language),
+                    Session.IODataFormat.SessionKeyOnly);
+
+                const string LINKING =
+                    @"<PAGEBUILDER><LINKING sessionkey=""{0}""><PAGES><PAGE sessionkey=""{0}"" guid=""{1}""/></PAGES></LINKING></PAGEBUILDER>";
+                Project.Session.ExecuteRql(LINKING.RQLFormat(Project.Session.SessionKey, this),
+                                           Session.IODataFormat.SessionKeyOnly);
+            }
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
             Status = PageState.NotSet;
@@ -426,18 +456,116 @@ namespace erminas.SmartAPI.CMS
             ReleaseStatus = PageReleaseStatus.Draft;
         }
 
+        public IRDList<ILinkElement> ReferencedBy { get; private set; }
+
         #endregion
+
+        private void CheckReleaseStatusSettingSuccess(PageReleaseStatus value, XmlDocument xmlDoc)
+        {
+            XmlNodeList pageElements = xmlDoc.GetElementsByTagName("PAGE");
+            if (pageElements.Count != 1)
+            {
+                throw new Exception("Could not set release status to " + value);
+            }
+            var element = (XmlElement) pageElements[0];
+            var flag = (PageReleaseStatus) element.GetIntAttributeValue("actionflag").GetValueOrDefault();
+
+            if (!flag.HasFlag(value) && !IsReleasedIntoWorkflow(value, flag)) 
+            {
+                throw new Exception("Could not set release status to " + value);
+            }
+        }
+
+        private static bool IsReleasedIntoWorkflow(PageReleaseStatus value, PageReleaseStatus flag)
+        {
+            return value == PageReleaseStatus.Released && flag.HasFlag(PageReleaseStatus.WorkFlow);
+        }
+
+        /// <summary>
+        ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///   If you want to make sure it is completly removed from the server, even if has been released, 
+        ///   use <see cref="DeleteIrrevocably"/> instead of calling this method and <see cref="DeleteFromRecycleBin"/>.
+        ///   Throws a PageDeletionException, if references still point to elements of this pageor an element is assigned as target container to a link.
+        /// </summary>
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
+        public void DeleteSafely()
+        {
+            DeleteImpl(forceDeletion: false);
+        }
+
+        private void DeleteImpl(bool forceDeletion)
+        {
+            try
+            {
+                const string DELETE_PAGE =
+                    @"<PAGE action=""delete"" guid=""{0}"" forcedelete2910=""{1}"" forcedelete2911=""{1}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{2}""/></LANGUAGEVARIANTS></PAGE>";
+                XmlDocument xmlDoc =
+                    Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion, LanguageVariant.Language));
+                if (!xmlDoc.InnerText.Contains("ok"))
+                {
+                    throw new PageDeletionException(string.Format("Could not delete page {0}", this));
+                }
+            } catch (RQLException e)
+            {
+                throw new PageDeletionException(e);
+            }
+            IsInitialized = false;
+            _releaseStatus = PageReleaseStatus.NotSet;
+            Status = PageState.NotSet;
+        }
+
+        /// <summary>
+        /// Delete the page Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
+        /// Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
+        /// 
+        /// WARNING: If the page was released, it will be moved to the recycle bin first.
+        /// Removing it from there leads to a race condition on the server: the page can be already marked as being in the recycle bin, but a call to remove it from there can still fail for some time.
+        /// Therefore this spawns a background task with with a wait time and removes from there, but this is NO GUARANTEE it will work.
+        /// The wait time can be configured via the <see cref="MaxWaitForRemovalFromRecycleBinInMs"/> property (1s is the default, because internal testing has shown this to work reliably)
+        /// 
+        /// If you want to delete multiple pages a call only to Delete() and a collective removal from the recycle bin afterwards is faster than a call
+        /// to DeleteIrrevocably on every single page.
+        /// </summary>
+        public void DeleteIrrevocably()
+        {
+            PageState curStatus = Status;
+
+            if (curStatus != PageState.WillBeRemovedCompletely && curStatus != PageState.IsInRecycleBin)
+            {
+                Delete();
+                if (curStatus == PageState.SavedAsDraft)
+                {
+                    return;
+                }
+            }
+            new Task(() =>
+                         {
+                             Thread.Sleep(MaxWaitForRemovalFromRecycleBinInMs);
+                             DeleteFromRecycleBin();
+                         }).Start();
+        }
+
+        public override bool Equals(object other)
+        {
+            if (!(other is IPage) || !base.Equals(other))
+            {
+                return false;
+            }
+
+            return LanguageVariant.Equals(((IPage) other).LanguageVariant);
+        }
+
+        public override int GetHashCode()
+        {
+            return Guid.GetHashCode() + 3*LanguageVariant.GetHashCode();
+        }
 
         private void InitProperties()
         {
-            LinkElements = new NameIndexedRDList<PageElement>(GetLinks, Caching.Enabled);
+            LinkElements = new NameIndexedRDList<ILinkElement>(GetLinks, Caching.Enabled);
             ContentElements = new NameIndexedRDList<PageElement>(GetContentElements, Caching.Enabled);
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
-        }
-
-        private void Init(XmlElement xmlElement)
-        {
-            LoadXml(xmlElement);
+            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
         }
 
         private PageElement TryCreateElement(XmlElement xmlElement)
@@ -445,8 +573,7 @@ namespace erminas.SmartAPI.CMS
             try
             {
                 return PageElement.CreateElement(Project, xmlElement);
-            }
-            catch (ArgumentException)
+            } catch (ArgumentException)
             {
                 return null;
             }
@@ -454,27 +581,26 @@ namespace erminas.SmartAPI.CMS
 
         private List<PageElement> ToElementList(XmlNodeList elementNodes)
         {
-            return (from XmlElement curNode in elementNodes
-                    let element = TryCreateElement(curNode)
-                    where element != null
-                    select element).ToList();
+            return
+                (from XmlElement curNode in elementNodes
+                 let element = TryCreateElement(curNode)
+                 where element != null
+                 select element).ToList();
         }
 
-
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             //TODO schoenere loesung fuer partielles nachladen von pages wegen unterschiedlicher anfragen fuer unterschiedliche infos
             InitIfPresent(ref _id, "id", int.Parse);
-            InitIfPresent(ref _lang, "languagevariantid", x => Project.LanguageVariants[x]);
-            InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x)));
-            InitIfPresent(ref _headline, "headline", HttpUtility.HtmlDecode);
+            EnsuredInit(ref _lang, "languagevariantid", Project.LanguageVariants.Get);
+            InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
+            InitIfPresent(ref _headline, "headline", x => x);
             InitIfPresent(ref _pageFlags, "flags", x => (PageFlags) int.Parse(x));
-            Name = HttpUtility.HtmlDecode(node.GetAttributeValue("name"));
             InitIfPresent(ref _ccGuid, "templateguid", Guid.Parse);
             InitIfPresent(ref _pageState, "status", x => (PageState) int.Parse(x));
 
             _releaseStatus = ReleaseStatusFromFlags();
-            
+
             _checkinDate = XmlNode.GetOADate("checkindate").GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
@@ -503,25 +629,33 @@ namespace erminas.SmartAPI.CMS
             return default(PageReleaseStatus);
         }
 
-        protected override XmlElement RetrieveWholeObject()
+        protected override void LoadWholeObject()
         {
-            const string REQUEST_PAGE = @"<PAGE action=""load"" guid=""{0}""/>";
-
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(REQUEST_PAGE, Guid.ToRQLString()));
-            XmlNodeList pages = xmlDoc.GetElementsByTagName("PAGE");
-            if (pages.Count != 1)
-            {
-                throw new Exception(string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
-            }
-            return (XmlElement) pages[0];
+            LoadXml();
         }
 
-        private List<PageElement> GetLinks()
+        protected override XmlElement RetrieveWholeObject()
+        {
+            using (new LanguageContext(LanguageVariant))
+            {
+                const string REQUEST_PAGE = @"<PAGE action=""load"" guid=""{0}""/>";
+
+                XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(REQUEST_PAGE, Guid.ToRQLString()));
+                XmlNodeList pages = xmlDoc.GetElementsByTagName("PAGE");
+                if (pages.Count != 1)
+                {
+                    throw new Exception(string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
+                }
+                return (XmlElement) pages[0];
+            }
+        }
+
+        private List<ILinkElement> GetLinks()
         {
             const string LOAD_LINKS = @"<PAGE guid=""{0}""><LINKS action=""load"" /></PAGE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_LINKS, Guid.ToRQLString()));
             return (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
-                    select PageElement.CreateElement(Project, curNode)).ToList();
+                    select (ILinkElement) PageElement.CreateElement(Project, curNode)).ToList();
         }
 
         private List<PageElement> GetContentElements()
@@ -532,15 +666,71 @@ namespace erminas.SmartAPI.CMS
             return ToElementList(xmlDoc.GetElementsByTagName("ELEMENT"));
         }
 
-
         private List<Keyword> GetKeywords()
         {
             const string LOAD_KEYWORDS = @"<PROJECT><PAGE guid=""{0}""><KEYWORDS action=""load"" /></PAGE></PROJECT>";
-            var xmlDoc = Project.ExecuteRQL(string.Format(LOAD_KEYWORDS, Guid.ToRQLString()));
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_KEYWORDS, Guid.ToRQLString()));
             return
                 (from XmlElement curNode in xmlDoc.GetElementsByTagName("KEYWORD") select new Keyword(Project, curNode))
-                    .
-                    ToList();
+                    .ToList();
+        }
+
+        public void AddKeyword(Keyword keyword)
+        {
+            if (Keywords.ContainsGuid(keyword.Guid))
+            {
+                return;
+            }
+
+            const string ADD_KEYWORD =
+                @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS><KEYWORD guid=""{1}"" changed=""1"" /></KEYWORDS></PAGE>";
+            Project.ExecuteRQL(string.Format(ADD_KEYWORD, Guid.ToRQLString(), keyword.Guid.ToRQLString()),
+                               Project.RqlType.SessionKeyInProject);
+            //server sends empty reply
+
+            Keywords.InvalidateCache();
+        }
+
+        public void SetKeywords(List<Keyword> newKeywords)
+        {
+            const string SET_KEYWORDS = @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS>{1}</KEYWORDS></PAGE>";
+            const string REMOVE_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" delete=""1"" changed=""1"" />";
+            const string ADD_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" changed=""1"" />";
+
+            string toRemove = Keywords.Except(newKeywords).Aggregate("",
+                                                                     (x, y) =>
+                                                                     x +
+                                                                     string.Format(REMOVE_SINGLE_KEYWORD,
+                                                                                   y.Guid.ToRQLString()));
+
+            string toAdd = newKeywords.Except(Keywords).Aggregate("",
+                                                                  (x, y) =>
+                                                                  x +
+                                                                  string.Format(ADD_SINGLE_KEYWORD, y.Guid.ToRQLString()));
+
+            if (string.IsNullOrEmpty(toRemove) && string.IsNullOrEmpty(toAdd))
+            {
+                return;
+            }
+
+            Project.ExecuteRQL(string.Format(SET_KEYWORDS, Guid.ToRQLString(), toRemove + toAdd),
+                               Project.RqlType.SessionKeyInProject);
+
+            Keywords.InvalidateCache();
+        }
+
+        private List<ILinkElement> GetReferencingLinks()
+        {
+            const string LIST_REFERENCES = @"<REFERENCE action=""list"" guid=""{0}"" />";
+            XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} (Id: {1} Guid: {2} Language: {3})", Headline, Id, Guid.ToRQLString(), LanguageVariant.Language);
         }
     }
 }

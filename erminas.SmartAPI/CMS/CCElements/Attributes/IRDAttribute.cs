@@ -31,5 +31,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         bool IsAssignableFrom(IRDAttribute o, out string reason);
         void Assign(IRDAttribute o);
         bool Equals(object o);
+        void Refresh();
     }
 }

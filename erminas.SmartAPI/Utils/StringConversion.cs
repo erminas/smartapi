@@ -15,6 +15,9 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using erminas.SmartAPI.CMS;
 
 namespace erminas.SmartAPI.Utils
 {
@@ -37,6 +40,27 @@ namespace erminas.SmartAPI.Utils
         public static string ToRQLString(this Boolean value)
         {
             return value ? "1" : "0";
+        }
+
+        public static string RQLFormat(this string value, params object[] args)
+        {
+            IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
+            return string.Format(value, newArgs.ToArray());
+        }
+
+        private static object ConvertRQL(object o)
+        {
+            if (o is Guid)
+            {
+                return ((Guid) o).ToRQLString();
+            }
+
+            if (o is Boolean)
+            {
+                return ((Boolean) o).ToRQLString();
+            }
+
+            return o is IRedDotObject ? ((IRedDotObject) o).Guid.ToRQLString() : o;
         }
     }
 }

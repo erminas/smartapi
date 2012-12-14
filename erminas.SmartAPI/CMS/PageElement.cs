@@ -31,13 +31,13 @@ namespace erminas.SmartAPI.CMS
     {
         private const string RETRIEVE_PAGE_ELEMENT = @"<ELT action=""load"" guid=""{0}""/>";
 
-        private static readonly Dictionary<ElementType, Type> TYPES =
-            new Dictionary<ElementType, Type>();
+        private static readonly Dictionary<ElementType, Type> TYPES = new Dictionary<ElementType, Type>();
 
         protected readonly Project Project;
 
         private Page _page;
-        protected ElementType _type;
+        protected ElementType Type;
+        private LanguageVariant _languageVariant;
 
         static PageElement()
         {
@@ -56,36 +56,42 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected PageElement(Project project, Guid guid)
-            : base(guid)
+        protected PageElement(Project project, Guid guid, LanguageVariant languageVariant) : base(guid)
         {
             Project = project;
+            LanguageVariant = languageVariant;
         }
 
         protected PageElement(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         #region IPageElement Members
 
-        public virtual ElementType Type
+        public LanguageVariant LanguageVariant
+        {
+            get { return _languageVariant; }
+            internal set { _languageVariant = value; }
+        }
+
+        public virtual ElementType ElementType
         {
             get
             {
-                if (_type == ElementType.None)
+                if (Type == ElementType.None)
                 {
                     object[] types = GetType().GetCustomAttributes(typeof (PageElementType), false);
                     if (types.Length != 1)
                     {
                         throw new Exception(string.Format("Undefined ElementType for {0}", GetType().Name));
                     }
-                    _type = ((PageElementType) types[0]).Type;
+                    Type = ((PageElementType) types[0]).Type;
                 }
-                return _type;
+                return Type;
             }
-            set { _type = value; }
+            set { Type = value; }
         }
 
         public Page Page
@@ -111,26 +117,37 @@ namespace erminas.SmartAPI.CMS
             TYPES.Add(typeValue, type);
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            Name = node.GetAttributeValue("eltname");
-            InitIfPresent(ref _page, "pageguid", x => new Page(Project, GuidConvert(x)));
+            //language variant must be loaded before the page, because it is used in its c'tor
+            EnsuredInit(ref _languageVariant, "languagevariantid", Project.LanguageVariants.Get);
+            EnsuredInit(ref _page, "pageguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
         }
+
+        protected override sealed void LoadWholeObject()
+        {
+            LoadXml();
+            LoadWholePageElement();
+        }
+
+        protected abstract void LoadWholePageElement();
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return
-                (XmlElement)
-                Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString())).GetElementsByTagName("ELT")
-                    [0];
+            using (new LanguageContext(LanguageVariant))
+            {
+                return
+                    (XmlElement)
+                    Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString())).GetElementsByTagName(
+                        "ELT")[0];
+            }
         }
-
 
         /// <summary>
         ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="project"> Page that contains the element </param>
-        /// <param name="xmlNode"> XML representation of the element </param>
+        /// <param name="xmlElement"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
         public static PageElement CreateElement(Project project, XmlElement xmlElement)
         {
@@ -141,12 +158,10 @@ namespace erminas.SmartAPI.CMS
                 throw new ArgumentException(string.Format("Unknown element type: {0}", typeValue));
             }
 
-            return
-                (PageElement)
-// ReSharper disable PossibleNullReferenceException
-                type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
-// ReSharper restore PossibleNullReferenceException
-                                                                                           {project, xmlElement});
+            return (PageElement) // ReSharper disable PossibleNullReferenceException
+                   type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
+                                                                                                 // ReSharper restore PossibleNullReferenceException
+                                                                                                 {project, xmlElement});
         }
 
         /// <summary>
@@ -154,12 +169,16 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         /// <param name="project"> Project containing the element </param>
         /// <param name="elementGuid"> Guid of the element </param>
+        /// <param name="languageVariant">The language variant of the page element</param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static PageElement CreateElement(Project project, Guid elementGuid)
+        public static PageElement CreateElement(Project project, Guid elementGuid, LanguageVariant languageVariant)
         {
-            XmlDocument xmlDoc = project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, elementGuid.ToRQLString()));
-            var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELT")[0];
-            return CreateElement(project, xmlNode);
+            using (new LanguageContext(languageVariant))
+            {
+                XmlDocument xmlDoc = project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, elementGuid.ToRQLString()));
+                var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELT")[0];
+                return CreateElement(project, xmlNode);
+            }
         }
     }
 }

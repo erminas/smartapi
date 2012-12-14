@@ -22,11 +22,16 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.SiteMap)]
     public class SiteMap : AbstractLinkElement
     {
-        public SiteMap(Project project, Guid guid) : base(project, guid)
+        public SiteMap(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public SiteMap(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        {
+        }
+
+        protected override sealed void LoadWholeLinkElement()
         {
         }
     }

@@ -73,10 +73,5 @@ namespace erminas.SmartAPI.CMS
             }
             return details;
         }
-
-
-        protected override void LoadXml(XmlElement node)
-        {
-        }
     }
 }

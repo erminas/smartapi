@@ -18,7 +18,9 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IPageElement : IRedDotObject
     {
-        ElementType Type { get; set; }
+        LanguageVariant LanguageVariant { get; }
+
+        ElementType ElementType { get; set; }
 
         Page Page { get; }
     }

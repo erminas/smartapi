@@ -36,13 +36,11 @@ namespace erminas.SmartAPI.CMS
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private LanguageVariant _languageVariant;
 
-
-        protected CCElement(ContentClass contentClass, XmlElement xmlElement)
-            : base(xmlElement)
+        protected CCElement(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         /// <summary>
@@ -55,11 +53,6 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public ElementType Type { get; private set; }
 
-        protected string this[string attributeName]
-        {
-            get { return XmlNode.GetAttributeValue(attributeName); }
-        }
-
         /// <summary>
         ///   Language variant of the element (a separate instance exists for every language variant on the server).
         /// </summary>
@@ -68,7 +61,8 @@ namespace erminas.SmartAPI.CMS
             get
             {
                 return _languageVariant ??
-                       (_languageVariant = ContentClass.Project.LanguageVariants[this[LANGUAGEVARIANTID]]);
+                       (_languageVariant =
+                        ContentClass.Project.LanguageVariants[XmlNode.GetAttributeValue(LANGUAGEVARIANTID)]);
             }
         }
 
@@ -76,10 +70,10 @@ namespace erminas.SmartAPI.CMS
 
         public override string Name { get; set; }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            Name = this["eltname"];
-            Type = (ElementType) int.Parse(this["elttype"]);
+            Name = XmlNode.GetAttributeValue("eltname");
+            Type = (ElementType) XmlNode.GetIntAttributeValue("elttype").GetValueOrDefault();
         }
 
         /// <summary>
@@ -206,14 +200,12 @@ namespace erminas.SmartAPI.CMS
                 try
                 {
                     newAttr.Assign(attr);
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     throw new Exception(
                         string.Format(
                             "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
-                            attr.Name, Name,
-                            contentClass.Name, contentClass.Project.Name), e);
+                            attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
                 }
             }
 
@@ -255,7 +247,7 @@ namespace erminas.SmartAPI.CMS
             {
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
-                                                    Project.RqlType.InsertSessionKeyValues);
+                                                    Project.RqlType.SessionKeyInProject);
                 try
                 {
                     var resultElement = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
@@ -267,8 +259,7 @@ namespace erminas.SmartAPI.CMS
                     }
                     //if needed could check wether the element has changed on the server, via the checked attribute
                     //-1 = changed 0 = unchanged
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     throw new Exception("could not save changes to " + Name, e);
                 }

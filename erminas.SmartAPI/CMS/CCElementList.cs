@@ -31,11 +31,11 @@ namespace erminas.SmartAPI.CMS
     {
         private static readonly ILog LOGGER = LogManager.GetLogger(typeof (CCElementList));
 
-        public CCElementList(ContentClass project, XmlElement xmlElement)
+        public CCElementList(ContentClass project, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = project;
             Elements = new List<CCElement>();
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         /// <summary>
@@ -46,7 +46,6 @@ namespace erminas.SmartAPI.CMS
         {
             get { return Elements.Find(x => x.Name == name); }
         }
-
 
         /// <summary>
         ///   Get an element of the list by its position in the list
@@ -115,65 +114,38 @@ namespace erminas.SmartAPI.CMS
             return element != null;
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            XmlAttributeCollection attr = node.Attributes;
+            Action = XmlNode.GetAttributeValue("action");
+            LanguageVariantId = XmlNode.GetAttributeValue("languagevariantid");
+            DialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
+            ChildnodesAsAttributes = XmlNode.GetAttributeValue("childnodesasattributes");
+            ParentTable = XmlNode.GetAttributeValue("parenttable");
+
+            Guid tempGuid; // used for parsing
+            if (XmlNode.TryGetGuid("parentguid", out tempGuid))
             {
-                // Don't break if there is an error in this
-                if (attr["action"] != null)
-                {
-                    Action = attr["action"].Value;
-                }
-                if (attr["languagevariantid"] != null)
-                {
-                    LanguageVariantId = attr["languagevariantid"].Value;
-                }
-                if (attr["dialoglanguageid"] != null)
-                {
-                    DialogLanguageId = attr["dialoglanguageid"].Value;
-                }
-                if (attr["childnodesasattributes"] != null)
-                {
-                    ChildnodesAsAttributes = attr["childnodesasattributes"].Value;
-                }
-                if (attr["parenttable"] != null)
-                {
-                    ParentTable = attr["parenttable"].Value;
-                }
+                ParentGuid = tempGuid;
+            }
 
-                Guid tempGuid; // used for parsing
-                if (attr["parentguid"] != null && Guid.TryParse(attr["parentguid"].Value, out tempGuid))
+            XmlNodeList elementChildren = XmlNode.GetElementsByTagName("ELEMENT");
+            foreach (XmlElement curElementNode in elementChildren)
+            {
+                try
                 {
-                    ParentGuid = tempGuid;
-                }
-
-                if (node.NodeType == XmlNodeType.Element)
+                    Elements.Add(CCElement.CreateElement(ContentClass, curElementNode));
+                } catch (Exception e)
                 {
-                    XmlNodeList elementChildren = (node).GetElementsByTagName("ELEMENT");
-                    foreach (XmlElement curElementNode in elementChildren)
-                    {
-                        try
-                        {
-                            Elements.Add(CCElement.CreateElement(ContentClass, curElementNode));
-                        }
-                        catch (Exception e)
-                        {
-                            string elttypeStr = curElementNode.GetAttributeValue("elttype") ??
-                                                ((int) ElementType.None).ToString(CultureInfo.InvariantCulture);
-                            int typeValue;
-                            string typeStr = int.TryParse(elttypeStr, out typeValue)
-                                                 ? ((ElementType) typeValue).ToString()
-                                                 : "unknown";
-                            string str = "Could not create element '" + curElementNode.GetAttributeValue("eltname") +
-                                         "' of type '" + typeStr + "'";
-                            LOGGER.Error(str + ": " + e.Message);
-                            throw new Exception(str, e);
-                        }
-                    }
-                }
-                else
-                {
-                    throw new Exception("Illegal node type for element list");
+                    string elttypeStr = curElementNode.GetAttributeValue("elttype") ??
+                                        ((int) ElementType.None).ToString(CultureInfo.InvariantCulture);
+                    int typeValue;
+                    string typeStr = int.TryParse(elttypeStr, out typeValue)
+                                         ? ((ElementType) typeValue).ToString()
+                                         : "unknown";
+                    string str = "Could not create element '" + curElementNode.GetAttributeValue("eltname") +
+                                 "' of type '" + typeStr + "'";
+                    LOGGER.Error(str + ": " + e.Message);
+                    throw new Exception(str, e);
                 }
             }
         }

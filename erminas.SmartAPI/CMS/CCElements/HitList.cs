@@ -44,22 +44,22 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case HitListType.MatchingTexts:
                     return "Text";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (HitListType).Name, value));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HitListType).Name, value));
             }
         }
 
         public static HitListType ToHitListType(string value)
         {
-            switch (value.ToLowerInvariant())
+            if (string.IsNullOrEmpty(value))
             {
-                case "grafik":
+                return HitListType.NotSet;
+            }
+            switch (value.ToUpperInvariant())
+            {
+                case "GRAFIK":
                     return HitListType.MatchingImages;
-                case "text":
+                case "TEXT":
                     return HitListType.MatchingTexts;
-                case "":
-                case null:
-                    return HitListType.NotSet;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (HitListType).Name, value));
@@ -73,8 +73,8 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public HitList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace",
-                             "eltusermap", "eltsupplement", "eltalt");
+            CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace", "eltusermap", "eltsupplement",
+                             "eltalt");
 
             new BoolXmlNodeAttribute(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,
@@ -148,7 +148,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
             XmlNode.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
             ContentClass.Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlNode) + "</TEMPLATE>",
-                                            Project.RqlType.InsertSessionKeyValues);
+                                            Project.RqlType.SessionKeyInProject);
         }
     }
 }

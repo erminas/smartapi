@@ -92,7 +92,8 @@ namespace erminas.SmartAPI.CMS
         public int Count()
         {
             XmlDocument xmlDoc = RunQuery(true);
-            return ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").Value;
+            return
+                ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").GetValueOrDefault();
         }
 
         private XmlDocument RunQuery(bool isCountOnly)
@@ -157,23 +158,26 @@ namespace erminas.SmartAPI.CMS
                     let change = (XmlElement) curPage.GetElementsByTagName("CHANGE")[0]
                     let release = (XmlElement) curPage.GetElementsByTagName("RELEASE")[0]
                     let contentClass = (XmlElement) curPage.GetElementsByTagName("CONTENTCLASS")[0]
-                    select new Result(
-                        new Page(_project, curPage.GetGuid())
+                    select
+                        new Result(
+                        new Page(_project, curPage.GetGuid(), LanguageVariantOfSearchResults)
                             {
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Status = ((Page.PageState) int.Parse(curPage.GetAttributeValue("status")))
                             },
                         // ReSharper disable PossibleInvalidOperationException
-                        creation.GetOADate("date").Value,
-                        new User(_project.Session.CmsClient,
-                                 ((XmlElement) creation.GetElementsByTagName("USER")[0]).GetGuid()),
-                        change.GetOADate("date").Value,
-                        // ReSharper restore PossibleInvalidOperationException
-                        new User(_project.Session.CmsClient,
-                                 ((XmlElement) change.GetElementsByTagName("USER")[0]).GetGuid()),
+                        creation.GetOADate().Value,
+                        new User(_project.Session, ((XmlElement) creation.GetElementsByTagName("USER")[0]).GetGuid()),
+                        change.GetOADate().Value, // ReSharper restore PossibleInvalidOperationException
+                        new User(_project.Session, ((XmlElement) change.GetElementsByTagName("USER")[0]).GetGuid()),
                         new ContentClass(_project, contentClass.GetGuid())
-                            {Name = contentClass.GetAttributeValue("name")}
-                        ) {WorkflowInfo = ToWorkflow(curPage.GetElementsByTagName("WORKFLOW"))}).ToList();
+                            {Name = contentClass.GetAttributeValue("name")})
+                            {WorkflowInfo = ToWorkflow(curPage.GetElementsByTagName("WORKFLOW"))}).ToList();
+        }
+
+        private LanguageVariant LanguageVariantOfSearchResults
+        {
+            get { return LanguageVariant ?? _project.CurrentLanguageVariant; }
         }
 
         private WorkflowInfo ToWorkflow(XmlNodeList workflows)
@@ -197,8 +201,7 @@ namespace erminas.SmartAPI.CMS
                                         : (WorkflowInfo.RejectionSkippableType) skipable.Value,
                                     workflowElement.GetIntAttributeValue("escalationtimeout").Value,
                                     from XmlElement curSupplement in workflowElement.GetElementsByTagName("SUPPLEMENT")
-                                    select new Note(workflow, curSupplement)
-                );
+                                    select new Note(workflow, curSupplement));
         }
 
         private IEnumerable<ReleaseInfo> ToReleases(XmlElement releases)
@@ -209,8 +212,7 @@ namespace erminas.SmartAPI.CMS
                         new ReleaseInfo(curRelease.GetIntAttributeValue("assentcount").GetValueOrDefault(),
                                         curRelease.GetIntAttributeValue("requiredassentcount").GetValueOrDefault(),
                                         from XmlElement curUser in releases.GetElementsByTagName("USER")
-                                        select new ReleaseInfo.UserInfo(_project, curUser)
-                        )).ToList();
+                                        select new ReleaseInfo.UserInfo(_project, curUser))).ToList();
         }
 
         private static string GroupByTypeToString(GroupByType type)

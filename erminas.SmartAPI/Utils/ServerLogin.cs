@@ -23,6 +23,16 @@ namespace erminas.SmartAPI.Utils
     /// </summary>
     public class ServerLogin
     {
+        public ServerLogin()
+        {
+        }
+
+        public ServerLogin(string url, PasswordAuthentication authData)
+        {
+            Address = new Uri(url);
+            AuthData = authData;
+        }
+
         /// <summary>
         ///   (Optional) Name of the login.
         /// </summary>

@@ -15,7 +15,6 @@
  */
 
 using System.Xml;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -27,7 +26,7 @@ namespace erminas.SmartAPI.CMS
         public LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public string Language
@@ -48,12 +47,10 @@ namespace erminas.SmartAPI.CMS
             Project.SelectLanguageVariant(this);
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             InitIfPresent(ref _isChecked, "checked", BoolConvert);
             InitIfPresent(ref _language, "language", x => x);
-
-            Name = node.GetAttributeValue("name");
         }
     }
 }

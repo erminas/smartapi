@@ -74,7 +74,6 @@ namespace erminas.SmartAPI.CMS
         private bool _doOverwriteGroupAssignment;
         private bool _doReleasePublishedFiles;
         private string _inlineFunctionName;
-        private string _name;
         private string _prefix;
         private string _realName;
         private string _realVirtualName;
@@ -100,8 +99,7 @@ namespace erminas.SmartAPI.CMS
             _type = type;
         }
 
-        public PublicationFolder(Project project, Guid guid)
-            : base(guid)
+        public PublicationFolder(Project project, Guid guid) : base(guid)
         {
             Project = project;
             _contextInfoPreparationType = ContextInfoPreparationType.None;
@@ -192,12 +190,6 @@ namespace erminas.SmartAPI.CMS
             set { _doIndexing = value; }
         }
 
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
-        }
-
         public void DeleteOnServer()
         {
             const string DELETE = @"<PROJECT><EXPORTFOLDER action=""delete"" guid=""{0}""/> </PROJECT>";
@@ -205,10 +197,9 @@ namespace erminas.SmartAPI.CMS
             //TODO check result
         }
 
-        protected override void LoadXml(XmlElement node)
+        protected void LoadXml()
         {
-            Name = node.GetAttributeValue("name");
-            if (node.GetGuid() == PUBLISHED_PAGES_GUID)
+            if (Guid == PUBLISHED_PAGES_GUID)
             {
                 return;
             }
@@ -236,6 +227,11 @@ namespace erminas.SmartAPI.CMS
                 InitIfPresent(ref _script, "script", x => x);
                 InitIfPresent(ref _usePrefix, "useprefix", BoolConvert);
             }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

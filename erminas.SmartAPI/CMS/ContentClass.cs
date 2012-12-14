@@ -16,11 +16,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
@@ -28,8 +30,7 @@ namespace erminas.SmartAPI.CMS
     /// <summary>
     ///   Represents a content class in RedDot.
     /// </summary>
-    public class
-        ContentClass : PartialRedDotObject
+    public class ContentClass : PartialRedDotObject
     {
         private string _description;
         private CCEditableAreaSettings _editableAreaSettings;
@@ -60,27 +61,6 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _prefix); }
         }
 
-        //[ScriptIgnore]
-        //public string FolderRelease { get; set; }
-
-        //[ScriptIgnore]
-        //public string SharedRights { get; set; }
-
-        //[ScriptIgnore]
-        //public string SelectInNewPage { get; set; }
-
-        //[ScriptIgnore]
-        //public string IgnoreGlobalWorkflow { get; set; }
-
-        //[ScriptIgnore]
-        //public string FilenameRequired { get; set; }
-
-        //[ScriptIgnore]
-        //public string FramesetAfterList { get; set; }
-
-        //[ScriptIgnore]
-        //public string ApproveRequired { get; set; }
-
         /// <summary>
         ///   Description
         /// </summary>
@@ -90,18 +70,6 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _description); }
             set { _description = value; }
         }
-
-        //[ScriptIgnore]
-        //public string TemplateRights { get; set; }
-
-        //[ScriptIgnore]
-        //public string DialogLanguageId { get; set; }
-
-        //[ScriptIgnore]
-        //public string UseConnection { get; set; }
-
-        //[ScriptIgnore]
-        //public string ParentObjectname { get; set; }
 
         [ScriptIgnore]
         public LanguageVariant LanguageVariant
@@ -128,18 +96,16 @@ namespace erminas.SmartAPI.CMS
             Project = project;
 
             Init();
-            LoadXml(xmlElement);
+            LoadXml();
             //TODO sharedrights = 1 bei ccs von anderen projekten
         }
 
-        public ContentClass(Project project, Guid guid)
-            : base(guid)
+        public ContentClass(Project project, Guid guid) : base(guid)
         {
             Project = project;
             Init();
             //TODO sharedrights = 1 bei ccs von anderen projekten
         }
-
 
         /// <summary>
         ///   Versioning information for the content class. List is cached by default.
@@ -172,8 +138,7 @@ namespace erminas.SmartAPI.CMS
                     if (node == null)
                     {
                         throw new Exception("could not load settings for content class '" + Name + "' (" +
-                                            Guid.ToRQLString() +
-                                            ")");
+                                            Guid.ToRQLString() + ")");
                     }
                     _editableAreaSettings = new CCEditableAreaSettings(this, node);
                 }
@@ -199,7 +164,7 @@ namespace erminas.SmartAPI.CMS
                     _elements = new Dictionary<string, CCElementList>();
                     using (new LanguageContext(Project))
                     {
-                        foreach (var curLanguage in Project.LanguageVariants)
+                        foreach (LanguageVariant curLanguage in Project.LanguageVariants)
                         {
                             curLanguage.Select();
                             const string LOAD_CC_ELEMENTS =
@@ -241,6 +206,65 @@ namespace erminas.SmartAPI.CMS
             set { _templateVariants = value; }
         }
 
+        [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        public bool IsChangingHeadlineEffectiveForAllLanguageVariants
+        {
+            get
+            {
+                Project.Session.EnsureVersion();
+                EnsureInitialization();
+                return ((BoolXmlNodeAttribute) GetAttribute("adoptheadlinetoalllanguages")).Value;
+            }
+            set
+            {
+                Project.Session.EnsureVersion();
+                EnsureInitialization(); //TODO eigentlich muessen nur die attribute fuers schreiben vorhanden sein
+                ((BoolXmlNodeAttribute) GetAttribute("adoptheadlinetoalllanguages")).Value = value;
+            }
+        }
+
+        public bool IsKeywordRequired
+        {
+            get
+            {
+                EnsureInitialization();
+                return ((BoolXmlNodeAttribute) GetAttribute("keywordrequired")).Value;
+            }
+            set
+            {
+                EnsureInitialization();
+                ((BoolXmlNodeAttribute) GetAttribute("keywordrequired")).Value = value;
+            }
+        }
+
+        public Category RequiredKeywordCategory
+        {
+            get
+            {
+                EnsureInitialization();
+                return ((CategoryXmlNodeAttribute) GetAttribute("requiredcategory")).Value;
+            }
+            set
+            {
+                EnsureInitialization();
+                if (value != null && !IsKeywordRequired)
+                {
+                    IsKeywordRequired = true;
+                }
+
+                var categoryXmlNodeAttribute = ((CategoryXmlNodeAttribute) GetAttribute("requiredcategory"));
+
+                if (value == null)
+                {
+                    categoryXmlNodeAttribute.SetUseArbitraryCategory();
+                }
+                else
+                {
+                    categoryXmlNodeAttribute.Value = value;
+                }
+            }
+        }
+
         /// <summary>
         ///   Get an element by language/element name
         /// </summary>
@@ -260,17 +284,18 @@ namespace erminas.SmartAPI.CMS
         private List<Keyword> GetPreassignedKeywords()
         {
             const string LOAD_PREASSIGNED_KEYWORDS = @"<TEMPLATE guid=""{0}""><KEYWORDS action=""load""/></TEMPLATE>";
-            var xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PREASSIGNED_KEYWORDS, Guid.ToRQLString()),
-                                            Project.RqlType.SessionKeyInProject);
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PREASSIGNED_KEYWORDS, Guid.ToRQLString()),
+                                                    Project.RqlType.SessionKeyInProject);
 
             IEnumerable<Keyword> keywords = new List<Keyword>();
             foreach (XmlElement node in xmlDoc.GetElementsByTagName("CATEGORY"))
             {
                 var curCategory = new Category(Project, node.GetGuid()) {Name = node.GetAttributeValue("value")};
-                var newKeywords = from XmlElement curKeywordNode in xmlDoc.GetElementsByTagName("KEYWORD")
-                                  select
-                                      new Keyword(Project, curKeywordNode.GetGuid())
-                                          {Name = curKeywordNode.GetAttributeValue("value"), Category = curCategory};
+                IEnumerable<Keyword> newKeywords =
+                    from XmlElement curKeywordNode in xmlDoc.GetElementsByTagName("KEYWORD")
+                    select
+                        new Keyword(Project, curKeywordNode.GetGuid())
+                            {Name = curKeywordNode.GetAttributeValue("value"), Category = curCategory};
                 keywords = keywords.Union(newKeywords);
             }
             return keywords.ToList();
@@ -282,24 +307,23 @@ namespace erminas.SmartAPI.CMS
                 @"<PROJECT><TEMPLATE guid=""{0}""><ARCHIVE action=""list""/></TEMPLATE></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_VERSIONS, Guid.ToRQLString()));
             XmlNodeList versionNodes = xmlDoc.GetElementsByTagName("VERSION");
-            return (from XmlElement curVersion in versionNodes
-                    let cc = new CCVersion(this, curVersion)
-                    orderby cc.Date descending
-                    select cc).
-                ToList();
+            return
+                (from XmlElement curVersion in versionNodes
+                 let cc = new CCVersion(this, curVersion)
+                 orderby cc.Date descending
+                 select cc).ToList();
         }
 
         /// <summary>
         ///   Set the preassigned keywords for this content class on the server.
+        ///   PreassignedKeywords contain the updated keywords afterwards.
         /// </summary>
-        public void SetPreassignedKeywords(IEnumerable<Keyword> keywords)
+        public void SetPreassignedKeywords(List<Keyword> keywords)
         {
             using (new CachingContext<Keyword>(PreassignedKeywords, Caching.Enabled))
             {
-                var newKeywords = keywords.ToDictionary(x => x.Guid, y => y);
-
-                var keywordsToAdd = newKeywords.Where(x => !PreassignedKeywords.ContainsGuid(x.Key)).ToList();
-                var keywordsToRemove = PreassignedKeywords.Where(x => !newKeywords.ContainsKey(x.Guid)).ToList();
+                List<Keyword> keywordsToAdd = keywords.Except(PreassignedKeywords).ToList();
+                List<Keyword> keywordsToRemove = PreassignedKeywords.Except(keywords).ToList();
 
                 if (!keywordsToRemove.Any() && !keywordsToAdd.Any())
                 {
@@ -308,47 +332,61 @@ namespace erminas.SmartAPI.CMS
 
                 PreassignedKeywords.InvalidateCache();
 
-                foreach (var curKeyword in keywordsToAdd)
+                AssignKeywords(keywordsToAdd);
+
+                UnlinkKeywords(keywordsToRemove);
+            }
+        }
+
+        private void UnlinkKeywords(IEnumerable<Keyword> keywordsToRemove)
+        {
+            foreach (Keyword curKeyword in keywordsToRemove)
+            {
+                const string REMOVE_KEYWORD =
+                    @"<TEMPLATE action=""unlink"" guid=""{0}""><KEYWORD guid=""{1}""/></TEMPLATE>";
+
+                XmlDocument xmlDoc =
+                    Project.ExecuteRQL(
+                        string.Format(REMOVE_KEYWORD, Guid.ToRQLString(), curKeyword.Guid.ToRQLString()),
+                        Project.RqlType.SessionKeyInProject);
+
+                if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    const string ASSIGN_KEYWORD =
-                        @"<TEMPLATE action=""assign"" guid=""{0}""><CATEGORY guid=""{1}""/><KEYWORD guid=""{2}""/></TEMPLATE>";
-
-                    var xmlDoc = Project.ExecuteRQL(string.Format(ASSIGN_KEYWORD, Guid.ToRQLString(),
-                                                                  curKeyword.Value.Category.Guid.ToRQLString(),
-                                                                  curKeyword.Value.Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
-
-                    if (!xmlDoc.InnerText.Contains("ok"))
-                    {
-                        throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
-                                                          curKeyword.Value.Name, Name));
-                    }
-                }
-
-
-                foreach (var curKeyword in keywordsToRemove)
-                {
-                    const string REMOVE_KEYWORD =
-                        @"<TEMPLATE action=""unlink"" guid=""{0}""><KEYWORD guid=""{1}""/></TEMPLATE>";
-
-                    var xmlDoc = Project.ExecuteRQL(string.Format(REMOVE_KEYWORD, Guid.ToRQLString(),
-                                                                  curKeyword.Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
-
-                    if (!xmlDoc.InnerText.Contains("ok"))
-                    {
-                        throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
-                                                          curKeyword.Name, Name));
-                    }
+                    throw new Exception(string.Format("Could not unlink keyword {0} from content class {1}",
+                                                      curKeyword.Name, Name));
                 }
             }
         }
 
+        private void AssignKeywords(IEnumerable<Keyword> keywordsToAdd)
+        {
+            foreach (Keyword curKeyword in keywordsToAdd)
+            {
+                const string ASSIGN_KEYWORD =
+                    @"<TEMPLATE action=""assign"" guid=""{0}""><CATEGORY guid=""{1}""/><KEYWORD guid=""{2}""/></TEMPLATE>";
+
+                XmlDocument xmlDoc =
+                    Project.ExecuteRQL(
+                        string.Format(ASSIGN_KEYWORD, Guid.ToRQLString(), curKeyword.Category.Guid.ToRQLString(),
+                                      curKeyword.Guid.ToRQLString()), Project.RqlType.SessionKeyInProject);
+
+                if (!WasKeywordActionSuccessful(xmlDoc))
+                {
+                    throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
+                                                      curKeyword.Name, Name));
+                }
+            }
+        }
+
+        private static bool WasKeywordActionSuccessful(XmlNode node)
+        {
+            return node.InnerText.Contains("ok");
+        }
+
         private void CreateBaseAttributes()
         {
-            //TODO ugly hack for refreshing
-            Attributes.Clear();
-            CreateAttributes("approverequired", "description", "framesetafterlist", "name", "praefixguid", "suffixguid");
+            CreateAttributes("approverequired", "description", "framesetafterlist", "name", "praefixguid", "suffixguid",
+                             "adoptheadlinetoalllanguages", "keywordrequired", "requiredcategory");
         }
 
         /// <summary>
@@ -360,15 +398,14 @@ namespace erminas.SmartAPI.CMS
                 @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
             const string SINGLE_ASSIGNMENT =
                 @"<TEMPLATEVARIANT guid=""{0}""><PROJECTVARIANTS action=""assign""><PROJECTVARIANT donotgenerate=""0"" donotusetidy=""0"" guid=""{1}"" /></PROJECTVARIANTS></TEMPLATEVARIANT>";
+
             var builder = new StringBuilder();
             foreach (var curEntry in assignments)
             {
-                builder.Append(string.Format(SINGLE_ASSIGNMENT, curEntry.Key.Guid.ToRQLString(),
-                                             curEntry.Value.Guid.ToRQLString()));
+                builder.Append(SINGLE_ASSIGNMENT.RQLFormat(curEntry.Key, curEntry.Value));
             }
 
-            Project.ExecuteRQL(string.Format(ASSIGN_PROJECT_VARIANT, Guid.ToRQLString(), builder),
-                               Project.RqlType.SessionKeyInProject);
+            Project.ExecuteRQL(ASSIGN_PROJECT_VARIANT.RQLFormat(this, builder), Project.RqlType.SessionKeyInProject);
         }
 
         /// <summary>
@@ -378,7 +415,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string PROJECT_VARIANT_ASSIGNMENT =
                 @"<TEMPLATE guid=""{0}"" ><TEMPLATEVARIANTS withstylesheets=""1"" action=""projectvariantslist"" /></TEMPLATE>";
-            var cachingStatus = Project.ProjectVariants.IsCachingEnabled;
+            bool cachingStatus = Project.ProjectVariants.IsCachingEnabled;
             try
             {
                 XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(PROJECT_VARIANT_ASSIGNMENT, Guid.ToRQLString()),
@@ -393,8 +430,7 @@ namespace erminas.SmartAPI.CMS
                                     templateVariant = new TemplateVariant(this, curElement.GetGuid())
                                 }).ToLookup(
                                     key => key.projectVariant, value => value.templateVariant);
-            }
-            catch (RQLException e)
+            } catch (RQLException e)
             {
                 throw new Exception("Could not get project variant assignments", e);
             }
@@ -416,8 +452,7 @@ namespace erminas.SmartAPI.CMS
             {
                 Project.ExecuteRQL(string.Format(DELETE_TEMPLATE, guid.ToRQLString()),
                                    Project.RqlType.SessionKeyInProject);
-            }
-            catch (RQLException e)
+            } catch (RQLException e)
             {
                 throw new Exception("Could not delete template variant from content class: " + e.Message);
             }
@@ -444,14 +479,21 @@ namespace erminas.SmartAPI.CMS
             _templateVariants = null;
         }
 
-        protected override void LoadXml(XmlElement xmlNode)
+        protected override void LoadWholeObject()
         {
-            // TODO: Read all data
-            CreateBaseAttributes();
-            var settingsNode = (XmlElement) xmlNode.GetElementsByTagName("SETTINGS")[0];
+            LoadXml();
+        }
+
+        private void LoadXml()
+        {
+            if (!Attributes.Any())
+            {
+                CreateBaseAttributes();
+            }
+            var settingsNode = (XmlElement) XmlNode.GetElementsByTagName("SETTINGS")[0];
             if (settingsNode != null)
             {
-                EditableAreaSettings = new CCEditableAreaSettings(this, settingsNode);
+                _editableAreaSettings = new CCEditableAreaSettings(this, settingsNode);
             }
 
             InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
@@ -459,78 +501,6 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _prefix, "praefixguid", x => new Syllable(Project, GuidConvert(x)));
             InitIfPresent(ref _suffix, "suffixguid", x => new Syllable(Project, GuidConvert(x)));
             InitIfPresent(ref _description, "description", x => x);
-
-            Name = xmlNode.GetAttributeValue("name");
-
-            //XmlAttributeCollection attr = xmlNode.Attributes;
-            //if (attr != null)
-            //{
-            //try
-            //{
-            //    // Always present
-            //    Guid = Guid.Parse(attr["guid"].Value);
-            //    Name = attr["name"].Value;
-
-
-            // Don't break if there is an error in this
-
-            //if (attr["parentobjectname"] != null)
-            //{
-            //    ParentObjectname = attr["parentobjectname"].Value;
-            //}
-            //if (attr["useconnection"] != null)
-            //{
-            //    UseConnection = attr["useconnection"].Value;
-            //}
-            //if (attr["dialoglanguageid"] != null)
-            //{
-            //    DialogLanguageId = attr["dialoglanguageid"].Value;
-            //}
-            //if (attr["templaterights"] != null)
-            //{
-            //    TemplateRights = attr["templaterights"].Value;
-            //}
-            //if (attr["description"] != null)
-            //{
-            //    Description = attr["description"].Value;
-            //}
-            //if (attr["approverequired"] != null)
-            //{
-            //    ApproveRequired = attr["approverequired"].Value;
-            //}
-            //if (attr["framesetafterlist"] != null)
-            //{
-            //    FramesetAfterList = attr["framesetafterlist"].Value;
-            //}
-            //if (attr["filenamerequired"] != null)
-            //{
-            //    FilenameRequired = attr["filenamerequired"].Value;
-            //}
-            //if (attr["ignoreglobalworkflow"] != null)
-            //{
-            //    IgnoreGlobalWorkflow = attr["ignoreglobalworkflow"].Value;
-            //}
-            //if (attr["selectinnewpage"] != null)
-            //{
-            //    SelectInNewPage = attr["selectinnewpage"].Value;
-            //}
-            //if (attr["sharedrights"] != null)
-            //{
-            //    SharedRights = attr["sharedrights"].Value;
-            //}
-
-
-            //    if (attr["folderrelease"] != null)
-            //    {
-            //        FolderRelease = attr["folderrelease"].Value;
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    // couldn't read data
-            //    throw new RedDotDataException("Couldn't read content class data..", e);
-            //}
-            //}
         }
 
         /// <summary>
@@ -553,12 +523,11 @@ namespace erminas.SmartAPI.CMS
         {
             try
             {
-                var keywordsToAssign =
+                List<Keyword> keywordsToAssign =
                     PreassignedKeywords.Select(
                         x => targetCC.Project.Categories.GetByName(x.Category.Name).Keywords.GetByName(x.Name)).ToList();
                 targetCC.SetPreassignedKeywords(keywordsToAssign);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception(string.Format("Could not copy preassigned keywords for content class {0}", Name), e);
             }
@@ -574,32 +543,42 @@ namespace erminas.SmartAPI.CMS
             }
 
             var xmlDoc = new XmlDocument();
+            XmlElement template = CreateTemplateXmlElement(xmlDoc, folder);
 
+            AddTemplateDescriptions(project, template);
+
+            AddTemplateVariants(template);
+
+            AddProjectVariants(project, template);
+
+            return CreateContentClass(project, template);
+        }
+
+        private static XmlElement CreateTemplateXmlElement(XmlDocument xmlDoc, ContentClassFolder folder)
+        {
             XmlElement template = xmlDoc.AddElement("TEMPLATE");
             template.AddAttribute("action", "addnew");
             template.AddAttribute("folderguid", folder.Guid.ToRQLString());
+            return template;
+        }
 
-            XmlElement templateDescriptions = template.AddElement("TEMPLATEDESCRIPTIONS");
-            foreach (LanguageVariant languageVariant in project.LanguageVariants)
+        private ContentClass CreateContentClass(Project project, XmlElement template)
+        {
+            XmlDocument creationResultNode = project.ExecuteRQL(template.NodeToString());
+            XmlNode guidTextNode = creationResultNode.FirstChild;
+            Guid newCCGuid;
+            if (guidTextNode == null || guidTextNode.NodeType != XmlNodeType.Element || guidTextNode.FirstChild == null ||
+                !Guid.TryParse(guidTextNode.FirstChild.Value.Trim(), out newCCGuid))
             {
-                XmlElement templateDescription = templateDescriptions.AddElement("TEMPLATEDESCRIPTION");
-                templateDescription.AddAttribute("dialoglanguageid", languageVariant.Language);
-                templateDescription.AddAttribute("name", Name);
-                if (!string.IsNullOrEmpty(Description))
-                {
-                    templateDescription.AddAttribute("description", Description);
-                }
+                throw new Exception("could not create content class '" + Name + "'");
             }
 
-            XmlElement templateVariants = template.AddElement("TEMPLATEVARIANTS");
-            foreach (TemplateVariant curTemplateVariant in TemplateVariants)
-            {
-                XmlElement templateVariant = templateVariants.AddElement("TEMPLATEVARIANT");
-                templateVariant.AddAttribute("name", curTemplateVariant.Name);
-                XmlText textNode = xmlDoc.CreateTextNode(curTemplateVariant.Data);
-                templateVariant.AppendChild(textNode);
-            }
+            var targetCC = new ContentClass(project, newCCGuid);
+            return targetCC;
+        }
 
+        private void AddProjectVariants(Project project, XmlElement template)
+        {
             XmlElement projectVariants = template.AddElement("PROJECTVARIANTS");
             projectVariants.AddAttribute("action", "assign");
             foreach (ProjectVariant curVariant in Project.ProjectVariants)
@@ -613,18 +592,37 @@ namespace erminas.SmartAPI.CMS
                 }
                 projectVariant.AddAttribute("guid", otherVariant.Guid.ToRQLString());
             }
+        }
 
-            XmlNode creationResultNode = project.ExecuteRQL(template.NodeToString());
-            XmlNode guidTextNode = creationResultNode.FirstChild;
-            Guid newCCGuid;
-            if (guidTextNode == null || guidTextNode.NodeType != XmlNodeType.Element || guidTextNode.FirstChild == null ||
-                !Guid.TryParse(guidTextNode.FirstChild.Value.Trim(), out newCCGuid))
+        private void AddTemplateVariants(XmlElement template)
+        {
+            XmlDocument ownerDocument = template.OwnerDocument;
+
+            XmlElement templateVariants = template.AddElement("TEMPLATEVARIANTS");
+            foreach (TemplateVariant curTemplateVariant in TemplateVariants)
             {
-                throw new Exception("could not create content class '" + Name + "'");
+                XmlElement templateVariant = templateVariants.AddElement("TEMPLATEVARIANT");
+                templateVariant.AddAttribute("name", curTemplateVariant.Name);
+                // ReSharper disable PossibleNullReferenceException
+                XmlText textNode = ownerDocument.CreateTextNode(curTemplateVariant.Data);
+                // ReSharper restore PossibleNullReferenceException
+                templateVariant.AppendChild(textNode);
             }
+        }
 
-            var targetCC = new ContentClass(project, newCCGuid);
-            return targetCC;
+        private void AddTemplateDescriptions(Project project, XmlElement template)
+        {
+            XmlElement templateDescriptions = template.AddElement("TEMPLATEDESCRIPTIONS");
+            foreach (LanguageVariant languageVariant in project.LanguageVariants)
+            {
+                XmlElement templateDescription = templateDescriptions.AddElement("TEMPLATEDESCRIPTION");
+                templateDescription.AddAttribute("dialoglanguageid", languageVariant.Language);
+                templateDescription.AddAttribute("name", Name);
+                if (!string.IsNullOrEmpty(Description))
+                {
+                    templateDescription.AddAttribute("description", Description);
+                }
+            }
         }
 
         private void CopyElementsToCC(ContentClass targetCC)
@@ -652,8 +650,7 @@ namespace erminas.SmartAPI.CMS
                 try
                 {
                     targetCC.GetAttribute(curAttribute.Name).Assign(curAttribute);
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     throw new Exception(
                         string.Format("Unable to assign attribute {0} in content class {1} of project {2}",
@@ -680,8 +677,7 @@ namespace erminas.SmartAPI.CMS
             {
                 foreach (LanguageVariant languageVariant in Project.LanguageVariants)
                 {
-                    LanguageVariant targetLanguageVariant =
-                        targetCC.Project.LanguageVariants[languageVariant.Language];
+                    LanguageVariant targetLanguageVariant = targetCC.Project.LanguageVariants[languageVariant.Language];
                     foreach (string curElementName in elementNames)
                     {
                         CCElement curTargetCcElement;
@@ -784,7 +780,7 @@ namespace erminas.SmartAPI.CMS
             guidAttr.Value = Guid.ToRQLString();
             templateElement.Attributes.Append(guidAttr);
 
-            Project.ExecuteRQL(GetSaveString(templateElement), Project.RqlType.InsertSessionKeyValues);
+            Project.ExecuteRQL(GetSaveString(templateElement), Project.RqlType.SessionKeyInProject);
         }
 
         #region Nested type: CCEditableAreaSettings
@@ -796,11 +792,11 @@ namespace erminas.SmartAPI.CMS
         {
             private readonly ContentClass _parent;
 
-            public CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement)
-                : base(xmlElement)
+            public CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
             {
-                CreateAttributes("bordercolor", "borderstyle", "borderwidth", "showpagerange", "usedefaultrangesettings");
+                Debug.Assert(xmlElement != null);
                 _parent = parent;
+                InitAttributes();
             }
 
             public string BorderColor
@@ -809,7 +805,7 @@ namespace erminas.SmartAPI.CMS
                 set { ((StringXmlNodeAttribute) GetAttribute("bordercolor")).Value = value; }
             }
 
-            public string BorerStyle
+            public string BorderStyle
             {
                 get { return ((StringXmlNodeAttribute) GetAttribute("borderstyle")).Value; }
                 set { ((StringXmlNodeAttribute) GetAttribute("borderstyle")).Value = value; }
@@ -833,13 +829,18 @@ namespace erminas.SmartAPI.CMS
                 set { ((BoolXmlNodeAttribute) GetAttribute("usedefaultrangesettings")).Value = value; }
             }
 
+            private void InitAttributes()
+            {
+                CreateAttributes("bordercolor", "borderstyle", "borderwidth", "showpagerange", "usedefaultrangesettings");
+            }
+
             public void Commit()
             {
                 const string SAVE_CC_SETTINGS = @"<TEMPLATE guid=""{0}"">{1}</TEMPLATE>";
                 XmlDocument result =
-                    _parent.Project.ExecuteRQL(string.Format(SAVE_CC_SETTINGS, _parent.Guid.ToRQLString(),
-                                                             GetSaveString((XmlElement) XmlNode.Clone())),
-                                               Project.RqlType.InsertSessionKeyValues);
+                    _parent.Project.ExecuteRQL(
+                        string.Format(SAVE_CC_SETTINGS, _parent.Guid.ToRQLString(),
+                                      GetSaveString((XmlElement) XmlNode.Clone())), Project.RqlType.SessionKeyInProject);
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {
@@ -873,8 +874,7 @@ namespace erminas.SmartAPI.CMS
             private Folder _folder;
             private User _user;
 
-            public CCVersion(ContentClass parent, XmlElement xmlElement)
-                : base(xmlElement)
+            public CCVersion(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
             {
                 ContentClass = parent;
             }
@@ -930,10 +930,6 @@ namespace erminas.SmartAPI.CMS
             public DateTime Date
             {
                 get { return _date ?? (_date = XmlNode.GetOADate()).GetValueOrDefault(); }
-            }
-
-            protected override void LoadXml(XmlElement node)
-            {
             }
         }
 

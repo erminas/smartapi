@@ -22,11 +22,16 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.AnchorAsText)]
     public class AnchorAsText : AbstractLinkElement
     {
-        public AnchorAsText(Project project, Guid guid) : base(project, guid)
+        public AnchorAsText(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public AnchorAsText(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        {
+        }
+
+        protected override sealed void LoadWholeLinkElement()
         {
         }
     }

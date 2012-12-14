@@ -22,13 +22,13 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.Background)]
     public class Background : AbstractMediaElement
     {
-        public Background(Project project, Guid guid) : base(project, guid)
+        public Background(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public Background(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
     }
 }

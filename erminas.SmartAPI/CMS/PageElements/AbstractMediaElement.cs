@@ -25,13 +25,13 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private File _file;
 
-        public AbstractMediaElement(Project project, Guid guid) : base(project, guid)
+        public AbstractMediaElement(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
 
         public File Value
@@ -51,7 +51,11 @@ namespace erminas.SmartAPI.CMS.PageElements
                                 : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
                                                 Value.Folder.Guid.ToRQLString());
 
-            Project.ExecuteRQL(rqlStr, Project.RqlType.InsertSessionKeyValues);
+            Project.ExecuteRQL(rqlStr);
+        }
+
+        protected override sealed void LoadWholePageElement()
+        {
         }
     }
 }

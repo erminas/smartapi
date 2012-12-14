@@ -51,13 +51,13 @@ namespace erminas.SmartAPI.CMS
 
         public static PdfOrientation ToPdfOrientation(this string value)
         {
-            switch (value.ToLowerInvariant())
+            switch (value.ToUpperInvariant())
             {
-                case "default":
+                case "DEFAULT":
                     return PdfOrientation.Default;
-                case "portrait":
+                case "PORTRAIT":
                     return PdfOrientation.Portrait;
-                case "landscape":
+                case "LANDSCAPE":
                     return PdfOrientation.Landscape;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
@@ -98,14 +98,11 @@ namespace erminas.SmartAPI.CMS
         private bool _hasContainerPageReference;
         private bool _isLocked;
         private bool _isStylesheetIncluded;
-        private string _name;
         private bool _noStartEndMarkers;
         private PdfOrientation _pdfOrientation;
         private State _status;
 
-
-        public TemplateVariant(ContentClass contentClass, Guid guid)
-            : base(guid)
+        public TemplateVariant(ContentClass contentClass, Guid guid) : base(guid)
         {
             ContentClass = contentClass;
         }
@@ -113,22 +110,13 @@ namespace erminas.SmartAPI.CMS
         public TemplateVariant(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = contentClass;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         //TODO mit reddotobjecthandle ersetzen
         public TemplateVariantHandle Handle
         {
             get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
-        }
-
-        /// <summary>
-        ///   Name of the template
-        /// </summary>
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
         }
 
         public bool HasContainerPageReference
@@ -149,8 +137,7 @@ namespace erminas.SmartAPI.CMS
                 XmlDocument result =
                     ContentClass.Project.ExecuteRQL(
                         String.Format(SAVE_DATA, ContentClass.Guid.ToRQLString(), Guid.ToRQLString(),
-                                      HttpUtility.HtmlEncode(value)),
-                        Project.RqlType.SessionKeyInProject);
+                                      HttpUtility.HtmlEncode(value)), Project.RqlType.SessionKeyInProject);
                 if (!result.DocumentElement.InnerText.Contains(ContentClass.Guid.ToRQLString()))
                 {
                     var e =
@@ -255,43 +242,41 @@ namespace erminas.SmartAPI.CMS
 
             ContentClass.Project.ExecuteRQL(string.Format(ASSIGN_PROJECT_VARIANT, ContentClass.Guid.ToRQLString(),
                                                           Guid.ToRQLString(), variant.Guid.ToRQLString(),
-                                                          doNotPublish.ToRQLString(),
-                                                          doNotUseTidy.ToRQLString()));
+                                                          doNotPublish.ToRQLString(), doNotUseTidy.ToRQLString()));
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            var element = (node);
-            if (!String.IsNullOrEmpty(element.InnerText))
+            if (!String.IsNullOrEmpty(XmlNode.InnerText))
             {
-                _data = element.InnerText;
+                _data = XmlNode.InnerText;
             }
             InitIfPresent(ref _creationDate, "createdate", XmlUtil.ToOADate);
             InitIfPresent(ref _changeDate, "changeddate", XmlUtil.ToOADate);
             InitIfPresent(ref _description, "description", x => x);
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
-                              {Name = node.GetAttributeValue("createusername")});
+                          new User(ContentClass.Project.Session, Guid.Parse(x))
+                              {Name = XmlNode.GetAttributeValue("createusername")});
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
-                          new User(ContentClass.Project.Session.CmsClient, Guid.Parse(x))
-                              {Name = node.GetAttributeValue("changedusername")});
-            InitIfPresent(ref _name, "name", x => x);
+                          new User(ContentClass.Project.Session, Guid.Parse(x))
+                              {Name = XmlNode.GetAttributeValue("changedusername")});
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
             InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", BoolConvert);
             InitIfPresent(ref _noStartEndMarkers, "nostartendmarkers", BoolConvert);
             InitIfPresent(ref _isLocked, "lock", BoolConvert);
             InitIfPresent(ref _hasContainerPageReference, "containerpagereference", BoolConvert);
-
-            if (BoolConvert(node.GetAttributeValue("draft")))
+            if (BoolConvert(XmlNode.GetAttributeValue("draft")))
             {
                 _status = State.Draft;
             }
             else
             {
-                _status = BoolConvert(node.GetAttributeValue("waitforrelease")) ? State.WaitsForRelease : State.Released;
+                _status = BoolConvert(XmlNode.GetAttributeValue("waitforrelease"))
+                              ? State.WaitsForRelease
+                              : State.Released;
             }
         }
 
@@ -313,11 +298,9 @@ namespace erminas.SmartAPI.CMS
                 target.Project.ExecuteRQL(
                     string.Format(ADD_TEMPLATE_VARIANT, target.Guid.ToRQLString(), HttpUtility.HtmlEncode(Name),
                                   HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
-                                  HttpUtility.HtmlEncode(FileExtension),
-                                  IsStylesheetIncludedInHeader.ToRQLString(),
-                                  ContainsAreaMarksInPage.ToRQLString(),
-                                  HasContainerPageReference.ToRQLString(), PdfOrientation),
-                    Project.RqlType.SessionKeyInProject);
+                                  HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
+                                  ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
+                                  PdfOrientation), Project.RqlType.SessionKeyInProject);
             if (xmlDoc.DocumentElement.InnerText.Trim().Length == 0)
             {
                 return;
@@ -331,6 +314,11 @@ namespace erminas.SmartAPI.CMS
                 throw new Exception(errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
             }
             throw new Exception(errorMsg);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

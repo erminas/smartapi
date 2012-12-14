@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.Utils
     ///                                                                                                                                                                               }</code>
     /// </example>
     /// <typeparam name="T"> </typeparam>
-    public class CachingContext<T> : IDisposable where T : class
+    public sealed class CachingContext<T> : IDisposable where T : class
     {
         private readonly ICachedList<T> _cachedList;
         private readonly bool _wasCachingEnabled;

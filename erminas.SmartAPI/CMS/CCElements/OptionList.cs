@@ -36,8 +36,8 @@ namespace erminas.SmartAPI.CMS.CCElements
         public OptionList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguagedependentvalue", "eltlanguagedependentname", "eltuserdefinedallowed",
-                             "eltrdexample", "eltrddescription", "eltorderby",
-                             /*"eltparentelementname",*/ "eltparentelementguid");
+                             "eltrdexample", "eltrddescription", "eltorderby", /*"eltparentelementname",*/
+                             "eltparentelementguid");
             new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
         }
 

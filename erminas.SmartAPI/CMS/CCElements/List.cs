@@ -23,9 +23,8 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public List(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltextendedlist", "eltfontclass", "eltfontsize", "eltfontbold",
-                             "eltonlyhrefvalue", "eltxhtmlcompliant",
-                             "eltfontface", "eltfontcolor");
+            CreateAttributes("eltextendedlist", "eltfontclass", "eltfontsize", "eltfontbold", "eltonlyhrefvalue",
+                             "eltxhtmlcompliant", "eltfontface", "eltfontcolor");
         }
 
         public override sealed ContentClassCategory Category

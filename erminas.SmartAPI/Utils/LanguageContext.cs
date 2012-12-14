@@ -9,7 +9,7 @@ namespace erminas.SmartAPI.Utils
     /// <example>
     ///   project.LanguageVariants["ENG"].Select(); ... using(new LanguageContext(project.LanguageVariants["DEU"])) { //the following code is executed with the German language variant selected ... } //the following code is executed with the UK English language variant selected ...
     /// </example>
-    public class LanguageContext : IDisposable
+    public sealed class LanguageContext : IDisposable
     {
         private readonly LanguageVariant _origLang;
 

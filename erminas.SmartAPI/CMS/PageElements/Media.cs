@@ -22,13 +22,13 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.Media)]
     public class Media : AbstractMediaElement
     {
-        public Media(Project project, Guid guid) : base(project, guid)
+        public Media(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public Media(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
     }
 }

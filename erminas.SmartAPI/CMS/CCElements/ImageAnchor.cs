@@ -24,10 +24,9 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public ImageAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace",
-                             "elthspace", "eltusermap", "eltautoheight",
-                             "eltautowidth", "eltautoborder", "eltsrcsubdirguid",
-                             "eltimagesupplement", "eltsrc", "eltalt");
+            CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace", "eltusermap",
+                             "eltautoheight", "eltautowidth", "eltautoborder", "eltsrcsubdirguid", "eltimagesupplement",
+                             "eltsrc", "eltalt");
             new BoolXmlNodeAttribute(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<ImageAlignment>(this, "eltalign", ImageAlignmentUtils.ToRQLString,
                                                            ImageAlignmentUtils.ToImageAlignment);
@@ -38,7 +37,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;

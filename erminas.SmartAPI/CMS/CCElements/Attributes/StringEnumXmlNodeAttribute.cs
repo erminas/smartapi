@@ -10,8 +10,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private readonly Func<T, string> _toStringValue;
 
         public StringEnumXmlNodeAttribute(CCElement parent, string name, Func<T, string> toStringValueRepresentation,
-                                          Func<string, T> parseEnum)
-            : base(parent, name, false)
+                                          Func<string, T> parseEnum) : base(parent, name, false)
         {
             _toStringValue = toStringValueRepresentation;
             _parseEnum = parseEnum;
@@ -43,8 +42,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     return;
                 }
                 _value = _parseEnum(value);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 throw new Exception(string.Format("Could not convert value {0} to enum {1}", value, typeof (T).Name), e);
             }

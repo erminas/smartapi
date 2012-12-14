@@ -14,12 +14,26 @@
  * If not, see <http://www.gnu.org/licenses/>. 
  */
 
+using erminas.SmartAPI.Utils;
+
 namespace erminas.SmartAPI.CMS.PageElements
 {
-    public interface ILinkElement : IPageElement
+    public enum LinkType
     {
-        void LinkToPage(Page page);
-        void DisconnectPage(Page page);
-        void LinkToElement(PageElement element);
+        NotAStructuralElement = 0,
+        SimpleLink = 1,
+        MultiLink = 2,
+        Reference = 10
+    }
+
+    public interface ILinkElement : IPageElement, ILinkTarget
+    {
+        IRDList<IPage> ConnectedPages { get; }
+        LinkType LinkType { get; }
+        bool IsReference { get; }
+        void Reference(ILinkTarget target);
+        void DeleteReference();
+        void Connect(IPage page);
+        void Disconnect(IPage page);
     }
 }

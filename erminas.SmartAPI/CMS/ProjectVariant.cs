@@ -22,8 +22,6 @@ namespace erminas.SmartAPI.CMS
 {
     public class ProjectVariant : PartialRedDotObject
     {
-        private string _name;
-
         public ProjectVariant(Project project, Guid guid) : base(guid)
         {
             Project = project;
@@ -32,7 +30,6 @@ namespace erminas.SmartAPI.CMS
         public ProjectVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
         }
 
         public bool IsUserDisplayVariant
@@ -42,12 +39,6 @@ namespace erminas.SmartAPI.CMS
                 string value = XmlNode.GetAttributeValue("userdisplayvariant");
                 return value == "1";
             }
-        }
-
-        public override string Name
-        {
-            get { return LazyLoad(ref _name); }
-            set { _name = value; }
         }
 
         public bool IsUsedAsDisplayFormat
@@ -61,46 +52,10 @@ namespace erminas.SmartAPI.CMS
 
         public Project Project { get; private set; }
 
-        protected override void LoadXml(XmlElement node)
+        protected override void LoadWholeObject()
         {
-            _name = node.GetAttributeValue("name");
         }
 
-        //public static ProjectVariant Default
-        //{
-        //    get
-        //    {
-        //        ProjectVariant displayVariant = null;
-        //        foreach (ProjectVariant projectVariant in ProjectVariant.List())
-        //        {
-        //            if (projectVariant.UsedForDisplay)
-        //            {
-        //                displayVariant = projectVariant;
-        //                break;
-        //            }
-        //        }
-        //        return displayVariant;
-        //    }
-        //}
-
-        //public static List<ProjectVariant> List()
-        //{
-        //    List<ProjectVariant> variants = new List<ProjectVariant>();
-        //    string rqlStatement =
-        //        "<IODATA>" +
-        //            "<PROJECT>" +
-        //                "<PROJECTVARIANTS action=\"list\"/>" +
-        //            "</PROJECT>" +
-        //        "</IODATA>";
-
-        //    _xmlDoc.LoadXml(Session.Execute(rqlStatement));
-        //    XmlNodeList xmlNodes = _xmlDoc.GetElementsByTagName("PROJECTVARIANT");
-        //    foreach (XmlNode xmlNode in xmlNodes)
-        //    {
-        //        variants.Add(new ProjectVariant(xmlNode));
-        //    }
-        //    return variants;
-        //}
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_PROJECT_VARIANT =

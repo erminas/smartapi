@@ -42,6 +42,9 @@
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
@@ -56,23 +59,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMS\CCElements\Attributes\CategoryXmlNodeAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\ElementReferenceAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\StringEnumXmlNodeAttribute.cs" />
     <Compile Include="CMS\CCElements\BasicAlignment.cs" />
     <Compile Include="CMS\CCElements\CCContentElement.cs" />
     <Compile Include="CMS\CCElements\CCExtendedContentElement.cs" />
+    <Compile Include="CMS\CCElements\ICanBeRequiredForEditing.cs" />
     <Compile Include="CMS\CCElements\ImageAlignment.cs" />
     <Compile Include="CMS\CCElements\ProjectContent.cs" />
     <Compile Include="CMS\CCElements\StandardFieldNonDate.cs" />
     <Compile Include="CMS\CCElements\TargetFormat.cs" />
+    <Compile Include="CMS\ILinkTarget.cs" />
     <Compile Include="CMS\IPage.cs" />
     <Compile Include="CMS\PageElements\AbstractMediaElement.cs" />
+    <Compile Include="CMS\PageElements\AbstractMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\AnchorAsImage.cs" />
     <Compile Include="CMS\PageElements\AnchorAsText.cs" />
     <Compile Include="CMS\PageElements\Background.cs" />
     <Compile Include="CMS\PageElements\DatabaseContent.cs" />
     <Compile Include="CMS\PageElements\Headline.cs" />
     <Compile Include="CMS\PageElements\ILinkElement.cs" />
+    <Compile Include="CMS\PageElements\IMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\ListEntry.cs" />
     <Compile Include="CMS\PageElements\Media.cs" />
     <Compile Include="CMS\PageElements\OptionList.cs" />
@@ -83,8 +91,12 @@
     <Compile Include="CMS\PageElements\StandardFieldUrl.cs" />
     <Compile Include="CMS\PageElements\TextAscii.cs" />
     <Compile Include="CMS\PageElements\Transfer.cs" />
+    <Compile Include="CMS\VersionAttribute.cs" />
+    <Compile Include="Exceptions\InvalidServerVersionException.cs" />
+    <Compile Include="Exceptions\RQLException.cs" />
+    <Compile Include="Exceptions\PageDeletionException.cs" />
     <Compile Include="Exceptions\RedDotConnectionException.cs" />
-    <Compile Include="Exceptions\RedDotDataException.cs" />
+    <Compile Include="Exceptions\FileDataException.cs" />
     <Compile Include="CMS\AbstractAttributeContainer.cs" />
     <Compile Include="CMS\Category.cs" />
     <Compile Include="CMS\CCElement.cs" />
@@ -172,7 +184,7 @@
     <Compile Include="CMS\PageElements\SiteMap.cs" />
     <Compile Include="CMS\PageElements\StandardField.cs" />
     <Compile Include="CMS\PageElements\StandardFieldDate.cs" />
-    <Compile Include="CMS\PageElements\StandardFieldRegexBased.cs" />
+    <Compile Include="CMS\PageElements\StandardFieldUserDefined.cs" />
     <Compile Include="CMS\PageElements\StandardFieldText.cs" />
     <Compile Include="CMS\PageElements\StandardFieldTime.cs" />
     <Compile Include="CMS\PageElements\Text.cs" />
@@ -205,6 +217,8 @@
     <Compile Include="CMS\WebCompliance.cs" />
     <Compile Include="CMS\Workflow.cs" />
     <Compile Include="CMS\WorkflowAction.cs" />
+    <Compile Include="Exceptions\SmartAPIException.cs" />
+    <Compile Include="Exceptions\SmartAPIInternalException.cs" />
     <Compile Include="Utils\CachingContext.cs" />
     <Compile Include="Utils\DictionaryExtension.cs" />
     <Compile Include="Utils\IRDList.cs" />
@@ -225,9 +239,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="CMS\CmsClient.cs" />
     <Compile Include="Utils\SessionBuilder.cs" />
-    <Compile Include="Utils\WebServiceURLProber.cs" />
     <Compile Include="Utils\XmlUtil.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -24,8 +24,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private EditorSettings _value;
 
-        public EditorOptionsAttribute(IAttributeContainer parent, string name)
-            : base(parent, name, true)
+        public EditorOptionsAttribute(IAttributeContainer parent, string name) : base(parent, name, true)
         {
         }
 

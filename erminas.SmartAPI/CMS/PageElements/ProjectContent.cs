@@ -22,13 +22,17 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.ProjectContent)]
     public class ProjectContent : PageElement
     {
-        public ProjectContent(Project project, Guid guid) : base(project, guid)
+        public ProjectContent(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public ProjectContent(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected override sealed void LoadWholePageElement()
+        {
         }
     }
 }

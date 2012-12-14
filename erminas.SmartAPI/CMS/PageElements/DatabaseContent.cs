@@ -25,18 +25,27 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.DatabaseContent)]
     public class DatabaseContent : AbstractValueElement<string>
     {
-        public DatabaseContent(Project project, Guid guid) : base(project, guid)
+        public DatabaseContent(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public DatabaseContent(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected override string FromXmlNodeValue(string arg)
+        {
+            return arg;
         }
 
         protected override string FromString(string value)
         {
             return value;
+        }
+
+        protected override sealed void LoadWholeValueElement()
+        {
         }
     }
 }

@@ -19,13 +19,12 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public abstract class CCContentElement : CCElement
+    public abstract class CCContentElement : CCElement, ICanBeRequiredForEditing
     {
         protected CCContentElement(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired",
-                             "eltinvisibleinclient", "eltinvisibleinpage", "elthideinform",
-                             "eltdonothtmlencode");
+            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "eltinvisibleinclient",
+                             "eltinvisibleinpage", "elthideinform", "eltdonothtmlencode");
         }
 
         public override sealed ContentClassCategory Category
@@ -43,12 +42,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
-        }
-
-        public bool IsEditingMandatory
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
         }
 
         public bool IsHiddenInProjectStructure
@@ -74,5 +67,15 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
         }
+
+        #region ICanBeRequiredForEditing Members
+
+        public bool IsEditingMandatory
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
+        }
+
+        #endregion
     }
 }

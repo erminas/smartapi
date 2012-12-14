@@ -26,13 +26,29 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public StandardFieldUrl(Project project, Guid guid) : base(project, guid)
+        public StandardFieldUrl(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         protected override Uri FromString(string value)
         {
-            return new Uri(value);
+            try
+            {
+                return string.IsNullOrEmpty(value) ? null : new Uri(value);
+            } catch (UriFormatException e)
+            {
+                throw new ArgumentException(string.Format("Invalid URL: {0}", value), e);
+            }
+        }
+
+        protected override string GetXmlNodeValue()
+        {
+            return Value != null ? Value.ToString() : "";
+        }
+
+        protected override void LoadWholeStandardField()
+        {
         }
     }
 }

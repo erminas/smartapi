@@ -41,7 +41,7 @@ namespace erminas.SmartAPI.CMS
         public PublicationTarget(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public PublicationTarget(Guid guid) : base(guid)
@@ -60,32 +60,17 @@ namespace erminas.SmartAPI.CMS
 
         public Project Project { get; private set; }
 
-
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             InitIfPresent(ref _urlPrefix, "urlprefix", x => x);
             EnsuredInit(ref _type, "type", x => (TargetType) int.Parse(x));
-            Name = node.GetAttributeValue("name");
         }
 
-        //public static List<PublishingTarget> List()
-        //{
-        //    List<PublishingTarget> targets = new List<PublishingTarget>();
-        //    string rqlStatement =
-        //        "<IODATA>" +
-        //            "<PROJECT>" +
-        //                "<EXPORTS action=\"list\"/>" +
-        //            "</PROJECT>" +
-        //        "</IODATA>";
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
 
-        //    _xmlDoc.LoadXml(Session.Execute(rqlStatement));
-        //    XmlNodeList xmlNodes = _xmlDoc.GetElementsByTagName("EXPORT");
-        //    foreach (XmlNode xmlNode in xmlNodes)
-        //    {
-        //        targets.Add(new PublishingTarget(xmlNode));
-        //    }
-        //    return targets;
-        //}
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_PUBLISHING_TARGET = @"<EXPORT guid=""{0}"" action=""load""/>";

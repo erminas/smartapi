@@ -28,8 +28,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         protected Text(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltcrlftobr", "eltdeactivatetextfilter", "eltmaxsize",
-                             "eltwholetext", "eltdirectedit", "eltdragdrop");
+            CreateAttributes("eltcrlftobr", "eltdeactivatetextfilter", "eltmaxsize", "eltwholetext", "eltdirectedit",
+                             "eltdragdrop");
 
             _defaultText = new TextContentAttribute(this, TextContentAttribute.TextType.Default, "eltdefaulttextguid");
             _exampleText = new TextContentAttribute(this, TextContentAttribute.TextType.Sample, "eltrdexampleguid");

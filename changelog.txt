@@ -1,0 +1,31 @@
+SmartAPI Changelog
+
+2012-12-14: Version 0.9.1.0
+---------------------------
+Features:
+- Settings from "Configure Editable Areas" for content classes added
+- Better error messages for RQL errors
+- API methods/properties can depend on server version (see Headline.IsLanguageIndependent for example)
+- Access to referencing/linking in structural elements
+- Access to the recycle bin
+- Session finds out correct RQL web service address and server version automatically on creation
+
+Optimizations:
+- Page lists in Project no longer load all available information on pages on first access
+
+Bugfixes: 
+- Setting the default/sample text to a already set value in Text content class elements no longer throws an exception
+- Access to structural page elements no longer throws an exception
+- Setting the value now works as expected on all content page elements
+- Better mitigation for race conditions in deletion/removal from recycle bin on the server (current solution is still not perfect)
+
+
+2012-11-28: Version 0.9.0.1
+---------------------------
+Bugfixes:
+- Date handling for installations on windows systems with regional settings having ',' as decimal separator
+
+
+2012-11-27: Version 0.9.0.0 
+---------------------------
+Initial release

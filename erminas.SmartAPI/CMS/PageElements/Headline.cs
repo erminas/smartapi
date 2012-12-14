@@ -22,13 +22,22 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.Headline)]
     public class Headline : AbstractValueElement<string>
     {
-        public Headline(Project project, Guid guid) : base(project, guid)
+        public Headline(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public Headline(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected override void LoadWholeValueElement()
+        {
+        }
+
+        protected override string FromXmlNodeValue(string arg)
+        {
+            return arg;
         }
 
         protected override string FromString(string value)

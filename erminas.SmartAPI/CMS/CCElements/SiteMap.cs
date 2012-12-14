@@ -40,7 +40,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltfolderguid");
-                var srcName = ((StringXmlNodeAttribute) GetAttribute("eltxslfile")).Value;
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltxslfile")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
                     return null;

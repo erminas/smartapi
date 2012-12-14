@@ -31,8 +31,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         }
 
         public EnumXmlNodeAttribute(IAttributeContainer parent, string name, Dictionary<T, string> displayStrings,
-                                    bool initValue = true)
-            : base(parent, name, initValue)
+                                    bool initValue = true) : base(parent, name, initValue)
         {
             _displayStrings = displayStrings;
         }

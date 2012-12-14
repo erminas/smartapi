@@ -21,21 +21,23 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
-    public abstract class AbstractValueElement<T> : PageElement, IValueElement
+    public abstract class AbstractValueElement<T> : PageElement, IValueElement<T>
     {
         protected const string SAVE_VALUE =
-            @"<ELEMENTS action=""save""><ELT guid=""{0}"" value=""{1}""></ELT></ELEMENTS>";
+            @"<ELEMENTS action=""save""><ELT guid=""{0}"" value=""{1}"" type=""{2}""></ELT></ELEMENTS>";
 
         protected T _value;
 
-        protected AbstractValueElement(Project project, Guid guid)
-            : base(project, guid)
+        protected AbstractValueElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 
         protected AbstractValueElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
+            LoadXml();
         }
+
+        #region IValueElement<T> Members
 
         public virtual T Value
         {
@@ -43,25 +45,58 @@ namespace erminas.SmartAPI.CMS.PageElements
             set { _value = value; }
         }
 
-        #region IValueElement Members
-
         public void SetValueFromString(string value)
         {
-            _value = FromString(value);
+            Value = string.IsNullOrEmpty(value) ? default(T) : FromString(value);
         }
 
         public virtual void Commit()
         {
+            //TODO bei null/"" SESSIONKEY setzen??
+            string xmlNodeValue = GetXmlNodeValue();
+            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
+                                    ? Session.SESSIONKEY_PLACEHOLDER
+                                    : HttpUtility.HtmlEncode(xmlNodeValue);
+            ExecuteCommit(htmlEncode);
+        }
+
+        #endregion
+
+        public void DeleteValue()
+        {
+            Value = default(T);
+        }
+
+        protected void ExecuteCommit(string valueToSave)
+        {
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), HttpUtility.HtmlEncode(_value)));
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));
             if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
             {
                 throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
             }
         }
 
-        #endregion
+        private void LoadXml()
+        {
+            InitIfPresent(ref _value, "value", FromXmlNodeValue);
+        }
+
+        protected override sealed void LoadWholePageElement()
+        {
+            LoadXml();
+            LoadWholeValueElement();
+        }
+
+        protected abstract void LoadWholeValueElement();
+
+        protected abstract T FromXmlNodeValue(string arg);
 
         protected abstract T FromString(string value);
+
+        protected virtual string GetXmlNodeValue()
+        {
+            return Equals(Value, null) ? null : Value.ToString();
+        }
     }
 }

@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 
 namespace erminas.SmartAPI.Exceptions
 {
+    [Serializable]
     public class RedDotConnectionException : ApplicationException
     {
         #region FailureTypes enum
@@ -50,14 +51,12 @@ namespace erminas.SmartAPI.Exceptions
             FailureType = ft;
         }
 
-        public RedDotConnectionException(FailureTypes ft, string message)
-            : base(message)
+        public RedDotConnectionException(FailureTypes ft, string message) : base(message)
         {
             FailureType = ft;
         }
 
-        public RedDotConnectionException(FailureTypes ft, string message, Exception inner)
-            : base(message, inner)
+        public RedDotConnectionException(FailureTypes ft, string message, Exception inner) : base(message, inner)
         {
             FailureType = ft;
         }
@@ -65,7 +64,7 @@ namespace erminas.SmartAPI.Exceptions
         // This constructor is needed for serialization.
 // ReSharper disable UnusedParameter.Local
         protected RedDotConnectionException(SerializationInfo info, StreamingContext context)
-// ReSharper restore UnusedParameter.Local
+            // ReSharper restore UnusedParameter.Local
         {
             // Add implementation.
         }

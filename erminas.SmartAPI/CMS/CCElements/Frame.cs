@@ -46,8 +46,7 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case Scrolling.No:
                     return "no";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (Scrolling).Name, value));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (Scrolling).Name, value));
             }
         }
 
@@ -57,13 +56,13 @@ namespace erminas.SmartAPI.CMS.CCElements
             {
                 return Scrolling.NotSet;
             }
-            switch (value.ToLowerInvariant())
+            switch (value.ToUpperInvariant())
             {
-                case "auto":
+                case "AUTO":
                     return Scrolling.Auto;
-                case "yes":
+                case "YES":
                     return Scrolling.Yes;
-                case "no":
+                case "NO":
                     return Scrolling.No;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
@@ -96,22 +95,22 @@ namespace erminas.SmartAPI.CMS.CCElements
                 case Frameborder.No:
                     return "no";
                 default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (Frameborder).Name, value));
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (Frameborder).Name, value));
             }
         }
 
         public static Frameborder ToFrameborder(string value)
         {
-            switch (value.ToLowerInvariant())
+            if (string.IsNullOrEmpty(value))
             {
-                case "yes":
+                return Frameborder.NotSet;
+            }
+            switch (value.ToUpperInvariant())
+            {
+                case "YES":
                     return Frameborder.Yes;
-                case "no":
+                case "NO":
                     return Frameborder.No;
-                case "":
-                case null:
-                    return Frameborder.NotSet;
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (Frameborder).Name, value));
@@ -125,10 +124,8 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         public Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltxhtmlcompliant", "eltframename", "eltmarginwidth",
-                             "eltmarginheight", "eltscrolling", "eltsrc",
-                             "eltsupplement", "eltframeborder", "eltnoresize"
-                );
+            CreateAttributes("eltxhtmlcompliant", "eltframename", "eltmarginwidth", "eltmarginheight", "eltscrolling",
+                             "eltsrc", "eltsupplement", "eltframeborder", "eltnoresize");
         }
 
         public override ContentClassCategory Category

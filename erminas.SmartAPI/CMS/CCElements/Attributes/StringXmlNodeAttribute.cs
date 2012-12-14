@@ -20,8 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private string _value;
 
-        public StringXmlNodeAttribute(IAttributeContainer parent, string name)
-            : base(parent, name)
+        public StringXmlNodeAttribute(IAttributeContainer parent, string name) : base(parent, name)
         {
         }
 

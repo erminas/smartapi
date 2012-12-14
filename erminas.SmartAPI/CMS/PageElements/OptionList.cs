@@ -22,13 +22,17 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.OptionList)]
     public class OptionList : PageElement
     {
-        public OptionList(Project project, Guid guid) : base(project, guid)
+        public OptionList(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public OptionList(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected override sealed void LoadWholePageElement()
+        {
         }
     }
 }

@@ -21,11 +21,10 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Headline : CCElement
     {
-        public Headline(ContentClass contentClass, XmlElement xmlElement)
-            : base(contentClass, xmlElement)
+        public Headline(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode",
-                             "elthideinform", "eltrddescription", "eltdirectedit", "eltdragdrop");
+            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode", "elthideinform",
+                             "eltrddescription", "eltdirectedit", "eltdragdrop");
         }
 
         public override ContentClassCategory Category
@@ -33,16 +32,34 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Content; }
         }
 
+        [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         public bool IsNotRelevantForWorklow
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
+            get
+            {
+                ContentClass.Project.Session.EnsureVersion();
+                return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value;
+            }
+            set
+            {
+                ContentClass.Project.Session.EnsureVersion();
+                ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value;
+            }
         }
 
+        [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         public bool IsLanguageIndependent
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
+            get
+            {
+                ContentClass.Project.Session.EnsureVersion();
+                return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value;
+            }
+            set
+            {
+                ContentClass.Project.Session.EnsureVersion();
+                ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value;
+            }
         }
 
         public bool IsNotUsedInForm

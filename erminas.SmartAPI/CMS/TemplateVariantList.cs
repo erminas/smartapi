@@ -17,8 +17,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.Exceptions;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -27,89 +28,50 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class TemplateVariantList : RedDotObject, IEnumerable<TemplateVariant>
     {
-        public TemplateVariantList(ContentClass contentClass, XmlElement xmlElement)
-            : base(xmlElement)
+        public TemplateVariantList(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = contentClass;
             TemplateVariants = new List<TemplateVariant>();
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
-        protected override void LoadXml(XmlElement node)
+        protected void LoadXml()
         {
-            XmlAttributeCollection attr = node.Attributes;
-            try
-            {
-                // Don't break if there is an error in this
-                if (attr["action"] != null)
-                {
-                    Action = attr["action"].Value;
-                }
-                if (attr["languagevariantid"] != null)
-                {
-                    LanguageVariantId = attr["languagevariantid"].Value;
-                }
-                if (attr["dialoglanguageid"] != null)
-                {
-                    DialogLanguageId = attr["dialoglanguageid"].Value;
-                }
-                if (attr["lockdate"] != null)
-                {
-                    LockDate = attr["lockdate"].Value;
-                }
-                if (attr["lockusername"] != null)
-                {
-                    Lockusername = attr["lockusername"].Value;
-                }
-                if (attr["lockusermail"] != null)
-                {
-                    LockUsermail = attr["lockusermail"].Value;
-                }
-                if (attr["draft"] != null)
-                {
-                    Draft = attr["draft"].Value;
-                }
-                if (attr["waitforrelease"] != null)
-                {
-                    WaitForRelease = attr["waitforrelease"].Value;
-                }
-                if (attr["lock"] != null)
-                {
-                    Lock = attr["lock"].Value;
-                }
-                Guid tempGuid; // used for parsing
-                if (attr["folderguid"] != null && Guid.TryParse(attr["folderguid"].Value, out tempGuid))
-                {
-                    FolderGuid = tempGuid;
-                }
-                if (attr["templateguid"] != null && Guid.TryParse(attr["templateguid"].Value, out tempGuid))
-                {
-                    TemplateGuid = tempGuid;
-                }
+            Action = XmlNode.GetAttributeValue("action");
+            LanguageVariantId = XmlNode.GetAttributeValue("languagevariantid");
+            DialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
+            LockDate = XmlNode.GetAttributeValue("lockdate");
+            Lockusername = XmlNode.GetAttributeValue("lockusername");
+            LockUsermail = XmlNode.GetAttributeValue("lockusermail");
+            Draft = XmlNode.GetAttributeValue("draft");
+            WaitForRelease = XmlNode.GetAttributeValue("waitforrelease");
+            Lock = XmlNode.GetAttributeValue("lock");
 
-                if (attr["lockuserguid"] != null && Guid.TryParse(attr["lockuserguid"].Value, out tempGuid))
-                {
-                    LockUserGuid = tempGuid;
-                }
+            Lock = XmlNode.GetAttributeValue("lock");
+            Lock = XmlNode.GetAttributeValue("lock");
+            Lock = XmlNode.GetAttributeValue("lock");
+            Lock = XmlNode.GetAttributeValue("lock");
+            Lock = XmlNode.GetAttributeValue("lock");
+            Lock = XmlNode.GetAttributeValue("lock");
 
-                if (node.NodeType == XmlNodeType.Element)
-                {
-                    XmlNodeList templateVariantNodes = (node).GetElementsByTagName("TEMPLATEVARIANT");
-                    foreach (XmlElement curElementNode in templateVariantNodes)
-                    {
-                        TemplateVariants.Add(new TemplateVariant(ContentClass, curElementNode));
-                    }
-                }
-                else
-                {
-                    throw new Exception("Illegal node type for template variant list");
-                }
-            }
-            catch (Exception e)
+            Guid tempGuid;
+            if (XmlNode.TryGetGuid("folderguid", out tempGuid))
             {
-                // couldn't read data
-                throw new RedDotDataException("Couldn't read content class data..", e);
+                FolderGuid = tempGuid;
             }
+
+            if (XmlNode.TryGetGuid("templateguid", out tempGuid))
+            {
+                TemplateGuid = tempGuid;
+            }
+
+            if (XmlNode.TryGetGuid("lockuserguid", out tempGuid))
+            {
+                LockUserGuid = tempGuid;
+            }
+
+            TemplateVariants = (from XmlElement curVariant in XmlNode.GetElementsByTagName("TEMPLATEVARIANT")
+                                select new TemplateVariant(ContentClass, curVariant)).ToList();
         }
 
         #region TemplateVariantAccessMethods

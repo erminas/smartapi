@@ -25,32 +25,19 @@ namespace erminas.SmartAPI.CMS
     public class Syllable : PartialRedDotObject
     {
         protected readonly Project Project;
-        private string _name;
 
-        public Syllable(Project project, XmlElement xmlElement)
-            : base(xmlElement)
-        {
-            Project = project;
-            LoadXml(xmlElement);
-        }
-
-        public Syllable(Project project, Guid guid)
-            : base(guid)
+        public Syllable(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
         }
 
-        /// <summary>
-        ///   Name of the syllable
-        /// </summary>
-        public override string Name
+        public Syllable(Project project, Guid guid) : base(guid)
         {
-            get { return LazyLoad(ref _name); }
+            Project = project;
         }
 
-        protected override void LoadXml(XmlElement node)
+        protected override void LoadWholeObject()
         {
-            InitIfPresent(ref _name, "name", x => x);
         }
 
         protected override XmlElement RetrieveWholeObject()

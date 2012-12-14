@@ -26,19 +26,35 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public StandardFieldNumeric(Project project, Guid guid)
-            : base(project, guid)
+        public StandardFieldNumeric(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
+        }
+
+        public override string Value
+        {
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && !StandardFieldUserDefined.NUMERIC_CHECK_REGEX.IsMatch(value))
+                {
+                    throw new ArgumentException(string.Format("'{0}' is not a valid numeric value", value));
+                }
+                _value = value;
+            }
         }
 
         protected override string FromString(string value)
         {
-            if (StandardFieldRegexBased.NUMERIC_CHECK_REGEX.IsMatch(value))
+            if (StandardFieldUserDefined.NUMERIC_CHECK_REGEX.IsMatch(value))
             {
                 return value;
             }
 
             throw new ArgumentException(string.Format("Not a valid numerical value: {0}", value), value);
+        }
+
+        protected override void LoadWholeStandardField()
+        {
         }
     }
 }

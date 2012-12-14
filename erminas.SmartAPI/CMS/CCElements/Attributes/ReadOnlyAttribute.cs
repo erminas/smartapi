@@ -47,6 +47,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        public void Refresh()
+        {
+            _attribute.Refresh();
+        }
+
         public string Description
         {
             get { return _attribute.Description; }

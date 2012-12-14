@@ -16,10 +16,10 @@
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
-    public interface IValueElement : IPageElement
+    public interface IValueElement<T> : IPageElement
     {
+        T Value { get; set; }
         void SetValueFromString(string value);
-
         void Commit();
     }
 }

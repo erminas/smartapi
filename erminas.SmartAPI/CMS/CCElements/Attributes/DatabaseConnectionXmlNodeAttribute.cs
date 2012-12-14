@@ -20,8 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class DatabaseConnectionXmlNodeAttribute : AbstractGuidXmlNodeAttribute<DatabaseConnection>
     {
-        public DatabaseConnectionXmlNodeAttribute(CCElement parent, string name)
-            : base(parent, name)
+        public DatabaseConnectionXmlNodeAttribute(CCElement parent, string name) : base(parent, name)
         {
         }
 

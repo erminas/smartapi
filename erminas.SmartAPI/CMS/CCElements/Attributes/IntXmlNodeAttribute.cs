@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private int? _value;
 
-        public IntXmlNodeAttribute(IAttributeContainer parent, string name)
-            : base(parent, name)
+        public IntXmlNodeAttribute(IAttributeContainer parent, string name) : base(parent, name)
         {
         }
 
@@ -53,7 +52,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 _value = int.Parse(value);
             }
         }
-
 
         public override void Assign(IRDAttribute o)
         {

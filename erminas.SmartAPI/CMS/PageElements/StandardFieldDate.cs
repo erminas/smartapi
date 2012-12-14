@@ -21,6 +21,9 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    /// <summary>
+    /// Standard field for dates. Takes input for SetValueFromString in the format yyyy-MM-dd.
+    /// </summary>
     [PageElementType(ElementType.StandardFieldDate)]
     public class StandardFieldDate : StandardField<DateTime>
     {
@@ -28,17 +31,33 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         public StandardFieldDate(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
 
-        public StandardFieldDate(Project project, Guid guid)
-            : base(project, guid)
+        public StandardFieldDate(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         protected override DateTime FromString(string value)
         {
-            return DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            try
+            {
+                return DateTime.Parse(value);
+            } catch (FormatException e)
+            {
+                throw new ArgumentException(string.Format("Invalid date value: {0}", value), e);
+            }
+        }
+
+        protected override string GetXmlNodeValue()
+        {
+            return Value == default(DateTime)
+                       ? ""
+                       : Value.Subtract(BASE_DATE).Days.ToString(CultureInfo.InvariantCulture);
+        }
+
+        protected override void LoadWholeStandardField()
+        {
         }
 
         protected override DateTime FromXmlNodeValue(string value)
@@ -49,7 +68,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         public override void Commit()
         {
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days));
+            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
+                                             (int) ElementType));
             //TODO check guid
             //xml
         }

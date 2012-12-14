@@ -24,19 +24,19 @@ namespace erminas.SmartAPI.CMS
     {
         private PublicationFolder _publicationFolder;
 
-        public PublicationFolderSetting(PublicationSetting parent, Guid guid)
-            : base(guid)
+        public PublicationFolderSetting(PublicationSetting parent, Guid guid) : base(guid)
         {
             PublicationSetting = parent;
         }
 
-        public PublicationSetting PublicationSetting { get; set; }
-
-        public new string Name
+        public PublicationFolderSetting(PublicationSetting parent, XmlElement element) : base(element)
         {
-            get { return base.Name; }
-            set { base.Name = value; }
+            PublicationSetting = parent;
+
+            LoadXml();
         }
+
+        public PublicationSetting PublicationSetting { get; set; }
 
         public PublicationFolder PublicationFolder
         {
@@ -49,15 +49,13 @@ namespace erminas.SmartAPI.CMS
             const string SAVE_SETTING =
                 @"<PROJECT><EXPORTSETTING action=""save"" guid=""{0}""><FOLDEREXPORTSETTING folderguid=""{1}"" guid=""{2}""/></EXPORTSETTING></PROJECT>";
 
-            XmlDocument xmlDoc = PublicationSetting.PublicationPackage.Project.ExecuteRQL(string.Format(SAVE_SETTING,
-                                                                                                        PublicationSetting
-                                                                                                            .Guid.
-                                                                                                            ToRQLString(),
-                                                                                                        _publicationFolder
-                                                                                                            .Guid.
-                                                                                                            ToRQLString(),
-                                                                                                        Guid.ToRQLString
-                                                                                                            ()));
+            XmlDocument xmlDoc =
+                PublicationSetting.PublicationPackage.Project.ExecuteRQL(string.Format(SAVE_SETTING,
+                                                                                       PublicationSetting.Guid.
+                                                                                           ToRQLString(),
+                                                                                       _publicationFolder.Guid.
+                                                                                           ToRQLString(),
+                                                                                       Guid.ToRQLString()));
 
             if (!xmlDoc.InnerText.Contains("ok"))
             {
@@ -65,13 +63,18 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
             const string FOLDER_GUID = "folderguid";
-            _publicationFolder = String.IsNullOrEmpty(node.GetAttributeValue(FOLDER_GUID))
-                                     ? null
-                                     : new PublicationFolder(PublicationSetting.PublicationPackage.Project,
-                                                             node.GetGuid(FOLDER_GUID));
+            Guid tmpGuid;
+            _publicationFolder = XmlNode.TryGetGuid(FOLDER_GUID, out tmpGuid)
+                                     ? new PublicationFolder(PublicationSetting.PublicationPackage.Project, tmpGuid)
+                                     : null;
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

@@ -15,7 +15,9 @@
  */
 
 using System;
+using System.Web;
 using System.Xml;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
@@ -23,20 +25,19 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private string _description;
 
-        protected Text(Project project, Guid guid)
-            : base(project, guid)
+        protected Text(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         protected Text(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         public string Description
         {
             get { return LazyLoad(ref _description); }
-            set { _description = value; }
         }
 
         protected override string FromString(string value)
@@ -44,12 +45,31 @@ namespace erminas.SmartAPI.CMS.PageElements
             return value;
         }
 
-        protected override void LoadXml(XmlElement xmlElement)
+        private void LoadXml()
         {
-            //TODO xml laden in non-virtual funktionen
-            base.LoadXml(xmlElement);
             InitIfPresent(ref _description, "reddotdescription", x => x);
-            InitIfPresent(ref _value, "value", x => x);
+        }
+
+        public override void Commit()
+        {
+            string xmlNodeValue = GetXmlNodeValue();
+            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
+                                    ? Session.SESSIONKEY_PLACEHOLDER
+                                    : HttpUtility.UrlEncode(xmlNodeValue);
+            ExecuteCommit(htmlEncode);
+        }
+
+        protected override sealed void LoadWholeValueElement()
+        {
+            LoadXml();
+            const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
+            string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this), Session.IODataFormat.FormattedText);
+            _value = HttpUtility.UrlDecode(result);
+        }
+
+        protected override sealed string FromXmlNodeValue(string arg)
+        {
+            return null;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class User : PartialRedDotObject
     {
-        private readonly CmsClient _cmsClient;
+        public readonly Session Session;
         private Guid _accountSystemGuid;
         private string _acs;
         private string _action;
@@ -51,71 +51,64 @@ namespace erminas.SmartAPI.CMS
         private string _userLanguage;
         private string _userLimits;
 
-        public User(CmsClient cmsClient, Guid userGuid) : base(userGuid)
+        public User(Session session, Guid userGuid) : base(userGuid)
         {
-            _cmsClient = cmsClient;
+            Session = session;
         }
 
         /// <summary>
         ///   Reads user data from XML-Element "USER" like: <pre>...</pre>
         /// </summary>
-        /// <exception cref="RedDotDataException">Thrown if element doesn't contain valid data.</exception>
-        /// <param name="cmsClient"> The cms client used to retrieve this user </param>
-        /// <param name="xmlNode"> USER XML-Element to get data from </param>
-        public User(CmsClient cmsClient, XmlElement xmlElement) : base(xmlElement)
+        /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
+        /// <param name="session"> The cms session used to retrieve this user </param>
+        /// <param name="xmlElement"> USER XML-Element to get data from </param>
+        public User(Session session, XmlElement xmlElement) : base(xmlElement)
         {
-            _cmsClient = cmsClient;
+            Session = session;
             // TODO: Read all data
 
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
         // TODO: Nothing checked in here
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            try
-            {
-                _action = node.GetAttributeValue("action");
-                _id = node.GetAttributeValue("id");
-                Name = node.GetAttributeValue("name");
-                _fullname = node.GetAttributeValue("fullname");
-                _description = node.GetAttributeValue("description");
-                _flags1 = node.GetAttributeValue("flags1");
-                _flags2 = node.GetAttributeValue("flags2");
-                _maxLevel = node.GetAttributeValue("maxlevel");
-                _email = node.GetAttributeValue("email");
-                _acs = node.GetAttributeValue("acs");
-                _dialogLanguageId = node.GetAttributeValue("dialoglanguageid");
-                _userLanguage = node.GetAttributeValue("userlanguage");
-                _isServerManager = node.GetAttributeValue("isservermanager");
-                _loginDate = node.GetAttributeValue("logindate");
-                _te = node.GetAttributeValue("te");
-                _lm = node.GetAttributeValue("lm");
-                _navigationType = node.GetAttributeValue("navigationtype");
-                _lcid = node.GetAttributeValue("lcid");
-                _maxLogin = node.GetAttributeValue("maxlogin");
-                _preferredEditor = node.GetAttributeValue("preferrededitor");
-                _invertDirectEdit = node.GetAttributeValue("invertdirectedit");
-                _disablePassword = node.GetAttributeValue("disablepassword");
-                _userLimits = node.GetAttributeValue("userlimits");
-                if (node.GetAttributeValue("accountsystemguid") != null)
-                {
-                    _accountSystemGuid = GuidConvert(node.GetAttributeValue("accountsystemguid"));
-                }
-            }
-            catch (Exception e)
-            {
-                // couldn't read data
-                throw new RedDotDataException("Couldn't read content class data..", e);
-            }
+            _action = XmlNode.GetAttributeValue("action");
+            _id = XmlNode.GetAttributeValue("id");
+            _fullname = XmlNode.GetAttributeValue("fullname");
+            _description = XmlNode.GetAttributeValue("description");
+            _flags1 = XmlNode.GetAttributeValue("flags1");
+            _flags2 = XmlNode.GetAttributeValue("flags2");
+            _maxLevel = XmlNode.GetAttributeValue("maxlevel");
+            _email = XmlNode.GetAttributeValue("email");
+            _acs = XmlNode.GetAttributeValue("acs");
+            _dialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
+            _userLanguage = XmlNode.GetAttributeValue("userlanguage");
+            _isServerManager = XmlNode.GetAttributeValue("isservermanager");
+            _loginDate = XmlNode.GetAttributeValue("logindate");
+            _te = XmlNode.GetAttributeValue("te");
+            _lm = XmlNode.GetAttributeValue("lm");
+            _navigationType = XmlNode.GetAttributeValue("navigationtype");
+            _lcid = XmlNode.GetAttributeValue("lcid");
+            _maxLogin = XmlNode.GetAttributeValue("maxlogin");
+            _preferredEditor = XmlNode.GetAttributeValue("preferrededitor");
+            _invertDirectEdit = XmlNode.GetAttributeValue("invertdirectedit");
+            _disablePassword = XmlNode.GetAttributeValue("disablepassword");
+            _userLimits = XmlNode.GetAttributeValue("userlimits");
+            XmlNode.TryGetGuid("accountsystemguid", out _accountSystemGuid);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-            string answer = _cmsClient.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                                  CmsClient.IODataFormat.LogonGuidOnly);
+            string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
+                                               Session.IODataFormat.LogonGuidOnly);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(answer);
 

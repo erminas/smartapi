@@ -21,24 +21,44 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    /// <summary>
+    /// Standard field for time. Takes input for SetValueFromString in the format "H:mm".
+    /// </summary>
     [PageElementType(ElementType.StandardFieldTime)]
     public sealed class StandardFieldTime : StandardField<TimeSpan>
     {
-        public StandardFieldTime(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        public StandardFieldTime(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
         }
 
-        public StandardFieldTime(Project project, Guid guid)
-            : base(project, guid)
+        public StandardFieldTime(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         protected override TimeSpan FromString(string value)
         {
-            const string FORMAT = "H:mm";
-            return DateTime.ParseExact(value, FORMAT, CultureInfo.InvariantCulture).TimeOfDay;
+            try
+            {
+                return DateTime.Parse(value, CultureInfo.InvariantCulture).TimeOfDay;
+            } catch (FormatException e)
+            {
+                throw new ArgumentException(string.Format("Invalid time value: {0}", value), e);
+            }
+        }
+
+        protected override string GetXmlNodeValue()
+        {
+            if (Value == default(TimeSpan))
+            {
+                return "";
+            }
+            var date = new DateTime(0, 0, Value.Days, Value.Hours, Value.Minutes, Value.Seconds);
+            return date.ToOADate().ToString(CultureInfo.InvariantCulture);
+        }
+
+        protected override void LoadWholeStandardField()
+        {
         }
 
         protected override TimeSpan FromXmlNodeValue(string value)
@@ -51,7 +71,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
             Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
                                              _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
-                                             _value.Seconds/(24.0*60.0*60.0)));
+                                             _value.Seconds/(24.0*60.0*60.0), (int) ElementType));
             //TODO check guid
             //xml
         }

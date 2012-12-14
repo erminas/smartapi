@@ -22,8 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private bool _value;
 
-        public BoolXmlNodeAttribute(IAttributeContainer parent, string name)
-            : base(parent, name)
+        public BoolXmlNodeAttribute(IAttributeContainer parent, string name) : base(parent, name)
         {
         }
 
@@ -82,7 +81,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             var boolAttribute = (BoolXmlNodeAttribute) o;
             SetValue(boolAttribute._value ? "1" : "0");
         }
-
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)
         {

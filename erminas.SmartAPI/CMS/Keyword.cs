@@ -26,15 +26,13 @@ namespace erminas.SmartAPI.CMS
         public readonly Project Project;
         private Category _category;
 
-        public Keyword(Project project, XmlElement xmlElement)
-            : base(xmlElement)
+        public Keyword(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            LoadXml(xmlElement);
+            LoadXml();
         }
 
-        public Keyword(Project project, Guid guid)
-            : base(guid)
+        public Keyword(Project project, Guid guid) : base(guid)
         {
             Project = project;
         }
@@ -53,10 +51,15 @@ namespace erminas.SmartAPI.CMS
             Project.ExecuteRQL(string.Format(SAVE_KEYWORD, Guid.ToRQLString(), HttpUtility.HtmlEncode(Name)));
         }
 
-        protected override void LoadXml(XmlElement node)
+        private void LoadXml()
         {
-            Name = node.GetAttributeValue("value");
+            Name = XmlNode.GetAttributeValue("value");
             InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected override XmlElement RetrieveWholeObject()

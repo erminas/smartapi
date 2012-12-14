@@ -22,13 +22,17 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.ListEntry)]
     public class ListEntry : PageElement
     {
-        public ListEntry(Project project, Guid guid) : base(project, guid)
+        public ListEntry(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
         public ListEntry(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml(xmlElement);
+        }
+
+        protected override sealed void LoadWholePageElement()
+        {
         }
     }
 }
