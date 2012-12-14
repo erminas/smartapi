@@ -25,7 +25,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private string _description;
 
-        protected Text(Project project, Guid guid) : base(project, guid)
+        protected Text(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

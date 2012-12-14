@@ -31,7 +31,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public StandardFieldTime(Project project, Guid guid) : base(project, guid)
+        public StandardFieldTime(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
@@ -70,7 +71,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
             Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
                                              _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
-                                             _value.Seconds/(24.0*60.0*60.0), (int) Type));
+                                             _value.Seconds/(24.0*60.0*60.0), (int) ElementType));
             //TODO check guid
             //xml
         }

@@ -129,9 +129,16 @@ namespace erminas.SmartAPI.CMS
 
             XmlDocument xmlDoc = _project.ExecuteRQL(pageElement.OuterXml);
 
-            return
-                (from XmlElement curNode in xmlDoc.GetElementsByTagName("PAGE") select new Page(_project, curNode)).
-                    ToList();
+            return (from XmlElement curNode in xmlDoc.GetElementsByTagName("PAGE")
+                    let nodeWithLanguageVariantId = AddLanguageVariantId(curNode)
+                    select new Page(_project, nodeWithLanguageVariantId)).ToList();
+        }
+
+        private XmlElement AddLanguageVariantId(XmlElement curNode)
+        {
+            curNode.SetAttributeValue("languagevariantid", _project.CurrentLanguageVariant.Language);
+
+            return curNode;
         }
     }
 

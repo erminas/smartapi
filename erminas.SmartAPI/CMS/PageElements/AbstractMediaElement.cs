@@ -25,7 +25,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private File _file;
 
-        public AbstractMediaElement(Project project, Guid guid) : base(project, guid)
+        public AbstractMediaElement(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

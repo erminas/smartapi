@@ -25,7 +25,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.DatabaseContent)]
     public class DatabaseContent : AbstractValueElement<string>
     {
-        public DatabaseContent(Project project, Guid guid) : base(project, guid)
+        public DatabaseContent(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

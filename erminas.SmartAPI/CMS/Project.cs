@@ -25,6 +25,58 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
+    public class RecycleBin
+    {
+        private readonly Project _project;
+
+        internal RecycleBin(Project project)
+        {
+            _project = project;
+        }
+
+        public bool IsEmpty
+        {
+            get { return !Pages().Any(); }
+        }
+
+        public void DeleteAllPages()
+        {
+            const string DELETE_ALL = @"<PAGES action=""deleteallfinally"" alllanguages=""1""/>";
+            _project.ExecuteRQL(DELETE_ALL);
+        }
+
+        public void DeleteAllPagesOfLanguageVariant(string language)
+        {
+            using (new LanguageContext(_project.LanguageVariants[language]))
+            {
+                const string DELETE_ALL_IN_CURRENT_LANGUAGE = @"<PAGES action=""deleteallfinally"" alllanguages=""0""/>";
+                _project.ExecuteRQL(DELETE_ALL_IN_CURRENT_LANGUAGE);
+            }
+        }
+
+        public IEnumerable<Page> Pages()
+        {
+            List<ResultGroup> searchForPagesExtended = CreatePageSearchForRecycleBin().Execute();
+            return searchForPagesExtended[0].Results.Select(pageResult => pageResult.Page);
+        }
+
+        private ExtendedPageSearch CreatePageSearchForRecycleBin()
+        {
+            ExtendedPageSearch search = _project.CreateExtendedPageSearch();
+            search.Predicates.Add(new SpecialPagePredicate(SpecialPagePredicate.PageCategoryType.RecycleBin));
+            return search;
+        }
+
+        public IEnumerable<Page> PagesOfLanguageVariant(string language)
+        {
+            ExtendedPageSearch search = CreatePageSearchForRecycleBin();
+            search.LanguageVariant = _project.LanguageVariants[language];
+
+            IEnumerable<Result> results = search.Execute()[0].Results;
+            return results.Select(pageResult => pageResult.Page);
+        }
+    }
+
     public enum ProjectLockLevel
     {
         None = 0,
@@ -206,6 +258,8 @@ namespace erminas.SmartAPI.CMS
         [ScriptIgnore]
         public NameIndexedRDList<Workflow> Workflows { get; private set; }
 
+        public RecycleBin RecycleBin { get; private set; }
+
         #region Publication
 
         /// <summary>
@@ -251,6 +305,7 @@ namespace erminas.SmartAPI.CMS
 
         private void Init()
         {
+            RecycleBin = new RecycleBin(this);
             PublicationTargets = new RDList<PublicationTarget>(GetPublicationTargets, Caching.Enabled);
             PublicationFolders = new RDList<PublicationFolder>(GetPublicationFolders, Caching.Enabled);
             PublicationPackages = new RDList<PublicationPackage>(GetPublicationPackages, Caching.Enabled);
@@ -299,21 +354,6 @@ namespace erminas.SmartAPI.CMS
             }
             language.IsChecked = true;
             _currentLanguageVariant = language;
-        }
-
-        public void DeleteAllPagesInRecycleBin()
-        {
-            const string DELETE_ALL = @"<PAGES action=""deleteallfinally"" alllanguages=""1""/>";
-            ExecuteRQL(DELETE_ALL);
-        }
-
-        public void DeleteAllPagesOfLanguageVariantInRecycleBin(string language)
-        {
-            using (new LanguageContext(LanguageVariants[language]))
-            {
-                const string DELETE_ALL_IN_CURRENT_LANGUAGE = @"<PAGES action=""deleteallfinally"" alllanguages=""0""/>";
-                ExecuteRQL(DELETE_ALL_IN_CURRENT_LANGUAGE);
-            }
         }
 
         private void LoadXml()
@@ -736,7 +776,7 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = ExecuteRQL(LIST_PAGES);
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
                     select
-                        new Page(this, curPage.GetGuid())
+                        new Page(this, curPage.GetGuid(), CurrentLanguageVariant)
                             {
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault()

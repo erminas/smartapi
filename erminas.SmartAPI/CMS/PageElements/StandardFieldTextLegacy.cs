@@ -25,7 +25,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public StandardFieldTextLegacy(Project project, Guid guid) : base(project, guid)
+        public StandardFieldTextLegacy(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

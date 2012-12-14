@@ -26,7 +26,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public StandardFieldUrl(Project project, Guid guid) : base(project, guid)
+        public StandardFieldUrl(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

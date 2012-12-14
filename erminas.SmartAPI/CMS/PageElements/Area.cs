@@ -22,7 +22,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.Area)]
     public class Area : AbstractLinkElement
     {
-        public Area(Project project, Guid guid) : base(project, guid)
+        public Area(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

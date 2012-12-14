@@ -22,7 +22,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.TextHtml)]
     public class TextHtml : Text
     {
-        public TextHtml(Project project, Guid guid) : base(project, guid)
+        public TextHtml(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

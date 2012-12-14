@@ -29,7 +29,8 @@ namespace erminas.SmartAPI.CMS.PageElements
             LoadXml();
         }
 
-        protected StandardField(Project project, Guid guid) : base(project, guid)
+        protected StandardField(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

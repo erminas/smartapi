@@ -33,7 +33,8 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public StandardFieldDate(Project project, Guid guid) : base(project, guid)
+        public StandardFieldDate(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 
@@ -68,7 +69,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
             Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
-                                             (int) Type));
+                                             (int) ElementType));
             //TODO check guid
             //xml
         }

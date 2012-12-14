@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private LinkType _linkType;
 
-        protected AbstractLinkElement(Project project, Guid guid) : base(project, guid)
+        protected AbstractLinkElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
             ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
@@ -41,6 +41,12 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         #region ILinkElement Members
 
+        /// <summary>
+        /// All pages connected to this link.
+        /// Theoretically the language variant of the target page could be different through a language change in an anchor.
+        /// BUT, this is not considered here (and it is not considered in the SmartTree, too), so alle pages are
+        /// of the same language variant as this page.
+        /// </summary>
         public IRDList<IPage> ConnectedPages { get; private set; }
 
         public LinkType LinkType
@@ -155,7 +161,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_LINKED_PAGES, Guid.ToRQLString()));
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
                     let page =
-                        (IPage) new Page(Project, curPage.GetGuid()) {Headline = curPage.GetAttributeValue("headline")}
+                        (IPage) new Page(Project, curPage.GetGuid(), LanguageVariant) {Headline = curPage.GetAttributeValue("headline")}
                     select page).ToList();
         }
 
@@ -164,8 +170,10 @@ namespace erminas.SmartAPI.CMS.PageElements
             const string LIST_REFERENCES = @"<REFERENCE action=""list"" guid=""{0}"" />";
             XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
 
+            //theoretically through an anchor the language variant of the target could be changed, but this is also not considered in the SmartTree,
+            //so we ignore it, to be consistent with the SmartTree.
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) CreateElement(Project, curLink.GetGuid())).ToList();
+                    select (ILinkElement) CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList();
         }
     }
 }

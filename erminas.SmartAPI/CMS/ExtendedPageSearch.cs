@@ -160,7 +160,7 @@ namespace erminas.SmartAPI.CMS
                     let contentClass = (XmlElement) curPage.GetElementsByTagName("CONTENTCLASS")[0]
                     select
                         new Result(
-                        new Page(_project, curPage.GetGuid())
+                        new Page(_project, curPage.GetGuid(), LanguageVariantOfSearchResults)
                             {
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Status = ((Page.PageState) int.Parse(curPage.GetAttributeValue("status")))
@@ -173,6 +173,11 @@ namespace erminas.SmartAPI.CMS
                         new ContentClass(_project, contentClass.GetGuid())
                             {Name = contentClass.GetAttributeValue("name")})
                             {WorkflowInfo = ToWorkflow(curPage.GetElementsByTagName("WORKFLOW"))}).ToList();
+        }
+
+        private LanguageVariant LanguageVariantOfSearchResults
+        {
+            get { return LanguageVariant ?? _project.CurrentLanguageVariant; }
         }
 
         private WorkflowInfo ToWorkflow(XmlNodeList workflows)

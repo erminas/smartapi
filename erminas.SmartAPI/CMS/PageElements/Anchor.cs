@@ -22,7 +22,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.AnchorNotYetDefinedAsTextOrImage)]
     public class Anchor : AbstractLinkElement
     {
-        public Anchor(Project project, Guid guid) : base(project, guid)
+        public Anchor(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

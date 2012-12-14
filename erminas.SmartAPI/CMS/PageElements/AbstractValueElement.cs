@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected T _value;
 
-        protected AbstractValueElement(Project project, Guid guid) : base(project, guid)
+        protected AbstractValueElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 
@@ -70,7 +70,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         protected void ExecuteCommit(string valueToSave)
         {
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) Type));
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));
             if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
             {
                 throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
