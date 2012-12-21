@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<TargetFormat>.TestConversion(TargetFormatUtils.ToRQLString,
+            EnumConversionTester<TargetFormat>.TestConversionWithoutExcludedValues(TargetFormatUtils.ToRQLString,
                                                               TargetFormatUtils.ToTargetFormat);
         }
     }

@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<BrowseAlignment>.TestConversion(BrowseAlignmentUtils.ToRQLString,
+            EnumConversionTester<BrowseAlignment>.TestConversionWithoutExcludedValues(BrowseAlignmentUtils.ToRQLString,
                                                                  BrowseAlignmentUtils.ToBrowseAlignment);
         }
     }

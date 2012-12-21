@@ -57,7 +57,6 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new ArgumentNullException("xmlElement");
             }
-            XmlNode = (XmlElement) xmlElement.Clone();
 
             InitGuidAndName();
         }

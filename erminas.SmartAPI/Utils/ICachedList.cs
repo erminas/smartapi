@@ -23,22 +23,12 @@ namespace erminas.SmartAPI.Utils
     ///   Interface for collections of objects retrieved from the RedDot server with transparent caching. If caching is enabled the list of objects is retrieved from the server and subsequent access is done on the cache of this list. If caching is disabled the list of objects is retrieved from the server every time it gets accessed.
     /// </summary>
     /// <typeparam name="T"> TypeId of objects in the list </typeparam>
-    public interface ICachedList<out T> : IEnumerable<T> where T : class
+    public interface ICachedList<out T> : IEnumerable<T>, ICaching where T : class
     {
         /// <summary>
         ///   True == caching is enabled False == caching is disabled
         /// </summary>
         bool IsCachingEnabled { get; set; }
-
-        /// <summary>
-        ///   If caching is enabled, retrieves the list of objects from the server and updates the local cache.
-        /// </summary>
-        void Refresh();
-
-        /// <summary>
-        ///   If caching is enabled, deletes the cache, but does not immediatly refresh it. A refresh is done on the next access to the list.
-        /// </summary>
-        void InvalidateCache();
 
         /// <summary>
         ///   Get an element of the list at a specific position.

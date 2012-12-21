@@ -46,5 +46,11 @@ namespace erminas.SmartAPI.Utils
         /// <param name="obj"> Output parameter containing the entry on success </param>
         /// <returns> true, if entry could be found, false otherwise. </returns>
         bool TryGet(TK name, out T obj);
+
+        /// <summary>
+        /// Check wether the index contains a specific key. If you want to get an element, if it is available, use TryGet as it is faster than a call to ContainsKey and a Get afterwards.
+        /// </summary>
+        /// <returns>true, if an entry with the specified key is available, false otherwise</returns>
+        bool ContainsKey(TK key);
     }
 }

@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<HitListType>.TestConversion(HitListTypeUtils.ToRQLString,
+            EnumConversionTester<HitListType>.TestConversionWithoutExcludedValues(HitListTypeUtils.ToRQLString,
                                                              HitListTypeUtils.ToHitListType);
         }
     }

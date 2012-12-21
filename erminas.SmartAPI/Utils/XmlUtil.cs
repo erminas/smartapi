@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.Utils
 {
@@ -33,6 +34,17 @@ namespace erminas.SmartAPI.Utils
             XmlElement element = doc.CreateElement(name);
             node.AppendChild(element);
             return element;
+        }
+
+        public static XmlElement GetSingleElement(this XmlDocument doc, string tagName)
+        {
+            var nodes = doc.GetElementsByTagName(tagName);
+            if (nodes.Count != 1)
+            {
+                throw new SmartAPIInternalException(string.Format("Invalid number of {0} elements in XML reply from server. Expected: 1 actual: {1}", tagName, nodes.Count));
+            }
+
+            return (XmlElement)nodes[0];
         }
 
         /// <summary>
@@ -84,6 +96,25 @@ namespace erminas.SmartAPI.Utils
         {
             XmlAttribute attr = xmlElement.Attributes[attributeName];
             return attr == null ? (int?) null : int.Parse(attr.Value);
+        }
+
+        public static bool? GetBoolAttributeValue(this XmlElement xmlElement, string attributeName)
+        {
+            int? value = xmlElement.GetIntAttributeValue(attributeName);
+            if (value == null)
+            {
+                return null;
+            }
+            if (value == 1)
+            {
+                return true;
+            }
+            if (value == 0)
+            {
+                return false;
+            }
+
+            throw new SmartAPIException(string.Format("Invalid bool value {0} for attribute {1}", value, attributeName));
         }
 
         public static double? GetDoubleAttributeValue(this XmlElement xmlElement, string attributeName)

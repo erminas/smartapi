@@ -34,7 +34,7 @@ namespace erminas.SmartAPI.CMS
 
         public AbstractAttributeContainer(XmlElement node)
         {
-            XmlNode = node;
+            XmlNode = (XmlElement)node.Clone();
             Attributes = new List<IRDAttribute>();
         }
 

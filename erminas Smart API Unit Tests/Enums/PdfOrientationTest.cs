@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<PdfOrientation>.TestConversion(PdfOrientationUtils.ToRQLString,
+            EnumConversionTester<PdfOrientation>.TestConversionWithoutExcludedValues(PdfOrientationUtils.ToRQLString,
                                                                 PdfOrientationUtils.ToPdfOrientation);
         }
     }

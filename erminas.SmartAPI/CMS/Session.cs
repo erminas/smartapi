@@ -66,7 +66,7 @@ namespace erminas.SmartAPI.CMS
             Plain,
 
             /// <summary>
-            /// Use session key, logon guid and format="1" in the IODATA element. Insert the query into the IODATA element.
+            ///   Use session key, logon guid and format="1" in the IODATA element. Insert the query into the IODATA element.
             /// </summary>
             FormattedText,
             SessionKeyOnly
@@ -110,6 +110,8 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public readonly NameIndexedRDList<Project> Projects;
 
+        public readonly NameIndexedRDList<User> Users;
+
         private string _loginGuidStr;
         private string _sessionKeyStr;
 
@@ -117,7 +119,28 @@ namespace erminas.SmartAPI.CMS
         {
             Projects = new NameIndexedRDList<Project>(GetProjects, Caching.Enabled);
             DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers, Caching.Enabled);
+            Users = new NameIndexedRDList<User>(GetUsers, Caching.Enabled);
+            Modules = new IndexedRDList<ModuleType, Module>(GetModules, x => x.Type, Caching.Enabled);
+            ApplicationServers = new RDList<ApplicationServer>(GetApplicationServers, Caching.Enabled);
         }
+
+        private List<ApplicationServer> GetApplicationServers()
+        {
+            const string LIST_APPLICATION_SERVERS = @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
+            var xmlDoc = ExecuteRQL(LIST_APPLICATION_SERVERS);
+
+            var editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
+            return (from XmlElement curServer in editorialServers
+                    select
+                        new ApplicationServer(this, curServer.GetGuid())
+                            {
+                                Name = curServer.GetName(),
+                                IpAddress = curServer.GetAttributeValue("ip")
+                            }).ToList();
+            //<EDITORIALSERVER guid="ECB521367521474BA469D3A0FC98A798" name="rd75" active="0" ip="192.168.44.44" />
+        }
+
+        public IRDList<ApplicationServer>  ApplicationServers { get; private set; }
 
         /// <summary>
         ///   Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
@@ -164,6 +187,11 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
+        ///   All available CMS modules (e.g. SmartTree, SmartEdit, Tasks ...), indexed by ModuleType. The list is cached by default.
+        /// </summary>
+        public IndexedRDList<ModuleType, Module> Modules { get; private set; }
+
+        /// <summary>
         ///   The currently connected user.
         /// </summary>
         public User CurrentUser { get; private set; }
@@ -205,6 +233,28 @@ namespace erminas.SmartAPI.CMS
 
         #endregion
 
+        private List<Module> GetModules()
+        {
+            const string LIST_MODULES = @"<ADMINISTRATION><MODULES action=""list"" /></ADMINISTRATION>";
+            var xmlDoc = ExecuteRQL(LIST_MODULES);
+
+            //we need to create an intermediate list, because the XmlNodeList returned by GetElementsByTagName gets changed in the linq/ToList() expression.
+            //the change to the list occurs due to the cloning on the XmlElements in Module->AbstractAttributeContainer c'tor.
+            //i have no idea why that changes the list as the same approach works without a problem everywhere else without the need for the intermediate list.
+            var moduleElements = xmlDoc.GetElementsByTagName("MODULE").OfType<XmlElement>().ToList();
+            return (from XmlElement curModule in moduleElements select new Module(curModule)).ToList();
+        }
+
+        private List<User> GetUsers()
+        {
+            const string LIST_USERS = @"<ADMINISTRATION><USERS action=""list""/></ADMINISTRATION>";
+            var userListDoc = ExecuteRQL(LIST_USERS);
+
+            return
+                (from XmlElement curUserElement in userListDoc.GetElementsByTagName("USER")
+                 select new User(this, curUserElement)).ToList();
+        }
+
         internal void EnsureVersion()
         {
             var stack = new StackTrace();
@@ -215,10 +265,12 @@ namespace erminas.SmartAPI.CMS
             MemberInfo info = methodBase;
             if (methodBase.IsSpecialName && (methodBase.Name.StartsWith("get_") || methodBase.Name.StartsWith("set_")))
             {
+// ReSharper disable PossibleNullReferenceException
                 info = methodBase.DeclaringType.GetProperty(methodBase.Name.Substring(4),
+                                                            //the .Substring strips get_/set_ prefixes that get generated for properties
+// ReSharper restore PossibleNullReferenceException
                                                             BindingFlags.DeclaredOnly | BindingFlags.Public |
                                                             BindingFlags.Instance | BindingFlags.NonPublic);
-                    //strip get_/set_
             }
 
             object[] lessThanAttributes = info.GetCustomAttributes(typeof (VersionIsLessThan), false);
@@ -722,6 +774,81 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
             return (from XmlElement curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
+        }
+
+        
+
+        public void SendMailFromSystemAccount(EMail mail)
+        {
+            var server = ApplicationServers.First();
+            var fromAddress = server.From;
+
+            SendEmail(fromAddress, mail);
+        }
+
+        private void SendEmail(string fromAddress, EMail mail)
+        {
+            const string SEND_EMAIL =
+                @"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" message=""{2}"" from=""{3}"" plaintext=""1""/>";
+
+            ExecuteRQL(SEND_EMAIL.RQLFormat(mail.To, mail.HtmlEncodedSubject, mail.HtmlEncodedMessage, fromAddress));
+        }
+
+        public void SendMailFromCurrentUserAccount(EMail mail)
+        {
+            SendEmail(CurrentUser.EMail, mail);
+        }
+    }
+
+    public class ApplicationServer : PartialRedDotObject
+    {
+        private string _from;
+        private string _ipAddress;
+
+        public ApplicationServer(Session session, Guid guid) : base(guid)
+        {
+            _session = session;
+        }
+
+        internal ApplicationServer(Session session, XmlElement element) : base(element)
+        {
+            _session = session;
+            LoadXml();
+        }
+
+        private void LoadXml()
+        {
+            _from = XmlNode.GetAttributeValue("adress");
+            _ipAddress = XmlNode.GetAttributeValue("ip");
+        }
+
+        private readonly Session _session;
+
+        public Session Session { get { return _session; } }
+
+        public string From
+        {
+            get { return LazyLoad(ref _from); }
+            internal set { _from = value; }
+        }
+
+        public string IpAddress
+        {
+            get { return LazyLoad(ref _ipAddress); }
+            internal set { _ipAddress = value; }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_APPLICATION_SERVER = @"<ADMINISTRATION><EDITORIALSERVER action=""load"" guid=""{0}""/></ADMINISTRATION>";
+
+            XmlDocument xmlDoc = Session.ExecuteRQL(LOAD_APPLICATION_SERVER.RQLFormat(this));
+            return xmlDoc.GetSingleElement("EDITORIALSERVER");
         }
     }
 }
