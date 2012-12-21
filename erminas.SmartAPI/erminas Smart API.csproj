@@ -222,6 +222,7 @@
     <Compile Include="CMS\WorkflowAction.cs" />
     <Compile Include="Exceptions\SmartAPIException.cs" />
     <Compile Include="Exceptions\SmartAPIInternalException.cs" />
+    <Compile Include="CMS\EMail.cs" />
     <Compile Include="Utils\CachingContext.cs" />
     <Compile Include="Utils\DictionaryExtension.cs" />
     <Compile Include="Utils\ICaching.cs" />

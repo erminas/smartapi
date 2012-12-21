@@ -153,10 +153,10 @@ namespace erminas.SmartAPI.CMS
             ProjectAssignments.InvalidateCache();
         }
 
-        public UserProjectAssignment AssignProject(Project project, UserRole role, ExtendedUserRole extendedRole)
+        public UserProjectAssignment AssignProject(Project project, UserRole role, ExtendedUserRoles extendedRoles)
         {
             //TODO check result ...
-            return UserProjectAssignment.Create(this, project, role, extendedRole);
+            return UserProjectAssignment.Create(this, project, role, extendedRoles);
         }
 
         #region Properties

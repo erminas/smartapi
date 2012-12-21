@@ -36,6 +36,17 @@ namespace erminas.SmartAPI.Utils
             return element;
         }
 
+        public static XmlElement GetSingleElement(this XmlDocument doc, string tagName)
+        {
+            var nodes = doc.GetElementsByTagName(tagName);
+            if (nodes.Count != 1)
+            {
+                throw new SmartAPIInternalException(string.Format("Invalid number of {0} elements in XML reply from server. Expected: 1 actual: {1}", tagName, nodes.Count));
+            }
+
+            return (XmlElement)nodes[0];
+        }
+
         /// <summary>
         ///   Sets an attribute to a value. If no fitting <see cref="XmlAttribute" /> exists, a new one is created/appended and its value set.
         /// </summary>

@@ -6,7 +6,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS
 {
     [Flags]
-    public enum ExtendedUserRole
+    public enum ExtendedUserRoles
     {
         TemplateEditor = 1,
         TranslationEditor = 2
@@ -31,13 +31,13 @@ namespace erminas.SmartAPI.CMS
             LoadXml(projectAssignment);
         }
 
-        private UserProjectAssignment(User user, Project project, UserRole role, ExtendedUserRole extendedUserRole)
+        private UserProjectAssignment(User user, Project project, UserRole role, ExtendedUserRoles extendedUserRoles)
         {
             Project = project;
             _user = user;
             UserRole = role;
-            IsTemplateEditor = extendedUserRole.HasFlag(ExtendedUserRole.TemplateEditor);
-            IsTranslationEditor = extendedUserRole.HasFlag(ExtendedUserRole.TranslationEditor);
+            IsTemplateEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TemplateEditor);
+            IsTranslationEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TranslationEditor);
         }
 
         public UserRole UserRole { get; set; }
@@ -54,9 +54,9 @@ namespace erminas.SmartAPI.CMS
         public bool IsTranslationEditor { get; set; }
 
         internal static UserProjectAssignment Create(User user, Project project, UserRole role,
-                                                     ExtendedUserRole extendedUserRole)
+                                                     ExtendedUserRoles extendedUserRoles)
         {
-            var assignment = new UserProjectAssignment(user, project, role, extendedUserRole);
+            var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
             assignment.Commit();
 
             return assignment;
