@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<Frameborder>.TestConversion(FrameborderUtils.ToRQLString,
+            EnumConversionTester<Frameborder>.TestConversionWithoutExcludedValues(FrameborderUtils.ToRQLString,
                                                              FrameborderUtils.ToFrameborder);
         }
     }

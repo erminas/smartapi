@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<Scrolling>.TestConversion(ScrollingUtils.ToRQLString, ScrollingUtils.ToScrolling);
+            EnumConversionTester<Scrolling>.TestConversionWithoutExcludedValues(ScrollingUtils.ToRQLString, ScrollingUtils.ToScrolling);
         }
     }
 }

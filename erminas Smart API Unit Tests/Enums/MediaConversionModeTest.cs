@@ -9,7 +9,7 @@ namespace erminas_Smart_API_Unit_Tests.Enums
         [TestMethod]
         public void TestConversion()
         {
-            EnumConversionTester<MediaConversionMode>.TestConversion(MediaConversionModeUtils.ToRQLString,
+            EnumConversionTester<MediaConversionMode>.TestConversionWithoutExcludedValues(MediaConversionModeUtils.ToRQLString,
                                                                      MediaConversionModeUtils.ToMediaConversionMode);
         }
     }

@@ -72,6 +72,7 @@
     <Compile Include="CMS\CCElements\TargetFormat.cs" />
     <Compile Include="CMS\ILinkTarget.cs" />
     <Compile Include="CMS\IPage.cs" />
+    <Compile Include="CMS\Module.cs" />
     <Compile Include="CMS\PageElements\AbstractMediaElement.cs" />
     <Compile Include="CMS\PageElements\AbstractMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\AnchorAsImage.cs" />
@@ -91,6 +92,8 @@
     <Compile Include="CMS\PageElements\StandardFieldUrl.cs" />
     <Compile Include="CMS\PageElements\TextAscii.cs" />
     <Compile Include="CMS\PageElements\Transfer.cs" />
+    <Compile Include="CMS\UserModuleAssignment.cs" />
+    <Compile Include="CMS\UserProjectAssignment.cs" />
     <Compile Include="CMS\VersionAttribute.cs" />
     <Compile Include="Exceptions\InvalidServerVersionException.cs" />
     <Compile Include="Exceptions\RQLException.cs" />
@@ -221,6 +224,8 @@
     <Compile Include="Exceptions\SmartAPIInternalException.cs" />
     <Compile Include="Utils\CachingContext.cs" />
     <Compile Include="Utils\DictionaryExtension.cs" />
+    <Compile Include="Utils\ICaching.cs" />
+    <Compile Include="Utils\INameEqualityComparer.cs" />
     <Compile Include="Utils\IRDList.cs" />
     <Compile Include="Utils\IndexedRDList.cs" />
     <Compile Include="Utils\LanguageContext.cs" />

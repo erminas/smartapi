@@ -101,6 +101,12 @@ namespace erminas.SmartAPI.Utils
             return obj != null;
         }
 
+        public bool ContainsKey(TK key)
+        {
+            CheckList();
+            return _index.ContainsKey(key);
+        }
+
         #endregion
     }
 }

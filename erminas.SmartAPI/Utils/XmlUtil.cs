@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.Utils
 {
@@ -84,6 +85,25 @@ namespace erminas.SmartAPI.Utils
         {
             XmlAttribute attr = xmlElement.Attributes[attributeName];
             return attr == null ? (int?) null : int.Parse(attr.Value);
+        }
+
+        public static bool? GetBoolAttributeValue(this XmlElement xmlElement, string attributeName)
+        {
+            int? value = xmlElement.GetIntAttributeValue(attributeName);
+            if (value == null)
+            {
+                return null;
+            }
+            if (value == 1)
+            {
+                return true;
+            }
+            if (value == 0)
+            {
+                return false;
+            }
+
+            throw new SmartAPIException(string.Format("Invalid bool value {0} for attribute {1}", value, attributeName));
         }
 
         public static double? GetDoubleAttributeValue(this XmlElement xmlElement, string attributeName)

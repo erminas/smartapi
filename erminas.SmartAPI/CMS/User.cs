@@ -15,6 +15,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -39,7 +41,6 @@ namespace erminas.SmartAPI.CMS
         private string _fullname;
         private string _id;
         private string _invertDirectEdit;
-        private string _isServerManager;
         private string _lcid;
         private string _lm;
         private string _loginDate;
@@ -54,6 +55,7 @@ namespace erminas.SmartAPI.CMS
         public User(Session session, Guid userGuid) : base(userGuid)
         {
             Session = session;
+            Init();
         }
 
         /// <summary>
@@ -65,9 +67,36 @@ namespace erminas.SmartAPI.CMS
         public User(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
+            Init();
             // TODO: Read all data
 
             LoadXml();
+        }
+
+        /// <summary>
+        ///   List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
+        /// </summary>
+        public IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; private set; }
+
+        private void Init()
+        {
+            ProjectAssignments = new IndexedCachedList<string, UserProjectAssignment>(GetProjectAssignments,
+                                                                                      assignment =>
+                                                                                      assignment.Project.Name,
+                                                                                      Caching.Enabled);
+            ModuleAssignment = new UserModuleAssignment(this);
+        }
+
+        public UserModuleAssignment ModuleAssignment { get; private set; }
+
+        private List<UserProjectAssignment> GetProjectAssignments()
+        {
+            const string LIST_USER_PROJECTS =
+                @"<ADMINISTRATION><USER guid=""{0}""><PROJECTS action=""list"" extendedinfo=""1""/></USER></ADMINISTRATION>";
+
+            var xmlDoc = Session.ExecuteRQL(LIST_USER_PROJECTS.RQLFormat(this));
+            return (from XmlElement assignmentElement in xmlDoc.GetElementsByTagName("PROJECT")
+                    select new UserProjectAssignment(this, assignmentElement)).ToList();
         }
 
         // TODO: Nothing checked in here
@@ -85,7 +114,6 @@ namespace erminas.SmartAPI.CMS
             _acs = XmlNode.GetAttributeValue("acs");
             _dialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
             _userLanguage = XmlNode.GetAttributeValue("userlanguage");
-            _isServerManager = XmlNode.GetAttributeValue("isservermanager");
             _loginDate = XmlNode.GetAttributeValue("logindate");
             _te = XmlNode.GetAttributeValue("te");
             _lm = XmlNode.GetAttributeValue("lm");
@@ -113,6 +141,22 @@ namespace erminas.SmartAPI.CMS
             xmlDocument.LoadXml(answer);
 
             return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
+        }
+
+        public void UnassignProject(Project project)
+        {
+            const string UNASSING_PROJECT =
+                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
+
+            //TODO check result ...
+            Session.ExecuteRQL(UNASSING_PROJECT.RQLFormat(this, project));
+            ProjectAssignments.InvalidateCache();
+        }
+
+        public UserProjectAssignment AssignProject(Project project, UserRole role, ExtendedUserRole extendedRole)
+        {
+            //TODO check result ...
+            return UserProjectAssignment.Create(this, project, role, extendedRole);
         }
 
         #region Properties
@@ -170,11 +214,6 @@ namespace erminas.SmartAPI.CMS
         public string UserLanguage
         {
             get { return LazyLoad(ref _userLanguage); }
-        }
-
-        public string IsServerManager
-        {
-            get { return LazyLoad(ref _isServerManager); }
         }
 
         public string LoginDate
