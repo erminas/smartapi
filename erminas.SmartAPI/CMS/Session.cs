@@ -332,19 +332,28 @@ namespace erminas.SmartAPI.CMS
             return (from XmlElement curNode in xmlNodes select new CMSServer(this, curNode)).ToList();
         }
 
+        /// <summary>
+        /// Delete project from CMS. A user can choose whether to delete this project from database. This method uses database credentials from CMS.
+        /// </summary>
+        /// <param name="projectGuid"> Guid of the project that will be deleted</param>
+        /// <param name="deleteFromDb"> Possibility to use project from db as well</param>
         public void DeleteProject(Guid projectGuid, DeleteFromDB deleteFromDb)
         {
             string DELETE_PROJECT = @"<ADMINISTRATION><PROJECT action=""delete"" guid=""{0}"" deletedb=""{1}"" user="""" password=""""/></ADMINISTRATION>";
             ExecuteRQL(string.Format(DELETE_PROJECT, projectGuid.ToRQLString(), (int)deleteFromDb));
         }
 
+        /// <summary>
+        /// Delete project from CMS and Database. A user can choose alternative credentials.
+        /// </summary>
+        /// <param name="projectGuid"> Guid of the project that will be deleted</param>
+        /// <param name="user"> Database user</param>
+        /// <param name="pw"> Database user password</param>
         public void DeleteProjectWithAlternativeLogon(Guid projectGuid, string user, string pw)
         {
             string DELETE_PROJECT_WITH_ALTERNATIVE_LOGON = @"<ADMINISTRATION><PROJECT action=""delete"" guid=""{0}"" deletedb=""{1}"" user=""{2}"" password=""{3}""/></ADMINISTRATION>";
             ExecuteRQL(string.Format(DELETE_PROJECT_WITH_ALTERNATIVE_LOGON, projectGuid.ToRQLString(), (int)DeleteFromDB.Yes, user, pw));
         }
-
-
     }
 
     public class RQLException : Exception
