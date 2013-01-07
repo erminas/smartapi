@@ -161,7 +161,7 @@ namespace erminas.SmartAPI.CMS
             _loginGuidStr = loginGuid.ToRQLString();
             _sessionKeyStr = sessionKey.ToRQLString();
 
-            Login();
+            InitConnection();
             SelectProject(projectGuid);
         }
 
