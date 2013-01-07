@@ -53,6 +53,10 @@ We are using <a href="https://groups.google.com/forum/?#!forum/smartapi">Google 
 
 Messages to the group can be posted directly on the group’s page (with a Google account), or after subscription via mail you can send an email to: <a href="smartapi@googlegroups.com">smartapi@googlegroups.com</a>.
 
+API Documentation
+---
+You can find the API documentation at http://www.smartapi.de/smartapi_doc/
+
 More information 
 ---
 You can find more information at http://www.smartapi.de (Deutsch / English)
