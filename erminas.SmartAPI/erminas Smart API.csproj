@@ -246,6 +246,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Utils\SessionBuilder.cs" />
+    <Compile Include="Utils\TimeOutTracker.cs" />
     <Compile Include="Utils\XmlUtil.cs" />
   </ItemGroup>
   <ItemGroup>

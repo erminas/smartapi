@@ -145,10 +145,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public override void Commit()
         {
-            //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
-            XmlNode.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
-            ContentClass.Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlNode) + "</TEMPLATE>",
-                                            Project.RqlType.SessionKeyInProject);
+            using (new LanguageContext(LanguageVariant))
+            {
+                //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
+                XmlNode.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
+                
+                ContentClass.Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlNode) + "</TEMPLATE>",
+                                                Project.RqlType.SessionKeyInProject);
+            }
         }
     }
 }

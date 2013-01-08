@@ -62,9 +62,14 @@ namespace erminas.SmartAPI.CMS.PageElements
         protected override sealed void LoadWholeValueElement()
         {
             LoadXml();
-            const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
-            string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this), Session.IODataFormat.FormattedText);
-            _value = HttpUtility.UrlDecode(result);
+            
+            using (new LanguageContext(LanguageVariant))
+            {
+                const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
+                string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this),
+                                                           Session.IODataFormat.FormattedText);
+                _value = HttpUtility.UrlDecode(result);
+            }
         }
 
         protected override sealed string FromXmlNodeValue(string arg)

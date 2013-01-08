@@ -119,7 +119,7 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            //language variant must be loaded before the page, because it is used in its c'tor
+            //language variant must be loaded before the page referenced by pageguid, because it is used in its c'tor
             EnsuredInit(ref _languageVariant, "languagevariantid", Project.LanguageVariants.Get);
             EnsuredInit(ref _page, "pageguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
         }
