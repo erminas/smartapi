@@ -100,6 +100,20 @@ namespace erminas.SmartAPI.CMS
 
         private static readonly ILog LOG = LogManager.GetLogger("Session");
 
+        private User _currentUser;
+
+        private User GetCurrentUser()
+        {
+            const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
+            string reply = ExecuteRql(SESSION_INFO.RQLFormat(_sessionKeyStr), IODataFormat.Plain);
+            
+            var doc = new XmlDocument();
+            doc.LoadXml(reply);
+            
+            var userElement = (XmlElement)doc.SelectSingleNode("/IODATA/USER");
+            return new User(this, userElement.GetGuid()){Name = userElement.GetName()};
+        }
+
         /// <summary>
         ///   All database servers on the server.
         /// </summary>
@@ -182,7 +196,14 @@ namespace erminas.SmartAPI.CMS
 
         public Guid SessionKey
         {
-            get { return Guid.Parse(_sessionKeyStr); }
+            get
+            {
+                if (_sessionKeyStr == null)
+                {
+                    
+                }
+                return Guid.Parse(_sessionKeyStr);
+            }
             private set { _sessionKeyStr = value.ToRQLString(); }
         }
 
@@ -194,7 +215,11 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   The currently connected user.
         /// </summary>
-        public User CurrentUser { get; private set; }
+        public User CurrentUser
+        {
+            get { return _currentUser ?? (_currentUser = GetCurrentUser()); }
+            private set { _currentUser = value; }
+        }
 
         public Guid SelectedProjectGuid { get; private set; }
         protected string CmsServerConnectionUrl { get; private set; }
@@ -381,12 +406,20 @@ namespace erminas.SmartAPI.CMS
         {
             InitConnection();
 
+            var xmlDoc = GetLoginResponse();
+
+            CheckLoginResponse(xmlDoc);
+
+            LoadSelectedProject(xmlDoc);
+        }
+
+        private XmlDocument GetLoginResponse()
+        {
             PasswordAuthentication authData = ServerLogin.AuthData;
             string rql = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, authData.Username, authData.Password));
 
             //hide password in log messages
             string debugOutputRQL = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, authData.Username, "*****"));
-
             var xmlDoc = new XmlDocument();
             try
             {
@@ -400,18 +433,36 @@ namespace erminas.SmartAPI.CMS
                 }
                 xmlDoc.LoadXml(e.Response);
             }
+            return xmlDoc;
+        }
 
+        private void CheckLoginResponse(XmlDocument xmlDoc)
+        {
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
 
             if (xmlNodes.Count > 0)
             {
-                ParseLoginResponse(xmlNodes, authData, xmlDoc);
+                ParseLoginResponse(xmlNodes, ServerLogin.AuthData, xmlDoc);
             }
             else
             {
                 // didn't get a valid logon xml node
-                throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
-                                                    "Could not login.");
+                throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin, "Could not login.");
+            }
+        }
+
+        private void LoadSelectedProject(XmlDocument xmlDoc)
+        {
+            var lastModule = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/USER/LASTMODULES/MODULE[@last='1']");
+            if (lastModule == null)
+            {
+                return;
+            }
+
+            string projectStr = lastModule.GetAttributeValue("project");
+            if (!string.IsNullOrEmpty(projectStr))
+            {
+                SelectProject(Guid.Parse(projectStr));
             }
         }
 
@@ -788,8 +839,9 @@ namespace erminas.SmartAPI.CMS
 
         private void SendEmail(string fromAddress, EMail mail)
         {
+            //@"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" message=""{2}"" from=""{3}"" plaintext=""1"">{2}</ADMINISTRATION>";
             const string SEND_EMAIL =
-                @"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" message=""{2}"" from=""{3}"" plaintext=""1""/>";
+                @"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" from=""{3}"" plaintext=""1"">{2}</ADMINISTRATION>";
 
             ExecuteRQL(SEND_EMAIL.RQLFormat(mail.To, mail.HtmlEncodedSubject, mail.HtmlEncodedMessage, fromAddress));
         }
