@@ -75,7 +75,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All link elements of this page.
         /// </summary>
-        NameIndexedRDList<ILinkElement> LinkElements { get; }
+        IRDList<ILinkElement> LinkElements { get; }
 
         /// <summary>
         ///   All content elements of this page.
