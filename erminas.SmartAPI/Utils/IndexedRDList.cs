@@ -28,6 +28,8 @@ namespace erminas.SmartAPI.Utils
         {
         }
 
+        protected IndexedRDList(Func<T, TK> indexFunc, Caching caching) : base(indexFunc, caching){}
+
         #region IRDList<T> Members
 
         public T GetByGuid(Guid guid)
@@ -80,6 +82,8 @@ namespace erminas.SmartAPI.Utils
         public NameIndexedRDList(Func<List<T>> retrieveFunc, Caching caching) : base(retrieveFunc, x => x.Name, caching)
         {
         }
+
+        protected NameIndexedRDList(Caching caching) : base(x=>x.Name, caching){}
 
         public override T GetByName(string name)
         {

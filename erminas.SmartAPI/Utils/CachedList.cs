@@ -22,14 +22,20 @@ namespace erminas.SmartAPI.Utils
 {
     public class CachedList<T> : ICachedList<T> where T : class
     {
-        private readonly Func<List<T>> _retrieveFunc;
         private bool _isCachingEnabled;
 
         public CachedList(Func<List<T>> retrieveFunc, Caching caching)
         {
-            _retrieveFunc = retrieveFunc;
+            RetrieveFunc = retrieveFunc;
             _isCachingEnabled = caching == Caching.Enabled;
         }
+
+        protected CachedList(Caching caching)
+        {
+            _isCachingEnabled = caching == Caching.Enabled;
+        }
+
+        protected Func<List<T>> RetrieveFunc { private get;  set; }
 
         protected virtual List<T> List { get; set; }
 
@@ -82,7 +88,7 @@ namespace erminas.SmartAPI.Utils
                 return;
             }
 
-            List = _retrieveFunc();
+            List = RetrieveFunc();
         }
     }
 

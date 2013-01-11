@@ -27,6 +27,10 @@ namespace erminas.SmartAPI.Utils
         {
         }
 
+        protected RDList(Caching caching) : base(caching)
+        {
+        }
+
         #region IRDList<T> Members
 
         public T GetByGuid(Guid guid)
