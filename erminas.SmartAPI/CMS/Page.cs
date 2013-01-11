@@ -33,9 +33,9 @@ namespace erminas.SmartAPI.CMS
     public class Page : PartialRedDotObject, IPage
     {
         /// <summary>
-        /// Default value for <see cref="MaxWaitForDeletion"/> (1s).
+        /// Default value for <see cref="MaxWaitForDeletion"/> (1.25s).
         /// </summary>
-        public static readonly TimeSpan DEFAULT_WAIT_FOR_DELETION = new TimeSpan(0,0,0,1);
+        public static readonly TimeSpan DEFAULT_WAIT_FOR_DELETION = new TimeSpan(0,0,0,1, 250);
         // Flags are defined in the RQL manual.
 
         #region PageFlags enum
@@ -149,7 +149,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         /// Maximum time span to wait for a successful deletion of a page, before it can be removed from the recycle bin.
         /// This is needed because of a race condition with the red dot server where it wrongly shows the page to be in the recycle bin.
-        /// It is set to a default value of 1s which proved reliable in internal tests on our servers.
+        /// It is set to a default value of 1.25s which proved reliable in internal tests on our servers.
         /// </summary>
         public static TimeSpan MaxWaitForDeletion { get; set; }
 
@@ -166,7 +166,7 @@ namespace erminas.SmartAPI.CMS
         public IRDList<ILinkElement> LinkElements { get; private set; }
 
         /// <summary>
-        ///   ReleaseStatus of the page.
+        ///   Status of the page, useually ReleaseStatus should be used instead.
         /// </summary>
         public PageState Status
         {
@@ -180,7 +180,6 @@ namespace erminas.SmartAPI.CMS
         public LanguageVariant LanguageVariant
         {
             get { return _lang; }
-            internal set { _lang = value; }
         }
 
         /// <summary>
@@ -474,15 +473,32 @@ namespace erminas.SmartAPI.CMS
             XmlNodeList pageElements = xmlDoc.GetElementsByTagName("PAGE");
             if (pageElements.Count != 1)
             {
-                throw new Exception("Could not set release status to " + value);
+                var missingKeywords = xmlDoc.SelectNodes("/IODATA/EMPTYELEMENTS/ELEMENT[@type='1002']");
+                if (missingKeywords != null && missingKeywords.Count != 0)
+                {
+                    throw new MissingKeywordsException(this, GetNames(missingKeywords));
+                }
+
+                var missingElements = xmlDoc.SelectNodes("/IODATA/EMPTYELEMENTS/ELEMENT");
+                if (missingElements != null && missingElements.Count > 0)
+                {
+                    throw new MissingElementValueException(this, GetNames(missingElements) );
+                }
+
+                throw new PageStatusException(this, "Could not set release status to " + value);
             }
             var element = (XmlElement) pageElements[0];
             var flag = (PageReleaseStatus) element.GetIntAttributeValue("actionflag").GetValueOrDefault();
 
             if (!flag.HasFlag(value) && !IsReleasedIntoWorkflow(value, flag)) 
             {
-                throw new Exception("Could not set release status to " + value);
+                throw new PageStatusException(this, "Could not set release status to " + value);
             }
+        }
+
+        private static IEnumerable<string> GetNames(XmlNodeList elements)
+        {
+            return elements.Cast<XmlElement>().Select(x => x.GetAttributeValue("name"));
         }
 
         private static bool IsReleasedIntoWorkflow(PageReleaseStatus value, PageReleaseStatus flag)
@@ -539,10 +555,15 @@ namespace erminas.SmartAPI.CMS
         {
             var start = DateTime.Now;
 
+            if (!Exists)
+            {
+                return;
+            }
+
             //status gets loaded lazily, and we need need to know status at this point (before Delete() gets called), so we store it in a local var.
             PageState curStatus = Status;
             
-            bool isAlreadyDeleted = curStatus == PageState.WillBeRemovedCompletely || curStatus == PageState.IsInRecycleBin;
+            bool isAlreadyDeleted = curStatus == PageState.IsInRecycleBin;
             if (!isAlreadyDeleted)
             {   
                 Delete();
