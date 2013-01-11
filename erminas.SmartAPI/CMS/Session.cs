@@ -732,7 +732,7 @@ namespace erminas.SmartAPI.CMS
             var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
             if (userElement == null)
             {
-                throw new Exception("could not load user: " + guid.ToRQLString());
+                throw new SmartAPIException("could not load user: " + guid.ToRQLString());
             }
             return new User(this, Guid.Parse(userElement.GetAttributeValue("guid")));
         }
@@ -759,14 +759,25 @@ namespace erminas.SmartAPI.CMS
         {
             SelectProject(projectGuid);
             string result = ExecuteRql(query, IODataFormat.SessionKeyAndLogonGuid);
-            try
+            return ParseRQLResult(result);
+        }
+
+        private static XmlDocument ParseRQLResult(string result)
+        {
+            var xmlDoc = new XmlDocument();
+            
+            if (!result.Trim().Any())
             {
-                var xmlDoc = new XmlDocument();
+                return xmlDoc;
+            }
+
+            try
+            {    
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
             } catch (Exception e)
             {
-                throw new Exception("Illegal response from server", e);
+                throw new SmartAPIException("Illegal response from server", e);
             }
         }
 
