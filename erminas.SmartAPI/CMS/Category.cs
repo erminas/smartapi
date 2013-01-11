@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
@@ -31,7 +32,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All keywords belonging to this category, indexed by name. This list is cached by default.
         /// </summary>
-        public readonly NameIndexedRDList<Keyword> Keywords;
+        public readonly Keywords Keywords;
 
         public readonly Project Project;
 
@@ -40,14 +41,14 @@ namespace erminas.SmartAPI.CMS
         public Category(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
-            Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
+            Keywords = new Keywords(this);
             LoadXml();
         }
 
         public Category(Project project, Guid guid) : base(guid)
         {
             Project = project;
-            Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
+            Keywords = new Keywords(this);
         }
 
         /// <summary>
@@ -64,7 +65,16 @@ namespace erminas.SmartAPI.CMS
         public void Commit()
         {
             const string SAVE_CATEGORY = @"<PROJECT><CATEGORY action=""save"" guid=""{0}"" value=""{1}""/></PROJECT>";
-            Project.ExecuteRQL(string.Format(SAVE_CATEGORY, Guid.ToRQLString(), HttpUtility.HtmlEncode(Name)));
+            string htmlEncodedName = HttpUtility.HtmlEncode(Name);
+            var xmlDoc = Project.ExecuteRQL(string.Format(SAVE_CATEGORY, Guid.ToRQLString(), htmlEncodedName));
+
+            const string CATEGORY_XPATH_TEMPLATE = "/IODATA/CATEGORY[@value='{0}' and @guid='{1}']";
+            string categoryXPath = CATEGORY_XPATH_TEMPLATE.RQLFormat(htmlEncodedName, this);
+            var category = xmlDoc.SelectSingleNode(categoryXPath);
+            if (category == null)
+            {
+                throw new SmartAPIException(string.Format("Could not rename category to '{0}'", Name));
+            }
         }
 
         private void LoadXml()
@@ -86,17 +96,69 @@ namespace erminas.SmartAPI.CMS
                 Project.ExecuteRQL(string.Format(LOAD_CATEGORY, Guid.ToRQLString())).GetElementsByTagName("CATEGORY")[0];
         }
 
-        private List<Keyword> GetKeywords()
+        /// <summary>
+        /// Delete the category. The operation will fail, if a keyword is still assigned to a page
+        /// </summary>
+        /// <exception cref="SmartAPIException">Thrown, if the category couldn't be deleted</exception>
+        public void Delete()
         {
-            const string LIST_KEYWORDS =
-                @"<PROJECT><CATEGORY guid=""{0}""><KEYWORDS action=""load"" /></CATEGORY></PROJECT>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_KEYWORDS, Guid.ToRQLString()));
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
+            const string DELETE_CATEGORY = @"<CATEGORY action=""delete"" guid=""{0}"" force=""0""/>";
 
-            var kategoryKeyword = new List<Keyword> {new Keyword(Project, Guid) {Name = "[category]", Category = this}};
-            return
-                (from XmlElement curNode in xmlNodes select new Keyword(Project, curNode) {Category = this}).Union(
-                    kategoryKeyword).ToList();
+            var xmlDoc = Project.ExecuteRQL(DELETE_CATEGORY.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+            var category = (XmlElement)xmlDoc.SelectSingleNode("/IODATA/CATEGORY");
+
+            if (category == null)
+            {
+                throw new SmartAPIException(string.Format("Could not delete category {0}", this));
+            }
+
+            if (IsCategoryStillUsed(category))
+            {
+                throw new SmartAPIException(string.Format("Could not delete category {0}, because a keyword is still assigned to a page", this));
+            }
+
+            Project.Categories.InvalidateCache();
+        }
+
+        private static bool IsCategoryStillUsed(XmlElement category)
+        {
+            return category.GetIntAttributeValue("countkeywordonpag").GetValueOrDefault() > 0 ||
+                   category.GetIntAttributeValue("countkeywordonpge") > 0 ||
+                   category.GetIntAttributeValue("countkeywordonpgeandpag") > 0;
+        }
+
+        /// <summary>
+        /// Delete the category, even if its keywords are actively used in connecting pages to containers/lists.
+        /// This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
+        /// </summary>
+        /// <exception cref="SmartAPIException">Thrown, if the category could not be deleted</exception>
+        public void DeleteForcibly()
+        {
+            const string DELETE_KEYWORD = @"<CATEGORY action=""delete"" guid=""{0}"" force=""1"" password=""{1}"" />";
+
+            var xmlDoc = Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this, Project.Session.ServerLogin.AuthData.Password), Project.RqlType.SessionKeyInProject);
+            var category = (XmlElement)xmlDoc.SelectSingleNode("/IODATA/CATEGORY");
+            //TODO execute page builder command
+            if (category == null)
+            {
+                throw new SmartAPIException(string.Format("Could not delete keyword {0}", this));
+            }
+
+            Project.Categories.InvalidateCache();
+        }
+
+        /// <summary>
+        /// Same as 
+        /// <code>
+        /// string newCategoryName = ...;
+        /// category.Name = newCategoryName;
+        /// category.Commit();
+        /// </code>
+        /// </summary>
+        public void Rename(string newCategoryName)
+        {
+            Name = newCategoryName;
+            Commit();
         }
     }
 }

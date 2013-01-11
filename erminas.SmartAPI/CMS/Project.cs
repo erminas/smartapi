@@ -229,7 +229,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         [ScriptIgnore]
-        public NameIndexedRDList<Category> Categories { get; private set; }
+        public Categories Categories { get; private set; }
 
         /// <summary>
         ///   All keywords, indexed by name. The list is cached by default.
@@ -324,7 +324,7 @@ namespace erminas.SmartAPI.CMS
             UsersOfProject = new NameIndexedRDList<User>(GetUsersOfProject, Caching.Enabled);
 
             Workflows = new NameIndexedRDList<Workflow>(GetWorkflows, Caching.Enabled);
-            Categories = new NameIndexedRDList<Category>(GetCategories, Caching.Enabled);
+            Categories = new Categories(this);
             Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
         }
 
@@ -796,13 +796,7 @@ namespace erminas.SmartAPI.CMS
                 (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).Union(categoryKeywords).ToList();
         }
 
-        private List<Category> GetCategories()
-        {
-            const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_CATEGORIES);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
-            return (from XmlElement curNode in xmlNodes select new Category(this, curNode)).ToList();
-        }
+        
 
         #endregion
     }
