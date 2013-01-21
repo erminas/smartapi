@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractWorkflowPreassignable.cs" />
     <Compile Include="CMS\Categories.cs" />
     <Compile Include="CMS\CCElements\AbstractContentClassPreassignable.cs" />
     <Compile Include="CMS\CCElements\Attributes\CategoryXmlNodeAttribute.cs" />
