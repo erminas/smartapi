@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
-using erminas.SmartAPI.CMS;
 
-namespace erminas.SmartAPI
+namespace erminas.SmartAPI.CMS
 {
     public abstract class AbstractWorkflowPreassignable : CCElement
     {
