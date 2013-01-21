@@ -158,7 +158,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All newKeywords associated with this page.
         /// </summary>
-        public NameIndexedRDList<Keyword> Keywords { get; private set; }
+        public RDList<Keyword> Keywords { get; private set; }
 
         /// <summary>
         ///   All link elements of this page.
@@ -643,7 +643,7 @@ namespace erminas.SmartAPI.CMS
         {
             LinkElements = new RDList<ILinkElement>(GetLinks, Caching.Enabled);
             ContentElements = new NameIndexedRDList<PageElement>(GetContentElements, Caching.Enabled);
-            Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
+            Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
         }
 

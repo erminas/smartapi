@@ -157,12 +157,6 @@ namespace erminas.SmartAPI.CMS
         public IIndexedCachedList<int, InfoAttribute> InfoAttributes { get; private set; }
 
         /// <summary>
-        ///   All locales, indexed by LCID. The list is cached by default.
-        /// </summary>
-        [ScriptIgnore]
-        public IIndexedCachedList<int, Locale> Locales { get; private set; }
-
-        /// <summary>
         ///   All concent class folders, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
@@ -235,7 +229,7 @@ namespace erminas.SmartAPI.CMS
         ///   All keywords, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
-        public NameIndexedRDList<Keyword> Keywords { get; private set; }
+        public RDList<Keyword> Keywords { get; private set; }
 
         /// <summary>
         ///   All folders used for the asset manager (i.e. where folder.IsAssertManagerFolder == true)
@@ -310,7 +304,6 @@ namespace erminas.SmartAPI.CMS
             PublicationFolders = new RDList<PublicationFolder>(GetPublicationFolders, Caching.Enabled);
             PublicationPackages = new RDList<PublicationPackage>(GetPublicationPackages, Caching.Enabled);
             InfoAttributes = new IndexedCachedList<int, InfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
-            Locales = new IndexedCachedList<int, Locale>(GetLocales, x => x.LCID, Caching.Enabled);
 
             ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
             ContentClassFolders = new NameIndexedRDList<ContentClassFolder>(GetContentClassFolders, Caching.Enabled);
@@ -325,7 +318,7 @@ namespace erminas.SmartAPI.CMS
 
             Workflows = new NameIndexedRDList<Workflow>(GetWorkflows, Caching.Enabled);
             Categories = new Categories(this);
-            Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
+            Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
         }
 
         /// <summary>
@@ -350,9 +343,9 @@ namespace erminas.SmartAPI.CMS
             }
             if (_currentLanguageVariant != null)
             {
-                _currentLanguageVariant.IsChecked = false;
+                _currentLanguageVariant.IsCurrentLanguageVariant = false;
             }
-            language.IsChecked = true;
+            language.IsCurrentLanguageVariant = true;
             _currentLanguageVariant = language;
         }
 
@@ -685,7 +678,7 @@ namespace erminas.SmartAPI.CMS
             {
                 var variant = new LanguageVariant(this, curNode);
                 languageVariants.Add(variant);
-                if (variant.IsChecked)
+                if (variant.IsCurrentLanguageVariant)
                 {
                     _currentLanguageVariant = variant;
                 }
@@ -718,20 +711,6 @@ namespace erminas.SmartAPI.CMS
                     Union(
                         (from XmlElement info in infos.GetElementsByTagName("SESSIONOBJECT")
                          select new InfoAttribute(info))).ToList();
-        }
-
-        private List<Locale> GetLocales()
-        {
-            const string LOAD_LOCALES = @"<LANGUAGE action=""list""/>";
-            XmlDocument xmlDoc = ExecuteRQL(LOAD_LOCALES);
-            var languages = xmlDoc.GetElementsByTagName("LANGUAGES")[0] as XmlElement;
-            if (languages == null)
-            {
-                throw new Exception("could not load languages");
-            }
-
-            return
-                (from XmlElement item in languages.GetElementsByTagName("LIST") select new Locale(this, item)).ToList();
         }
 
         private List<ProjectVariant> GetProjectVariants()

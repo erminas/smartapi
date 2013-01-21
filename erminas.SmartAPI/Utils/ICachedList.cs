@@ -37,5 +37,9 @@ namespace erminas.SmartAPI.Utils
         /// <returns> Element at position pos </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown, if pos is not a valid index></exception>
         T GetByPosition(int pos);
+
+        ICachedList<T> Refreshed();
+
+        int Count { get; }
     }
 }

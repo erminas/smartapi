@@ -73,16 +73,35 @@ namespace erminas.SmartAPI.CMS.CCElements
         }
     }
 
-    public class Anchor : CCElement, ICanBeRequiredForEditing
+    public class Anchor : AbstractWorkflowPreassignable, ICanBeRequiredForEditing, IContentClassPreassignable
     {
-        public Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        private readonly TargetContainerPreassignment _targetContainerPreassignment;
+
+        protected Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltdonotremove", "eltxhtmlcompliant",
                              "eltdonothtmlencode", "eltlanguageindependent", "eltlanguagevariantguid",
                              "eltprojectvariantguid", "eltfolderguid", "eltcrlftobr", "eltonlyhrefvalue", "eltrequired",
                              "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid", "eltrddescription", "elttarget");
+// ReSharper disable ObjectCreationAsStatement
             new StringXmlNodeAttribute(this, "eltvalue");
+// ReSharper restore ObjectCreationAsStatement
+            PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
+            _targetContainerPreassignment = new TargetContainerPreassignment(this);
         }
+
+        public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
+        {
+            get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
+            set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
+        }
+
+        public PageElements.Container PreassignedTargetContainer
+        {
+            get { return _targetContainerPreassignment.TargetContainer; }
+            set { _targetContainerPreassignment.TargetContainer = value; }
+        }
+
 
         public override ContentClassCategory Category
         {
@@ -182,5 +201,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         }
 
         #endregion
+
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

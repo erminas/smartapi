@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
+using erminas.SmartAPI.CMS.PageElements;
 using erminas.SmartAPI.Utils;
 using log4net;
 
@@ -116,18 +117,6 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            Action = XmlNode.GetAttributeValue("action");
-            LanguageVariantId = XmlNode.GetAttributeValue("languagevariantid");
-            DialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
-            ChildnodesAsAttributes = XmlNode.GetAttributeValue("childnodesasattributes");
-            ParentTable = XmlNode.GetAttributeValue("parenttable");
-
-            Guid tempGuid; // used for parsing
-            if (XmlNode.TryGetGuid("parentguid", out tempGuid))
-            {
-                ParentGuid = tempGuid;
-            }
-
             XmlNodeList elementChildren = XmlNode.GetElementsByTagName("ELEMENT");
             foreach (XmlElement curElementNode in elementChildren)
             {
@@ -165,18 +154,6 @@ namespace erminas.SmartAPI.CMS
         ///   The content class elements in the list
         /// </summary>
         public List<CCElement> Elements { get; set; }
-
-        public string Action { get; set; }
-
-        public string LanguageVariantId { get; set; }
-
-        public string DialogLanguageId { get; set; }
-
-        public string ChildnodesAsAttributes { get; set; }
-
-        public string ParentTable { get; set; }
-
-        public Guid ParentGuid { get; set; }
 
         #endregion
     }

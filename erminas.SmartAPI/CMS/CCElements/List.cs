@@ -19,12 +19,28 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class List : CCElement
+    public class List : AbstractWorkflowPreassignable, IContentClassPreassignable
     {
-        public List(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        private readonly TargetContainerPreassignment _targetContainerPreassignment;
+        
+        internal List(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltextendedlist", "eltfontclass", "eltfontsize", "eltfontbold", "eltonlyhrefvalue",
                              "eltxhtmlcompliant", "eltfontface", "eltfontcolor");
+            _targetContainerPreassignment = new TargetContainerPreassignment(this);
+            PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
+        }
+
+        public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
+        {
+            get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
+            set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
+        }
+
+        public PageElements.Container PreassignedTargetContainer
+        {
+            get { return _targetContainerPreassignment.TargetContainer; }
+            set { _targetContainerPreassignment.TargetContainer = value; }
         }
 
         public override sealed ContentClassCategory Category
@@ -73,5 +89,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
         }
+
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

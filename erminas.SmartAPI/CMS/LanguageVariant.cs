@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS
 {
     public class LanguageVariant : RedDotObject
     {
-        private bool _isChecked;
+        private bool _isCurrentLanguageVariant;
         private string _language;
 
         public LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
@@ -34,10 +34,10 @@ namespace erminas.SmartAPI.CMS
             get { return _language; }
         }
 
-        public bool IsChecked
+        public bool IsCurrentLanguageVariant
         {
-            get { return _isChecked; }
-            set { _isChecked = value; }
+            get { return _isCurrentLanguageVariant; }
+            set { _isCurrentLanguageVariant = value; }
         }
 
         public Project Project { get; set; }
@@ -49,7 +49,7 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            InitIfPresent(ref _isChecked, "checked", BoolConvert);
+            InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
             InitIfPresent(ref _language, "language", x => x);
         }
     }

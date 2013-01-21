@@ -19,6 +19,7 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.PageElements
 {
+    //todo istargetcontainer
     [PageElementType(ElementType.Container)]
     public class Container : AbstractKeywordAssignableMultiLinkElement
     {

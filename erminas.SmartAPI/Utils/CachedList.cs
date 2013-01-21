@@ -30,6 +30,14 @@ namespace erminas.SmartAPI.Utils
             _isCachingEnabled = caching == Caching.Enabled;
         }
 
+        public int Count
+        {
+            get {
+                CheckList();
+                return List.Count;
+            }
+        }
+
         protected CachedList(Caching caching)
         {
             _isCachingEnabled = caching == Caching.Enabled;
@@ -72,6 +80,12 @@ namespace erminas.SmartAPI.Utils
             {
                 CheckList();
             }
+        }
+
+        public ICachedList<T> Refreshed()
+        {
+            Refresh();
+            return this;
         }
 
         public void InvalidateCache()

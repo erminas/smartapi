@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             try
             {
-                return DateTime.Parse(value);
+                return DateTime.Parse(value, CultureInfo.InvariantCulture);
             } catch (FormatException e)
             {
                 throw new ArgumentException(string.Format("Invalid date value: {0}", value), e);

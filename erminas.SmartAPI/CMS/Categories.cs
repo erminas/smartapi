@@ -11,7 +11,7 @@ namespace erminas.SmartAPI.CMS
     /// Encapsulates category management for a project.
     /// </summary>
     /// <remarks>
-    /// We don't subclass NameIndexedRDList, because renaming to existing names is allowed and could lead to duplicate category names
+    /// We don't subclass NameIndexedRDList, because renaming to existing names is allowed (albeit senseless) and could lead to duplicate category names
     /// </remarks>
     public class Categories : RDList<Category>
     {

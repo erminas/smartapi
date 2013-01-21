@@ -39,6 +39,12 @@ namespace erminas.SmartAPI.Utils
             _indexFunc = indexFunc;
         }
 
+        public new ICachedList<T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         protected override List<T> List
         {
             set

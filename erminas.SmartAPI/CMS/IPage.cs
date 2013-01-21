@@ -70,7 +70,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All keywords associated with this page.
         /// </summary>
-        NameIndexedRDList<Keyword> Keywords { get; }
+        RDList<Keyword> Keywords { get; }
 
         /// <summary>
         ///   All link elements of this page.

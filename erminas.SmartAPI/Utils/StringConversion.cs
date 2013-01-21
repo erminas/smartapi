@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.Utils
     public static class StringConversion
     {
         /// <summary>
-        ///   Converts a Guid to the format expected by the RedDot server. ALWAYS use this format when sending a Guid to the server.
+        ///     Converts a Guid to the format expected by the RedDot server. ALWAYS use this format when sending a Guid to the server.
         /// </summary>
         /// <param name="guid"> Guid to convert </param>
         /// <returns> String representation of the Guid in the format expected by a RedDot server </returns>
@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.Utils
         }
 
         /// <summary>
-        ///   Converts a bool value to the format expected by the RedDot server
+        ///     Converts a bool value to the format expected by the RedDot server
         /// </summary>
         public static string ToRQLString(this Boolean value)
         {
@@ -58,6 +58,27 @@ namespace erminas.SmartAPI.Utils
             if (o is Boolean)
             {
                 return ((Boolean) o).ToRQLString();
+            }
+
+            var session = o as Session;
+            if (session != null)
+            {
+                return session.SessionKey.ToRQLString();
+            }
+
+            var languageVariant = o as LanguageVariant;
+            if (languageVariant != null)
+            {
+                return languageVariant.Language;
+            }
+
+            var variants = o as IEnumerable<LanguageVariant>;
+            if (variants != null)
+            {
+                const string SINGLE_LANGUAGE = @"<LANGUAGEVARIANT language=""{0}""/>";
+                string languages = variants.Aggregate("",
+                                                      (s, variant) => s + SINGLE_LANGUAGE.RQLFormat(variant.Language));
+                return languages;
             }
 
             return o is IRedDotObject ? ((IRedDotObject) o).Guid.ToRQLString() : o;

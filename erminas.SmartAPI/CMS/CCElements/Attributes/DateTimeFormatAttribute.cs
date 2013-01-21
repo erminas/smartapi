@@ -72,7 +72,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 return null;
             }
 
-            return ((CCElement) Parent).ContentClass.Project.Locales[lcid].DateTimeFormats[_type.Value];
+            return ((CCElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
         }
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)

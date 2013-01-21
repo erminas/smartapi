@@ -71,6 +71,12 @@ namespace erminas.SmartAPI.Utils
             return TryGetByName(name, out tmp);
         }
 
+        public new RDList<T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         #endregion
     }
 }

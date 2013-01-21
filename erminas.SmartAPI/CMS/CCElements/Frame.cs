@@ -120,12 +120,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     #endregion
 
-    public class Frame : CCElement
+    public class Frame : AbstractWorkflowPreassignable, IContentClassPreassignable
     {
         public Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltframename", "eltmarginwidth", "eltmarginheight", "eltscrolling",
                              "eltsrc", "eltsupplement", "eltframeborder", "eltnoresize");
+
+            PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
         public override ContentClassCategory Category
@@ -186,5 +188,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value = value; }
         }
+
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

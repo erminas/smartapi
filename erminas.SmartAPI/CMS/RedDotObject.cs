@@ -196,12 +196,12 @@ namespace erminas.SmartAPI.CMS
         /// <returns> </returns>
         public override bool Equals(object other)
         {
-            var o = other as RedDotObject;
+            var o = other as IRedDotObject;
             if (o == null)
             {
                 return false;
             }
-            return ReferenceEquals(this, other) || o._guid.Equals(_guid);
+            return ReferenceEquals(this, other) || o.Guid.Equals(_guid);
         }
 
         public override int GetHashCode()

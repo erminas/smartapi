@@ -31,7 +31,7 @@ namespace erminas.SmartAPI.CMS
     /// <remarks>
     ///   For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
-    public abstract class CCElement : RedDotObject
+    public abstract class CCElement : RedDotObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private LanguageVariant _languageVariant;

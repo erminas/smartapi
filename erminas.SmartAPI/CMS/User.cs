@@ -23,6 +23,25 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
+    [Flags]
+    public enum UserPofileChangeRestrictions
+    {
+        NameAndDescription = 1,
+        EMailAdress = 2,
+        ConnectedDirectoryService = 4,
+        Password=8,
+        InterfaceLanguageAndLocale = 16,
+        SmartEditNavigation=32,
+        PreferredTextEditor = 64,
+        DirectEdit=128
+    }
+
+    public enum DirectEditActivation
+    {
+        CtrlAndMouseButton = 0,
+        MouseButtonOnly = 1
+    }
+
     /// <summary>
     ///   A user in the RedDot system.
     /// </summary>
@@ -30,27 +49,25 @@ namespace erminas.SmartAPI.CMS
     {
         public readonly Session Session;
         private Guid _accountSystemGuid;
-        private string _acs;
-        private string _action;
         private string _description;
-        private string _dialogLanguageId;
-        private string _disablePassword;
+        private bool _isPasswordChangeableByCurrentUser;
         private string _email;
-        private string _flags1;
-        private string _flags2;
         private string _fullname;
-        private string _id;
-        private string _invertDirectEdit;
-        private string _lcid;
-        private string _lm;
-        private string _loginDate;
-        private string _maxLevel;
-        private string _maxLogin;
+        private int _id;
+        private DirectEditActivation _invertDirectEdit;
+        private DateTime _loginDate;
+        private int _maxLevel;
+        private int _maxSessionCount;
         private string _navigationType;
-        private string _preferredEditor;
-        private string _te;
-        private string _userLanguage;
-        private string _userLimits;
+        private int _preferredEditor;
+        private Locale _userLanguage;
+        private Locale _locale;
+        private UserPofileChangeRestrictions _userPofileChangeRestrictions;
+
+        public UserPofileChangeRestrictions UserPofileChangeRestrictions
+        {
+            get { return _userPofileChangeRestrictions; }
+        }
 
         public User(Session session, Guid userGuid) : base(userGuid)
         {
@@ -103,28 +120,27 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            _action = XmlNode.GetAttributeValue("action");
-            _id = XmlNode.GetAttributeValue("id");
+            InitIfPresent(ref _id, "id", int.Parse);
+            InitIfPresent(ref _maxLevel, "maxlevel", int.Parse);
+            InitIfPresent(ref _maxSessionCount, "maxlogin", int.Parse);
+            InitIfPresent(ref _preferredEditor, "preferrededitor", int.Parse);
+
+
             _fullname = XmlNode.GetAttributeValue("fullname");
             _description = XmlNode.GetAttributeValue("description");
-            _flags1 = XmlNode.GetAttributeValue("flags1");
-            _flags2 = XmlNode.GetAttributeValue("flags2");
-            _maxLevel = XmlNode.GetAttributeValue("maxlevel");
             _email = XmlNode.GetAttributeValue("email");
-            _acs = XmlNode.GetAttributeValue("acs");
-            _dialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
-            _userLanguage = XmlNode.GetAttributeValue("userlanguage");
-            _loginDate = XmlNode.GetAttributeValue("logindate");
-            _te = XmlNode.GetAttributeValue("te");
-            _lm = XmlNode.GetAttributeValue("lm");
-            _navigationType = XmlNode.GetAttributeValue("navigationtype");
-            _lcid = XmlNode.GetAttributeValue("lcid");
-            _maxLogin = XmlNode.GetAttributeValue("maxlogin");
-            _preferredEditor = XmlNode.GetAttributeValue("preferrededitor");
-            _invertDirectEdit = XmlNode.GetAttributeValue("invertdirectedit");
-            _disablePassword = XmlNode.GetAttributeValue("disablepassword");
-            _userLimits = XmlNode.GetAttributeValue("userlimits");
+            
             XmlNode.TryGetGuid("accountsystemguid", out _accountSystemGuid);
+            
+            InitIfPresent(ref _userLanguage, "userlanguage", Session.DialogLocales.Get);
+            InitIfPresent(ref _locale, "lcid", s => Session.Locales[int.Parse(s)]);
+
+            _loginDate = XmlNode.GetOADate("logindate").GetValueOrDefault();
+
+            InitIfPresent(ref _invertDirectEdit, "invertdirectedit", s=>(DirectEditActivation)int.Parse(s));
+            
+            InitIfPresent(ref _isPasswordChangeableByCurrentUser, "disablepassword", x => !BoolConvert(x));
+            InitIfPresent(ref _userPofileChangeRestrictions, "userlimits", s=>(UserPofileChangeRestrictions)Enum.Parse(typeof(UserPofileChangeRestrictions), s));   
         }
 
         protected override void LoadWholeObject()
@@ -166,12 +182,7 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _accountSystemGuid); }
         }
 
-        public string Action
-        {
-            get { return LazyLoad(ref _action); }
-        }
-
-        public string Id
+        public int Id
         {
             get { return LazyLoad(ref _id); }
         }
@@ -186,89 +197,54 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _description); }
         }
 
-        public string Flags1
-        {
-            get { return LazyLoad(ref _flags1); }
-        }
-
-        public string Flags2
-        {
-            get { return LazyLoad(ref _flags2); }
-        }
-
-        public string MaxLevel
+        public int MaxLevel
         {
             get { return LazyLoad(ref _maxLevel); }
         }
 
-        public string Acs
-        {
-            get { return LazyLoad(ref _acs); }
-        }
-
-        public string DialogLanguageId
-        {
-            get { return LazyLoad(ref _dialogLanguageId); }
-        }
-
-        public string UserLanguage
+        public Locale LanguageOfUserInterface
         {
             get { return LazyLoad(ref _userLanguage); }
         }
 
-        public string LoginDate
+        public DateTime LastLoginDate
         {
             get { return LazyLoad(ref _loginDate); }
-        }
-
-        public string Te
-        {
-            get { return LazyLoad(ref _te); }
-        }
-
-        public string Lm
-        {
-            get { return LazyLoad(ref _lm); }
         }
 
         public string NavigationType
         {
             get { return LazyLoad(ref _navigationType); }
         }
-
-        public string Lcid
+        
+        public int MaximumNumberOfSessions
         {
-            get { return LazyLoad(ref _lcid); }
+            get { return LazyLoad(ref _maxSessionCount); }
         }
 
-        public string MaxLogin
-        {
-            get { return LazyLoad(ref _maxLogin); }
-        }
-
-        public string PreferredEditor
+        public int PreferredEditor
         {
             get { return LazyLoad(ref _preferredEditor); }
         }
 
-        public string InvertDirectEdit
+        public bool IsPasswordwordChangeableByCurrentUser
         {
-            get { return LazyLoad(ref _invertDirectEdit); }
+            get { return LazyLoad(ref _isPasswordChangeableByCurrentUser); }
         }
-
-        public string DisablePassword
-        {
-            get { return LazyLoad(ref _disablePassword); }
-        }
-
-        public string UserLimits
-        {
-            get { return LazyLoad(ref _userLimits); }
-        }
-
+        
         public string EMail
         {
             get { return LazyLoad(ref _email); }
+        }
+
+        public Locale Locale
+        {
+            get { return _locale; }
+        }
+
+        public DirectEditActivation DirectEditActivationType
+        {
+            get { return _invertDirectEdit; }
         }
 
         #endregion

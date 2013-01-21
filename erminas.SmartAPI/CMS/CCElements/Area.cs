@@ -19,12 +19,28 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class Area : CCElement
+    public class Area : AbstractWorkflowPreassignable, IContentClassPreassignable
     {
+        private readonly TargetContainerPreassignment _targetContainerPreassignment;
+
         public Area(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltsupplement", "eltonlyhrefvalue", "eltshape", "elttarget",
                              "eltcoords");
+            PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
+            _targetContainerPreassignment = new TargetContainerPreassignment(this);
+        }
+
+        public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
+        {
+            get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
+            set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
+        }
+
+        public PageElements.Container PreassignedTargetContainer
+        {
+            get { return _targetContainerPreassignment.TargetContainer; }
+            set { _targetContainerPreassignment.TargetContainer = value; }
         }
 
         public override ContentClassCategory Category
@@ -69,5 +85,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value = value; }
         }
+
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

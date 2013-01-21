@@ -39,11 +39,13 @@ namespace erminas.SmartAPI.CMS
         private LanguageVariant _languageVariant;
         private Syllable _prefix;
         private Syllable _suffix;
-        private TemplateVariantList _templateVariants;
 
         #region Properties
 
-        /// <summary>
+        [ScriptIgnore]
+        public RDList<IPageDefinition> PageDefinitions { get; private set; }
+
+            /// <summary>
         ///   Default suffix for pages.
         /// </summary>
         [ScriptIgnore]
@@ -87,7 +89,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         [ScriptIgnore]
-        public Project Project { get; set; }
+        public Project Project { get; private set; }
 
         #endregion
 
@@ -122,7 +124,9 @@ namespace erminas.SmartAPI.CMS
             get { return Versions.FirstOrDefault(); }
         }
 
-        /// <summary>
+        public NameIndexedRDList<TemplateVariant> TemplateVariants { get; private set; }
+
+            /// <summary>
         ///   EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
         /// </summary>
         [ScriptIgnore]
@@ -184,28 +188,7 @@ namespace erminas.SmartAPI.CMS
         ///   List of the preassigned keywords of this content class, indexed by name. This list is cached by default.
         /// </summary>
         public NameIndexedRDList<Keyword> PreassignedKeywords { get; private set; }
-
-        /// <summary>
-        ///   All templates of the content class. This result is cached. To refresh the contents call <see cref="Refresh" /> .
-        /// </summary>
-        [ScriptIgnore]
-        public TemplateVariantList TemplateVariants
-        {
-            get
-            {
-                if (_templateVariants == null)
-                {
-                    const string LIST_CC_TEMPLATES =
-                        @"<PROJECT><TEMPLATE guid=""{0}""><TEMPLATEVARIANTS action=""list"" withstylesheets=""0""/></TEMPLATE></PROJECT>";
-                    XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_CC_TEMPLATES, Guid.ToRQLString()));
-                    var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("TEMPLATE")[0];
-                    _templateVariants = new TemplateVariantList(this, xmlNode);
-                }
-                return _templateVariants;
-            }
-            set { _templateVariants = value; }
-        }
-
+        
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         public bool IsChangingHeadlineEffectiveForAllLanguageVariants
         {
@@ -279,6 +262,29 @@ namespace erminas.SmartAPI.CMS
         {
             Versions = new RDList<CCVersion>(GetVersions, Caching.Enabled);
             PreassignedKeywords = new NameIndexedRDList<Keyword>(GetPreassignedKeywords, Caching.Enabled);
+            PageDefinitions = new RDList<IPageDefinition>(GetPageDefinitions, Caching.Enabled);
+            TemplateVariants = new NameIndexedRDList<TemplateVariant>(GetTemplateVariants, Caching.Enabled);
+        }
+
+        private List<TemplateVariant> GetTemplateVariants()
+        {
+            const string LIST_CC_TEMPLATES =
+                      @"<PROJECT><TEMPLATE guid=""{0}""><TEMPLATEVARIANTS action=""list"" withstylesheets=""0""/></TEMPLATE></PROJECT>";
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_CC_TEMPLATES, Guid.ToRQLString()));
+            var variants = xmlDoc.GetElementsByTagName("TEMPLATEVARIANT");
+            return (from XmlElement curVariant in variants select new TemplateVariant(this, curVariant)).ToList();
+        }
+
+        private List<IPageDefinition> GetPageDefinitions()
+        {
+            const string LOAD_PREASSIGNMENT =
+               @"<TEMPLATELIST action=""load"" withpagedefinitions=""1""/>";
+
+            var xmlDoc = Project.ExecuteRQL(LOAD_PREASSIGNMENT);
+            const string PAGE_DEFINITIONS_XPATH = "//TEMPLATE[@guid='{0}']/PAGEDEFINITIONS/PAGEDEFINITION";
+            var pageDefs = xmlDoc.SelectNodes(PAGE_DEFINITIONS_XPATH.RQLFormat(this));
+            
+            return (from XmlElement curPageDef in pageDefs select new PageDefinition(this, curPageDef)).Cast<IPageDefinition>().ToList();
         }
 
         private List<Keyword> GetPreassignedKeywords()
@@ -476,7 +482,6 @@ namespace erminas.SmartAPI.CMS
             base.Refresh();
             _editableAreaSettings = null;
             _elements = null;
-            _templateVariants = null;
         }
 
         protected override void LoadWholeObject()

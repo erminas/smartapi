@@ -30,6 +30,12 @@ namespace erminas.SmartAPI.Utils
 
         protected IndexedRDList(Func<T, TK> indexFunc, Caching caching) : base(indexFunc, caching){}
 
+        public new ICachedList<T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         #region IRDList<T> Members
 
         public T GetByGuid(Guid guid)
@@ -93,6 +99,12 @@ namespace erminas.SmartAPI.Utils
         public override bool TryGetByName(string name, out T output)
         {
             return TryGet(name, out output);
+        }
+
+        public new NameIndexedRDList<T> Refreshed()
+        {
+            Refresh();
+            return this;
         }
     }
 }
