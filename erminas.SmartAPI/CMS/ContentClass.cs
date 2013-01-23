@@ -323,9 +323,14 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   Set the preassigned keywords for this content class on the server.
         ///   PreassignedKeywords contain the updated keywords afterwards.
+        /// Set to an empty IEnumerable or null, to remove all preassigned keywords.
         /// </summary>
-        public void SetPreassignedKeywords(List<Keyword> keywords)
+        public void SetPreassignedKeywords(IEnumerable<Keyword> keywords)
         {
+            if (keywords == null)
+            {
+                keywords = new List<Keyword>();
+            }
             using (new CachingContext<Keyword>(PreassignedKeywords, Caching.Enabled))
             {
                 List<Keyword> keywordsToAdd = keywords.Except(PreassignedKeywords).ToList();
