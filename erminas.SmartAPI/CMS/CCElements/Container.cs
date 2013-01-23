@@ -19,11 +19,12 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class Container : CCElement
+    public class Container : AbstractWorkflowPreassignable, IContentClassPreassignable
     {
         public Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltistargetcontainer", "eltisdynamic");
+            PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
         public override ContentClassCategory Category
@@ -42,5 +43,7 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltistargetcontainer")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltistargetcontainer")).Value = value; }
         }
+
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

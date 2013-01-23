@@ -20,7 +20,7 @@ using System.Xml;
 namespace erminas.SmartAPI.CMS.PageElements
 {
     [PageElementType(ElementType.List)]
-    public class List : AbstractMultiLinkElement
+    public class List : AbstractKeywordAssignableMultiLinkElement
     {
         public List(Project project, Guid guid, LanguageVariant languageVariant)
             : base(project, guid, languageVariant)

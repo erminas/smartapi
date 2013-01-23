@@ -26,12 +26,23 @@ namespace erminas.SmartAPI.Utils
     public class IndexedCachedList<TK, T> : CachedList<T>, IIndexedCachedList<TK, T> where T : class
     {
         private readonly Func<T, TK> _indexFunc;
-        protected Dictionary<TK, T> _index = new Dictionary<TK, T>();
+        private Dictionary<TK, T> _index = new Dictionary<TK, T>();
 
         public IndexedCachedList(Func<List<T>> retrieveFunc, Func<T, TK> indexFunc, Caching caching)
             : base(retrieveFunc, caching)
         {
             _indexFunc = indexFunc;
+        }
+
+        protected IndexedCachedList(Func<T, TK> indexFunc, Caching caching) : base(caching)
+        {
+            _indexFunc = indexFunc;
+        }
+
+        public new ICachedList<T> Refreshed()
+        {
+            Refresh();
+            return this;
         }
 
         protected override List<T> List

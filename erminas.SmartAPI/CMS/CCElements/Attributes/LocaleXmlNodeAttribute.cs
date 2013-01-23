@@ -146,12 +146,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override object DisplayObject
         {
-            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Locales[_lcid.Value]; }
+            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
         }
 
         public Locale Value
         {
-            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Locales[_lcid.Value]; }
+            get { return _lcid == null ? null : ((CCElement)Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
             set { SetValue(value == null ? null : value.LCID.ToString(CultureInfo.InvariantCulture)); }
         }
 

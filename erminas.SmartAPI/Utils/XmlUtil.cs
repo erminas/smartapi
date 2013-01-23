@@ -172,5 +172,10 @@ namespace erminas.SmartAPI.Utils
             string valueNormalizedToInvariantCulture = value.Replace(",", ".");
             return DateTime.FromOADate(Double.Parse(valueNormalizedToInvariantCulture, CultureInfo.InvariantCulture));
         }
+
+        public static bool IsContainingOk(this XmlDocument xmlDoc)
+        {
+            return xmlDoc.InnerText.Contains("ok");
+        }
     }
 }

@@ -34,39 +34,39 @@ using log4net;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   Session, representing a connection to a red dot server as a specified user.
+    ///     Session, representing a connection to a red dot server as a specified user.
     /// </summary>
     public class Session : IDisposable
     {
         #region IODataFormat enum
 
         /// <summary>
-        ///   TypeId of query formats. Determines usage/placement of logon guid/session key in a query.
+        ///     TypeId of query formats. Determines usage/placement of logon guid/session key in a query.
         /// </summary>
         public enum IODataFormat
         {
             /// <summary>
-            ///   Only use the logon guid in the IODATA element. Insert the query into the IODATA element.
+            ///     Only use the logon guid in the IODATA element. Insert the query into the IODATA element.
             /// </summary>
             LogonGuidOnly,
 
             /// <summary>
-            ///   Use the session key and the logon guid in the IODATA element. Insert the query into the IODATA element.
+            ///     Use the session key and the logon guid in the IODATA element. Insert the query into the IODATA element.
             /// </summary>
             SessionKeyAndLogonGuid,
 
             /// <summary>
-            ///   Use the logon guid in the IODATA element and insert a PROJECT element with the session key. The query gets inserted into the PROJECT element
+            ///     Use the logon guid in the IODATA element and insert a PROJECT element with the session key. The query gets inserted into the PROJECT element
             /// </summary>
             SessionKeyInProjectElement,
 
             /// <summary>
-            ///   Insert the query into a plain IODATA element.
+            ///     Insert the query into a plain IODATA element.
             /// </summary>
             Plain,
 
             /// <summary>
-            ///   Use session key, logon guid and format="1" in the IODATA element. Insert the query into the IODATA element.
+            ///     Use session key, logon guid and format="1" in the IODATA element. Insert the query into the IODATA element.
             /// </summary>
             FormattedText,
             SessionKeyOnly
@@ -101,16 +101,17 @@ namespace erminas.SmartAPI.CMS
         private static readonly ILog LOG = LogManager.GetLogger("Session");
 
         /// <summary>
-        ///   All database servers on the server.
+        ///     All database servers on the server.
         /// </summary>
         public readonly NameIndexedRDList<DatabaseServer> DatabaseServers;
 
         /// <summary>
-        ///   All projects on the server.
+        ///     All projects on the server.
         /// </summary>
         public readonly NameIndexedRDList<Project> Projects;
 
         public readonly NameIndexedRDList<User> Users;
+        private User _currentUser;
 
         private string _loginGuidStr;
         private string _sessionKeyStr;
@@ -122,28 +123,23 @@ namespace erminas.SmartAPI.CMS
             Users = new NameIndexedRDList<User>(GetUsers, Caching.Enabled);
             Modules = new IndexedRDList<ModuleType, Module>(GetModules, x => x.Type, Caching.Enabled);
             ApplicationServers = new RDList<ApplicationServer>(GetApplicationServers, Caching.Enabled);
+            Locales = new IndexedCachedList<int, Locale>(GetLocales, x => x.LCID, Caching.Enabled);
+            DialogLocales = new IndexedCachedList<string, Locale>(GetDialogLocales, x => x.Id, Caching.Enabled);
         }
 
-        private List<ApplicationServer> GetApplicationServers()
+        private List<Locale> GetDialogLocales()
         {
-            const string LIST_APPLICATION_SERVERS = @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
-            var xmlDoc = ExecuteRQL(LIST_APPLICATION_SERVERS);
+            const string LOAD_DIALOG_LANGUAGES = @"<DIALOG action=""listlanguages"" orderby=""2""/>";
+            var resultStr = ExecuteRql(LOAD_DIALOG_LANGUAGES, IODataFormat.LogonGuidOnly);
+            var xmlDoc = ParseRQLResult(resultStr);
 
-            var editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
-            return (from XmlElement curServer in editorialServers
-                    select
-                        new ApplicationServer(this, curServer.GetGuid())
-                            {
-                                Name = curServer.GetName(),
-                                IpAddress = curServer.GetAttributeValue("ip")
-                            }).ToList();
-            //<EDITORIALSERVER guid="ECB521367521474BA469D3A0FC98A798" name="rd75" active="0" ip="192.168.44.44" />
+            return (from XmlElement curElement in xmlDoc.GetElementsByTagName("LIST") select new Locale(this, curElement)).ToList();
         }
 
-        public IRDList<ApplicationServer>  ApplicationServers { get; private set; }
+        public IndexedCachedList<string, Locale> DialogLocales { get; private set; }
 
         /// <summary>
-        ///   Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
+        ///     Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
         /// </summary>
         /// <param name="login"> Login data </param>
         public Session(ServerLogin login) : this()
@@ -153,7 +149,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Create an session object for an already existing session on the server, e.g. when opening a plugin from within a running session.
+        ///     Create an session object for an already existing session on the server, e.g. when opening a plugin from within a running session.
         /// </summary>
         public Session(ServerLogin login, Guid loginGuid, Guid sessionKey, Guid projectGuid) : this()
         {
@@ -168,11 +164,18 @@ namespace erminas.SmartAPI.CMS
         #region CONFIG
 
         /// <summary>
-        ///   Forcelogin=true means that if the user was already logged in the old session will be closed and a new one started.
+        ///     Forcelogin=true means that if the user was already logged in the old session will be closed and a new one started.
         /// </summary>
         private const bool FORCE_LOGIN = true;
 
         #endregion
+
+        public IRDList<ApplicationServer> ApplicationServers { get; private set; }
+
+        /// <summary>
+        ///     All locales, indexed by LCID. The list is cached by default.
+        /// </summary>
+        public IIndexedCachedList<int, Locale> Locales { get; private set; }
 
         public Guid LogonGuid
         {
@@ -182,25 +185,35 @@ namespace erminas.SmartAPI.CMS
 
         public Guid SessionKey
         {
-            get { return Guid.Parse(_sessionKeyStr); }
+            get
+            {
+                if (_sessionKeyStr == null)
+                {
+                }
+                return Guid.Parse(_sessionKeyStr);
+            }
             private set { _sessionKeyStr = value.ToRQLString(); }
         }
 
         /// <summary>
-        ///   All available CMS modules (e.g. SmartTree, SmartEdit, Tasks ...), indexed by ModuleType. The list is cached by default.
+        ///     All available CMS modules (e.g. SmartTree, SmartEdit, Tasks ...), indexed by ModuleType. The list is cached by default.
         /// </summary>
         public IndexedRDList<ModuleType, Module> Modules { get; private set; }
 
         /// <summary>
-        ///   The currently connected user.
+        ///     The currently connected user.
         /// </summary>
-        public User CurrentUser { get; private set; }
+        public User CurrentUser
+        {
+            get { return _currentUser ?? (_currentUser = GetCurrentUser()); }
+            private set { _currentUser = value; }
+        }
 
         public Guid SelectedProjectGuid { get; private set; }
         protected string CmsServerConnectionUrl { get; private set; }
 
         /// <summary>
-        ///   Get/Set the currently selected project.
+        ///     Get/Set the currently selected project.
         /// </summary>
         public Project SelectedProject
         {
@@ -209,7 +222,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Login information of the session
+        ///     Login information of the session
         /// </summary>
         public ServerLogin ServerLogin { get; private set; }
 
@@ -232,6 +245,49 @@ namespace erminas.SmartAPI.CMS
         }
 
         #endregion
+
+        private User GetCurrentUser()
+        {
+            const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
+            string reply = ExecuteRql(SESSION_INFO.RQLFormat(_sessionKeyStr), IODataFormat.Plain);
+
+            var doc = new XmlDocument();
+            doc.LoadXml(reply);
+
+            var userElement = (XmlElement) doc.SelectSingleNode("/IODATA/USER");
+            return new User(this, userElement.GetGuid()) {Name = userElement.GetName()};
+        }
+
+        private List<ApplicationServer> GetApplicationServers()
+        {
+            const string LIST_APPLICATION_SERVERS =
+                @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
+            var xmlDoc = ExecuteRQL(LIST_APPLICATION_SERVERS);
+
+            var editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
+            return (from XmlElement curServer in editorialServers
+                    select
+                        new ApplicationServer(this, curServer.GetGuid())
+                            {
+                                Name = curServer.GetName(),
+                                IpAddress = curServer.GetAttributeValue("ip")
+                            }).ToList();
+            //<EDITORIALSERVER guid="ECB521367521474BA469D3A0FC98A798" name="rd75" active="0" ip="192.168.44.44" />
+        }
+
+        private List<Locale> GetLocales()
+        {
+            const string LOAD_LOCALES = @"<LANGUAGE action=""list""/>";
+            XmlDocument xmlDoc = ExecuteRQL(LOAD_LOCALES);
+            var languages = xmlDoc.GetElementsByTagName("LANGUAGES")[0] as XmlElement;
+            if (languages == null)
+            {
+                throw new Exception("could not load languages");
+            }
+
+            return
+                (from XmlElement item in languages.GetElementsByTagName("LIST") select new Locale(this, item)).ToList();
+        }
 
         private List<Module> GetModules()
         {
@@ -292,7 +348,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Execute an RQL statement. The format of the query (usage of session key/logon guid can be chosen).
+        ///     Execute an RQL statement. The format of the query (usage of session key/logon guid can be chosen).
         /// </summary>
         /// <param name="query"> Statement to execute </param>
         /// <param name="ioDataFormat"> Defines the format of the iodata element / placement of sessionkey of the RQL query </param>
@@ -329,7 +385,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Send RQL statement to CMS server and return result.
+        ///     Send RQL statement to CMS server and return result.
         /// </summary>
         /// <param name="rqlQuery"> Query to send to CMS server </param>
         /// <param name="debugRQLQuery"> Query to save in log file (this is used to hide passwords in the log files) </param>
@@ -381,12 +437,20 @@ namespace erminas.SmartAPI.CMS
         {
             InitConnection();
 
+            var xmlDoc = GetLoginResponse();
+
+            CheckLoginResponse(xmlDoc);
+
+            LoadSelectedProject(xmlDoc);
+        }
+
+        private XmlDocument GetLoginResponse()
+        {
             PasswordAuthentication authData = ServerLogin.AuthData;
             string rql = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, authData.Username, authData.Password));
 
             //hide password in log messages
             string debugOutputRQL = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, authData.Username, "*****"));
-
             var xmlDoc = new XmlDocument();
             try
             {
@@ -400,18 +464,37 @@ namespace erminas.SmartAPI.CMS
                 }
                 xmlDoc.LoadXml(e.Response);
             }
+            return xmlDoc;
+        }
 
+        private void CheckLoginResponse(XmlDocument xmlDoc)
+        {
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
 
             if (xmlNodes.Count > 0)
             {
-                ParseLoginResponse(xmlNodes, authData, xmlDoc);
+                ParseLoginResponse(xmlNodes, ServerLogin.AuthData, xmlDoc);
             }
             else
             {
                 // didn't get a valid logon xml node
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
                                                     "Could not login.");
+            }
+        }
+
+        private void LoadSelectedProject(XmlDocument xmlDoc)
+        {
+            var lastModule = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/USER/LASTMODULES/MODULE[@last='1']");
+            if (lastModule == null)
+            {
+                return;
+            }
+
+            string projectStr = lastModule.GetAttributeValue("project");
+            if (!string.IsNullOrEmpty(projectStr))
+            {
+                SelectProject(Guid.Parse(projectStr));
             }
         }
 
@@ -534,7 +617,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Select a project. Subsequent queries will be executed in the context of this project.
+        ///     Select a project. Subsequent queries will be executed in the context of this project.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project to select </param>
         public void SelectProject(Guid projectGuid)
@@ -568,9 +651,9 @@ namespace erminas.SmartAPI.CMS
             throw new Exception(String.Format("Couldn't select project {0}", projectGuid.ToRQLString()));
         }
 
-        ///<summary>
-        ///  Disconnectes the client from the server. Object cannot be used afterwards.
-        ///</summary>
+        /// <summary>
+        ///     Disconnectes the client from the server. Object cannot be used afterwards.
+        /// </summary>
         public void Disconnect()
         {
             Logout(LogonGuid);
@@ -580,7 +663,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
+        ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="lang"> Language variant to get the text from </param>
@@ -599,7 +682,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Set the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
+        ///     Set the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="languageVariant"> Language variant for setting the text in </param>
@@ -630,7 +713,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get a project by Guid. The difference between new Project(Session, Guid) and this is that this uses a cached list of all projects to retrieve the project, while new Project() leads to a complete (albeit lazy) reload of all the project information.
+        ///     Get a project by Guid. The difference between new Project(Session, Guid) and this is that this uses a cached list of all projects to retrieve the project, while new Project() leads to a complete (albeit lazy) reload of all the project information.
         /// </summary>
         /// <param name="guid"> Guid of the project </param>
         /// <returns> Project with Guid guid </returns>
@@ -647,7 +730,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get a project by Name. This method is deprecated, use Projects[name] instead.
+        ///     Get a project by Name. This method is deprecated, use Projects[name] instead.
         /// </summary>
         [Obsolete("GetProject(name) is deprected, please use Projects[name] instead")]
         public Project GetProject(string name)
@@ -656,7 +739,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get all projects a specific user has access to
+        ///     Get all projects a specific user has access to
         /// </summary>
         /// <param name="userGuid"> Guid of the user </param>
         /// <returns> All projects the user with Guid==userGuid has access to </returns>
@@ -670,7 +753,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get user by guid. The difference to new User(..., Guid) is that this method immmediatly checks wether the user exists.
+        ///     Get user by guid. The difference to new User(..., Guid) is that this method immmediatly checks wether the user exists.
         /// </summary>
         /// <param name="guid"> Guid of the user </param>
         /// <exception cref="Exception">Thrown, if no user with Guid==guid could be found</exception>
@@ -681,13 +764,13 @@ namespace erminas.SmartAPI.CMS
             var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
             if (userElement == null)
             {
-                throw new Exception("could not load user: " + guid.ToRQLString());
+                throw new SmartAPIException("could not load user: " + guid.ToRQLString());
             }
             return new User(this, Guid.Parse(userElement.GetAttributeValue("guid")));
         }
 
         /// <summary>
-        ///   Select a project as active project (RQL queries will be evaluated in the context of this project).
+        ///     Select a project as active project (RQL queries will be evaluated in the context of this project).
         /// </summary>
         /// <param name="project"> Project to select </param>
         /// <exception cref="Exception">Thrown, if the project could not get selected.</exception>
@@ -697,7 +780,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Select a project and execute an RQL query in its context.
+        ///     Select a project and execute an RQL query in its context.
         /// </summary>
         /// <param name="query"> The query string without the IODATA element </param>
         /// <param name="projectGuid"> Guid of the project </param>
@@ -708,19 +791,30 @@ namespace erminas.SmartAPI.CMS
         {
             SelectProject(projectGuid);
             string result = ExecuteRql(query, IODataFormat.SessionKeyAndLogonGuid);
+            return ParseRQLResult(result);
+        }
+
+        private static XmlDocument ParseRQLResult(string result)
+        {
+            var xmlDoc = new XmlDocument();
+
+            if (!result.Trim().Any())
+            {
+                return xmlDoc;
+            }
+
             try
             {
-                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
             } catch (Exception e)
             {
-                throw new Exception("Illegal response from server", e);
+                throw new SmartAPIException("Illegal response from server", e);
             }
         }
 
         /// <summary>
-        ///   Execute an RQL query on the server and get its results.
+        ///     Execute an RQL query on the server and get its results.
         /// </summary>
         /// <param name="query"> The RQL query string without the IODATA element </param>
         /// <returns> A XmlDocument containing the answer of the RedDot server </returns>
@@ -739,7 +833,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Select a project and execute an RQL query in its context. The query gets embedded in a PROJECT element.
+        ///     Select a project and execute an RQL query in its context. The query gets embedded in a PROJECT element.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project </param>
         /// <param name="query"> The RQL query string without the IODATA and PROJECT elements </param>
@@ -776,8 +870,6 @@ namespace erminas.SmartAPI.CMS
             return (from XmlElement curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
         }
 
-        
-
         public void SendMailFromSystemAccount(EMail mail)
         {
             var server = ApplicationServers.First();
@@ -788,8 +880,9 @@ namespace erminas.SmartAPI.CMS
 
         private void SendEmail(string fromAddress, EMail mail)
         {
+            //@"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" message=""{2}"" from=""{3}"" plaintext=""1"">{2}</ADMINISTRATION>";
             const string SEND_EMAIL =
-                @"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" message=""{2}"" from=""{3}"" plaintext=""1""/>";
+                @"<ADMINISTRATION action=""sendmail"" to=""{0}"" subject=""{1}"" from=""{3}"" plaintext=""1"">{2}</ADMINISTRATION>";
 
             ExecuteRQL(SEND_EMAIL.RQLFormat(mail.To, mail.HtmlEncodedSubject, mail.HtmlEncodedMessage, fromAddress));
         }
@@ -802,6 +895,7 @@ namespace erminas.SmartAPI.CMS
 
     public class ApplicationServer : PartialRedDotObject
     {
+        private readonly Session _session;
         private string _from;
         private string _ipAddress;
 
@@ -816,15 +910,10 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        private void LoadXml()
+        public Session Session
         {
-            _from = XmlNode.GetAttributeValue("adress");
-            _ipAddress = XmlNode.GetAttributeValue("ip");
+            get { return _session; }
         }
-
-        private readonly Session _session;
-
-        public Session Session { get { return _session; } }
 
         public string From
         {
@@ -838,6 +927,12 @@ namespace erminas.SmartAPI.CMS
             internal set { _ipAddress = value; }
         }
 
+        private void LoadXml()
+        {
+            _from = XmlNode.GetAttributeValue("adress");
+            _ipAddress = XmlNode.GetAttributeValue("ip");
+        }
+
         protected override void LoadWholeObject()
         {
             LoadXml();
@@ -845,7 +940,8 @@ namespace erminas.SmartAPI.CMS
 
         protected override XmlElement RetrieveWholeObject()
         {
-            const string LOAD_APPLICATION_SERVER = @"<ADMINISTRATION><EDITORIALSERVER action=""load"" guid=""{0}""/></ADMINISTRATION>";
+            const string LOAD_APPLICATION_SERVER =
+                @"<ADMINISTRATION><EDITORIALSERVER action=""load"" guid=""{0}""/></ADMINISTRATION>";
 
             XmlDocument xmlDoc = Session.ExecuteRQL(LOAD_APPLICATION_SERVER.RQLFormat(this));
             return xmlDoc.GetSingleElement("EDITORIALSERVER");

@@ -59,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMS\AbstractWorkflowPreassignable.cs" />
+    <Compile Include="CMS\Categories.cs" />
+    <Compile Include="CMS\CCElements\AbstractContentClassPreassignable.cs" />
     <Compile Include="CMS\CCElements\Attributes\CategoryXmlNodeAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\ElementReferenceAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\StringEnumXmlNodeAttribute.cs" />
@@ -70,9 +73,14 @@
     <Compile Include="CMS\CCElements\ProjectContent.cs" />
     <Compile Include="CMS\CCElements\StandardFieldNonDate.cs" />
     <Compile Include="CMS\CCElements\TargetFormat.cs" />
+    <Compile Include="CMS\IContentClassElement.cs" />
+    <Compile Include="CMS\IContentClassPreassignable.cs" />
     <Compile Include="CMS\ILinkTarget.cs" />
     <Compile Include="CMS\IPage.cs" />
+    <Compile Include="CMS\Keywords.cs" />
     <Compile Include="CMS\Module.cs" />
+    <Compile Include="CMS\PageDefinition.cs" />
+    <Compile Include="CMS\PageElements\AbstractKeywordAssignableMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\AbstractMediaElement.cs" />
     <Compile Include="CMS\PageElements\AbstractMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\AnchorAsImage.cs" />
@@ -80,6 +88,7 @@
     <Compile Include="CMS\PageElements\Background.cs" />
     <Compile Include="CMS\PageElements\DatabaseContent.cs" />
     <Compile Include="CMS\PageElements\Headline.cs" />
+    <Compile Include="CMS\PageElements\IKeywordAssignable.cs" />
     <Compile Include="CMS\PageElements\ILinkElement.cs" />
     <Compile Include="CMS\PageElements\IMultiLinkElement.cs" />
     <Compile Include="CMS\PageElements\ListEntry.cs" />
@@ -92,10 +101,16 @@
     <Compile Include="CMS\PageElements\StandardFieldUrl.cs" />
     <Compile Include="CMS\PageElements\TextAscii.cs" />
     <Compile Include="CMS\PageElements\Transfer.cs" />
+    <Compile Include="CMS\PreassignedWorkflow.cs" />
+    <Compile Include="CMS\TargetContainerPreassignment.cs" />
     <Compile Include="CMS\UserModuleAssignment.cs" />
     <Compile Include="CMS\UserProjectAssignment.cs" />
     <Compile Include="CMS\VersionAttribute.cs" />
+    <Compile Include="CMS\WorkflowPreassignable.cs" />
     <Compile Include="Exceptions\InvalidServerVersionException.cs" />
+    <Compile Include="Exceptions\MissingElementValueException.cs" />
+    <Compile Include="Exceptions\MissingKeywordsException.cs" />
+    <Compile Include="Exceptions\PageStatusException.cs" />
     <Compile Include="Exceptions\RQLException.cs" />
     <Compile Include="Exceptions\PageDeletionException.cs" />
     <Compile Include="Exceptions\RedDotConnectionException.cs" />
@@ -198,7 +213,6 @@
     <Compile Include="CMS\Locale.cs" />
     <Compile Include="CMS\PublicationFolder.cs" />
     <Compile Include="CMS\Syllable.cs" />
-    <Compile Include="CMS\TemplateVariantList.cs" />
     <Compile Include="CMS\CCElementList.cs" />
     <Compile Include="CMS\File.cs" />
     <Compile Include="CMS\Folder.cs" />
@@ -246,6 +260,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Utils\SessionBuilder.cs" />
+    <Compile Include="Utils\TimeOutTracker.cs" />
     <Compile Include="Utils\XmlUtil.cs" />
   </ItemGroup>
   <ItemGroup>

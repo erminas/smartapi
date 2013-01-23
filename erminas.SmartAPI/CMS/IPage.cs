@@ -70,12 +70,12 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///   All keywords associated with this page.
         /// </summary>
-        NameIndexedRDList<Keyword> Keywords { get; }
+        RDList<Keyword> Keywords { get; }
 
         /// <summary>
         ///   All link elements of this page.
         /// </summary>
-        NameIndexedRDList<ILinkElement> LinkElements { get; }
+        IRDList<ILinkElement> LinkElements { get; }
 
         /// <summary>
         ///   All content elements of this page.

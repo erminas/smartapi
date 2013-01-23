@@ -31,7 +31,7 @@ namespace erminas.SmartAPI.CMS
     /// <remarks>
     ///   For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
-    public abstract class CCElement : RedDotObject
+    public abstract class CCElement : RedDotObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private LanguageVariant _languageVariant;
@@ -175,6 +175,7 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         ///   Copies the element to another content class by creating a new element and copying the attribute values to it.
+        /// Make sure to set the language variant in the target project into which the element should be copied, first.
         /// </summary>
         /// <param name="contentClass"> target content class, into which the element should be copied </param>
         /// <returns> the created copy </returns>
@@ -191,7 +192,7 @@ namespace erminas.SmartAPI.CMS
         ///     </item>
         ///   </list>
         /// </remarks>
-        public CCElement CopyToContentClass(ContentClass contentClass)
+        internal CCElement CopyToContentClass(ContentClass contentClass)
         {
             CCElement newCcElement = CreateElement(contentClass, Type);
             foreach (IRDAttribute attr in Attributes)

@@ -18,18 +18,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
-    public class Workflow : PartialRedDotObject
+    public interface IWorkflow : IPartialRedDotObject
+    {
+        IEnumerable<WorkFlowAction> Actions();
+        bool CanBeInherited { get; }
+        bool IsStructureWorkflow { get; }
+        bool IsGlobal { get; }
+    }
+
+    public class Workflow : PartialRedDotObject, IWorkflow
     {
         public readonly Project Project;
+        private bool _canBeInherited;
+        private bool _isStructureWorkflow;
+        private bool _isGlobal;
+        private IEnumerable<WorkFlowAction> _actions;
 
-        public Workflow(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Workflow(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();
+            //if we don't have any actions, the element might have been initialized with only partial information,
+            //so a refresh is needed to access actions.
+            //todo schoener waeren getrennte constructoren oder so
+            if (!_actions.Any())
+            {
+                _actions = null;
+            }
         }
 
         public Workflow(Project project, Guid guid) : base(guid)
@@ -39,26 +59,48 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            Action = XmlNode.GetAttributeValue("action");
-            LanguageVariantId = XmlNode.GetAttributeValue("languagevariantid");
-            DialogLanguageId = XmlNode.GetAttributeValue("dialoglanguageid");
+            InitIfPresent(ref _canBeInherited, "inherit", BoolConvert);
+            EnsuredInit(ref _isStructureWorkflow, "structureworkflow", BoolConvert);
+            InitIfPresent(ref _isGlobal, "global", BoolConvert);
+            LoadActions();
+        }
 
-            Inherit = XmlNode.GetAttributeValue("inherit");
-            StructureWorkflow = XmlNode.GetAttributeValue("structureworkflow");
-            Global = XmlNode.GetAttributeValue("global");
+        private void LoadActions()
+        {
+           _actions = (from XmlElement node in XmlNode.SelectNodes("descendant::NODE") select new WorkFlowAction(node)).ToList();
         }
 
         // TODO: Add a more useful action method which retains the 'flow' of the workflow!
-        public List<WorkFlowAction> Actions()
+        public IEnumerable<WorkFlowAction> Actions()
         {
-            return
-                (from XmlElement node in XmlNode.SelectNodes("descendant::NODE") select new WorkFlowAction(node)).ToList
-                    ();
+            if (_actions != null)
+            {
+                return _actions;
+            }
+            Refresh();
+            return _actions;
+        }
+
+        public bool CanBeInherited { get { return LazyLoad(ref _canBeInherited); }}
+        public bool IsStructureWorkflow { get { return LazyLoad(ref _isStructureWorkflow); }}
+        public bool IsGlobal { get { return LazyLoad(ref _isGlobal); }}
+
+        public void Delete()
+        {
+            const string DELETE_WORKFLOW = @"<WORKFLOW sessionkey=""{0}"" action=""delete"" guid=""{1}""/>";
+            var session = Project.Session;
+            var reply = session.ExecuteRql(DELETE_WORKFLOW.RQLFormat(session, this), Session.IODataFormat.LogonGuidOnly);
+            
+            if (!reply.Contains("ok"))
+            {
+                throw new SmartAPIException(string.Format("Could not delete workflow {0}", this));
+            }
         }
 
         protected override void LoadWholeObject()
         {
             LoadXml();
+            _actions = null;
         }
 
         protected override XmlElement RetrieveWholeObject()
@@ -70,20 +112,5 @@ namespace erminas.SmartAPI.CMS
                 Project.ExecuteRQL(String.Format(LOAD_WORKFLOW, Guid.ToRQLString())).GetElementsByTagName("WORKFLOW")[0];
         }
 
-        #region Properties
-
-        public string Action { get; set; }
-
-        public string DialogLanguageId { get; set; }
-
-        public string LanguageVariantId { get; set; }
-
-        public string Inherit { get; set; }
-
-        public string StructureWorkflow { get; set; }
-
-        public string Global { get; set; }
-
-        #endregion
     }
 }

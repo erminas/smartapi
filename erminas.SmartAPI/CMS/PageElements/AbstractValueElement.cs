@@ -69,11 +69,14 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected void ExecuteCommit(string valueToSave)
         {
-            XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));
-            if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
+            using (new LanguageContext(LanguageVariant))
             {
-                throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
+                XmlDocument xmlDoc =
+                    Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));
+                if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
+                {
+                    throw new Exception(String.Format("Could not save element {0}", Guid.ToRQLString()));
+                }
             }
         }
 

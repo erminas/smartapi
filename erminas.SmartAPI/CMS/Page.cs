@@ -32,6 +32,10 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     public class Page : PartialRedDotObject, IPage
     {
+        /// <summary>
+        /// Default value for <see cref="MaxWaitForDeletion"/> (1.25s).
+        /// </summary>
+        public static readonly TimeSpan DEFAULT_WAIT_FOR_DELETION = new TimeSpan(0,0,0,1, 250);
         // Flags are defined in the RQL manual.
 
         #region PageFlags enum
@@ -121,7 +125,7 @@ namespace erminas.SmartAPI.CMS
 
         static Page()
         {
-            MaxWaitForRemovalFromRecycleBinInMs = 1000;
+            MaxWaitForDeletion = DEFAULT_WAIT_FOR_DELETION;
         }
 
         public Page(Project project, XmlElement xmlElement) : base(xmlElement)
@@ -142,22 +146,27 @@ namespace erminas.SmartAPI.CMS
             InitProperties();
         }
 
-        public static int MaxWaitForRemovalFromRecycleBinInMs { get; set; }
+        /// <summary>
+        /// Maximum time span to wait for a successful deletion of a page, before it can be removed from the recycle bin.
+        /// This is needed because of a race condition with the red dot server where it wrongly shows the page to be in the recycle bin.
+        /// It is set to a default value of 1.25s which proved reliable in internal tests on our servers.
+        /// </summary>
+        public static TimeSpan MaxWaitForDeletion { get; set; }
 
         #region IPage Members
 
         /// <summary>
         ///   All newKeywords associated with this page.
         /// </summary>
-        public NameIndexedRDList<Keyword> Keywords { get; private set; }
+        public RDList<Keyword> Keywords { get; private set; }
 
         /// <summary>
         ///   All link elements of this page.
         /// </summary>
-        public NameIndexedRDList<ILinkElement> LinkElements { get; private set; }
+        public IRDList<ILinkElement> LinkElements { get; private set; }
 
         /// <summary>
-        ///   ReleaseStatus of the page.
+        ///   Status of the page, useually ReleaseStatus should be used instead.
         /// </summary>
         public PageState Status
         {
@@ -171,7 +180,6 @@ namespace erminas.SmartAPI.CMS
         public LanguageVariant LanguageVariant
         {
             get { return _lang; }
-            internal set { _lang = value; }
         }
 
         /// <summary>
@@ -389,7 +397,7 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
-        ///   Forces the deletion, even if references still point to elements of this pageor an element is assigned as target container to a link.
+        ///   Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
         ///   If you want to make sure it is completly removed from the server, even if has been released, 
         ///   use <see cref="DeleteIrrevocably"/> instead of calling this method and <see cref="DeleteFromRecycleBin"/>.
         /// </summary>
@@ -465,15 +473,32 @@ namespace erminas.SmartAPI.CMS
             XmlNodeList pageElements = xmlDoc.GetElementsByTagName("PAGE");
             if (pageElements.Count != 1)
             {
-                throw new Exception("Could not set release status to " + value);
+                var missingKeywords = xmlDoc.SelectNodes("/IODATA/EMPTYELEMENTS/ELEMENT[@type='1002']");
+                if (missingKeywords != null && missingKeywords.Count != 0)
+                {
+                    throw new MissingKeywordsException(this, GetNames(missingKeywords));
+                }
+
+                var missingElements = xmlDoc.SelectNodes("/IODATA/EMPTYELEMENTS/ELEMENT");
+                if (missingElements != null && missingElements.Count > 0)
+                {
+                    throw new MissingElementValueException(this, GetNames(missingElements) );
+                }
+
+                throw new PageStatusException(this, "Could not set release status to " + value);
             }
             var element = (XmlElement) pageElements[0];
             var flag = (PageReleaseStatus) element.GetIntAttributeValue("actionflag").GetValueOrDefault();
 
             if (!flag.HasFlag(value) && !IsReleasedIntoWorkflow(value, flag)) 
             {
-                throw new Exception("Could not set release status to " + value);
+                throw new PageStatusException(this, "Could not set release status to " + value);
             }
+        }
+
+        private static IEnumerable<string> GetNames(XmlNodeList elements)
+        {
+            return elements.Cast<XmlElement>().Select(x => x.GetAttributeValue("name"));
         }
 
         private static bool IsReleasedIntoWorkflow(PageReleaseStatus value, PageReleaseStatus flag)
@@ -485,10 +510,10 @@ namespace erminas.SmartAPI.CMS
         ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
         ///   If you want to make sure it is completly removed from the server, even if has been released, 
         ///   use <see cref="DeleteIrrevocably"/> instead of calling this method and <see cref="DeleteFromRecycleBin"/>.
-        ///   Throws a PageDeletionException, if references still point to elements of this pageor an element is assigned as target container to a link.
+        ///   Throws a PageDeletionException, if references still point to elements of this page or an element is assigned as target container to a link.
         /// </summary>
         /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
-        public void DeleteSafely()
+        public void DeleteIfNotReferenced()
         {
             DeleteImpl(forceDeletion: false);
         }
@@ -518,31 +543,85 @@ namespace erminas.SmartAPI.CMS
         /// Delete the page Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
         /// Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
         /// 
-        /// WARNING: If the page was released, it will be moved to the recycle bin first.
+        /// If the page was released, it will be moved to the recycle bin first.
         /// Removing it from there leads to a race condition on the server: the page can be already marked as being in the recycle bin, but a call to remove it from there can still fail for some time.
-        /// Therefore this spawns a background task with with a wait time and removes from there, but this is NO GUARANTEE it will work.
-        /// The wait time can be configured via the <see cref="MaxWaitForRemovalFromRecycleBinInMs"/> property (1s is the default, because internal testing has shown this to work reliably)
+        /// For this reason a we try to delete it until the operation is successful or a timeout is reached. The timeout can be set with <see cref="MaxWaitForDeletion"/>
         /// 
         /// If you want to delete multiple pages a call only to Delete() and a collective removal from the recycle bin afterwards is faster than a call
         /// to DeleteIrrevocably on every single page.
         /// </summary>
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void DeleteIrrevocably()
         {
-            PageState curStatus = Status;
+            var start = DateTime.Now;
 
-            if (curStatus != PageState.WillBeRemovedCompletely && curStatus != PageState.IsInRecycleBin)
+            if (!Exists)
             {
+                return;
+            }
+
+            //status gets loaded lazily, and we need need to know status at this point (before Delete() gets called), so we store it in a local var.
+            PageState curStatus = Status;
+            
+            bool isAlreadyDeleted = curStatus == PageState.IsInRecycleBin;
+            if (!isAlreadyDeleted)
+            {   
                 Delete();
+
+                //pages in draft status don't get moved to recycle bin, but deleted completely from a normal delete call
                 if (curStatus == PageState.SavedAsDraft)
                 {
                     return;
                 }
+
+                //deletion is an asynchronous process on the server, so we have to wait until it is done
+                WaitUntilPageIsInRecycleBin(MaxWaitForDeletion);
             }
-            new Task(() =>
-                         {
-                             Thread.Sleep(MaxWaitForRemovalFromRecycleBinInMs);
-                             DeleteFromRecycleBin();
-                         }).Start();
+
+            var alreadyElapsed = DateTime.Now - start;
+            var maxWaitForDeletionFromRecycleBin = MaxWaitForDeletion - alreadyElapsed;
+            
+            WaitForDeletionFromRecycleBin(maxWaitForDeletionFromRecycleBin);
+        }
+
+        private void WaitForDeletionFromRecycleBin(TimeSpan maxWaitForDeletionFromRecycleBin)
+        {
+            //At this point we are at a race condition with the server.
+            //It can happen that although the status is set to IsInRecycleBin, it can't be removed from there yet.
+            //Therefor we have to try again, until it works (or a timeout is reached to avoid infinite loops on errors).
+            var timeOutTracker = new TimeOutTracker(maxWaitForDeletionFromRecycleBin);
+            do
+            {
+                DeleteFromRecycleBin();
+
+                Refresh();
+                if (!Exists)
+                {
+                    return;
+                }
+            } while (!timeOutTracker.HasTimedOut);
+
+            throw new PageDeletionException(string.Format("Timeout while waiting for remove from recycle bin for page {0}", this));
+        }
+
+        public bool Exists
+        {
+            get { return Status != PageState.WillBeRemovedCompletely && Status != PageState.NotSet; }
+        }
+
+        private void WaitUntilPageIsInRecycleBin(TimeSpan maxWaitForDeletionInMs)
+        {
+            var timeoutTracker = new TimeOutTracker(maxWaitForDeletionInMs);
+            do
+            {
+                Refresh();
+                if (Status == PageState.IsInRecycleBin)
+                {
+                    return;
+                }
+            } while (!timeoutTracker.HasTimedOut);
+
+            throw new PageDeletionException(string.Format("Timeout while waiting for the page {0} to move into the recycle bin", this));
         }
 
         public override bool Equals(object other)
@@ -562,9 +641,9 @@ namespace erminas.SmartAPI.CMS
 
         private void InitProperties()
         {
-            LinkElements = new NameIndexedRDList<ILinkElement>(GetLinks, Caching.Enabled);
+            LinkElements = new RDList<ILinkElement>(GetLinks, Caching.Enabled);
             ContentElements = new NameIndexedRDList<PageElement>(GetContentElements, Caching.Enabled);
-            Keywords = new NameIndexedRDList<Keyword>(GetKeywords, Caching.Enabled);
+            Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
         }
 
@@ -652,18 +731,24 @@ namespace erminas.SmartAPI.CMS
 
         private List<ILinkElement> GetLinks()
         {
-            const string LOAD_LINKS = @"<PAGE guid=""{0}""><LINKS action=""load"" /></PAGE>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_LINKS, Guid.ToRQLString()));
-            return (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) PageElement.CreateElement(Project, curNode)).ToList();
+            using (new LanguageContext(LanguageVariant))
+            {
+                const string LOAD_LINKS = @"<PAGE guid=""{0}""><LINKS action=""load"" /></PAGE>";
+                XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_LINKS, Guid.ToRQLString()));
+                return (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
+                        select (ILinkElement) PageElement.CreateElement(Project, curNode)).ToList();
+            }
         }
 
         private List<PageElement> GetContentElements()
         {
-            const string LOAD_PAGE_ELEMENTS =
-                @"<PROJECT><PAGE guid=""{0}""><ELEMENTS action=""load""/></PAGE></PROJECT>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PAGE_ELEMENTS, Guid.ToRQLString()));
-            return ToElementList(xmlDoc.GetElementsByTagName("ELEMENT"));
+            using (new LanguageContext(LanguageVariant))
+            {
+                const string LOAD_PAGE_ELEMENTS =
+                    @"<PROJECT><PAGE guid=""{0}""><ELEMENTS action=""load""/></PAGE></PROJECT>";
+                XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PAGE_ELEMENTS, Guid.ToRQLString()));
+                return ToElementList(xmlDoc.GetElementsByTagName("ELEMENT"));
+            }
         }
 
         private List<Keyword> GetKeywords()

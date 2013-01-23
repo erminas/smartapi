@@ -24,17 +24,17 @@ namespace erminas.SmartAPI.CMS
 {
     public class Locale
     {
+        public readonly Session Session;
         public readonly string Country;
         public readonly string Id;
         public readonly bool IsStandardLanguage;
         public readonly int LCID;
         public readonly string Language;
         public readonly string RFCLanguageId;
-        private readonly Project _project;
 
-        public Locale(Project project, XmlElement xmlElement)
+        public Locale(Session session, XmlElement xmlElement)
         {
-            _project = project;
+            Session = session;
             Id = xmlElement.GetAttributeValue("id");
             Country = xmlElement.GetAttributeValue("country");
             Language = xmlElement.GetAttributeValue("language");
@@ -48,10 +48,37 @@ namespace erminas.SmartAPI.CMS
         ///   All Date/Time/DateTime formats of this locale, indexed by their format type id. This list is cached by default.
         /// </summary>
         public IndexedCachedList<int, DateTimeFormat> DateTimeFormats { get; private set; }
-
+        
         public override string ToString()
         {
             return Country + " (" + Language + ")";
+        }
+
+        private bool Equals(Locale other)
+        {
+            return string.Equals(Id, other.Id);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+            return Equals((Locale) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
 
         private List<DateTimeFormat> GetFormats()
@@ -76,9 +103,9 @@ namespace erminas.SmartAPI.CMS
         private XmlNodeList GetFormatsOfSingleType(DateTimeFormatTypes types)
         {
             const string LOAD_TIME_FORMATS =
-                @"<PROJECT><TEMPLATE><ELEMENT action=""load"" ><{0}FORMATS action=""list"" lcid=""{1}""/></ELEMENT></TEMPLATE></PROJECT>";
+                @"<TEMPLATE><ELEMENT action=""load"" ><{0}FORMATS action=""list"" lcid=""{1}""/></ELEMENT></TEMPLATE>";
             string formatTypeString = types.ToString().ToUpper();
-            XmlDocument result = _project.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID));
+            XmlDocument result = Session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID));
 
             var timeformats = result.GetElementsByTagName(formatTypeString + "FORMATS")[0] as XmlElement;
             if (timeformats == null)

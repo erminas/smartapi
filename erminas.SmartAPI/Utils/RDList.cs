@@ -27,6 +27,10 @@ namespace erminas.SmartAPI.Utils
         {
         }
 
+        protected RDList(Caching caching) : base(caching)
+        {
+        }
+
         #region IRDList<T> Members
 
         public T GetByGuid(Guid guid)
@@ -65,6 +69,12 @@ namespace erminas.SmartAPI.Utils
         {
             T tmp;
             return TryGetByName(name, out tmp);
+        }
+
+        public new RDList<T> Refreshed()
+        {
+            Refresh();
+            return this;
         }
 
         #endregion
