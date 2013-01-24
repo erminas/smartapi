@@ -1,11 +1,12 @@
 ﻿using System;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.Exceptions
 {
     [Serializable]
     public sealed class InvalidServerVersionException : SmartAPIException
     {
-        public InvalidServerVersionException(string message) : base(message)
+        internal InvalidServerVersionException(ServerLogin server, string message) : base(server, message)
         {
         }
     }

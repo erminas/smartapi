@@ -281,7 +281,7 @@ namespace erminas.SmartAPI.CMS
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LIST_FILE_ATTRIBUTES, Guid.ToRQLString(), fileName));
             var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
-            return new FileAttribute(node);
+            return new FileAttribute(this, node);
         }
 
         public void SaveFiles(List<FileSource> sources)

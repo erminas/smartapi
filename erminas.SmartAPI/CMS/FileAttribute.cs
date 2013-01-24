@@ -23,8 +23,11 @@ namespace erminas.SmartAPI.CMS
 {
     public class FileAttribute
     {
-        public FileAttribute(XmlElement xmlElement)
+        public Folder Folder { get; private set; }
+
+        public FileAttribute(Folder folder, XmlElement xmlElement)
         {
+            Folder = folder;
             LoadXml(xmlElement);
         }
 
@@ -190,7 +193,7 @@ namespace erminas.SmartAPI.CMS
             } catch (Exception e)
             {
                 // couldn't read data
-                throw new FileDataException("Couldn't read file data..", e);
+                throw new FileDataException(Folder.Project.Session.ServerLogin, "Couldn't read file data..", e);
             }
         }
     }

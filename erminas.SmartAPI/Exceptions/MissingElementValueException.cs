@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.Exceptions
 {
     [Serializable]
     public class MissingElementValueException : PageStatusException
     {
-        public MissingElementValueException(Page page, IEnumerable<string> names) : base(page, BuildMessage(names))
+        public MissingElementValueException(Page page, IEnumerable<string> names)
+            : base(page, BuildMessage(names))
         {
         }
 

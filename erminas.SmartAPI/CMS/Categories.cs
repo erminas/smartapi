@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS
             var category = (XmlElement) xmlDoc.SelectSingleNode("//CATEGORY");
             if (category == null)
             {
-                throw new SmartAPIException(string.Format("Could not create the category {0} in project {1}", categoryName, _project));
+                throw new SmartAPIException(_project.Session.ServerLogin, string.Format("Could not create the category {0} in project {1}", categoryName, _project));
             }
 
             InvalidateCache();

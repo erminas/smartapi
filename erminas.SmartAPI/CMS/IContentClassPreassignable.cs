@@ -130,7 +130,7 @@ namespace erminas.SmartAPI.CMS
 
             if (!xmlDoc.InnerText.Contains("ok"))
             {
-                throw new SmartAPIException(string.Format("Could not set presassigned content classes for {0}", Element));
+                throw new SmartAPIException(Element.ContentClass.Project.Session.ServerLogin, string.Format("Could not set presassigned content classes for {0}", Element));
             }
         }
 

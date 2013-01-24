@@ -338,12 +338,12 @@ namespace erminas.SmartAPI.CMS
 
             if (lessThanAttributes.Any())
             {
-                lessThanAttributes.Cast<VersionIsLessThan>().First().Validate(Version, info.Name);
+                lessThanAttributes.Cast<VersionIsLessThan>().First().Validate(ServerLogin, Version, info.Name);
             }
 
             if (greaterOrEqualAttributes.Any())
             {
-                greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>().First().Validate(Version, info.Name);
+                greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>().First().Validate(ServerLogin, Version, info.Name);
             }
         }
 
@@ -764,7 +764,7 @@ namespace erminas.SmartAPI.CMS
             var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
             if (userElement == null)
             {
-                throw new SmartAPIException("could not load user: " + guid.ToRQLString());
+                throw new SmartAPIException(ServerLogin, "could not load user: " + guid.ToRQLString());
             }
             return new User(this, Guid.Parse(userElement.GetAttributeValue("guid")));
         }
@@ -794,7 +794,7 @@ namespace erminas.SmartAPI.CMS
             return ParseRQLResult(result);
         }
 
-        private static XmlDocument ParseRQLResult(string result)
+        private XmlDocument ParseRQLResult(string result)
         {
             var xmlDoc = new XmlDocument();
 
@@ -809,7 +809,7 @@ namespace erminas.SmartAPI.CMS
                 return xmlDoc;
             } catch (Exception e)
             {
-                throw new SmartAPIException("Illegal response from server", e);
+                throw new SmartAPIException(ServerLogin, "Illegal response from server", e);
             }
         }
 

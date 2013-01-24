@@ -86,12 +86,12 @@ namespace erminas.SmartAPI.CMS
             IsTranslationEditor = HasRight(projectAssignment, "languagemanagerright");
         }
 
-        private static bool HasRight(XmlElement projectElement, string attributeName)
+        private bool HasRight(XmlElement projectElement, string attributeName)
         {
             var intAttributeValue = projectElement.GetIntAttributeValue(attributeName);
             if (intAttributeValue == null)
             {
-                throw new SmartAPIException(string.Format("Missing attribute '{0}' in user/project assignment",
+                throw new SmartAPIException(_user.Session.ServerLogin, string.Format("Missing attribute '{0}' in user/project assignment",
                                                           attributeName));
             }
 

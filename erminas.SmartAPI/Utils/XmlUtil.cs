@@ -113,8 +113,7 @@ namespace erminas.SmartAPI.Utils
             {
                 return false;
             }
-
-            throw new SmartAPIException(string.Format("Invalid bool value {0} for attribute {1}", value, attributeName));
+            throw new SmartAPIException((ServerLogin)null, string.Format("Could not convert value '{0}' of attribute '{1}' to a boolean value", value, attributeName) );
         }
 
         public static double? GetDoubleAttributeValue(this XmlElement xmlElement, string attributeName)

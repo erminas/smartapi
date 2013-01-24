@@ -73,7 +73,7 @@ namespace erminas.SmartAPI.CMS
             var category = xmlDoc.SelectSingleNode(categoryXPath);
             if (category == null)
             {
-                throw new SmartAPIException(string.Format("Could not rename category to '{0}'", Name));
+                throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not rename category to '{0}'", Name));
             }
         }
 
@@ -109,12 +109,12 @@ namespace erminas.SmartAPI.CMS
 
             if (category == null)
             {
-                throw new SmartAPIException(string.Format("Could not delete category {0}", this));
+                throw new SmartAPIException(Project.Session.ServerLogin,string.Format("Could not delete category {0}", this));
             }
 
             if (IsCategoryStillUsed(category))
             {
-                throw new SmartAPIException(string.Format("Could not delete category {0}, because a keyword is still assigned to a page", this));
+                throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not delete category {0}, because a keyword is still assigned to a page", this));
             }
 
             Project.Categories.InvalidateCache();
@@ -141,7 +141,7 @@ namespace erminas.SmartAPI.CMS
             //TODO execute page builder command
             if (category == null)
             {
-                throw new SmartAPIException(string.Format("Could not delete keyword {0}", this));
+                throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not delete keyword {0}", this));
             }
 
             Project.Categories.InvalidateCache();

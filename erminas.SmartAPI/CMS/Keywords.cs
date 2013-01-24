@@ -33,7 +33,7 @@ namespace erminas.SmartAPI.CMS
             var keyword = (XmlElement)xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
             if (keyword == null)
             {
-                throw new SmartAPIException(string.Format("Could not create the keyword '{0}'", keywordName));
+                throw new SmartAPIException(Category.Project.Session.ServerLogin, string.Format("Could not create the keyword '{0}'", keywordName));
             }
 
             InvalidateCache();

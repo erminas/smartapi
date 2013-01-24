@@ -16,29 +16,32 @@
 
 using System;
 using System.Runtime.Serialization;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.Exceptions
 {
     [Serializable]
     public class FileDataException : SmartAPIException
     {
-        public FileDataException()
+        internal FileDataException(ServerLogin login) : base(login)
         {
             // Add implementation.
         }
 
-        public FileDataException(string message) : base(message)
+        internal FileDataException(ServerLogin login, string message)
+            : base(login, message)
         {
             // Add implementation.
         }
 
-        public FileDataException(string message, Exception inner) : base(message, inner)
+        internal FileDataException(ServerLogin login, string message, Exception inner)
+            : base(login, message, inner)
         {
             // Add implementation.
         }
 
         // This constructor is needed for serialization.
-        protected FileDataException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected FileDataException(ServerLogin login, SerializationInfo info, StreamingContext context) : base(login, info, context)
         {
             // Add implementation.
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using erminas.SmartAPI.Exceptions;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -13,7 +14,7 @@ namespace erminas.SmartAPI.CMS
         public Version Version { get; set; }
 
         public string VersionName { get; set; }
-        public abstract void Validate(Version actualVersion, string method);
+        public abstract void Validate(ServerLogin login, Version actualVersion, string method);
     }
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
@@ -24,12 +25,12 @@ namespace erminas.SmartAPI.CMS
         {
         }
 
-        public override void Validate(Version actualVersion, string method)
+        public override void Validate(ServerLogin login, Version actualVersion, string method)
         {
             if (actualVersion < Version)
             {
                 string versionNameString = string.IsNullOrEmpty(VersionName) ? "" : " (" + VersionName + ")";
-                throw new InvalidServerVersionException(
+                throw new InvalidServerVersionException(login,
                     string.Format(
                         "Invalid server version. {0} only works on servers with version greater than or equal {1}{3}, but the current server version is {2}",
                         method, Version, actualVersion, versionNameString));
@@ -44,12 +45,12 @@ namespace erminas.SmartAPI.CMS
         {
         }
 
-        public override void Validate(Version actualVersion, string method)
+        public override void Validate(ServerLogin login, Version actualVersion, string method)
         {
             if (actualVersion >= Version)
             {
                 string versionNameString = string.IsNullOrEmpty(VersionName) ? "" : " (" + VersionName + ")";
-                throw new InvalidServerVersionException(
+                throw new InvalidServerVersionException(login,
                     string.Format(
                         "Invalid server version. {0} only works on servers with version less than {1}{3}, but the current server version is {2}",
                         method, Version, actualVersion, versionNameString));

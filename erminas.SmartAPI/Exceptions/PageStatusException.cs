@@ -9,24 +9,25 @@ namespace erminas.SmartAPI.Exceptions
     {
         public Page Page { get; private set; }
 
-        public PageStatusException(Page page)
+        internal PageStatusException(Page page) : base(page.Project.Session.ServerLogin)
         {
             Page = page;
         }
 
-        public PageStatusException(Page page, string message) : base(message)
+        internal PageStatusException(Page page, string message)
+            : base(page.Project.Session.ServerLogin, message)
         {
             Page = page;
         }
 
-        public PageStatusException(Page page, string message, Exception innerException)
-            : base(message, innerException)
+        internal PageStatusException(Page page, string message, Exception innerException)
+            : base(page.Project.Session.ServerLogin, message, innerException)
         {
             Page = page;
         }
 
-        public PageStatusException(Page page, SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        internal PageStatusException(Page page, SerializationInfo info, StreamingContext context)
+            : base(page.Project.Session.ServerLogin, info, context)
         {
             Page = page;
         }

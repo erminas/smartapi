@@ -152,7 +152,7 @@ namespace erminas.SmartAPI.Exceptions
 
         #endregion
 
-        public RQLException(string server, string reason, string responseXML)
+        public RQLException(string server, string reason, string responseXML) : base(server, reason)
         {
             Server = server;
             //use lastordefault because the numbers are increasing/more specific at the end. E.g. RDError1 is also contained in RDError110.
@@ -174,13 +174,7 @@ namespace erminas.SmartAPI.Exceptions
             get { return (Data[RESPONSE] ?? "").ToString(); }
             private set { Data.Add(RESPONSE, value); }
         }
-
-        public string Server
-        {
-            get { return (Data[SERVER] ?? "").ToString(); }
-            private set { Data.Add(SERVER, value); }
-        }
-
+        
         public string ErrorMessage
         {
             get { return (Data[ERROR_MESSAGE] ?? "").ToString(); }

@@ -1,4 +1,5 @@
 ﻿using System;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.Exceptions
 {
@@ -14,7 +15,7 @@ namespace erminas.SmartAPI.Exceptions
     {
         public readonly PageDeletionError Error;
 
-        public PageDeletionException(RQLException e) : base(e.Message, e)
+        internal PageDeletionException(RQLException e) : base(e.Server, e.Message, e)
         {
             switch (e.ErrorCode)
             {
@@ -30,7 +31,7 @@ namespace erminas.SmartAPI.Exceptions
             }
         }
 
-        public PageDeletionException(string message) : base(message)
+        internal PageDeletionException(ServerLogin login, string message) : base(login, message)
         {
             Error = PageDeletionError.Unknown;
         }

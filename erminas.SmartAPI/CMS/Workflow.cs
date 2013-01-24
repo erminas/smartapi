@@ -93,7 +93,7 @@ namespace erminas.SmartAPI.CMS
             
             if (!reply.Contains("ok"))
             {
-                throw new SmartAPIException(string.Format("Could not delete workflow {0}", this));
+                throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not delete workflow {0}", this));
             }
         }
 

@@ -528,7 +528,7 @@ namespace erminas.SmartAPI.CMS
                     Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion, LanguageVariant.Language));
                 if (!xmlDoc.InnerText.Contains("ok"))
                 {
-                    throw new PageDeletionException(string.Format("Could not delete page {0}", this));
+                    throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Could not delete page {0}", this));
                 }
             } catch (RQLException e)
             {
@@ -601,7 +601,7 @@ namespace erminas.SmartAPI.CMS
                 }
             } while (!timeOutTracker.HasTimedOut);
 
-            throw new PageDeletionException(string.Format("Timeout while waiting for remove from recycle bin for page {0}", this));
+            throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Timeout while waiting for remove from recycle bin for page {0}", this));
         }
 
         public bool Exists
@@ -621,7 +621,7 @@ namespace erminas.SmartAPI.CMS
                 }
             } while (!timeoutTracker.HasTimedOut);
 
-            throw new PageDeletionException(string.Format("Timeout while waiting for the page {0} to move into the recycle bin", this));
+            throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Timeout while waiting for the page {0} to move into the recycle bin", this));
         }
 
         public override bool Equals(object other)
