@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -127,17 +126,6 @@ namespace erminas.SmartAPI.CMS
             DialogLocales = new IndexedCachedList<string, Locale>(GetDialogLocales, x => x.Id, Caching.Enabled);
         }
 
-        private List<Locale> GetDialogLocales()
-        {
-            const string LOAD_DIALOG_LANGUAGES = @"<DIALOG action=""listlanguages"" orderby=""2""/>";
-            var resultStr = ExecuteRql(LOAD_DIALOG_LANGUAGES, IODataFormat.LogonGuidOnly);
-            var xmlDoc = ParseRQLResult(resultStr);
-
-            return (from XmlElement curElement in xmlDoc.GetElementsByTagName("LIST") select new Locale(this, curElement)).ToList();
-        }
-
-        public IndexedCachedList<string, Locale> DialogLocales { get; private set; }
-
         /// <summary>
         ///     Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
         /// </summary>
@@ -169,6 +157,8 @@ namespace erminas.SmartAPI.CMS
         private const bool FORCE_LOGIN = true;
 
         #endregion
+
+        public IndexedCachedList<string, Locale> DialogLocales { get; private set; }
 
         public IRDList<ApplicationServer> ApplicationServers { get; private set; }
 
@@ -245,6 +235,17 @@ namespace erminas.SmartAPI.CMS
         }
 
         #endregion
+
+        private List<Locale> GetDialogLocales()
+        {
+            const string LOAD_DIALOG_LANGUAGES = @"<DIALOG action=""listlanguages"" orderby=""2""/>";
+            var resultStr = ExecuteRql(LOAD_DIALOG_LANGUAGES, IODataFormat.LogonGuidOnly);
+            var xmlDoc = ParseRQLResult(resultStr);
+
+            return
+                (from XmlElement curElement in xmlDoc.GetElementsByTagName("LIST") select new Locale(this, curElement))
+                    .ToList();
+        }
 
         private User GetCurrentUser()
         {
@@ -343,7 +344,9 @@ namespace erminas.SmartAPI.CMS
 
             if (greaterOrEqualAttributes.Any())
             {
-                greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>().First().Validate(ServerLogin, Version, info.Name);
+                greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>()
+                                        .First()
+                                        .Validate(ServerLogin, Version, info.Name);
             }
         }
 
@@ -929,8 +932,8 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            _from = XmlNode.GetAttributeValue("adress");
-            _ipAddress = XmlNode.GetAttributeValue("ip");
+            _from = XmlElement.GetAttributeValue("adress");
+            _ipAddress = XmlElement.GetAttributeValue("ip");
         }
 
         protected override void LoadWholeObject()

@@ -1,3 +1,18 @@
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using erminas.SmartAPI.CMS.PageElements;
@@ -8,34 +23,34 @@ namespace erminas.SmartAPI.CMS
     public interface IPage : ILinkTarget, IPartialRedDotObject
     {
         /// <summary>
-        ///   ReleaseStatus of the page.
+        ///     ReleaseStatus of the page.
         /// </summary>
         Page.PageState Status { get; set; }
 
         /// <summary>
-        ///   Language variant of this page instance.
+        ///     Language variant of this page instance.
         /// </summary>
         LanguageVariant LanguageVariant { get; }
 
         /// <summary>
-        ///   Page filename. Same as Name.
+        ///     Page filename. Same as Name.
         /// </summary>
         string Filename { get; set; }
 
         Project Project { get; }
 
         /// <summary>
-        ///   Content class of the page
+        ///     Content class of the page
         /// </summary>
         ContentClass ContentClass { get; }
 
         /// <summary>
-        ///   Headline of the page
+        ///     Headline of the page
         /// </summary>
         string Headline { get; set; }
 
         /// <summary>
-        ///   Date of the release.
+        ///     Date of the release.
         /// </summary>
         /// TODO last or initial release?
         DateTime ReleaseDate { get; }
@@ -43,109 +58,111 @@ namespace erminas.SmartAPI.CMS
         DateTime CheckinDate { get; }
 
         /// <summary>
-        ///   The element this page has as mainlink.
+        ///     The element this page has as mainlink.
         /// </summary>
         PageElement MainLinkElement { get; }
 
         /// <summary>
-        ///   Parent page (the page containing this page's main link).
+        ///     Parent page (the page containing this page's main link).
         /// </summary>
         Page Parent { get; }
 
         /// <summary>
-        ///   Page Id.
+        ///     Page Id.
         /// </summary>
         int Id { get; }
 
         /// <summary>
-        ///   The current release status of this page. Setting it will change it on the server.
+        ///     The current release status of this page. Setting it will change it on the server.
         /// </summary>
         Page.PageReleaseStatus ReleaseStatus { get; set; }
 
         /// <summary>
-        ///   Returns the Workflow this page adheres to.
+        ///     Returns the Workflow this page adheres to.
         /// </summary>
         Workflow Workflow { get; }
 
         /// <summary>
-        ///   All keywords associated with this page.
+        ///     All keywords associated with this page.
         /// </summary>
         RDList<Keyword> Keywords { get; }
 
         /// <summary>
-        ///   All link elements of this page.
+        ///     All link elements of this page.
         /// </summary>
         IRDList<ILinkElement> LinkElements { get; }
 
         /// <summary>
-        ///   All content elements of this page.
+        ///     All content elements of this page.
         /// </summary>
         NameIndexedRDList<PageElement> ContentElements { get; }
 
         /// <summary>
-        ///   Get a content/link element of this page with a specific name.
+        ///     Get a content/link element of this page with a specific name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
         IPageElement this[string elementName] { get; }
 
         /// <summary>
-        ///   Remove a keyword from this page.
+        ///     Remove a keyword from this page.
         /// </summary>
         void DeleteKeyword(Keyword keyword);
 
         /// <summary>
-        ///   Save changes to headline/filename to the server.
+        ///     Save changes to headline/filename to the server.
         /// </summary>
         void Commit();
 
         /// <summary>
-        ///   Submit the page to workflow.
+        ///     Submit the page to workflow.
         /// </summary>
         void SubmitToWorkflow();
 
         /// <summary>
-        ///   Released the page.
+        ///     Released the page.
         /// </summary>
         void Release();
 
         /// <summary>
-        ///   Disconnects the page from its parent (main link).
+        ///     Disconnects the page from its parent (main link).
         /// </summary>
         void DisconnectFromParent();
 
         /// <summary>
-        ///   Push the page through workflow. Afterwards the (release) status of this page object no longer reflects the real status. To update it, call <see
-        ///    cref="PartialRedDotObject.Refresh" /> . The object ist not automaticall updated to not incurr unnecessary overhead, if that information isn't needed anyway.
+        ///     Push the page through workflow. Afterwards the (release) status of this page object no longer reflects the real status. To update it, call
+        ///     <see
+        ///         cref="PartialRedDotObject.Refresh" />
+        ///     . The object ist not automaticall updated to not incurr unnecessary overhead, if that information isn't needed anyway.
         /// </summary>
         void SkipWorkflow();
 
         /// <summary>
-        ///   Imitates the RedDot Undo page function. If the page has no previous state it is deleted. See the RedDot documentation for more details.
+        ///     Imitates the RedDot Undo page function. If the page has no previous state it is deleted. See the RedDot documentation for more details.
         /// </summary>
         void Undo();
 
         /// <summary>
-        ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
         /// </summary>
         void Delete();
 
         /// <summary>
-        ///   Delete the page from the recycle bin
+        ///     Delete the page from the recycle bin
         /// </summary>
         void DeleteFromRecycleBin();
 
         /// <summary>
-        ///   Restore page from recycle bin
+        ///     Restore page from recycle bin
         /// </summary>
         void Restore();
 
         /// <summary>
-        ///   Rejects the page from the current level of workflow.
+        ///     Rejects the page from the current level of workflow.
         /// </summary>
         void Reject();
 
         /// <summary>
-        ///   Reset the page to draft status.
+        ///     Reset the page to draft status.
         /// </summary>
         void ResetToDraft();
     }

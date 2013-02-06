@@ -1,4 +1,18 @@
-﻿using System;
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -9,10 +23,10 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    /// Encapsulates keyword management for a category.
+    ///     Encapsulates keyword management for a category.
     /// </summary>
     /// <remarks>
-    /// We don't subclass NameIndexedRDList, because renaming to existing names is allowed and could lead to duplicate keyword names.
+    ///     We don't subclass NameIndexedRDList, because renaming to existing names is allowed and could lead to duplicate keyword names.
     /// </remarks>
     public class Keywords : RDList<Keyword>
     {
@@ -26,14 +40,16 @@ namespace erminas.SmartAPI.CMS
 
         public Keyword CreateOrGet(string keywordName)
         {
-            const string SAVE_KEYWORD =
-               @"<CATEGORY guid=""{0}""><KEYWORD action=""save"" value=""{1}""/></CATEGORY>";
+            const string SAVE_KEYWORD = @"<CATEGORY guid=""{0}""><KEYWORD action=""save"" value=""{1}""/></CATEGORY>";
 
-            var xmlDoc = Category.Project.ExecuteRQL(SAVE_KEYWORD.RQLFormat(Category, HttpUtility.HtmlEncode(keywordName)), Project.RqlType.SessionKeyInProject);
-            var keyword = (XmlElement)xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
+            var xmlDoc =
+                Category.Project.ExecuteRQL(SAVE_KEYWORD.RQLFormat(Category, HttpUtility.HtmlEncode(keywordName)),
+                                            Project.RqlType.SessionKeyInProject);
+            var keyword = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin, string.Format("Could not create the keyword '{0}'", keywordName));
+                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                                            string.Format("Could not create the keyword '{0}'", keywordName));
             }
 
             InvalidateCache();

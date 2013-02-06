@@ -1,4 +1,19 @@
-﻿using System;
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Runtime.Serialization;
 using erminas.SmartAPI.Utils;
 
@@ -7,7 +22,7 @@ namespace erminas.SmartAPI.Exceptions
     [Serializable]
     public class SmartAPIException : Exception
     {
-        internal SmartAPIException(ServerLogin login)
+        public SmartAPIException(ServerLogin login)
         {
             if (login != null)
             {
@@ -15,8 +30,7 @@ namespace erminas.SmartAPI.Exceptions
             }
         }
 
-        internal SmartAPIException(ServerLogin login, string message)
-            : base(message)
+        public SmartAPIException(ServerLogin login, string message) : base(message)
         {
             if (login != null)
             {
@@ -24,13 +38,12 @@ namespace erminas.SmartAPI.Exceptions
             }
         }
 
-        internal SmartAPIException(string serverName, string message)
-            : base(message)
+        public SmartAPIException(string serverName, string message) : base(message)
         {
             Server = serverName;
         }
 
-        internal SmartAPIException(ServerLogin login, string message, Exception innerException)
+        public SmartAPIException(ServerLogin login, string message, Exception innerException)
             : base(message, innerException)
         {
             if (login != null)
@@ -39,13 +52,13 @@ namespace erminas.SmartAPI.Exceptions
             }
         }
 
-        internal SmartAPIException(string serverName, string message, Exception innerException)
+        public SmartAPIException(string serverName, string message, Exception innerException)
             : base(message, innerException)
         {
             Server = serverName;
         }
 
-        internal SmartAPIException(ServerLogin login, SerializationInfo info, StreamingContext context)
+        public SmartAPIException(ServerLogin login, SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             if (login != null)

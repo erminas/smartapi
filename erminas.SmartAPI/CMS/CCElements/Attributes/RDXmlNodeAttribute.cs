@@ -1,18 +1,17 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
@@ -199,7 +198,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
             if (initValue)
             {
-                string attr = parent.XmlNode.GetAttributeValue(name);
+                string attr = parent.XmlElement.GetAttributeValue(name);
                 if (attr != null && attr != Session.SESSIONKEY_PLACEHOLDER)
                 {
                     UpdateValue(attr);
@@ -263,12 +262,13 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected virtual void SetXmlNodeValue(string value)
         {
-            Parent.XmlNode.SetAttributeValue(Name, string.IsNullOrEmpty(value) ? Session.SESSIONKEY_PLACEHOLDER : value);
+            Parent.XmlElement.SetAttributeValue(Name,
+                                                string.IsNullOrEmpty(value) ? Session.SESSIONKEY_PLACEHOLDER : value);
         }
 
         public virtual string GetXmlNodeValue()
         {
-            string value = Parent.XmlNode.GetAttributeValue(Name);
+            string value = Parent.XmlElement.GetAttributeValue(Name);
             return string.IsNullOrEmpty(value) ? null : value;
         }
 

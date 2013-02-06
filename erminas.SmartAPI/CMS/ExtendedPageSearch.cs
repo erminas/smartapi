@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +22,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   An extended page search more powerful than the normale <see cref="PageSearch" /> that can be refined by adding predicates to it (e.g. on the page status).
+    ///     An extended page search more powerful than the normale <see cref="PageSearch" /> that can be refined by adding predicates to it (e.g. on the page status).
     /// </summary>
     public class ExtendedPageSearch
     {
@@ -83,6 +82,11 @@ namespace erminas.SmartAPI.CMS
         public SortDirection OrderDirection { get; set; }
 
         public User User { get; set; }
+
+        private LanguageVariant LanguageVariantOfSearchResults
+        {
+            get { return LanguageVariant ?? _project.CurrentLanguageVariant; }
+        }
 
         public List<ResultGroup> Execute()
         {
@@ -171,13 +175,12 @@ namespace erminas.SmartAPI.CMS
                         change.GetOADate().Value, // ReSharper restore PossibleInvalidOperationException
                         new User(_project.Session, ((XmlElement) change.GetElementsByTagName("USER")[0]).GetGuid()),
                         new ContentClass(_project, contentClass.GetGuid())
-                            {Name = contentClass.GetAttributeValue("name")})
-                            {WorkflowInfo = ToWorkflow(curPage.GetElementsByTagName("WORKFLOW"))}).ToList();
-        }
-
-        private LanguageVariant LanguageVariantOfSearchResults
-        {
-            get { return LanguageVariant ?? _project.CurrentLanguageVariant; }
+                            {
+                                Name = contentClass.GetAttributeValue("name")
+                            })
+                            {
+                                WorkflowInfo = ToWorkflow(curPage.GetElementsByTagName("WORKFLOW"))
+                            }).ToList();
         }
 
         private WorkflowInfo ToWorkflow(XmlNodeList workflows)
@@ -190,7 +193,9 @@ namespace erminas.SmartAPI.CMS
             var workflowElement = (XmlElement) workflows[0];
             int? skipable = workflowElement.GetIntAttributeValue("skipable");
             var workflow = new Workflow(_project, workflowElement.GetGuid())
-                               {Name = workflowElement.GetAttributeValue("name")};
+                {
+                    Name = workflowElement.GetAttributeValue("name")
+                };
             return new WorkflowInfo(workflow,
                                     ToReleases((XmlElement) workflowElement.GetElementsByTagName("RELEASES")[0]),
                                     workflowElement.GetAttributeValue("releasename"),

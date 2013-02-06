@@ -1,4 +1,19 @@
-﻿using System;
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -9,7 +24,10 @@ namespace erminas.SmartAPI.Utils
     public static class XmlUtil
     {
         /// <summary>
-        ///   Creates an attribute via the owner document of <see cref="xmlElement" /> , sets its value and appends it to <see cref="xmlElement" /> .
+        ///     Creates an attribute via the owner document of <see cref="xmlElement" /> , sets its value and appends it to
+        ///     <see
+        ///         cref="xmlElement" />
+        ///     .
         /// </summary>
         /// <param name="xmlElement"> The node, the attribute gets added to </param>
         /// <param name="attributeName"> Name of the attribute </param>
@@ -22,7 +40,7 @@ namespace erminas.SmartAPI.Utils
         }
 
         /// <summary>
-        ///   Creates an <see cref="XmlElement" /> and appends it as child to the XmlNode
+        ///     Creates an <see cref="XmlElement" /> and appends it as child to the XmlNode
         /// </summary>
         /// <param name="node"> The parent node </param>
         /// <param name="name"> Name of the newly created element </param>
@@ -41,14 +59,16 @@ namespace erminas.SmartAPI.Utils
             var nodes = doc.GetElementsByTagName(tagName);
             if (nodes.Count != 1)
             {
-                throw new SmartAPIInternalException(string.Format("Invalid number of {0} elements in XML reply from server. Expected: 1 actual: {1}", tagName, nodes.Count));
+                throw new SmartAPIInternalException(
+                    string.Format("Invalid number of {0} elements in XML reply from server. Expected: 1 actual: {1}",
+                                  tagName, nodes.Count));
             }
 
-            return (XmlElement)nodes[0];
+            return (XmlElement) nodes[0];
         }
 
         /// <summary>
-        ///   Sets an attribute to a value. If no fitting <see cref="XmlAttribute" /> exists, a new one is created/appended and its value set.
+        ///     Sets an attribute to a value. If no fitting <see cref="XmlAttribute" /> exists, a new one is created/appended and its value set.
         /// </summary>
         /// <param name="xmlElement"> The node </param>
         /// <param name="attributeName"> Name of the attribute </param>
@@ -67,10 +87,12 @@ namespace erminas.SmartAPI.Utils
         }
 
         /// <summary>
-        ///   Creates a string representation of an <see cref="XmlNode" />
+        ///     Creates a string representation of an <see cref="XmlNode" />
         /// </summary>
         /// <param name="xmlElement"> The node </param>
-        /// <returns> string representation of <see cref="xmlElement" /> </returns>
+        /// <returns>
+        ///     string representation of <see cref="xmlElement" />
+        /// </returns>
         public static string NodeToString(this XmlElement xmlElement)
         {
             var sw = new StringWriter();
@@ -81,7 +103,7 @@ namespace erminas.SmartAPI.Utils
         }
 
         /// <summary>
-        ///   Gets the value of an attribute. If the attribute does not exists, null is returned.
+        ///     Gets the value of an attribute. If the attribute does not exists, null is returned.
         /// </summary>
         /// <param name="xmlElement"> The node </param>
         /// <param name="attributeName"> Name of the attribute </param>
@@ -113,7 +135,10 @@ namespace erminas.SmartAPI.Utils
             {
                 return false;
             }
-            throw new SmartAPIException((ServerLogin)null, string.Format("Could not convert value '{0}' of attribute '{1}' to a boolean value", value, attributeName) );
+            throw new SmartAPIException((ServerLogin) null,
+                                        string.Format(
+                                            "Could not convert value '{0}' of attribute '{1}' to a boolean value", value,
+                                            attributeName));
         }
 
         public static double? GetDoubleAttributeValue(this XmlElement xmlElement, string attributeName)

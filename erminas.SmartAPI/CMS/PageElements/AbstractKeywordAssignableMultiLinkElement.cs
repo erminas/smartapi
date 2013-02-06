@@ -1,4 +1,19 @@
-﻿using System;
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -8,7 +23,8 @@ namespace erminas.SmartAPI.CMS.PageElements
 {
     public abstract class AbstractKeywordAssignableMultiLinkElement : AbstractMultiLinkElement, IKeywordAssignable
     {
-        protected AbstractKeywordAssignableMultiLinkElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
+        protected AbstractKeywordAssignableMultiLinkElement(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
             Init();
         }
@@ -17,20 +33,6 @@ namespace erminas.SmartAPI.CMS.PageElements
             : base(project, xmlElement)
         {
             Init();
-        }
-
-        private void Init()
-        {
-            AssignedKeywords = new RDList<Keyword>(GetAssignedKeywords, Caching.Enabled) ;
-        }
-
-        private List<Keyword> GetAssignedKeywords()
-        {
-            const string LOAD_KEYWORDS = @"<LINK guid=""{0}""><KEYWORDS action=""load""/></LINK>";
-            var xmlDoc = Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(this), Project.RqlType.SessionKeyInProject);
-
-            var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
-            return keywords == null ? new List<Keyword>() : (from XmlElement keyword in keywords select new Keyword(Project, keyword)).ToList();
         }
 
         public void AssignKeyword(Keyword keyword)
@@ -42,13 +44,6 @@ namespace erminas.SmartAPI.CMS.PageElements
             AssignedKeywords.InvalidateCache();
         }
 
-        private void ExecuteAssignKeyword(Keyword keyword)
-        {
-            const string ASSING_KEYWORD =
-                @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS><KEYWORD guid=""{1}"" changed=""1"" /></KEYWORDS></LINK>";
-            Project.ExecuteRQL(ASSING_KEYWORD.RQLFormat(this, keyword), Project.RqlType.SessionKeyInProject);
-        }
-
         public void UnassignKeyword(Keyword keyword)
         {
             ExecuteUnassignKeyword(keyword);
@@ -56,6 +51,31 @@ namespace erminas.SmartAPI.CMS.PageElements
             ExecutePagebuilderLinkCleanup();
 
             AssignedKeywords.InvalidateCache();
+        }
+
+        public IRDList<Keyword> AssignedKeywords { get; private set; }
+
+        private void Init()
+        {
+            AssignedKeywords = new RDList<Keyword>(GetAssignedKeywords, Caching.Enabled);
+        }
+
+        private List<Keyword> GetAssignedKeywords()
+        {
+            const string LOAD_KEYWORDS = @"<LINK guid=""{0}""><KEYWORDS action=""load""/></LINK>";
+            var xmlDoc = Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+
+            var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
+            return keywords == null
+                       ? new List<Keyword>()
+                       : (from XmlElement keyword in keywords select new Keyword(Project, keyword)).ToList();
+        }
+
+        private void ExecuteAssignKeyword(Keyword keyword)
+        {
+            const string ASSING_KEYWORD =
+                @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS><KEYWORD guid=""{1}"" changed=""1"" /></KEYWORDS></LINK>";
+            Project.ExecuteRQL(ASSING_KEYWORD.RQLFormat(this, keyword), Project.RqlType.SessionKeyInProject);
         }
 
         private void ExecutePagebuilderLinkCleanup()
@@ -71,7 +91,5 @@ namespace erminas.SmartAPI.CMS.PageElements
                 @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS><KEYWORD guid=""{1}"" delete=""1"" changed=""1"" /></KEYWORDS></LINK>";
             Project.ExecuteRQL(UNASSIGN_KEYWORD.RQLFormat(this, keyword), Project.RqlType.SessionKeyInProject);
         }
-
-        public IRDList<Keyword> AssignedKeywords { get; private set; }
     }
 }

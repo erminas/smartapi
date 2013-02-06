@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Web;
@@ -70,14 +69,14 @@ namespace erminas.SmartAPI.CMS
 
     //TODO templatevariant auf attributes umstellen
     /// <summary>
-    ///   Represents a single template on the RedDot server
+    ///     Represents a single template on the RedDot server
     /// </summary>
     public class TemplateVariant : PartialRedDotObject
     {
         #region State enum
 
         /// <summary>
-        ///   State of the template.
+        ///     State of the template.
         /// </summary>
         public enum State
         {
@@ -125,7 +124,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Content data of the template (template text)
+        ///     Content data of the template (template text)
         /// </summary>
         public string Data
         {
@@ -150,7 +149,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Timestamp of the last change to the template
+        ///     Timestamp of the last change to the template
         /// </summary>
         public DateTime LastChangeDate
         {
@@ -158,7 +157,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Timestamp of the creation of the template
+        ///     Timestamp of the creation of the template
         /// </summary>
         public DateTime CreationDate
         {
@@ -166,7 +165,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   User who created the template
+        ///     User who created the template
         /// </summary>
         public User CreationUser
         {
@@ -174,7 +173,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   User who last changed the template
+        ///     User who last changed the template
         /// </summary>
         public User LastChangeUser
         {
@@ -182,7 +181,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Current release status of the template
+        ///     Current release status of the template
         /// </summary>
         public State ReleaseStatus
         {
@@ -190,7 +189,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Denoting whether or not a stylesheet should be automatically built into the header area of a page.
+        ///     Denoting whether or not a stylesheet should be automatically built into the header area of a page.
         /// </summary>
         public bool IsStylesheetIncludedInHeader
         {
@@ -205,7 +204,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Description of the template
+        ///     Description of the template
         /// </summary>
         public string Description
         {
@@ -231,7 +230,7 @@ namespace erminas.SmartAPI.CMS
         public ContentClass ContentClass { get; private set; }
 
         /// <summary>
-        ///   Assign this template to a specific project variant
+        ///     Assign this template to a specific project variant
         /// </summary>
         public void AssignToProjectVariant(ProjectVariant variant, bool doNotPublish, bool doNotUseTidy)
         {
@@ -247,9 +246,9 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            if (!String.IsNullOrEmpty(XmlNode.InnerText))
+            if (!String.IsNullOrEmpty(XmlElement.InnerText))
             {
-                _data = XmlNode.InnerText;
+                _data = XmlElement.InnerText;
             }
             InitIfPresent(ref _creationDate, "createdate", XmlUtil.ToOADate);
             InitIfPresent(ref _changeDate, "changeddate", XmlUtil.ToOADate);
@@ -257,37 +256,40 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _createUser, "createuserguid",
                           x =>
                           new User(ContentClass.Project.Session, Guid.Parse(x))
-                              {Name = XmlNode.GetAttributeValue("createusername")});
+                              {
+                                  Name = XmlElement.GetAttributeValue("createusername")
+                              });
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
                           new User(ContentClass.Project.Session, Guid.Parse(x))
-                              {Name = XmlNode.GetAttributeValue("changedusername")});
+                              {
+                                  Name = XmlElement.GetAttributeValue("changedusername")
+                              });
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
             InitIfPresent(ref _isStylesheetIncluded, "insertstylesheetinpage", BoolConvert);
             InitIfPresent(ref _noStartEndMarkers, "nostartendmarkers", BoolConvert);
             InitIfPresent(ref _isLocked, "lock", BoolConvert);
             InitIfPresent(ref _hasContainerPageReference, "containerpagereference", BoolConvert);
-            if (BoolConvert(XmlNode.GetAttributeValue("draft")))
+            if (BoolConvert(XmlElement.GetAttributeValue("draft")))
             {
                 _status = State.Draft;
             }
             else
             {
-                _status = BoolConvert(XmlNode.GetAttributeValue("waitforrelease"))
+                _status = BoolConvert(XmlElement.GetAttributeValue("waitforrelease"))
                               ? State.WaitsForRelease
                               : State.Released;
             }
         }
 
         /// <summary>
-        ///   Copy this template over to another content class
+        ///     Copy this template over to another content class
         /// </summary>
         /// <param name="target"> </param>
         public void CopyToContentClass(ContentClass target)
         {
-            const string ADD_TEMPLATE_VARIANT =
-                @"<TEMPLATE action=""assign"" guid=""{0}"">
+            const string ADD_TEMPLATE_VARIANT = @"<TEMPLATE action=""assign"" guid=""{0}"">
                     <TEMPLATEVARIANTS action=""addnew"">
                         <TEMPLATEVARIANT name=""{1}"" description=""{2}"" code=""{3}"" fileextension=""{4}"" insertstylesheetinpage=""{5}"" nostartendmarkers=""{6}"" containerpagereference=""{7}""  pdforientation=""{8}"">
                         {3}

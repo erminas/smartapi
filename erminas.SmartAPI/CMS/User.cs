@@ -1,18 +1,17 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -29,11 +28,11 @@ namespace erminas.SmartAPI.CMS
         NameAndDescription = 1,
         EMailAdress = 2,
         ConnectedDirectoryService = 4,
-        Password=8,
+        Password = 8,
         InterfaceLanguageAndLocale = 16,
-        SmartEditNavigation=32,
+        SmartEditNavigation = 32,
         PreferredTextEditor = 64,
-        DirectEdit=128
+        DirectEdit = 128
     }
 
     public enum DirectEditActivation
@@ -43,31 +42,26 @@ namespace erminas.SmartAPI.CMS
     }
 
     /// <summary>
-    ///   A user in the RedDot system.
+    ///     A user in the RedDot system.
     /// </summary>
     public class User : PartialRedDotObject
     {
         public readonly Session Session;
         private Guid _accountSystemGuid;
         private string _description;
-        private bool _isPasswordChangeableByCurrentUser;
         private string _email;
         private string _fullname;
         private int _id;
         private DirectEditActivation _invertDirectEdit;
+        private bool _isPasswordChangeableByCurrentUser;
+        private Locale _locale;
         private DateTime _loginDate;
         private int _maxLevel;
         private int _maxSessionCount;
         private string _navigationType;
         private int _preferredEditor;
         private Locale _userLanguage;
-        private Locale _locale;
         private UserPofileChangeRestrictions _userPofileChangeRestrictions;
-
-        public UserPofileChangeRestrictions UserPofileChangeRestrictions
-        {
-            get { return _userPofileChangeRestrictions; }
-        }
 
         public User(Session session, Guid userGuid) : base(userGuid)
         {
@@ -76,7 +70,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Reads user data from XML-Element "USER" like: <pre>...</pre>
+        ///     Reads user data from XML-Element "USER" like: <pre>...</pre>
         /// </summary>
         /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="session"> The cms session used to retrieve this user </param>
@@ -90,10 +84,17 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
+        public UserPofileChangeRestrictions UserPofileChangeRestrictions
+        {
+            get { return _userPofileChangeRestrictions; }
+        }
+
         /// <summary>
-        ///   List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
+        ///     List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
         /// </summary>
         public IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; private set; }
+
+        public UserModuleAssignment ModuleAssignment { get; private set; }
 
         private void Init()
         {
@@ -103,8 +104,6 @@ namespace erminas.SmartAPI.CMS
                                                                                       Caching.Enabled);
             ModuleAssignment = new UserModuleAssignment(this);
         }
-
-        public UserModuleAssignment ModuleAssignment { get; private set; }
 
         private List<UserProjectAssignment> GetProjectAssignments()
         {
@@ -125,22 +124,22 @@ namespace erminas.SmartAPI.CMS
             InitIfPresent(ref _maxSessionCount, "maxlogin", int.Parse);
             InitIfPresent(ref _preferredEditor, "preferrededitor", int.Parse);
 
+            _fullname = XmlElement.GetAttributeValue("fullname");
+            _description = XmlElement.GetAttributeValue("description");
+            _email = XmlElement.GetAttributeValue("email");
 
-            _fullname = XmlNode.GetAttributeValue("fullname");
-            _description = XmlNode.GetAttributeValue("description");
-            _email = XmlNode.GetAttributeValue("email");
-            
-            XmlNode.TryGetGuid("accountsystemguid", out _accountSystemGuid);
-            
+            XmlElement.TryGetGuid("accountsystemguid", out _accountSystemGuid);
+
             InitIfPresent(ref _userLanguage, "userlanguage", Session.DialogLocales.Get);
             InitIfPresent(ref _locale, "lcid", s => Session.Locales[int.Parse(s)]);
 
-            _loginDate = XmlNode.GetOADate("logindate").GetValueOrDefault();
+            _loginDate = XmlElement.GetOADate("logindate").GetValueOrDefault();
 
-            InitIfPresent(ref _invertDirectEdit, "invertdirectedit", s=>(DirectEditActivation)int.Parse(s));
-            
+            InitIfPresent(ref _invertDirectEdit, "invertdirectedit", s => (DirectEditActivation) int.Parse(s));
+
             InitIfPresent(ref _isPasswordChangeableByCurrentUser, "disablepassword", x => !BoolConvert(x));
-            InitIfPresent(ref _userPofileChangeRestrictions, "userlimits", s=>(UserPofileChangeRestrictions)Enum.Parse(typeof(UserPofileChangeRestrictions), s));   
+            InitIfPresent(ref _userPofileChangeRestrictions, "userlimits",
+                          s => (UserPofileChangeRestrictions) Enum.Parse(typeof (UserPofileChangeRestrictions), s));
         }
 
         protected override void LoadWholeObject()
@@ -216,7 +215,7 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _navigationType); }
         }
-        
+
         public int MaximumNumberOfSessions
         {
             get { return LazyLoad(ref _maxSessionCount); }
@@ -231,7 +230,7 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _isPasswordChangeableByCurrentUser); }
         }
-        
+
         public string EMail
         {
             get { return LazyLoad(ref _email); }

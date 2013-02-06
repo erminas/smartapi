@@ -1,18 +1,17 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -23,9 +22,13 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   Base class for elements of pages. All page element classes have to either get annotated with a <see
-    ///    cref="PageElementType" /> attribute denoting their element type or have to be added through the <see
-    ///    cref="RegisterType" /> method.
+    ///     Base class for elements of pages. All page element classes have to either get annotated with a
+    ///     <see
+    ///         cref="PageElementType" />
+    ///     attribute denoting their element type or have to be added through the
+    ///     <see
+    ///         cref="RegisterType" />
+    ///     method.
     /// </summary>
     public abstract class PageElement : PartialRedDotObject, IPageElement
     {
@@ -35,9 +38,9 @@ namespace erminas.SmartAPI.CMS
 
         protected readonly Project Project;
 
-        private Page _page;
         protected ElementType Type;
         private LanguageVariant _languageVariant;
+        private Page _page;
 
         static PageElement()
         {
@@ -138,13 +141,13 @@ namespace erminas.SmartAPI.CMS
             {
                 return
                     (XmlElement)
-                    Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString())).GetElementsByTagName(
-                        "ELT")[0];
+                    Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString()))
+                           .GetElementsByTagName("ELT")[0];
             }
         }
 
         /// <summary>
-        ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
+        ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="project"> Page that contains the element </param>
         /// <param name="xmlElement"> XML representation of the element </param>
@@ -159,13 +162,13 @@ namespace erminas.SmartAPI.CMS
             }
 
             return (PageElement) // ReSharper disable PossibleNullReferenceException
-                   type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}).Invoke(new object[]
-                                                                                                 // ReSharper restore PossibleNullReferenceException
-                                                                                                 {project, xmlElement});
+                   type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)})
+                       .Invoke(new object[] // ReSharper restore PossibleNullReferenceException
+                           {project, xmlElement});
         }
 
         /// <summary>
-        ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
+        ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="project"> Project containing the element </param>
         /// <param name="elementGuid"> Guid of the element </param>

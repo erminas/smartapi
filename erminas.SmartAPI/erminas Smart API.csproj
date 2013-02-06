@@ -39,8 +39,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>tmp_sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -275,6 +274,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RedDotCmsXmlServer\RDCMSXMLServer.wsdl" />
+    <None Include="tmp_sign.snk" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\RedDotCmsXmlServer\" />

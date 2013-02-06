@@ -1,32 +1,30 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
-using erminas.SmartAPI.CMS.PageElements;
 using erminas.SmartAPI.Utils;
 using log4net;
 
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   A list of content class elements.
+    ///     A list of content class elements.
     /// </summary>
     public class CCElementList : RedDotObject, IEnumerable<CCElement>
     {
@@ -40,7 +38,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get an element of the list by name. Returns null, if no such element could be found.
+        ///     Get an element of the list by name. Returns null, if no such element could be found.
         /// </summary>
         /// <param name="name"> Name of the element to get </param>
         public CCElement this[string name]
@@ -49,7 +47,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get an element of the list by its position in the list
+        ///     Get an element of the list by its position in the list
         /// </summary>
         public CCElement this[int index]
         {
@@ -57,7 +55,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   The content class this element list belongs to
+        ///     The content class this element list belongs to
         /// </summary>
         public ContentClass ContentClass { get; set; }
 
@@ -76,7 +74,7 @@ namespace erminas.SmartAPI.CMS
         #endregion
 
         /// <summary>
-        ///   Get an element of the list by name.
+        ///     Get an element of the list by name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">thrown, if no element with .Name == name could be found</exception>
         public CCElement GetByName(string name)
@@ -90,7 +88,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get an element on the list by guid.
+        ///     Get an element on the list by guid.
         /// </summary>
         /// <exception cref="KeyNotFoundException">thrown, if no element with .Guid == guid could be found</exception>
         public CCElement GetByGuid(Guid guid)
@@ -117,7 +115,7 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            XmlNodeList elementChildren = XmlNode.GetElementsByTagName("ELEMENT");
+            XmlNodeList elementChildren = XmlElement.GetElementsByTagName("ELEMENT");
             foreach (XmlElement curElementNode in elementChildren)
             {
                 try
@@ -140,7 +138,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Number of content class elements contained in this list.
+        ///     Number of content class elements contained in this list.
         /// </summary>
         /// <returns> </returns>
         public int Count()
@@ -151,7 +149,7 @@ namespace erminas.SmartAPI.CMS
         #region Properties
 
         /// <summary>
-        ///   The content class elements in the list
+        ///     The content class elements in the list
         /// </summary>
         public List<CCElement> Elements { get; set; }
 

@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Web;
@@ -46,8 +45,7 @@ namespace erminas.SmartAPI.CMS
 
         public void Commit()
         {
-            const string SAVE_KEYWORD =
-                @"<PROJECT><KEYWORD action=""save"" guid=""{0}"" value=""{1}""/></PROJECT>";
+            const string SAVE_KEYWORD = @"<PROJECT><KEYWORD action=""save"" guid=""{0}"" value=""{1}""/></PROJECT>";
 
             string htmlEncodedName = HttpUtility.HtmlEncode(Name);
             var xmlDoc = Project.ExecuteRQL(SAVE_KEYWORD.RQLFormat(this, htmlEncodedName));
@@ -57,13 +55,14 @@ namespace erminas.SmartAPI.CMS
             var keyword = xmlDoc.SelectSingleNode(keywordXPath);
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin, string.Format("Could not rename keyword to '{0}'", Name));
+                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                                            string.Format("Could not rename keyword to '{0}'", Name));
             }
         }
 
         private void LoadXml()
         {
-            Name = XmlNode.GetAttributeValue("value");
+            Name = XmlElement.GetAttributeValue("value");
             InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
         }
 
@@ -76,13 +75,11 @@ namespace erminas.SmartAPI.CMS
         {
             const string LOAD_KEYWORD =
                 @"<PROJECT><CATEGORY><KEYWORD action=""load"" guid=""{0}""/></CATEGORY></PROJECT>";
-            return
-                (XmlElement)
-                Project.ExecuteRQL(LOAD_KEYWORD.RQLFormat(this)).GetElementsByTagName("KEYWORD")[0];
+            return (XmlElement) Project.ExecuteRQL(LOAD_KEYWORD.RQLFormat(this)).GetElementsByTagName("KEYWORD")[0];
         }
 
         /// <summary>
-        /// Delete the keyword. The operation will fail, if it is still actively used in connecting pages to containers/lists.
+        ///     Delete the keyword. The operation will fail, if it is still actively used in connecting pages to containers/lists.
         /// </summary>
         /// <exception cref="SmartAPIException">Thrown, if the keyword couldn't be deleted</exception>
         public void Delete()
@@ -94,32 +91,39 @@ namespace erminas.SmartAPI.CMS
 
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin, string.Format("Could not delete keyword {0}", this));
+                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                                            string.Format("Could not delete keyword {0}", this));
             }
 
             if (IsKeywordStillUsed(keyword))
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin, string.Format("Could not delete keyword {0}, because it is still used for page connections", this));
+                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                                            string.Format(
+                                                "Could not delete keyword {0}, because it is still used for page connections",
+                                                this));
             }
 
             Category.Keywords.InvalidateCache();
         }
 
         /// <summary>
-        /// Delete the keyword, even if it is actively used in connecting pages to containers/lists.
-        /// This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
+        ///     Delete the keyword, even if it is actively used in connecting pages to containers/lists.
+        ///     This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
         /// </summary>
         /// <exception cref="SmartAPIException">Thrown, if the keyword could not be deleted</exception>
         public void DeleteForcibly()
         {
             const string DELETE_KEYWORD = @"<KEYWORD action=""delete"" guid=""{0}"" force=""1"" password=""{1}"" />";
 
-            var xmlDoc = Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this, Project.Session.ServerLogin.AuthData.Password), Project.RqlType.SessionKeyInProject);
-            var keyword = (XmlElement)xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
+            var xmlDoc =
+                Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this, Project.Session.ServerLogin.AuthData.Password),
+                                   Project.RqlType.SessionKeyInProject);
+            var keyword = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
             //TODO execute page builder command
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin, string.Format("Could not delete keyword {0}", this));
+                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                                            string.Format("Could not delete keyword {0}", this));
             }
 
             Category.Keywords.InvalidateCache();

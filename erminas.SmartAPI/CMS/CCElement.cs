@@ -1,18 +1,17 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Globalization;
@@ -26,10 +25,10 @@ using Attribute = erminas.SmartAPI.CMS.CCElements.Attribute;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   Base class for content class element types.
+    ///     Base class for content class element types.
     /// </summary>
     /// <remarks>
-    ///   For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
+    ///     For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
     public abstract class CCElement : RedDotObject, IContentClassElement
     {
@@ -44,17 +43,17 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Element category of the lement
+        ///     Element category of the lement
         /// </summary>
         public abstract ContentClassCategory Category { get; }
 
         /// <summary>
-        ///   TypeId of the element.
+        ///     TypeId of the element.
         /// </summary>
         public ElementType Type { get; private set; }
 
         /// <summary>
-        ///   Language variant of the element (a separate instance exists for every language variant on the server).
+        ///     Language variant of the element (a separate instance exists for every language variant on the server).
         /// </summary>
         public LanguageVariant LanguageVariant
         {
@@ -62,7 +61,7 @@ namespace erminas.SmartAPI.CMS
             {
                 return _languageVariant ??
                        (_languageVariant =
-                        ContentClass.Project.LanguageVariants[XmlNode.GetAttributeValue(LANGUAGEVARIANTID)]);
+                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
             }
         }
 
@@ -70,14 +69,46 @@ namespace erminas.SmartAPI.CMS
 
         public override string Name { get; set; }
 
+        /// <summary>
+        ///     Save element on the server. Saves only the attributes!
+        /// </summary>
+        public virtual void Commit()
+        {
+            //RQL for committing changes
+            //One parameter: xml representation of the element, containing an attribute "action" with value "save"
+            const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
+            var node = (XmlElement) XmlElement.Clone();
+            using (new LanguageContext(LanguageVariant))
+            {
+                XmlDocument rqlResult =
+                    ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
+                                                    Project.RqlType.SessionKeyInProject);
+                try
+                {
+                    var resultElement = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
+                    string tmpGuidStr = resultElement.Attributes["guid"].Value;
+                    var newGuid = new Guid(tmpGuidStr);
+                    if (!newGuid.Equals(Guid))
+                    {
+                        throw new Exception("unexpected guid in return value");
+                    }
+                    //if needed could check wether the element has changed on the server, via the checked attribute
+                    //-1 = changed 0 = unchanged
+                } catch (Exception e)
+                {
+                    throw new Exception("could not save changes to " + Name, e);
+                }
+            }
+        }
+
         private void LoadXml()
         {
-            Name = XmlNode.GetAttributeValue("eltname");
-            Type = (ElementType) XmlNode.GetIntAttributeValue("elttype").GetValueOrDefault();
+            Name = XmlElement.GetAttributeValue("eltname");
+            Type = (ElementType) XmlElement.GetIntAttributeValue("elttype").GetValueOrDefault();
         }
 
         /// <summary>
-        ///   Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
+        ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="contentClass"> parent content class that contains the element </param>
         /// <param name="xmlElement"> XML representation of the element </param>
@@ -154,7 +185,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Create an empty element of a specific type as child of a content class. Does not insert the element into the contentclass itself, but just provides a vanilla element with an XML node that contains only the "elttype" and the empty "guid" attribute.
+        ///     Create an empty element of a specific type as child of a content class. Does not insert the element into the contentclass itself, but just provides a vanilla element with an XML node that contains only the "elttype" and the empty "guid" attribute.
         /// </summary>
         /// <param name="contentClass"> parent content class of the element </param>
         /// <param name="elementType"> type of the element </param>
@@ -174,23 +205,24 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Copies the element to another content class by creating a new element and copying the attribute values to it.
-        /// Make sure to set the language variant in the target project into which the element should be copied, first.
+        ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
+        ///     Make sure to set the language variant in the target project into which the element should be copied, first.
         /// </summary>
         /// <param name="contentClass"> target content class, into which the element should be copied </param>
         /// <returns> the created copy </returns>
         /// <remarks>
-        ///   <list type="bullet">
-        ///     <item>
-        ///       <description>Override this method, if you need to set other values than the direct attributes of the element (e.g. setting text values of TextHtml elements)</description>
-        ///     </item>
-        ///     <item>
-        ///       <description>The target content class is only modified on the server, thus the content class object does not contain the newly created element.
-        ///         If you need an updated version of the content class, you have to retrieve it again with
-        ///         <code>new ContentClass(Project, Guid);</code>
-        ///       </description>
-        ///     </item>
-        ///   </list>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>Override this method, if you need to set other values than the direct attributes of the element (e.g. setting text values of TextHtml elements)</description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The target content class is only modified on the server, thus the content class object does not contain the newly created element.
+        ///                 If you need an updated version of the content class, you have to retrieve it again with
+        ///                 <code>new ContentClass(Project, Guid);</code>
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         internal CCElement CopyToContentClass(ContentClass contentClass)
         {
@@ -210,7 +242,7 @@ namespace erminas.SmartAPI.CMS
                 }
             }
 
-            var node = (XmlElement) newCcElement.XmlNode.Clone();
+            var node = (XmlElement) newCcElement.XmlElement.Clone();
             node.Attributes.RemoveNamedItem("guid");
             string creationString = GetSaveString(node);
 
@@ -234,42 +266,10 @@ namespace erminas.SmartAPI.CMS
 
             return newCcElement;
         }
-
-        /// <summary>
-        ///   Save element on the server. Saves only the attributes!
-        /// </summary>
-        public virtual void Commit()
-        {
-            //RQL for committing changes
-            //One parameter: xml representation of the element, containing an attribute "action" with value "save"
-            const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
-            var node = (XmlElement) XmlNode.Clone();
-            using (new LanguageContext(LanguageVariant))
-            {
-                XmlDocument rqlResult =
-                    ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
-                                                    Project.RqlType.SessionKeyInProject);
-                try
-                {
-                    var resultElement = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
-                    string tmpGuidStr = resultElement.Attributes["guid"].Value;
-                    var newGuid = new Guid(tmpGuidStr);
-                    if (!newGuid.Equals(Guid))
-                    {
-                        throw new Exception("unexpected guid in return value");
-                    }
-                    //if needed could check wether the element has changed on the server, via the checked attribute
-                    //-1 = changed 0 = unchanged
-                } catch (Exception e)
-                {
-                    throw new Exception("could not save changes to " + Name, e);
-                }
-            }
-        }
     }
 
     /// <summary>
-    ///   Category of the element.
+    ///     Category of the element.
     /// </summary>
     public enum ContentClassCategory
     {

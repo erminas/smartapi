@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
 using System.Xml;
@@ -40,7 +39,7 @@ namespace erminas.SmartAPI.CMS
 
         public bool IsValid
         {
-            get { return int.Parse(XmlNode.Attributes.GetNamedItem("approved").Value) == 1; }
+            get { return int.Parse(XmlElement.Attributes.GetNamedItem("approved").Value) == 1; }
         }
 
         public List<string> Errors
@@ -49,8 +48,8 @@ namespace erminas.SmartAPI.CMS
             {
                 if (_errors == null)
                 {
-                    _errors = ExtractDetails(XmlNode.SelectNodes("descendant::ERROR"));
-                    _errors.AddRange(ExtractDetails(XmlNode.SelectNodes("descendant::FATALERROR")));
+                    _errors = ExtractDetails(XmlElement.SelectNodes("descendant::ERROR"));
+                    _errors.AddRange(ExtractDetails(XmlElement.SelectNodes("descendant::FATALERROR")));
                 }
                 return _errors;
             }
@@ -58,7 +57,7 @@ namespace erminas.SmartAPI.CMS
 
         public List<string> Warnings
         {
-            get { return _warnings ?? (_warnings = ExtractDetails(XmlNode.SelectNodes("descendant::WARNING"))); }
+            get { return _warnings ?? (_warnings = ExtractDetails(XmlElement.SelectNodes("descendant::WARNING"))); }
         }
 
         private static List<string> ExtractDetails(XmlNodeList xmlNodeList)

@@ -1,22 +1,20 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
-using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
 
@@ -24,24 +22,22 @@ namespace erminas.SmartAPI.CMS
 {
     public class AbstractAttributeContainer : IAttributeContainer
     {
-        [ScriptIgnore] private readonly Dictionary<string, IRDAttribute> _attributeMap =
-            new Dictionary<string, IRDAttribute>();
+        private readonly Dictionary<string, IRDAttribute> _attributeMap = new Dictionary<string, IRDAttribute>();
 
-        public AbstractAttributeContainer()
+        protected AbstractAttributeContainer()
         {
             Attributes = new List<IRDAttribute>();
         }
 
-        public AbstractAttributeContainer(XmlElement node)
+        protected AbstractAttributeContainer(XmlElement node)
         {
-            XmlNode = (XmlElement)node.Clone();
+            XmlElement = (XmlElement) node.Clone();
             Attributes = new List<IRDAttribute>();
         }
 
         #region IAttributeContainer Members
 
-        [ScriptIgnore]
-        public List<IRDAttribute> Attributes { get; private set; }
+        public IEnumerable<IRDAttribute> Attributes { get; private set; }
 
         public void RegisterAttribute(IRDAttribute attribute)
         {
@@ -66,6 +62,8 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
+        public XmlElement XmlElement { get; set; }
+
         public void AssignAttributes(List<IRDAttribute> attributes)
         {
             foreach (IRDAttribute curAttribute in attributes)
@@ -74,9 +72,6 @@ namespace erminas.SmartAPI.CMS
                 ownAttribute.Assign(curAttribute);
             }
         }
-
-        [ScriptIgnore]
-        public XmlElement XmlNode { get; set; }
 
         #endregion
 

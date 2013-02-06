@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   Represents a content class in RedDot.
+    ///     Represents a content class in RedDot.
     /// </summary>
     public class ContentClass : PartialRedDotObject
     {
@@ -45,8 +44,8 @@ namespace erminas.SmartAPI.CMS
         [ScriptIgnore]
         public RDList<IPageDefinition> PageDefinitions { get; private set; }
 
-            /// <summary>
-        ///   Default suffix for pages.
+        /// <summary>
+        ///     Default suffix for pages.
         /// </summary>
         [ScriptIgnore]
         public Syllable Suffix
@@ -55,7 +54,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Default prefix for pages.
+        ///     Default prefix for pages.
         /// </summary>
         [ScriptIgnore]
         public Syllable Prefix
@@ -64,7 +63,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Description
+        ///     Description
         /// </summary>
         [ScriptIgnore]
         public string Description
@@ -80,7 +79,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Folder that contains the content class.
+        ///     Folder that contains the content class.
         /// </summary>
         [ScriptIgnore]
         public Folder Folder
@@ -110,13 +109,13 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Versioning information for the content class. List is cached by default.
+        ///     Versioning information for the content class. List is cached by default.
         /// </summary>
         [ScriptIgnore]
         public IRDList<CCVersion> Versions { get; private set; }
 
         /// <summary>
-        ///   Versioning information for the latest version of the content class.
+        ///     Versioning information for the latest version of the content class.
         /// </summary>
         [ScriptIgnore]
         public CCVersion CurrentVersion
@@ -126,8 +125,8 @@ namespace erminas.SmartAPI.CMS
 
         public NameIndexedRDList<TemplateVariant> TemplateVariants { get; private set; }
 
-            /// <summary>
-        ///   EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
+        /// <summary>
+        ///     EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
         /// </summary>
         [ScriptIgnore]
         public CCEditableAreaSettings EditableAreaSettings
@@ -152,11 +151,13 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Mapping of Language Variant Id => Elements of content class. There is an extra instance of every element for every language variant. This dictionary is cached. To refresh the contents call <see
-        ///    cref="Refresh" /> .
+        ///     Mapping of Language Variant Id => Elements of content class. There is an extra instance of every element for every language variant. This dictionary is cached. To refresh the contents call
+        ///     <see
+        ///         cref="Refresh" />
+        ///     .
         /// </summary>
         /// <example>
-        ///   If there are are two language variants (ENG and GER) and two elements (Text
+        ///     If there are are two language variants (ENG and GER) and two elements (Text
         /// </example>
         [ScriptIgnore]
         public Dictionary<string, CCElementList> Elements
@@ -185,10 +186,10 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   List of the preassigned keywords of this content class, indexed by name. This list is cached by default.
+        ///     List of the preassigned keywords of this content class, indexed by name. This list is cached by default.
         /// </summary>
         public NameIndexedRDList<Keyword> PreassignedKeywords { get; private set; }
-        
+
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         public bool IsChangingHeadlineEffectiveForAllLanguageVariants
         {
@@ -249,7 +250,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get an element by language/element name
+        ///     Get an element by language/element name
         /// </summary>
         /// <param name="language"> Language Id of language variant </param>
         /// <param name="elementName"> Name of the element </param>
@@ -269,7 +270,7 @@ namespace erminas.SmartAPI.CMS
         private List<TemplateVariant> GetTemplateVariants()
         {
             const string LIST_CC_TEMPLATES =
-                      @"<PROJECT><TEMPLATE guid=""{0}""><TEMPLATEVARIANTS action=""list"" withstylesheets=""0""/></TEMPLATE></PROJECT>";
+                @"<PROJECT><TEMPLATE guid=""{0}""><TEMPLATEVARIANTS action=""list"" withstylesheets=""0""/></TEMPLATE></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_CC_TEMPLATES, Guid.ToRQLString()));
             var variants = xmlDoc.GetElementsByTagName("TEMPLATEVARIANT");
             return (from XmlElement curVariant in variants select new TemplateVariant(this, curVariant)).ToList();
@@ -277,14 +278,15 @@ namespace erminas.SmartAPI.CMS
 
         private List<IPageDefinition> GetPageDefinitions()
         {
-            const string LOAD_PREASSIGNMENT =
-               @"<TEMPLATELIST action=""load"" withpagedefinitions=""1""/>";
+            const string LOAD_PREASSIGNMENT = @"<TEMPLATELIST action=""load"" withpagedefinitions=""1""/>";
 
             var xmlDoc = Project.ExecuteRQL(LOAD_PREASSIGNMENT);
             const string PAGE_DEFINITIONS_XPATH = "//TEMPLATE[@guid='{0}']/PAGEDEFINITIONS/PAGEDEFINITION";
             var pageDefs = xmlDoc.SelectNodes(PAGE_DEFINITIONS_XPATH.RQLFormat(this));
-            
-            return (from XmlElement curPageDef in pageDefs select new PageDefinition(this, curPageDef)).Cast<IPageDefinition>().ToList();
+
+            return
+                (from XmlElement curPageDef in pageDefs select new PageDefinition(this, curPageDef))
+                    .Cast<IPageDefinition>().ToList();
         }
 
         private List<Keyword> GetPreassignedKeywords()
@@ -301,7 +303,10 @@ namespace erminas.SmartAPI.CMS
                     from XmlElement curKeywordNode in xmlDoc.GetElementsByTagName("KEYWORD")
                     select
                         new Keyword(Project, curKeywordNode.GetGuid())
-                            {Name = curKeywordNode.GetAttributeValue("value"), Category = curCategory};
+                            {
+                                Name = curKeywordNode.GetAttributeValue("value"),
+                                Category = curCategory
+                            };
                 keywords = keywords.Union(newKeywords);
             }
             return keywords.ToList();
@@ -321,9 +326,9 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Set the preassigned keywords for this content class on the server.
-        ///   PreassignedKeywords contain the updated keywords afterwards.
-        /// Set to an empty IEnumerable or null, to remove all preassigned keywords.
+        ///     Set the preassigned keywords for this content class on the server.
+        ///     PreassignedKeywords contain the updated keywords afterwards.
+        ///     Set to an empty IEnumerable or null, to remove all preassigned keywords.
         /// </summary>
         public void SetPreassignedKeywords(IEnumerable<Keyword> keywords)
         {
@@ -401,7 +406,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Assign project variants to template variants
+        ///     Assign project variants to template variants
         /// </summary>
         public void AssignProjectVariants(Dictionary<TemplateVariant, ProjectVariant> assignments)
         {
@@ -420,7 +425,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get all assignments of templates to project variants of this content class.
+        ///     Get all assignments of templates to project variants of this content class.
         /// </summary>
         public ILookup<ProjectVariant, TemplateVariant> GetProjectVariantAssignments()
         {
@@ -452,7 +457,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Delete a template from this content class
+        ///     Delete a template from this content class
         /// </summary>
         /// <param name="guid"> Guid of the template variant to delete </param>
         public void DeleteTemplateVariant(Guid guid)
@@ -500,7 +505,7 @@ namespace erminas.SmartAPI.CMS
             {
                 CreateBaseAttributes();
             }
-            var settingsNode = (XmlElement) XmlNode.GetElementsByTagName("SETTINGS")[0];
+            var settingsNode = (XmlElement) XmlElement.GetElementsByTagName("SETTINGS")[0];
             if (settingsNode != null)
             {
                 _editableAreaSettings = new CCEditableAreaSettings(this, settingsNode);
@@ -514,7 +519,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Copy this content class to another project
+        ///     Copy this content class to another project
         /// </summary>
         /// <param name="project"> The target project to copy the content class to </param>
         /// <param name="targetFolderGuid"> Guid of the target content class folder in the target project </param>
@@ -671,7 +676,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Copy selected elements from this content class to another target content class.
+        ///     Copy selected elements from this content class to another target content class.
         /// </summary>
         /// <param name="targetCC"> HtmlTarget content class to copy the elements to </param>
         /// <param name="elementNames"> Names of the elements to copy </param>
@@ -695,7 +700,8 @@ namespace erminas.SmartAPI.CMS
                         CCElement curSourceCcElement = this[languageVariant.Language, curElementName];
                         if (createdElements.TryGetValue(curElementName, out curTargetCcElement))
                         {
-                            CCElement tmpTargetCcElement = CCElement.CreateElement(targetCC, curTargetCcElement.XmlNode);
+                            CCElement tmpTargetCcElement = CCElement.CreateElement(targetCC,
+                                                                                   curTargetCcElement.XmlElement);
                             tmpTargetCcElement.AssignAttributes(curSourceCcElement.Attributes);
                             targetLanguageVariant.Select();
                             tmpTargetCcElement.Commit();
@@ -712,7 +718,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Remove an element from this content class
+        ///     Remove an element from this content class
         /// </summary>
         /// <param name="elementName"> Name of the element to remove </param>
         public void RemoveElement(string elementName)
@@ -747,7 +753,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Delete this content class
+        ///     Delete this content class
         /// </summary>
         public void Delete()
         {
@@ -773,7 +779,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Commit changes on attributes to the server.
+        ///     Commit changes on attributes to the server.
         /// </summary>
         public void CommitAttributes()
         {
@@ -796,7 +802,7 @@ namespace erminas.SmartAPI.CMS
         #region Nested type: CCEditableAreaSettings
 
         /// <summary>
-        ///   Represents editable area configuration of a content class.
+        ///     Represents editable area configuration of a content class.
         /// </summary>
         public class CCEditableAreaSettings : AbstractAttributeContainer
         {
@@ -850,7 +856,8 @@ namespace erminas.SmartAPI.CMS
                 XmlDocument result =
                     _parent.Project.ExecuteRQL(
                         string.Format(SAVE_CC_SETTINGS, _parent.Guid.ToRQLString(),
-                                      GetSaveString((XmlElement) XmlNode.Clone())), Project.RqlType.SessionKeyInProject);
+                                      GetSaveString((XmlElement) XmlElement.Clone())),
+                        Project.RqlType.SessionKeyInProject);
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {
@@ -865,7 +872,7 @@ namespace erminas.SmartAPI.CMS
         #region Nested type: CCVersion
 
         /// <summary>
-        ///   Represents version information on a specific content class version.
+        ///     Represents version information on a specific content class version.
         /// </summary>
         public class CCVersion : RedDotObject
         {
@@ -892,11 +899,11 @@ namespace erminas.SmartAPI.CMS
             public ContentClass ContentClass { get; private set; }
 
             /// <summary>
-            ///   Description text
+            ///     Description text
             /// </summary>
             public string Description
             {
-                get { return XmlNode.GetAttributeValue("description"); }
+                get { return XmlElement.GetAttributeValue("description"); }
             }
 
             public Folder Folder
@@ -905,7 +912,7 @@ namespace erminas.SmartAPI.CMS
                 {
                     return _folder ??
                            (_folder =
-                            new Folder(ContentClass.Project, GuidConvert(XmlNode.GetAttributeValue("folderguid"))));
+                            new Folder(ContentClass.Project, GuidConvert(XmlElement.GetAttributeValue("folderguid"))));
                 }
             }
 
@@ -917,7 +924,7 @@ namespace erminas.SmartAPI.CMS
                     {
                         return _user;
                     }
-                    string userGuid = XmlNode.GetAttributeValue("userguid");
+                    string userGuid = XmlElement.GetAttributeValue("userguid");
                     return string.IsNullOrEmpty(userGuid)
                                ? null
                                : _user = ContentClass.Project.Session.GetUser(GuidConvert(userGuid));
@@ -926,20 +933,20 @@ namespace erminas.SmartAPI.CMS
 
             public string Username
             {
-                get { return XmlNode.GetAttributeValue("username"); }
+                get { return XmlElement.GetAttributeValue("username"); }
             }
 
             public Type CreationType
             {
-                get { return (Type) Enum.Parse(typeof (Type), XmlNode.GetAttributeValue("type")); }
+                get { return (Type) Enum.Parse(typeof (Type), XmlElement.GetAttributeValue("type")); }
             }
 
             /// <summary>
-            ///   Time the version was created
+            ///     Time the version was created
             /// </summary>
             public DateTime Date
             {
-                get { return _date ?? (_date = XmlNode.GetOADate()).GetValueOrDefault(); }
+                get { return _date ?? (_date = XmlElement.GetOADate()).GetValueOrDefault(); }
             }
         }
 

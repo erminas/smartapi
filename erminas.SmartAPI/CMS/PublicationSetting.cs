@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -53,13 +52,13 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlNode.GetGuid("projectvariantguid"));
+            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlElement.GetGuid("projectvariantguid"));
 
-            Name = XmlNode.GetAttributeValue("projectvariantname") + "/" +
-                   XmlNode.GetAttributeValue("languagevariantname");
+            Name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
+                   XmlElement.GetAttributeValue("languagevariantname");
             LanguageVariant =
-                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlNode.GetGuid("languagevariantguid"));
-            XmlNodeList exportTargets = (XmlNode).GetElementsByTagName("EXPORTTARGET");
+                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
+            XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
                 (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
         }
@@ -74,23 +73,12 @@ namespace erminas.SmartAPI.CMS
                                                   (current, curTarget) =>
                                                   current +
                                                   string.Format(SINGLE_EXPORT_TARGET, curTarget.Guid.ToRQLString(), "1"));
-            string removeTargets = _publishingTargets.Where(x => !newTargets.Any(y => y.Guid == x.Guid)).Aggregate("",
-                                                                                                                   (
-                                                                                                                       current,
-                                                                                                                       curTarget)
-                                                                                                                   =>
-                                                                                                                   current +
-                                                                                                                   string
-                                                                                                                       .
-                                                                                                                       Format
-                                                                                                                       (SINGLE_EXPORT_TARGET,
-                                                                                                                        curTarget
-                                                                                                                            .
-                                                                                                                            Guid
-                                                                                                                            .
-                                                                                                                            ToRQLString
-                                                                                                                            (),
-                                                                                                                        "0"));
+            string removeTargets = _publishingTargets.Where(x => !newTargets.Any(y => y.Guid == x.Guid))
+                                                     .Aggregate("",
+                                                                (current, curTarget) =>
+                                                                current +
+                                                                string.Format(SINGLE_EXPORT_TARGET,
+                                                                              curTarget.Guid.ToRQLString(), "0"));
 
             XmlDocument xmlDoc =
                 PublicationPackage.Project.ExecuteRQL(string.Format(SAVE_EXPORT_TARGETS, Guid.ToRQLString(),
@@ -114,7 +102,9 @@ namespace erminas.SmartAPI.CMS
             return (from XmlElement curSegment in xmlDoc.GetElementsByTagName("SEGMENT")
                     select
                         new PublicationFolderSetting(this, curSegment.GetGuid())
-                            {Name = curSegment.GetAttributeValue("value")}).ToList();
+                            {
+                                Name = curSegment.GetAttributeValue("value")
+                            }).ToList();
         }
     }
 }

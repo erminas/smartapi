@@ -1,3 +1,18 @@
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,8 +43,10 @@ namespace erminas.SmartAPI.CMS
     }
 
     /// <summary>
-    ///   Contains the module assignment for a single user. You iterate over the assigned modules through the IEnumerable interface and test for a specific assignment through the <see
-    ///    cref="IsModuleAssigned" /> method. New modules can be assigned to the user with the <see cref="SetIsModuleAssigned" /> method. The assigned modules are cached and the cache can be invalidated/refreshed through the ICaching interface methods. The cache only needs to get invalidated/refreshed for possible external changes. All changes to the module assignment through an instance of UserModuleAssignment get reflected in the assigned modules without a need for a cache update.
+    ///     Contains the module assignment for a single user. You iterate over the assigned modules through the IEnumerable interface and test for a specific assignment through the
+    ///     <see
+    ///         cref="IsModuleAssigned" />
+    ///     method. New modules can be assigned to the user with the <see cref="SetIsModuleAssigned" /> method. The assigned modules are cached and the cache can be invalidated/refreshed through the ICaching interface methods. The cache only needs to get invalidated/refreshed for possible external changes. All changes to the module assignment through an instance of UserModuleAssignment get reflected in the assigned modules without a need for a cache update.
     /// </summary>
     public class UserModuleAssignment : IEnumerable<Module>, ICaching
     {
@@ -84,50 +101,9 @@ namespace erminas.SmartAPI.CMS
                     @"<MODULE guid=""{0}"" checked=""{1}"" servermanagerflag=""{2}""/>";
 
                 ExecuteSaveModules(SAVE_SERVER_MANAGER_RIGHTS.RQLFormat(serverManagerModule,
-                                                                              rights != ServerManagerRights.None,
-                                                                              (int)rights));
+                                                                        rights != ServerManagerRights.None, (int) rights));
                 _assignedModules.InvalidateCache();
             }
-        }
-
-        private ServerManagerRights RightsWithResolvedDepenecies(ServerManagerRights value)
-        {
-            value = ResolveAssignUsersToGroupDependencies(value);
-            value = ResolveEditUsersDependencies(value);
-            value = ResolveDepenciesOfAdministerDirectoryServices(value);
-
-            return value;
-        }
-
-        private static ServerManagerRights ResolveDepenciesOfAdministerDirectoryServices(ServerManagerRights value)
-        {
-            if (value.HasFlag(ServerManagerRights.AdministerDirectoryServices))
-            {
-                value |= ServerManagerRights.CreateUsers | ServerManagerRights.EditUsers | ServerManagerRights.DeleteUsers |
-                         ServerManagerRights.AssignUsersToGroups | ServerManagerRights.DeleteGroups |
-                         ServerManagerRights.CreateGroups;
-            }
-            return value;
-        }
-
-        private static ServerManagerRights ResolveEditUsersDependencies(ServerManagerRights value)
-        {
-            if (value.HasFlag(ServerManagerRights.CreateUsers))
-            {
-                value |= ServerManagerRights.EditUsers;
-            }
-            return value;
-        }
-
-        private static ServerManagerRights ResolveAssignUsersToGroupDependencies(ServerManagerRights rights)
-        {
-            const ServerManagerRights DEPENDENT_ON_ASSIGN_USER_TO_GROUP =
-                ServerManagerRights.EditUsers | ServerManagerRights.CreateGroups | ServerManagerRights.CreateUsers;
-            if (!rights.HasFlag(ServerManagerRights.AssignUsersToGroups) && (rights & DEPENDENT_ON_ASSIGN_USER_TO_GROUP) != 0)
-            {
-                rights |= ServerManagerRights.AssignUsersToGroups;
-            }
-            return rights;
         }
 
         public bool HasAccessToSmartEdit
@@ -176,11 +152,52 @@ namespace erminas.SmartAPI.CMS
 
         #endregion
 
+        private ServerManagerRights RightsWithResolvedDepenecies(ServerManagerRights value)
+        {
+            value = ResolveAssignUsersToGroupDependencies(value);
+            value = ResolveEditUsersDependencies(value);
+            value = ResolveDepenciesOfAdministerDirectoryServices(value);
+
+            return value;
+        }
+
+        private static ServerManagerRights ResolveDepenciesOfAdministerDirectoryServices(ServerManagerRights value)
+        {
+            if (value.HasFlag(ServerManagerRights.AdministerDirectoryServices))
+            {
+                value |= ServerManagerRights.CreateUsers | ServerManagerRights.EditUsers |
+                         ServerManagerRights.DeleteUsers | ServerManagerRights.AssignUsersToGroups |
+                         ServerManagerRights.DeleteGroups | ServerManagerRights.CreateGroups;
+            }
+            return value;
+        }
+
+        private static ServerManagerRights ResolveEditUsersDependencies(ServerManagerRights value)
+        {
+            if (value.HasFlag(ServerManagerRights.CreateUsers))
+            {
+                value |= ServerManagerRights.EditUsers;
+            }
+            return value;
+        }
+
+        private static ServerManagerRights ResolveAssignUsersToGroupDependencies(ServerManagerRights rights)
+        {
+            const ServerManagerRights DEPENDENT_ON_ASSIGN_USER_TO_GROUP =
+                ServerManagerRights.EditUsers | ServerManagerRights.CreateGroups | ServerManagerRights.CreateUsers;
+            if (!rights.HasFlag(ServerManagerRights.AssignUsersToGroups) &&
+                (rights & DEPENDENT_ON_ASSIGN_USER_TO_GROUP) != 0)
+            {
+                rights |= ServerManagerRights.AssignUsersToGroups;
+            }
+            return rights;
+        }
+
         private static ServerManagerRights GetServerManagerRights(Module serverManagerModule)
         {
             return
                 (ServerManagerRights)
-                serverManagerModule.XmlNode.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
+                serverManagerModule.XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
         }
 
         public bool IsModuleAssigned(ModuleType moduleType)

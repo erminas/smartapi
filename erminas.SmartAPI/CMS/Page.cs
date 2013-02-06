@@ -1,24 +1,21 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.PageElements;
@@ -28,15 +25,17 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    ///   Wrapper for the RedDot Page object. If status changes occur, you have to call <see cref="PartialRedDotObject.Refresh" /> to see them reflected in the status field,
+    ///     Wrapper for the RedDot Page object. If status changes occur, you have to call
+    ///     <see
+    ///         cref="PartialRedDotObject.Refresh" />
+    ///     to see them reflected in the status field,
     /// </summary>
     public class Page : PartialRedDotObject, IPage
     {
         /// <summary>
-        /// Default value for <see cref="MaxWaitForDeletion"/> (1.25s).
+        ///     Default value for <see cref="MaxWaitForDeletion" /> (1.25s).
         /// </summary>
-        public static readonly TimeSpan DEFAULT_WAIT_FOR_DELETION = new TimeSpan(0,0,0,1, 250);
-        // Flags are defined in the RQL manual.
+        public static readonly TimeSpan DEFAULT_WAIT_FOR_DELETION = new TimeSpan(0, 0, 0, 1, 250);
 
         #region PageFlags enum
 
@@ -86,7 +85,7 @@ namespace erminas.SmartAPI.CMS
             NotAvailableInLanguage = 5,
 
             /// <summary>
-            ///   From RQL docs: 6= Page has never been released in the selected language variant, in which it was created for the first time.
+            ///     From RQL docs: 6= Page has never been released in the selected language variant, in which it was created for the first time.
             /// </summary>
             NeverHasBeenReleasedInOriginalLanguage = 6,
             IsInRecycleBin = 10,
@@ -107,6 +106,8 @@ namespace erminas.SmartAPI.CMS
         };
 
         #endregion
+
+        // Flags are defined in the RQL manual.
 
         private Guid _ccGuid;
         private DateTime _checkinDate;
@@ -147,26 +148,31 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        /// Maximum time span to wait for a successful deletion of a page, before it can be removed from the recycle bin.
-        /// This is needed because of a race condition with the red dot server where it wrongly shows the page to be in the recycle bin.
-        /// It is set to a default value of 1.25s which proved reliable in internal tests on our servers.
+        ///     Maximum time span to wait for a successful deletion of a page, before it can be removed from the recycle bin.
+        ///     This is needed because of a race condition with the red dot server where it wrongly shows the page to be in the recycle bin.
+        ///     It is set to a default value of 1.25s which proved reliable in internal tests on our servers.
         /// </summary>
         public static TimeSpan MaxWaitForDeletion { get; set; }
+
+        public bool Exists
+        {
+            get { return Status != PageState.WillBeRemovedCompletely && Status != PageState.NotSet; }
+        }
 
         #region IPage Members
 
         /// <summary>
-        ///   All newKeywords associated with this page.
+        ///     All newKeywords associated with this page.
         /// </summary>
         public RDList<Keyword> Keywords { get; private set; }
 
         /// <summary>
-        ///   All link elements of this page.
+        ///     All link elements of this page.
         /// </summary>
         public IRDList<ILinkElement> LinkElements { get; private set; }
 
         /// <summary>
-        ///   Status of the page, useually ReleaseStatus should be used instead.
+        ///     Status of the page, useually ReleaseStatus should be used instead.
         /// </summary>
         public PageState Status
         {
@@ -175,7 +181,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Language variant of this page instance.
+        ///     Language variant of this page instance.
         /// </summary>
         public LanguageVariant LanguageVariant
         {
@@ -183,7 +189,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Page filename. Same as Name.
+        ///     Page filename. Same as Name.
         /// </summary>
         public string Filename
         {
@@ -194,7 +200,7 @@ namespace erminas.SmartAPI.CMS
         public Project Project { get; private set; }
 
         /// <summary>
-        ///   Content class of the page
+        ///     Content class of the page
         /// </summary>
         public ContentClass ContentClass
         {
@@ -202,7 +208,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Headline of the page
+        ///     Headline of the page
         /// </summary>
         public string Headline
         {
@@ -211,7 +217,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Date of the release.
+        ///     Date of the release.
         /// </summary>
         /// TODO last or initial release?
         public DateTime ReleaseDate
@@ -225,7 +231,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   The element this page has as mainlink.
+        ///     The element this page has as mainlink.
         /// </summary>
         public PageElement MainLinkElement
         {
@@ -245,7 +251,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Parent page (the page containing this page's main link).
+        ///     Parent page (the page containing this page's main link).
         /// </summary>
         public Page Parent
         {
@@ -253,7 +259,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Page Id.
+        ///     Page Id.
         /// </summary>
         public int Id
         {
@@ -262,7 +268,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   The current release status of this page. Setting it will change it on the server.
+        ///     The current release status of this page. Setting it will change it on the server.
         /// </summary>
         public PageReleaseStatus ReleaseStatus
         {
@@ -277,35 +283,25 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private void ResetReleaseStatusTo(PageReleaseStatus value)
-        {
-            IsInitialized = false;
-            _releaseStatus = value;
-            Status = PageState.NotSet;
-        }
-
-        private void SaveReleaseStatus(PageReleaseStatus value)
-        {
-            const string SET_RELEASE_STATUS = @"<PAGE action=""save"" guid=""{0}"" actionflag=""{1}""/>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int) value));
-            CheckReleaseStatusSettingSuccess(value, xmlDoc);
-        }
-
         /// <summary>
-        ///   Returns the Workflow this page adheres to.
+        ///     Returns the Workflow this page adheres to.
         /// </summary>
         public Workflow Workflow
         {
-            get { return new Workflow(Project, ((XmlElement) XmlNode.SelectSingleNode("descendant::WORKFLOW")).GetGuid()); }
+            get
+            {
+                return new Workflow(Project,
+                                    ((XmlElement) XmlElement.SelectSingleNode("descendant::WORKFLOW")).GetGuid());
+            }
         }
 
         /// <summary>
-        ///   All content elements of this page.
+        ///     All content elements of this page.
         /// </summary>
         public NameIndexedRDList<PageElement> ContentElements { get; private set; }
 
         /// <summary>
-        ///   Get a content/link element of this page with a specific name.
+        ///     Get a content/link element of this page with a specific name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
         public IPageElement this[string elementName]
@@ -320,7 +316,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Remove a keyword from this page.
+        ///     Remove a keyword from this page.
         /// </summary>
         public void DeleteKeyword(Keyword keyword)
         {
@@ -332,7 +328,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Save changes to headline/filename to the server.
+        ///     Save changes to headline/filename to the server.
         /// </summary>
         public void Commit()
         {
@@ -347,7 +343,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Submit the page to workflow.
+        ///     Submit the page to workflow.
         /// </summary>
         public void SubmitToWorkflow()
         {
@@ -355,7 +351,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Released the page.
+        ///     Released the page.
         /// </summary>
         public void Release()
         {
@@ -363,7 +359,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Disconnects the page from its parent (main link).
+        ///     Disconnects the page from its parent (main link).
         /// </summary>
         public void DisconnectFromParent()
         {
@@ -375,8 +371,10 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Push the page through workflow. Afterwards the (release) status of this page object no longer reflects the real status. To update it, call <see
-        ///    cref="PartialRedDotObject.Refresh" /> . The object ist not automaticall updated to not incurr unnecessary overhead, if that information isn't needed anyway.
+        ///     Push the page through workflow. Afterwards the (release) status of this page object no longer reflects the real status. To update it, call
+        ///     <see
+        ///         cref="PartialRedDotObject.Refresh" />
+        ///     . The object ist not automaticall updated to not incurr unnecessary overhead, if that information isn't needed anyway.
         /// </summary>
         public void SkipWorkflow()
         {
@@ -387,7 +385,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Imitates the RedDot Undo page function. If the page has no previous state it is deleted. See the RedDot documentation for more details.
+        ///     Imitates the RedDot Undo page function. If the page has no previous state it is deleted. See the RedDot documentation for more details.
         /// </summary>
         public void Undo()
         {
@@ -396,10 +394,10 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
-        ///   Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
-        ///   If you want to make sure it is completly removed from the server, even if has been released, 
-        ///   use <see cref="DeleteIrrevocably"/> instead of calling this method and <see cref="DeleteFromRecycleBin"/>.
+        ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///     Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
+        ///     If you want to make sure it is completly removed from the server, even if has been released,
+        ///     use <see cref="DeleteIrrevocably" /> instead of calling this method and <see cref="DeleteFromRecycleBin" />.
         /// </summary>
         /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void Delete()
@@ -408,8 +406,8 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        /// Delete the page from the recycle bin.
-        /// This is an asynchronous process on the server so the removal may not be immediatly visible.
+        ///     Delete the page from the recycle bin.
+        ///     This is an asynchronous process on the server so the removal may not be immediatly visible.
         /// </summary>
         public void DeleteFromRecycleBin()
         {
@@ -436,7 +434,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Restore page from recycle bin
+        ///     Restore page from recycle bin
         /// </summary>
         public void Restore()
         {
@@ -449,7 +447,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Rejects the page from the current level of workflow.
+        ///     Rejects the page from the current level of workflow.
         /// </summary>
         public void Reject()
         {
@@ -457,7 +455,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Reset the page to draft status.
+        ///     Reset the page to draft status.
         /// </summary>
         public void ResetToDraft()
         {
@@ -465,6 +463,20 @@ namespace erminas.SmartAPI.CMS
         }
 
         public IRDList<ILinkElement> ReferencedBy { get; private set; }
+
+        private void ResetReleaseStatusTo(PageReleaseStatus value)
+        {
+            IsInitialized = false;
+            _releaseStatus = value;
+            Status = PageState.NotSet;
+        }
+
+        private void SaveReleaseStatus(PageReleaseStatus value)
+        {
+            const string SET_RELEASE_STATUS = @"<PAGE action=""save"" guid=""{0}"" actionflag=""{1}""/>";
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(SET_RELEASE_STATUS, Guid.ToRQLString(), (int) value));
+            CheckReleaseStatusSettingSuccess(value, xmlDoc);
+        }
 
         #endregion
 
@@ -482,7 +494,7 @@ namespace erminas.SmartAPI.CMS
                 var missingElements = xmlDoc.SelectNodes("/IODATA/EMPTYELEMENTS/ELEMENT");
                 if (missingElements != null && missingElements.Count > 0)
                 {
-                    throw new MissingElementValueException(this, GetNames(missingElements) );
+                    throw new MissingElementValueException(this, GetNames(missingElements));
                 }
 
                 throw new PageStatusException(this, "Could not set release status to " + value);
@@ -490,7 +502,7 @@ namespace erminas.SmartAPI.CMS
             var element = (XmlElement) pageElements[0];
             var flag = (PageReleaseStatus) element.GetIntAttributeValue("actionflag").GetValueOrDefault();
 
-            if (!flag.HasFlag(value) && !IsReleasedIntoWorkflow(value, flag)) 
+            if (!flag.HasFlag(value) && !IsReleasedIntoWorkflow(value, flag))
             {
                 throw new PageStatusException(this, "Could not set release status to " + value);
             }
@@ -507,10 +519,10 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
-        ///   If you want to make sure it is completly removed from the server, even if has been released, 
-        ///   use <see cref="DeleteIrrevocably"/> instead of calling this method and <see cref="DeleteFromRecycleBin"/>.
-        ///   Throws a PageDeletionException, if references still point to elements of this page or an element is assigned as target container to a link.
+        ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///     If you want to make sure it is completly removed from the server, even if has been released,
+        ///     use <see cref="DeleteIrrevocably" /> instead of calling this method and <see cref="DeleteFromRecycleBin" />.
+        ///     Throws a PageDeletionException, if references still point to elements of this page or an element is assigned as target container to a link.
         /// </summary>
         /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void DeleteIfNotReferenced()
@@ -528,7 +540,8 @@ namespace erminas.SmartAPI.CMS
                     Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion, LanguageVariant.Language));
                 if (!xmlDoc.InnerText.Contains("ok"))
                 {
-                    throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Could not delete page {0}", this));
+                    throw new PageDeletionException(Project.Session.ServerLogin,
+                                                    string.Format("Could not delete page {0}", this));
                 }
             } catch (RQLException e)
             {
@@ -540,15 +553,15 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        /// Delete the page Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
-        /// Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
-        /// 
-        /// If the page was released, it will be moved to the recycle bin first.
-        /// Removing it from there leads to a race condition on the server: the page can be already marked as being in the recycle bin, but a call to remove it from there can still fail for some time.
-        /// For this reason a we try to delete it until the operation is successful or a timeout is reached. The timeout can be set with <see cref="MaxWaitForDeletion"/>
-        /// 
-        /// If you want to delete multiple pages a call only to Delete() and a collective removal from the recycle bin afterwards is faster than a call
-        /// to DeleteIrrevocably on every single page.
+        ///     Delete the page Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
+        ///     Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
+        ///     If the page was released, it will be moved to the recycle bin first.
+        ///     Removing it from there leads to a race condition on the server: the page can be already marked as being in the recycle bin, but a call to remove it from there can still fail for some time.
+        ///     For this reason a we try to delete it until the operation is successful or a timeout is reached. The timeout can be set with
+        ///     <see
+        ///         cref="MaxWaitForDeletion" />
+        ///     If you want to delete multiple pages a call only to Delete() and a collective removal from the recycle bin afterwards is faster than a call
+        ///     to DeleteIrrevocably on every single page.
         /// </summary>
         /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
         public void DeleteIrrevocably()
@@ -562,10 +575,10 @@ namespace erminas.SmartAPI.CMS
 
             //status gets loaded lazily, and we need need to know status at this point (before Delete() gets called), so we store it in a local var.
             PageState curStatus = Status;
-            
+
             bool isAlreadyDeleted = curStatus == PageState.IsInRecycleBin;
             if (!isAlreadyDeleted)
-            {   
+            {
                 Delete();
 
                 //pages in draft status don't get moved to recycle bin, but deleted completely from a normal delete call
@@ -580,7 +593,7 @@ namespace erminas.SmartAPI.CMS
 
             var alreadyElapsed = DateTime.Now - start;
             var maxWaitForDeletionFromRecycleBin = MaxWaitForDeletion - alreadyElapsed;
-            
+
             WaitForDeletionFromRecycleBin(maxWaitForDeletionFromRecycleBin);
         }
 
@@ -601,12 +614,9 @@ namespace erminas.SmartAPI.CMS
                 }
             } while (!timeOutTracker.HasTimedOut);
 
-            throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Timeout while waiting for remove from recycle bin for page {0}", this));
-        }
-
-        public bool Exists
-        {
-            get { return Status != PageState.WillBeRemovedCompletely && Status != PageState.NotSet; }
+            throw new PageDeletionException(Project.Session.ServerLogin,
+                                            string.Format(
+                                                "Timeout while waiting for remove from recycle bin for page {0}", this));
         }
 
         private void WaitUntilPageIsInRecycleBin(TimeSpan maxWaitForDeletionInMs)
@@ -621,7 +631,10 @@ namespace erminas.SmartAPI.CMS
                 }
             } while (!timeoutTracker.HasTimedOut);
 
-            throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Timeout while waiting for the page {0} to move into the recycle bin", this));
+            throw new PageDeletionException(Project.Session.ServerLogin,
+                                            string.Format(
+                                                "Timeout while waiting for the page {0} to move into the recycle bin",
+                                                this));
         }
 
         public override bool Equals(object other)
@@ -680,7 +693,7 @@ namespace erminas.SmartAPI.CMS
 
             _releaseStatus = ReleaseStatusFromFlags();
 
-            _checkinDate = XmlNode.GetOADate("checkindate").GetValueOrDefault();
+            _checkinDate = XmlElement.GetOADate("checkindate").GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
             InitIfPresent(ref _releaseDate, "releasedate", XmlUtil.ToOADate);
@@ -782,16 +795,14 @@ namespace erminas.SmartAPI.CMS
             const string REMOVE_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" delete=""1"" changed=""1"" />";
             const string ADD_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" changed=""1"" />";
 
-            string toRemove = Keywords.Except(newKeywords).Aggregate("",
-                                                                     (x, y) =>
-                                                                     x +
-                                                                     string.Format(REMOVE_SINGLE_KEYWORD,
-                                                                                   y.Guid.ToRQLString()));
+            string toRemove = Keywords.Except(newKeywords)
+                                      .Aggregate("",
+                                                 (x, y) =>
+                                                 x + string.Format(REMOVE_SINGLE_KEYWORD, y.Guid.ToRQLString()));
 
-            string toAdd = newKeywords.Except(Keywords).Aggregate("",
-                                                                  (x, y) =>
-                                                                  x +
-                                                                  string.Format(ADD_SINGLE_KEYWORD, y.Guid.ToRQLString()));
+            string toAdd = newKeywords.Except(Keywords)
+                                      .Aggregate("",
+                                                 (x, y) => x + string.Format(ADD_SINGLE_KEYWORD, y.Guid.ToRQLString()));
 
             if (string.IsNullOrEmpty(toRemove) && string.IsNullOrEmpty(toAdd))
             {
@@ -810,12 +821,14 @@ namespace erminas.SmartAPI.CMS
             XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
 
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList();
+                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList
+                ();
         }
 
         public override string ToString()
         {
-            return string.Format("{0} (Id: {1} Guid: {2} Language: {3})", Headline, Id, Guid.ToRQLString(), LanguageVariant.Language);
+            return string.Format("{0} (Id: {1} Guid: {2} Language: {3})", Headline, Id, Guid.ToRQLString(),
+                                 LanguageVariant.Language);
         }
     }
 }

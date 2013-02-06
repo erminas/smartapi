@@ -1,18 +1,17 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -72,14 +71,14 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                         "eltframeborder",
                         new StringEnumAttributeFactory<Frameborder>(FrameborderUtils.ToRQLString,
                                                                     FrameborderUtils.ToFrameborder)
-                        },
+                    },
                     {"eltheight", new StringAttributeFactory()},
                     {"elthideinform", new BoolAttributeFactory()},
                     {
                         "elthittype",
                         new StringEnumAttributeFactory<HitListType>(HitListTypeUtils.ToRQLString,
                                                                     HitListTypeUtils.ToHitListType)
-                        },
+                    },
                     {"elthspace", new StringAttributeFactory()},
                     {"eltignoreworkflow", new BoolAttributeFactory()},
                     {"eltimagesupplement", new StringAttributeFactory()},
@@ -98,13 +97,13 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     {
                         "eltlisttype",
                         new StringEnumAttributeFactory<ListType>(
-                        new Dictionary<ListType, string>
-                            {
-                                {ListType.DisplayAsLink, "Display as link"},
-                                {ListType.Supplement, "Supplement"},
-                                {ListType.None, "Not set"}
-                            }, ListTypeUtils.ToRQLString, ListTypeUtils.ToListType)
-                        },
+                            new Dictionary<ListType, string>
+                                {
+                                    {ListType.DisplayAsLink, "Display as link"},
+                                    {ListType.Supplement, "Supplement"},
+                                    {ListType.None, "Not set"}
+                                }, ListTypeUtils.ToRQLString, ListTypeUtils.ToListType)
+                    },
                     {"eltmarginheight", new StringAttributeFactory()},
                     {"eltmarginwidth", new StringAttributeFactory()},
                     {"eltmaxpicheight", new StringAttributeFactory()},
@@ -133,7 +132,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     {
                         "eltscrolling",
                         new StringEnumAttributeFactory<Scrolling>(ScrollingUtils.ToRQLString, ScrollingUtils.ToScrolling)
-                        },
+                    },
                     {"eltsearchdepth", new StringAttributeFactory()},
                     {"eltshape", new StringAttributeFactory()},
                     {"eltsrc", new StringAttributeFactory()},
@@ -143,9 +142,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     {"eltsupplement", new StringAttributeFactory()},
                     {
                         "elttarget",
-                        new StringEnumAttributeFactory<HtmlTarget>(HtmlTargetUtils.ToRQLString,
-                                                                   HtmlTargetUtils.ToHtmlTarget)
-                        },
+                        new StringEnumAttributeFactory<HtmlTarget>(HtmlTargetUtils.ToRQLString, HtmlTargetUtils.ToHtmlTarget)
+                    },
                     {"elttableclose", new StringAttributeFactory()},
                     {"elttablename", new StringAttributeFactory()},
                     {"elttableopen", new StringAttributeFactory()},
@@ -153,7 +151,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                         "elttargetformat",
                         new StringEnumAttributeFactory<TargetFormat>(TargetFormatUtils.ToRQLString,
                                                                      TargetFormatUtils.ToTargetFormat)
-                        },
+                    },
                     {"eltusemainlink", new BoolAttributeFactory()},
                     {"eltuserdefinedallowed", new BoolAttributeFactory()},
                     {"eltuserfc3066", new BoolAttributeFactory()},

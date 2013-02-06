@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -108,8 +107,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                                        }
                                                select
                                                    new SourceTarget
-                                                       {Source = sourceItem.Parent, Target = targetItem.Parent}).
-                Distinct().ToList();
+                                                       {
+                                                           Source = sourceItem.Parent,
+                                                           Target = targetItem.Parent
+                                                       }).Distinct().ToList();
 
             string targetDefaultSelection = (from match in matchedItems
                                              where match.Source.Attribute(IDENTIFIER).Value.Equals(sourceDefault)
@@ -118,13 +119,13 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             //add new elements
             resultSelections.Add(from sourceSelection in sourceDoc.Descendants(SELECTION)
                                  where
-                                     !(from mItem in matchedItems select mItem.Source.Attribute(IDENTIFIER).Value).
-                                          Contains(sourceSelection.Attribute(IDENTIFIER).Value)
+                                     !(from mItem in matchedItems select mItem.Source.Attribute(IDENTIFIER).Value)
+                                          .Contains(sourceSelection.Attribute(IDENTIFIER).Value)
                                  select
                                      new XElement(SELECTION,
                                                   new XAttribute(IDENTIFIER,
-                                                                 sourceSelection.Attribute(IDENTIFIER).Value.Equals(
-                                                                     sourceDefault)
+                                                                 sourceSelection.Attribute(IDENTIFIER)
+                                                                                .Value.Equals(sourceDefault)
                                                                      ? "1"
                                                                      : "NaN"), sourceSelection.Elements()));
 
@@ -134,7 +135,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
             targetDefaultSelection = targetDefaultSelection ?? "1";
 
-            _parent.XmlNode.SetAttributeValue(Name, HttpUtility.HtmlEncode(resultSelections.ToString()));
+            _parent.XmlElement.SetAttributeValue(Name, HttpUtility.HtmlEncode(resultSelections.ToString()));
             _value = null;
             //retrieve value again, to have guids set, beware: until commit on parent is called, the old list will be returned
             _parent.DefaultValueString = targetDefaultSelection;
@@ -220,12 +221,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                                                                  Entries = (from entry in langgroups
                                                                                             select
                                                                                                 new OptionListEntry(
-                                                                                                entry.Attribute("name").
-                                                                                                    Value, entry.Value,
+                                                                                                entry.Attribute("name")
+                                                                                                     .Value, entry.Value,
                                                                                                 entry.Parent.Attribute(
                                                                                                     IDENTIFIER).Value ==
-                                                                                                defaultValueString)).ToList
-                                                                         ()
+                                                                                                defaultValueString)).ToList()
                                                                              }).ToDictionary(key => key.Language,
                                                                                              value => value.Entries);
 

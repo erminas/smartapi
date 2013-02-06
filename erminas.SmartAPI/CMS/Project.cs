@@ -1,18 +1,17 @@
-/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -91,26 +90,30 @@ namespace erminas.SmartAPI.CMS
     };
 
     /// <summary>
-    ///   Represents a RedDot Project. Most (list) properties are lazy loaded and cached by default. That means the actual content (e.g. the folders, content classes etc) is loaded on the first access of the property and then cached, so that subsequent access is done on the local cache. You can change that behaviour through <see
-    ///    cref="ICachedList{T}.IsCachingEnabled" /> or do a manual refresh of the cache either eagerly ( <see
-    ///    cref="ICachedList{T}.Refresh" /> ) or lazy ( <see cref="ICachedList{T}.InvalidateCache" /> . Most of the lists are also indexed on the most frequent access property (mostly Name). See the documentation on the properties for details.
+    ///     Represents a RedDot Project. Most (list) properties are lazy loaded and cached by default. That means the actual content (e.g. the folders, content classes etc) is loaded on the first access of the property and then cached, so that subsequent access is done on the local cache. You can change that behaviour through
+    ///     <see
+    ///         cref="ICachedList{T}.IsCachingEnabled" />
+    ///     or do a manual refresh of the cache either eagerly (
+    ///     <see
+    ///         cref="ICachedList{T}.Refresh" />
+    ///     ) or lazy ( <see cref="ICachedList{T}.InvalidateCache" /> . Most of the lists are also indexed on the most frequent access property (mostly Name). See the documentation on the properties for details.
     /// </summary>
     public class Project : PartialRedDotObject
     {
         #region RqlType enum
 
         /// <summary>
-        ///   Indicate where the session key should be placed in the RQL query.
+        ///     Indicate where the session key should be placed in the RQL query.
         /// </summary>
         public enum RqlType
         {
             /// <summary>
-            ///   Insert the session key as attribute in the project element
+            ///     Insert the session key as attribute in the project element
             /// </summary>
             SessionKeyInProject,
 
             /// <summary>
-            ///   Insert the session key as attribute in the iodata element
+            ///     Insert the session key as attribute in the iodata element
             /// </summary>
             SessionKeyInIodata
         };
@@ -151,37 +154,37 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   All info attributes in the project, indexed by id. The list is cached by default.
+        ///     All info attributes in the project, indexed by id. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public IIndexedCachedList<int, InfoAttribute> InfoAttributes { get; private set; }
 
         /// <summary>
-        ///   All concent class folders, indexed by name. The list is cached by default.
+        ///     All concent class folders, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<ContentClassFolder> ContentClassFolders { get; private set; }
 
         /// <summary>
-        ///   All folders, indexed by name. The list is cached by default.
+        ///     All folders, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<Folder> Folders { get; private set; }
 
         /// <summary>
-        ///   All project variants, indexed by name. The list is cached by default.
+        ///     All project variants, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<ProjectVariant> ProjectVariants { get; private set; }
 
         /// <summary>
-        ///   All language variants, indexed by Language. The list is cached by default.
+        ///     All language variants, indexed by Language. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public IndexedRDList<String, LanguageVariant> LanguageVariants { get; private set; }
 
         /// <summary>
-        ///   Get/Set the current active language variant. This information is cached.
+        ///     Get/Set the current active language variant. This information is cached.
         /// </summary>
         [ScriptIgnore]
         public LanguageVariant CurrentLanguageVariant
@@ -191,30 +194,30 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   A list of all content classes, indexed by name. The list is cached by default.
+        ///     A list of all content classes, indexed by name. The list is cached by default.
         /// </summary>
-        public NameIndexedRDList<ContentClass> ContentClasses { get; private set; }
+        public RDList<ContentClass> ContentClasses { get; private set; }
 
         /// <summary>
-        ///   All database connections, indexed by name. The list is cached by default.
+        ///     All database connections, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<DatabaseConnection> DatabaseConnections { get; private set; }
 
         /// <summary>
-        ///   All Syllables, indexed by guid. The list is cached by default.
+        ///     All Syllables, indexed by guid. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<Syllable> Syllables { get; private set; }
 
         /// <summary>
-        ///   The session object this project belongs to. All RQL queries are executed in this session.
+        ///     The session object this project belongs to. All RQL queries are executed in this session.
         /// </summary>
         [ScriptIgnore]
         public Session Session { get; private set; }
 
         /// <summary>
-        ///   The project lock level.
+        ///     The project lock level.
         /// </summary>
         [ScriptIgnore]
         public ProjectLockLevel LockLevel
@@ -226,13 +229,13 @@ namespace erminas.SmartAPI.CMS
         public Categories Categories { get; private set; }
 
         /// <summary>
-        ///   All keywords, indexed by name. The list is cached by default.
+        ///     All keywords, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public RDList<Keyword> Keywords { get; private set; }
 
         /// <summary>
-        ///   All folders used for the asset manager (i.e. where folder.IsAssertManagerFolder == true)
+        ///     All folders used for the asset manager (i.e. where folder.IsAssertManagerFolder == true)
         /// </summary>
         [ScriptIgnore]
         public List<Folder> AssetManagerFolders
@@ -241,13 +244,13 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   All users of the project, indexed by name. The list is cached by default.
+        ///     All users of the project, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<User> UsersOfProject { get; private set; }
 
         /// <summary>
-        ///   All (non global) workflows.
+        ///     All (non global) workflows.
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<Workflow> Workflows { get; private set; }
@@ -257,19 +260,19 @@ namespace erminas.SmartAPI.CMS
         #region Publication
 
         /// <summary>
-        ///   All publication targets
+        ///     All publication targets
         /// </summary>
         [ScriptIgnore]
         public IRDList<PublicationTarget> PublicationTargets { get; private set; }
 
         /// <summary>
-        ///   All publication folders
+        ///     All publication folders
         /// </summary>
         [ScriptIgnore]
         public IRDList<PublicationFolder> PublicationFolders { get; private set; }
 
         /// <summary>
-        ///   All publication packages
+        ///     All publication packages
         /// </summary>
         [ScriptIgnore]
         public IRDList<PublicationPackage> PublicationPackages { get; private set; }
@@ -277,7 +280,7 @@ namespace erminas.SmartAPI.CMS
         #endregion
 
         /// <summary>
-        ///   Refresh the currently selected language variant value. You should only need to use this, if the language variant can be changed outside of this project instance (e.g. if you have to _different_ project objects for the same project).
+        ///     Refresh the currently selected language variant value. You should only need to use this, if the language variant can be changed outside of this project instance (e.g. if you have to _different_ project objects for the same project).
         /// </summary>
         public LanguageVariant RefreshCurrentLanguageVariant()
         {
@@ -290,7 +293,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Get the project variant used as display format (preview).
+        ///     Get the project variant used as display format (preview).
         /// </summary>
         public ProjectVariant GetDisplayFormatProjectVariant()
         {
@@ -305,7 +308,7 @@ namespace erminas.SmartAPI.CMS
             PublicationPackages = new RDList<PublicationPackage>(GetPublicationPackages, Caching.Enabled);
             InfoAttributes = new IndexedCachedList<int, InfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
 
-            ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
+            ContentClasses = new RDList<ContentClass>(GetContentClasses, Caching.Enabled);
             ContentClassFolders = new NameIndexedRDList<ContentClassFolder>(GetContentClassFolders, Caching.Enabled);
             Folders = new NameIndexedRDList<Folder>(GetFolders, Caching.Enabled);
             ProjectVariants = new NameIndexedRDList<ProjectVariant>(GetProjectVariants, Caching.Enabled);
@@ -322,7 +325,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Selects the active language variant. Has the same effect as setting <see cref="CurrentLanguageVariant" />
+        ///     Selects the active language variant. Has the same effect as setting <see cref="CurrentLanguageVariant" />
         /// </summary>
         /// <param name="language"> Language to make active </param>
         /// <exception cref="Exception">Thrown, if language variant could not be made active</exception>
@@ -355,7 +358,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Select this project as active project in the current session.
+        ///     Select this project as active project in the current session.
         /// </summary>
         public void Select()
         {
@@ -363,7 +366,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Kicks off an asynchronous project export. For success / failure check emails from RedDot.
+        ///     Kicks off an asynchronous project export. For success / failure check emails from RedDot.
         /// </summary>
         public void Export()
         {
@@ -373,12 +376,11 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Changes the user access level for this project.
+        ///     Changes the user access level for this project.
         /// </summary>
         public void SetUserLevel(User user, UserAccessLevel accessLevel)
         {
-            const string SET_USER_LEVEL =
-                @"<ADMINISTRATION>
+            const string SET_USER_LEVEL = @"<ADMINISTRATION>
                                                 <USER guid=""{0}"" action=""save"">
                                                     <PROJECTS>
                                                         <PROJECT guid=""{1}"" checked=""{2}"" userlevel=""{3}"" />
@@ -392,7 +394,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Returns the user level set for this project.
+        ///     Returns the user level set for this project.
         /// </summary>
         public UserAccessLevel GetAccessLevelForUser(User user)
         {
@@ -410,7 +412,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Execute an rql query.
+        ///     Execute an rql query.
         /// </summary>
         /// <param name="query"> The query string (not containing IODATA/PROJECT elements) </param>
         /// <param name="type"> Determine the attributes of IODATA/PROJECT elements in the query </param>
@@ -448,7 +450,7 @@ namespace erminas.SmartAPI.CMS
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return Session.Projects.First(x => x.Guid.Equals(Guid)).XmlNode;
+            return Session.Projects.First(x => x.Guid.Equals(Guid)).XmlElement;
         }
 
         private List<ContentClass> GetContentClasses()
@@ -464,7 +466,7 @@ namespace erminas.SmartAPI.CMS
         #region PAGES
 
         /// <summary>
-        ///   All pages of the current language variant, indexed by page id. The list is cached by default.
+        ///     All pages of the current language variant, indexed by page id. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
         public IndexedRDList<int, Page> PagesOfCurrentLanguageVariant
@@ -473,7 +475,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   All pages of the a specific language variant, indexed by page id. The list is cached by default.
+        ///     All pages of the a specific language variant, indexed by page id. The list is cached by default.
         /// </summary>
         public IndexedRDList<int, Page> GetPagesForLanguageVariant(string language)
         {
@@ -481,22 +483,17 @@ namespace erminas.SmartAPI.CMS
             using (new LanguageContext(languageVariant))
             {
                 return _pagesByLanguage.GetOrAdd(language, () => new IndexedRDList<int, Page>(() =>
-                                                                                                  {
-                                                                                                      using (
-                                                                                                          new LanguageContext
-                                                                                                              (languageVariant)
-                                                                                                          )
-                                                                                                      {
-                                                                                                          return
-                                                                                                              GetPages();
-                                                                                                      }
-                                                                                                  }, x => x.Id,
-                                                                                              Caching.Enabled));
+                    {
+                        using (new LanguageContext(languageVariant))
+                        {
+                            return GetPages();
+                        }
+                    }, x => x.Id, Caching.Enabled));
             }
         }
 
         /// <summary>
-        ///   Create a new page.
+        ///     Create a new page.
         /// </summary>
         /// <param name="cc"> Content class of the page </param>
         /// <param name="headline"> The headline, or null (default) for the default headline </param>
@@ -508,7 +505,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Create a new page and link it.
+        ///     Create a new page and link it.
         /// </summary>
         /// <param name="cc"> Content class of the page </param>
         /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
@@ -547,7 +544,7 @@ namespace erminas.SmartAPI.CMS
         #region Page Search
 
         /// <summary>
-        ///   Create an extended page search on this project.
+        ///     Create an extended page search on this project.
         /// </summary>
         /// <see cref="CreatePageSearch" />
         public ExtendedPageSearch CreateExtendedPageSearch()
@@ -556,12 +553,12 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured through the configurator parameter and returns the result of the search.
+        ///     Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured through the configurator parameter and returns the result of the search.
         /// </summary>
         /// <param name="configurator"> An action to configure the search </param>
         /// <returns> The search results </returns>
         /// <example>
-        ///   The following code searches for all pages saved as draft by the current user: <code>var results = project.SearchForPagesExtended( search => search.AddPredicate(new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)));</code>
+        ///     The following code searches for all pages saved as draft by the current user: <code>var results = project.SearchForPagesExtended( search => search.AddPredicate(new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)));</code>
         /// </example>
         public List<ResultGroup> SearchForPagesExtended(Action<ExtendedPageSearch> configurator = null)
         {
@@ -575,7 +572,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Create a simple page search on this project.
+        ///     Create a simple page search on this project.
         /// </summary>
         /// <see cref="CreateExtendedPageSearch" />
         public PageSearch CreatePageSearch()
@@ -584,12 +581,12 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///   Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator parameter and returns the search result.
+        ///     Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator parameter and returns the search result.
         /// </summary>
         /// <param name="configurator"> Action to configure the search </param>
         /// <returns> The search results </returns>
         /// <example>
-        ///   The following code searches for all pages with headline "test": <code>var results = project.SearchForPages(search => search.Headline="test");</code>
+        ///     The following code searches for all pages with headline "test": <code>var results = project.SearchForPages(search => search.Headline="test");</code>
         /// </example>
         public List<Page> SearchForPages(Action<PageSearch> configurator = null)
         {
@@ -707,10 +704,19 @@ namespace erminas.SmartAPI.CMS
             }
             return
                 (from XmlElement info in infos.GetElementsByTagName("PAGEINFO") select new InfoAttribute(info)).Union(
-                    (from XmlElement info in infos.GetElementsByTagName("PROJECTINFO") select new InfoAttribute(info))).
-                    Union(
-                        (from XmlElement info in infos.GetElementsByTagName("SESSIONOBJECT")
-                         select new InfoAttribute(info))).ToList();
+                    (from XmlElement info in infos.GetElementsByTagName("PROJECTINFO") select new InfoAttribute(info)))
+                                                                                                               .Union(
+                                                                                                                   (from
+                                                                                                                        XmlElement
+                                                                                                                        info
+                                                                                                                        in
+                                                                                                                        infos
+                                                                                                                        .GetElementsByTagName
+                                                                                                                        ("SESSIONOBJECT")
+                                                                                                                    select
+                                                                                                                        new InfoAttribute
+                                                                                                                        (info)))
+                                                                                                               .ToList();
         }
 
         private List<ProjectVariant> GetProjectVariants()
@@ -770,12 +776,13 @@ namespace erminas.SmartAPI.CMS
             IEnumerable<Keyword> categoryKeywords = from curCategory in Categories
                                                     select
                                                         new Keyword(this, curCategory.Guid)
-                                                            {Name = "[category]", Category = curCategory};
+                                                            {
+                                                                Name = "[category]",
+                                                                Category = curCategory
+                                                            };
             return
                 (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).Union(categoryKeywords).ToList();
         }
-
-        
 
         #endregion
     }

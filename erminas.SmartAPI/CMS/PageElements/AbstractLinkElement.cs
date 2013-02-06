@@ -1,18 +1,17 @@
-﻿/*
- * Smart API - .Net programatical access to RedDot servers
- * Copyright (C) 2012  erminas GbR 
- *
- * This program is free software: you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. 
- *
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <http://www.gnu.org/licenses/>. 
- */
+﻿// Smart API - .Net programatical access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -26,7 +25,8 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private LinkType _linkType;
 
-        protected AbstractLinkElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
+        protected AbstractLinkElement(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
             ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
@@ -42,10 +42,10 @@ namespace erminas.SmartAPI.CMS.PageElements
         #region ILinkElement Members
 
         /// <summary>
-        /// All pages connected to this link.
-        /// Theoretically the language variant of the target page could be different through a language change in an anchor.
-        /// BUT, this is not considered here (and it is not considered in the SmartTree, too), so alle pages are
-        /// of the same language variant as this page.
+        ///     All pages connected to this link.
+        ///     Theoretically the language variant of the target page could be different through a language change in an anchor.
+        ///     BUT, this is not considered here (and it is not considered in the SmartTree, too), so alle pages are
+        ///     of the same language variant as this page.
         /// </summary>
         public IRDList<IPage> ConnectedPages { get; private set; }
 
@@ -161,7 +161,11 @@ namespace erminas.SmartAPI.CMS.PageElements
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_LINKED_PAGES, Guid.ToRQLString()));
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
                     let page =
-                        (IPage) new Page(Project, curPage.GetGuid(), LanguageVariant) {Headline = curPage.GetAttributeValue("headline")}
+                        (IPage)
+                        new Page(Project, curPage.GetGuid(), LanguageVariant)
+                            {
+                                Headline = curPage.GetAttributeValue("headline")
+                            }
                     select page).ToList();
         }
 

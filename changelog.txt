@@ -1,4 +1,8 @@
 SmartAPI Changelog
+
+Bugfixes:
+- Multiple content classes with the same name in one project work again
+
 2013-01-22: Version 0.9.3.0
 ---------------------------
 Features:
@@ -7,7 +11,6 @@ Features:
 - Preassigned workflows for structural elements
 - Preassigned target container for structural elements
 - Deletion/Creation of Workflows
-- 
 
 Bugfixes:
 - Session construction for an existing RedDot session works again
