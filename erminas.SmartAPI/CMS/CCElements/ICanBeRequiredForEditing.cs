@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -17,7 +17,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public interface ICanBeRequiredForEditing
     {
-        bool IsEditingMandatory { get; set; }
         void Commit();
+        bool IsEditingMandatory { get; set; }
     }
 }

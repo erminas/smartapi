@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -48,28 +48,6 @@ namespace erminas.SmartAPI.CMS
         public abstract ContentClassCategory Category { get; }
 
         /// <summary>
-        ///     TypeId of the element.
-        /// </summary>
-        public ElementType Type { get; private set; }
-
-        /// <summary>
-        ///     Language variant of the element (a separate instance exists for every language variant on the server).
-        /// </summary>
-        public LanguageVariant LanguageVariant
-        {
-            get
-            {
-                return _languageVariant ??
-                       (_languageVariant =
-                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
-            }
-        }
-
-        public ContentClass ContentClass { get; set; }
-
-        public override string Name { get; set; }
-
-        /// <summary>
         ///     Save element on the server. Saves only the attributes!
         /// </summary>
         public virtual void Commit()
@@ -101,11 +79,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private void LoadXml()
-        {
-            Name = XmlElement.GetAttributeValue("eltname");
-            Type = (ElementType) XmlElement.GetIntAttributeValue("elttype").GetValueOrDefault();
-        }
+        public ContentClass ContentClass { get; set; }
 
         /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
@@ -185,24 +159,24 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Create an empty element of a specific type as child of a content class. Does not insert the element into the contentclass itself, but just provides a vanilla element with an XML node that contains only the "elttype" and the empty "guid" attribute.
+        ///     Language variant of the element (a separate instance exists for every language variant on the server).
         /// </summary>
-        /// <param name="contentClass"> parent content class of the element </param>
-        /// <param name="elementType"> type of the element </param>
-        /// <returns> </returns>
-        internal static CCElement CreateElement(ContentClass contentClass, ElementType elementType)
+        public LanguageVariant LanguageVariant
         {
-            var doc = new XmlDocument();
-            XmlElement element = doc.CreateElement("ELEMENT");
-            XmlAttribute typeAttr = doc.CreateAttribute("elttype");
-            XmlAttribute guidAttr = doc.CreateAttribute("guid");
-            typeAttr.Value = ((int) elementType).ToString(CultureInfo.InvariantCulture);
-            guidAttr.Value = new Guid().ToRQLString();
-            element.Attributes.Append(typeAttr);
-            element.Attributes.Append(guidAttr);
-
-            return CreateElement(contentClass, element);
+            get
+            {
+                return _languageVariant ??
+                       (_languageVariant =
+                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
+            }
         }
+
+        public override string Name { get; set; }
+
+        /// <summary>
+        ///     TypeId of the element.
+        /// </summary>
+        public ElementType Type { get; private set; }
 
         /// <summary>
         ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
@@ -265,6 +239,32 @@ namespace erminas.SmartAPI.CMS
             newCcElement.Guid = resultElementNode.GetGuid();
 
             return newCcElement;
+        }
+
+        /// <summary>
+        ///     Create an empty element of a specific type as child of a content class. Does not insert the element into the contentclass itself, but just provides a vanilla element with an XML node that contains only the "elttype" and the empty "guid" attribute.
+        /// </summary>
+        /// <param name="contentClass"> parent content class of the element </param>
+        /// <param name="elementType"> type of the element </param>
+        /// <returns> </returns>
+        internal static CCElement CreateElement(ContentClass contentClass, ElementType elementType)
+        {
+            var doc = new XmlDocument();
+            XmlElement element = doc.CreateElement("ELEMENT");
+            XmlAttribute typeAttr = doc.CreateAttribute("elttype");
+            XmlAttribute guidAttr = doc.CreateAttribute("guid");
+            typeAttr.Value = ((int) elementType).ToString(CultureInfo.InvariantCulture);
+            guidAttr.Value = new Guid().ToRQLString();
+            element.Attributes.Append(typeAttr);
+            element.Attributes.Append(guidAttr);
+
+            return CreateElement(contentClass, element);
+        }
+
+        private void LoadXml()
+        {
+            Name = XmlElement.GetAttributeValue("eltname");
+            Type = (ElementType) XmlElement.GetIntAttributeValue("elttype").GetValueOrDefault();
         }
     }
 

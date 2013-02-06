@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -61,36 +61,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         #region IRDAttribute Members
 
-        public string Name
-        {
-            get { return "__elementreferenceattribute"; }
-        }
-
-        public object DisplayObject
-        {
-            get
-            {
-                CCElement ccElement = Value;
-                if (ccElement == null)
-                {
-                    return "not set";
-                }
-                return string.Format("Element {0} of content class {1} in project {2}", ccElement.Name,
-                                     ccElement.ContentClass.Name, ccElement.ContentClass.Project.Name);
-            }
-        }
-
-        public string Description
-        {
-            get { return "Element"; }
-        }
-
-        public bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            reason = string.Empty;
-            return o is ElementReferenceAttribute;
-        }
-
         public void Assign(IRDAttribute o)
         {
             var other = (ElementReferenceAttribute) o;
@@ -109,6 +79,36 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                   otherCCElement.ContentClass.Project.Name, otherCCElement.ContentClass.Name,
                                   otherCCElement.Name), e);
             }
+        }
+
+        public string Description
+        {
+            get { return "Element"; }
+        }
+
+        public object DisplayObject
+        {
+            get
+            {
+                CCElement ccElement = Value;
+                if (ccElement == null)
+                {
+                    return "not set";
+                }
+                return string.Format("Element {0} of content class {1} in project {2}", ccElement.Name,
+                                     ccElement.ContentClass.Name, ccElement.ContentClass.Project.Name);
+            }
+        }
+
+        public bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = string.Empty;
+            return o is ElementReferenceAttribute;
+        }
+
+        public string Name
+        {
+            get { return "__elementreferenceattribute"; }
         }
 
         public void Refresh()

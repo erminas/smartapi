@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -25,6 +25,11 @@ namespace erminas.SmartAPI.CMS.CCElements
             CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }
 
+        public bool IsUserDefinedTimeFormat
+        {
+            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value == null; }
+        }
+
         public Locale Locale
         {
             get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
@@ -45,11 +50,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value = value; }
-        }
-
-        public bool IsUserDefinedTimeFormat
-        {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value == null; }
         }
     }
 }

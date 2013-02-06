@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -143,15 +143,15 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        public override void Assign(IRDAttribute o)
+        {
+            var attr = (LocaleXmlNodeAttribute) o;
+            SetValue(attr.GetXmlNodeValue());
+        }
+
         public override object DisplayObject
         {
             get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
-        }
-
-        public Locale Value
-        {
-            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
-            set { SetValue(value == null ? null : value.LCID.ToString(CultureInfo.InvariantCulture)); }
         }
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)
@@ -160,10 +160,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return o is LocaleXmlNodeAttribute;
         }
 
-        public override void Assign(IRDAttribute o)
+        public Locale Value
         {
-            var attr = (LocaleXmlNodeAttribute) o;
-            SetValue(attr.GetXmlNodeValue());
+            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
+            set { SetValue(value == null ? null : value.LCID.ToString(CultureInfo.InvariantCulture)); }
         }
 
         protected override void UpdateValue(string value)

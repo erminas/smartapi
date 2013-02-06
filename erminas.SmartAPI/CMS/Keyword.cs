@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -60,24 +60,6 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private void LoadXml()
-        {
-            Name = XmlElement.GetAttributeValue("value");
-            InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
-        }
-
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_KEYWORD =
-                @"<PROJECT><CATEGORY><KEYWORD action=""load"" guid=""{0}""/></CATEGORY></PROJECT>";
-            return (XmlElement) Project.ExecuteRQL(LOAD_KEYWORD.RQLFormat(this)).GetElementsByTagName("KEYWORD")[0];
-        }
-
         /// <summary>
         ///     Delete the keyword. The operation will fail, if it is still actively used in connecting pages to containers/lists.
         /// </summary>
@@ -129,13 +111,6 @@ namespace erminas.SmartAPI.CMS
             Category.Keywords.InvalidateCache();
         }
 
-        private static bool IsKeywordStillUsed(XmlElement keyword)
-        {
-            return keyword.GetIntAttributeValue("countkeywordonpag").GetValueOrDefault() > 0 ||
-                   keyword.GetIntAttributeValue("countkeywordonpge") > 0 ||
-                   keyword.GetIntAttributeValue("countkeywordonpgeandpag") > 0;
-        }
-
         public void Rename(string newKeywordName)
         {
             var oldName = Name;
@@ -148,6 +123,31 @@ namespace erminas.SmartAPI.CMS
                 Name = oldName;
                 throw;
             }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_KEYWORD =
+                @"<PROJECT><CATEGORY><KEYWORD action=""load"" guid=""{0}""/></CATEGORY></PROJECT>";
+            return (XmlElement) Project.ExecuteRQL(LOAD_KEYWORD.RQLFormat(this)).GetElementsByTagName("KEYWORD")[0];
+        }
+
+        private static bool IsKeywordStillUsed(XmlElement keyword)
+        {
+            return keyword.GetIntAttributeValue("countkeywordonpag").GetValueOrDefault() > 0 ||
+                   keyword.GetIntAttributeValue("countkeywordonpge") > 0 ||
+                   keyword.GetIntAttributeValue("countkeywordonpgeandpag") > 0;
+        }
+
+        private void LoadXml()
+        {
+            Name = XmlElement.GetAttributeValue("value");
+            InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
         }
     }
 }

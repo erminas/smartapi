@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -24,10 +24,10 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IWorkflow : IPartialRedDotObject
     {
-        bool CanBeInherited { get; }
-        bool IsStructureWorkflow { get; }
-        bool IsGlobal { get; }
         IEnumerable<WorkFlowAction> Actions();
+        bool CanBeInherited { get; }
+        bool IsGlobal { get; }
+        bool IsStructureWorkflow { get; }
     }
 
     public class Workflow : PartialRedDotObject, IWorkflow
@@ -72,31 +72,6 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _canBeInherited); }
         }
 
-        public bool IsStructureWorkflow
-        {
-            get { return LazyLoad(ref _isStructureWorkflow); }
-        }
-
-        public bool IsGlobal
-        {
-            get { return LazyLoad(ref _isGlobal); }
-        }
-
-        private void LoadXml()
-        {
-            InitIfPresent(ref _canBeInherited, "inherit", BoolConvert);
-            EnsuredInit(ref _isStructureWorkflow, "structureworkflow", BoolConvert);
-            InitIfPresent(ref _isGlobal, "global", BoolConvert);
-            LoadActions();
-        }
-
-        private void LoadActions()
-        {
-            _actions =
-                (from XmlElement node in XmlElement.SelectNodes("descendant::NODE") select new WorkFlowAction(node))
-                    .ToList();
-        }
-
         public void Delete()
         {
             const string DELETE_WORKFLOW = @"<WORKFLOW sessionkey=""{0}"" action=""delete"" guid=""{1}""/>";
@@ -108,6 +83,16 @@ namespace erminas.SmartAPI.CMS
                 throw new SmartAPIException(Project.Session.ServerLogin,
                                             string.Format("Could not delete workflow {0}", this));
             }
+        }
+
+        public bool IsGlobal
+        {
+            get { return LazyLoad(ref _isGlobal); }
+        }
+
+        public bool IsStructureWorkflow
+        {
+            get { return LazyLoad(ref _isStructureWorkflow); }
         }
 
         protected override void LoadWholeObject()
@@ -123,6 +108,21 @@ namespace erminas.SmartAPI.CMS
             return
                 (XmlElement)
                 Project.ExecuteRQL(String.Format(LOAD_WORKFLOW, Guid.ToRQLString())).GetElementsByTagName("WORKFLOW")[0];
+        }
+
+        private void LoadActions()
+        {
+            _actions =
+                (from XmlElement node in XmlElement.SelectNodes("descendant::NODE") select new WorkFlowAction(node))
+                    .ToList();
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _canBeInherited, "inherit", BoolConvert);
+            EnsuredInit(ref _isStructureWorkflow, "structureworkflow", BoolConvert);
+            InitIfPresent(ref _isGlobal, "global", BoolConvert);
+            LoadActions();
         }
     }
 }

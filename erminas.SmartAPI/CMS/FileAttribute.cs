@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -28,34 +28,29 @@ namespace erminas.SmartAPI.CMS
             LoadXml(xmlElement);
         }
 
-        public Folder Folder { get; private set; }
-
-        public string OriginalAuthor { get; set; }
-        public DateTime EntryDate { get; set; }
-        public string LastEditor { get; set; }
-        public DateTime ModificationDate { get; set; }
-        public string Height { get; set; }
-        public string Width { get; set; }
-        public string Colordepth { get; set; }
-        public string Filesize { get; set; }
-
-        // Audio maybe
-        public string Title { get; set; }
-        public string Artist { get; set; }
         public string Album { get; set; }
-        public string Year { get; set; }
+        public string Artist { get; set; }
+        public string Colordepth { get; set; }
         public string Comment { get; set; }
-        public string Genre { get; set; }
-
-        // maybe dirreferent Text Documents (pdf verified)
-        public string DocTitle { get; set; }
-        public string Keywords { get; set; }
         public string DocAuthor { get; set; }
-        public string DocOriginalAuthor { get; set; }
         public string DocCreatedWith { get; set; }
         public string DocCreationDate { get; set; }
         public string DocModificationDate { get; set; }
         public int DocNumberOfPages { get; set; }
+        public string DocOriginalAuthor { get; set; }
+        public string DocTitle { get; set; }
+        public DateTime EntryDate { get; set; }
+        public string Filesize { get; set; }
+        public Folder Folder { get; private set; }
+        public string Genre { get; set; }
+        public string Height { get; set; }
+        public string Keywords { get; set; }
+        public string LastEditor { get; set; }
+        public DateTime ModificationDate { get; set; }
+        public string OriginalAuthor { get; set; }
+        public string Title { get; set; }
+        public string Width { get; set; }
+        public string Year { get; set; }
 
         /*
         private static readonly Dictionary<string, string> RQLMapping = new Dictionary<string, string>()

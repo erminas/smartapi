@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,14 +35,6 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        public PublicationSetting PublicationSetting { get; set; }
-
-        public PublicationFolder PublicationFolder
-        {
-            get { return LazyLoad(ref _publicationFolder); }
-            set { _publicationFolder = value; }
-        }
-
         public void Commit()
         {
             const string SAVE_SETTING =
@@ -62,14 +54,13 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private void LoadXml()
+        public PublicationFolder PublicationFolder
         {
-            const string FOLDER_GUID = "folderguid";
-            Guid tmpGuid;
-            _publicationFolder = XmlElement.TryGetGuid(FOLDER_GUID, out tmpGuid)
-                                     ? new PublicationFolder(PublicationSetting.PublicationPackage.Project, tmpGuid)
-                                     : null;
+            get { return LazyLoad(ref _publicationFolder); }
+            set { _publicationFolder = value; }
         }
+
+        public PublicationSetting PublicationSetting { get; set; }
 
         protected override void LoadWholeObject()
         {
@@ -88,6 +79,15 @@ namespace erminas.SmartAPI.CMS
                                                                                        Guid.ToRQLString()));
 
             return (XmlElement) xmlDoc.GetElementsByTagName("FOLDEREXPORTSETTING")[0];
+        }
+
+        private void LoadXml()
+        {
+            const string FOLDER_GUID = "folderguid";
+            Guid tmpGuid;
+            _publicationFolder = XmlElement.TryGetGuid(FOLDER_GUID, out tmpGuid)
+                                     ? new PublicationFolder(PublicationSetting.PublicationPackage.Project, tmpGuid)
+                                     : null;
         }
     }
 }

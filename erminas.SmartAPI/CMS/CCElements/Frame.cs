@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -83,21 +83,6 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public static class FrameborderUtils
     {
-        public static string ToRQLString(this Frameborder value)
-        {
-            switch (value)
-            {
-                case Frameborder.NotSet:
-                    return string.Empty;
-                case Frameborder.Yes:
-                    return "yes";
-                case Frameborder.No:
-                    return "no";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (Frameborder).Name, value));
-            }
-        }
-
         public static Frameborder ToFrameborder(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -115,6 +100,21 @@ namespace erminas.SmartAPI.CMS.CCElements
                                                               typeof (Frameborder).Name, value));
             }
         }
+
+        public static string ToRQLString(this Frameborder value)
+        {
+            switch (value)
+            {
+                case Frameborder.NotSet:
+                    return string.Empty;
+                case Frameborder.Yes:
+                    return "yes";
+                case Frameborder.No:
+                    return "no";
+                default:
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (Frameborder).Name, value));
+            }
+        }
     }
 
     #endregion
@@ -129,10 +129,9 @@ namespace erminas.SmartAPI.CMS.CCElements
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
-        public bool IsSyntaxConformingToXHtml
+        public override ContentClassCategory Category
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return ContentClassCategory.Structural; }
         }
 
         public string FrameName
@@ -141,10 +140,22 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltframename")).Value = value; }
         }
 
-        public string MarginWidth
+        public Frameborder Frameborder
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltmarginwidth")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmarginwidth")).Value = value; }
+            get { return ((StringEnumXmlNodeAttribute<Frameborder>) GetAttribute("eltframeborder")).Value; }
+            set { ((StringEnumXmlNodeAttribute<Frameborder>) GetAttribute("eltframeborder")).Value = value; }
+        }
+
+        public bool IsNotResizing
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value = value; }
+        }
+
+        public bool IsSyntaxConformingToXHtml
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
         }
 
         public string MarginHeight
@@ -152,6 +163,14 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((StringXmlNodeAttribute) GetAttribute("eltmarginheight")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltmarginheight")).Value = value; }
         }
+
+        public string MarginWidth
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltmarginwidth")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltmarginwidth")).Value = value; }
+        }
+
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
 
         public Scrolling Scrolling
         {
@@ -170,24 +189,5 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
         }
-
-        public Frameborder Frameborder
-        {
-            get { return ((StringEnumXmlNodeAttribute<Frameborder>) GetAttribute("eltframeborder")).Value; }
-            set { ((StringEnumXmlNodeAttribute<Frameborder>) GetAttribute("eltframeborder")).Value = value; }
-        }
-
-        public bool IsNotResizing
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value = value; }
-        }
-
-        public override ContentClassCategory Category
-        {
-            get { return ContentClassCategory.Structural; }
-        }
-
-        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

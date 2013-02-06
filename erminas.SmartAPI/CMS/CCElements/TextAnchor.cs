@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -31,6 +31,18 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value = value; }
         }
 
+        public string FontColor
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
+        }
+
+        public string FontFace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value = value; }
+        }
+
         public string FontSize
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value; }
@@ -41,18 +53,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value = value; }
-        }
-
-        public string FontFace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value = value; }
-        }
-
-        public string FontColor
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
         }
     }
 }

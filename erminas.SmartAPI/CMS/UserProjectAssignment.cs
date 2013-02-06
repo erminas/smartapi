@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -55,28 +55,6 @@ namespace erminas.SmartAPI.CMS
             IsTranslationEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TranslationEditor);
         }
 
-        public UserRole UserRole { get; set; }
-
-        public User User
-        {
-            get { return _user; }
-        }
-
-        public Project Project { get; private set; }
-
-        public bool IsTemplateEditor { get; set; }
-
-        public bool IsTranslationEditor { get; set; }
-
-        internal static UserProjectAssignment Create(User user, Project project, UserRole role,
-                                                     ExtendedUserRoles extendedUserRoles)
-        {
-            var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
-            assignment.Commit();
-
-            return assignment;
-        }
-
         public void Commit()
         {
             //TODO check results
@@ -92,13 +70,25 @@ namespace erminas.SmartAPI.CMS
             User.UnassignProject(Project);
         }
 
-        private void LoadXml(XmlElement projectAssignment)
-        {
-            Project = new Project(_user.Session, projectAssignment.GetGuid()) {Name = projectAssignment.GetName()};
+        public bool IsTemplateEditor { get; set; }
 
-            UserRole = (UserRole) projectAssignment.GetIntAttributeValue("userlevel").GetValueOrDefault();
-            IsTemplateEditor = HasRight(projectAssignment, "templateeditorright");
-            IsTranslationEditor = HasRight(projectAssignment, "languagemanagerright");
+        public bool IsTranslationEditor { get; set; }
+        public Project Project { get; private set; }
+
+        public User User
+        {
+            get { return _user; }
+        }
+
+        public UserRole UserRole { get; set; }
+
+        internal static UserProjectAssignment Create(User user, Project project, UserRole role,
+                                                     ExtendedUserRoles extendedUserRoles)
+        {
+            var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
+            assignment.Commit();
+
+            return assignment;
         }
 
         private bool HasRight(XmlElement projectElement, string attributeName)
@@ -112,6 +102,15 @@ namespace erminas.SmartAPI.CMS
             }
 
             return intAttributeValue.Value == -1;
+        }
+
+        private void LoadXml(XmlElement projectAssignment)
+        {
+            Project = new Project(_user.Session, projectAssignment.GetGuid()) {Name = projectAssignment.GetName()};
+
+            UserRole = (UserRole) projectAssignment.GetIntAttributeValue("userlevel").GetValueOrDefault();
+            IsTemplateEditor = HasRight(projectAssignment, "templateeditorright");
+            IsTranslationEditor = HasRight(projectAssignment, "languagemanagerright");
         }
     }
 }

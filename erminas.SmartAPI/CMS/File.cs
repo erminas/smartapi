@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -46,15 +46,6 @@ namespace erminas.SmartAPI.CMS
             Folder = new Folder(project, xmlElement.GetGuid("folderguid"));
         }
 
-        public int ReferenceCount()
-        {
-            const string GET_REFERENCES =
-                "<PROJECT><TRANSFER action=\"checkimage\" getreferences=\"1\" sync=\"1\" folderguid=\"{0}\" filename=\"{1}\" /></PROJECT>";
-
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(GET_REFERENCES, Folder.Guid.ToRQLString(), Name));
-            return xmlDoc.GetElementsByTagName("REFERENCE").Count;
-        }
-
         public void Delete()
         {
             //TODO ist ENG okay, oder sollte man z.b. die standardsprache waehlen
@@ -62,6 +53,15 @@ namespace erminas.SmartAPI.CMS
                 "<MEDIA><FOLDER guid=\"{0}\" ><FILES action=\"deletefiles\"><FILE sourcename=\"{1}\" languagevariantid=\"ENG\" checkfolder=\"1\"/></FILES></FOLDER></MEDIA>";
 
             Project.ExecuteRQL(string.Format(DELETE_FILE, Folder.Guid.ToRQLString(), Name));
+        }
+
+        public int ReferenceCount()
+        {
+            const string GET_REFERENCES =
+                "<PROJECT><TRANSFER action=\"checkimage\" getreferences=\"1\" sync=\"1\" folderguid=\"{0}\" filename=\"{1}\" /></PROJECT>";
+
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(GET_REFERENCES, Folder.Guid.ToRQLString(), Name));
+            return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
     }
 }

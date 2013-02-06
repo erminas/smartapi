@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -84,25 +84,48 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        public UserPofileChangeRestrictions UserPofileChangeRestrictions
+        public UserProjectAssignment AssignProject(Project project, UserRole role, ExtendedUserRoles extendedRoles)
         {
-            get { return _userPofileChangeRestrictions; }
+            //TODO check result ...
+            return UserProjectAssignment.Create(this, project, role, extendedRoles);
         }
+
+        public UserModuleAssignment ModuleAssignment { get; private set; }
 
         /// <summary>
         ///     List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
         /// </summary>
         public IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; private set; }
 
-        public UserModuleAssignment ModuleAssignment { get; private set; }
-
-        private void Init()
+        public void UnassignProject(Project project)
         {
-            ProjectAssignments = new IndexedCachedList<string, UserProjectAssignment>(GetProjectAssignments,
-                                                                                      assignment =>
-                                                                                      assignment.Project.Name,
-                                                                                      Caching.Enabled);
-            ModuleAssignment = new UserModuleAssignment(this);
+            const string UNASSING_PROJECT =
+                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
+
+            //TODO check result ...
+            Session.ExecuteRQL(UNASSING_PROJECT.RQLFormat(this, project));
+            ProjectAssignments.InvalidateCache();
+        }
+
+        public UserPofileChangeRestrictions UserPofileChangeRestrictions
+        {
+            get { return _userPofileChangeRestrictions; }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
+            string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
+                                               Session.IODataFormat.LogonGuidOnly);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(answer);
+
+            return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
         }
 
         private List<UserProjectAssignment> GetProjectAssignments()
@@ -115,7 +138,14 @@ namespace erminas.SmartAPI.CMS
                     select new UserProjectAssignment(this, assignmentElement)).ToList();
         }
 
-        // TODO: Nothing checked in here
+        private void Init()
+        {
+            ProjectAssignments = new IndexedCachedList<string, UserProjectAssignment>(GetProjectAssignments,
+                                                                                      assignment =>
+                                                                                      assignment.Project.Name,
+                                                                                      Caching.Enabled);
+            ModuleAssignment = new UserModuleAssignment(this);
+        }
 
         private void LoadXml()
         {
@@ -142,38 +172,6 @@ namespace erminas.SmartAPI.CMS
                           s => (UserPofileChangeRestrictions) Enum.Parse(typeof (UserPofileChangeRestrictions), s));
         }
 
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-            string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                               Session.IODataFormat.LogonGuidOnly);
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(answer);
-
-            return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
-        }
-
-        public void UnassignProject(Project project)
-        {
-            const string UNASSING_PROJECT =
-                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
-
-            //TODO check result ...
-            Session.ExecuteRQL(UNASSING_PROJECT.RQLFormat(this, project));
-            ProjectAssignments.InvalidateCache();
-        }
-
-        public UserProjectAssignment AssignProject(Project project, UserRole role, ExtendedUserRoles extendedRoles)
-        {
-            //TODO check result ...
-            return UserProjectAssignment.Create(this, project, role, extendedRoles);
-        }
-
         #region Properties
 
         public Guid AccountSystemGuid
@@ -181,9 +179,19 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _accountSystemGuid); }
         }
 
-        public int Id
+        public string Description
         {
-            get { return LazyLoad(ref _id); }
+            get { return LazyLoad(ref _description); }
+        }
+
+        public DirectEditActivation DirectEditActivationType
+        {
+            get { return _invertDirectEdit; }
+        }
+
+        public string EMail
+        {
+            get { return LazyLoad(ref _email); }
         }
 
         public string Fullname
@@ -191,14 +199,14 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _fullname); }
         }
 
-        public string Description
+        public int Id
         {
-            get { return LazyLoad(ref _description); }
+            get { return LazyLoad(ref _id); }
         }
 
-        public int MaxLevel
+        public bool IsPasswordwordChangeableByCurrentUser
         {
-            get { return LazyLoad(ref _maxLevel); }
+            get { return LazyLoad(ref _isPasswordChangeableByCurrentUser); }
         }
 
         public Locale LanguageOfUserInterface
@@ -211,9 +219,14 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _loginDate); }
         }
 
-        public string NavigationType
+        public Locale Locale
         {
-            get { return LazyLoad(ref _navigationType); }
+            get { return _locale; }
+        }
+
+        public int MaxLevel
+        {
+            get { return LazyLoad(ref _maxLevel); }
         }
 
         public int MaximumNumberOfSessions
@@ -221,29 +234,14 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _maxSessionCount); }
         }
 
+        public string NavigationType
+        {
+            get { return LazyLoad(ref _navigationType); }
+        }
+
         public int PreferredEditor
         {
             get { return LazyLoad(ref _preferredEditor); }
-        }
-
-        public bool IsPasswordwordChangeableByCurrentUser
-        {
-            get { return LazyLoad(ref _isPasswordChangeableByCurrentUser); }
-        }
-
-        public string EMail
-        {
-            get { return LazyLoad(ref _email); }
-        }
-
-        public Locale Locale
-        {
-            get { return _locale; }
-        }
-
-        public DirectEditActivation DirectEditActivationType
-        {
-            get { return _invertDirectEdit; }
         }
 
         #endregion

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,10 +26,11 @@ namespace erminas.SmartAPI.CMS
             Version = new Version(major, minor, build, rev);
         }
 
+        public abstract void Validate(ServerLogin login, Version actualVersion, string method);
+
         public Version Version { get; set; }
 
         public string VersionName { get; set; }
-        public abstract void Validate(ServerLogin login, Version actualVersion, string method);
     }
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]

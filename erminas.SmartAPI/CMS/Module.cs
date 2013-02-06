@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,34 +35,6 @@ namespace erminas.SmartAPI.CMS
 
     public static class ModuleTypeUtils
     {
-        public static string ToRQLString(this ModuleType type)
-        {
-            switch (type)
-            {
-                case ModuleType.Cms:
-                    return "cms";
-                case ModuleType.Search:
-                    return "search";
-                case ModuleType.TemplateEditor:
-                    return "templateeditor";
-                case ModuleType.Translation:
-                    return "translation";
-                case ModuleType.Tasks:
-                    return "tasks";
-                case ModuleType.ServerManager:
-                    return "servermanager";
-                case ModuleType.Assets:
-                    return "assets";
-                case ModuleType.SmartEdit:
-                    return "smartedit";
-                case ModuleType.SmartTree:
-                    return "smarttree";
-                default:
-                    throw new SmartAPIInternalException(string.Format("Invalid {0} for RQL string conversion: {1}",
-                                                                      typeof (ModuleType).Name, type));
-            }
-        }
-
         public static ModuleType ToModuleType(this string value)
         {
             switch (value)
@@ -88,6 +60,34 @@ namespace erminas.SmartAPI.CMS
                 default:
                     throw new SmartAPIInternalException(string.Format("Invalid string value for {0} conversion: {1}",
                                                                       typeof (ModuleType).Name, value));
+            }
+        }
+
+        public static string ToRQLString(this ModuleType type)
+        {
+            switch (type)
+            {
+                case ModuleType.Cms:
+                    return "cms";
+                case ModuleType.Search:
+                    return "search";
+                case ModuleType.TemplateEditor:
+                    return "templateeditor";
+                case ModuleType.Translation:
+                    return "translation";
+                case ModuleType.Tasks:
+                    return "tasks";
+                case ModuleType.ServerManager:
+                    return "servermanager";
+                case ModuleType.Assets:
+                    return "assets";
+                case ModuleType.SmartEdit:
+                    return "smartedit";
+                case ModuleType.SmartTree:
+                    return "smarttree";
+                default:
+                    throw new SmartAPIInternalException(string.Format("Invalid {0} for RQL string conversion: {1}",
+                                                                      typeof (ModuleType).Name, type));
             }
         }
     }

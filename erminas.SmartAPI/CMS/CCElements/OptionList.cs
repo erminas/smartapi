@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -40,6 +40,12 @@ namespace erminas.SmartAPI.CMS.CCElements
             new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
         }
 
+        public CCElement ChildElementOf
+        {
+            get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
+            set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
+        }
+
         public string DefaultValueString
         {
             get { return XmlElement.GetAttributeValue(ELTDEFAULTVALUE); }
@@ -47,16 +53,28 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { XmlElement.SetAttributeValue(ELTDEFAULTVALUE, value); }
         }
 
-        public bool HasLanguageDependendValues
+        public string Description
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentvalue")).Value = value; }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+        }
+
+        public string Entries
+        {
+            get { return XmlElement.GetAttributeValue("eltoptionlistdata"); }
+            set { XmlElement.SetAttributeValue("eltoptionlistdata", value); }
         }
 
         public bool HasLanguageDependendNames
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentname")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentname")).Value = value; }
+        }
+
+        public bool HasLanguageDependendValues
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentvalue")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentvalue")).Value = value; }
         }
 
         public bool IsAllowingOtherValues
@@ -71,29 +89,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value; }
         }
 
-        public string Description
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
-        }
-
         public SortMode SortMode
         {
             get { return ((EnumXmlNodeAttribute<SortMode>) GetAttribute("eltorderby")).Value; }
             set { ((EnumXmlNodeAttribute<SortMode>) GetAttribute("eltorderby")).Value = value; }
-        }
-
-        public CCElement ChildElementOf
-        {
-            get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
-            set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
-        }
-
-        //todo use optionlist classes
-        public string Entries
-        {
-            get { return XmlElement.GetAttributeValue("eltoptionlistdata"); }
-            set { XmlElement.SetAttributeValue("eltoptionlistdata", value); }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -33,11 +33,6 @@ namespace erminas.SmartAPI.Utils
         }
 
         /// <summary>
-        ///     (Optional) Name of the login.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
         ///     Address of the server. If you do not know the version of the RedDot server use
         ///     <see
         ///         cref="WebServiceURLProber.RqlUri" />
@@ -49,5 +44,10 @@ namespace erminas.SmartAPI.Utils
         ///     Authentication data (username/password)
         /// </summary>
         public PasswordAuthentication AuthData { get; set; }
+
+        /// <summary>
+        ///     (Optional) Name of the login.
+        /// </summary>
+        public string Name { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -32,9 +32,9 @@ namespace erminas.SmartAPI.CMS.PageElements
             get { return LazyLoad(ref _maxSize); }
         }
 
-        private void LoadXml()
+        protected override string FromString(string value)
         {
-            InitIfPresent(ref _maxSize, "eltmaxsize", int.Parse);
+            return value;
         }
 
         protected override void LoadWholeStandardField()
@@ -42,9 +42,9 @@ namespace erminas.SmartAPI.CMS.PageElements
             LoadXml();
         }
 
-        protected override string FromString(string value)
+        private void LoadXml()
         {
-            return value;
+            InitIfPresent(ref _maxSize, "eltmaxsize", int.Parse);
         }
     }
 }

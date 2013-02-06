@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -29,21 +29,6 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public static class ListTypeUtils
     {
-        public static string ToRQLString(this ListType type)
-        {
-            switch (type)
-            {
-                case ListType.None:
-                    return "";
-                case ListType.Supplement:
-                    return "issupplement";
-                case ListType.DisplayAsLink:
-                    return "linksintext";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (ListType).Name, type));
-            }
-        }
-
         public static ListType ToListType(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -59,6 +44,21 @@ namespace erminas.SmartAPI.CMS.CCElements
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (ListType).Name, value));
+            }
+        }
+
+        public static string ToRQLString(this ListType type)
+        {
+            switch (type)
+            {
+                case ListType.None:
+                    return "";
+                case ListType.Supplement:
+                    return "issupplement";
+                case ListType.DisplayAsLink:
+                    return "linksintext";
+                default:
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (ListType).Name, type));
             }
         }
     }
@@ -95,39 +95,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             XmlElement.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
         }
 
-        public override ContentClassCategory Category
-        {
-            get { return ContentClassCategory.Content; }
-        }
-
-        public string Border
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
-        }
-
-        public string VSpace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
-        }
-
-        public string HSpace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
-        }
-
         public BasicAlignment Align
         {
             get { return ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value; }
             set { ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value = value; }
-        }
-
-        public string Supplement
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
         }
 
         /// <summary>
@@ -137,6 +108,48 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
+        }
+
+        public string Border
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
+        }
+
+        public override ContentClassCategory Category
+        {
+            get { return ContentClassCategory.Content; }
+        }
+
+        public string DataFieldForBinayData
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltbincolumnname")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltbincolumnname")).Value = value; }
+        }
+
+        public string DataFieldName
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolumnname")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltcolumnname")).Value = value; }
+        }
+
+        //todo implement as enum/special type
+        public string DataFieldType
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolumniotype")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltcolumniotype")).Value = value; }
+        }
+
+        public DatabaseConnection DatabaseConnection
+        {
+            get { return ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value; }
+            set { ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value = value; }
+        }
+
+        public string HSpace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
         }
 
         public bool IsListEntry
@@ -160,10 +173,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             }
         }
 
-        public DatabaseConnection DatabaseConnection
+        public Folder PublicationFolder
         {
-            get { return ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value; }
-            set { ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value = value; }
+            get { return ((FolderXmlNodeAttribute) GetAttribute("eltrelatedfolderguid")).Value; }
+            set { ((FolderXmlNodeAttribute) GetAttribute("eltrelatedfolderguid")).Value = value; }
+        }
+
+        public string Supplement
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
         }
 
         public string TableName
@@ -172,35 +191,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("elttablename")).Value = value; }
         }
 
-        public string DataFieldName
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolumnname")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolumnname")).Value = value; }
-        }
-
-        public string DataFieldForBinayData
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltbincolumnname")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltbincolumnname")).Value = value; }
-        }
-
-        //todo implement as enum/special type
-        public string DataFieldType
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolumniotype")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolumniotype")).Value = value; }
-        }
-
-        public Folder PublicationFolder
-        {
-            get { return ((FolderXmlNodeAttribute) GetAttribute("eltrelatedfolderguid")).Value; }
-            set { ((FolderXmlNodeAttribute) GetAttribute("eltrelatedfolderguid")).Value = value; }
-        }
-
         public string UserDefinedFormat
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value = value; }
+        }
+
+        public string VSpace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
         }
     }
 }

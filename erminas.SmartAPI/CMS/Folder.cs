@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -142,122 +142,7 @@ namespace erminas.SmartAPI.CMS
             Init();
         }
 
-        public Project Project { get; set; }
-
-        public bool IsAssetManagerFolder
-        {
-            get { return LazyLoad(ref _isAssetManagerFolder); }
-        }
-
-        public Folder LinkedFolder
-        {
-            get { return LazyLoad(ref _linkedFolder); }
-        }
-
         public ICachedList<File> AllFiles { get; private set; }
-
-        private void Init()
-        {
-            AllFiles = new CachedList<File>(GetAllFiles, Caching.Enabled);
-        }
-
-        private void LoadXml()
-        {
-            InitIfPresent(ref _isAssetManagerFolder, "catalog", BoolConvert);
-
-            Guid linkedProjectGuid;
-            if (XmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
-            {
-                _linkedFolder = new Folder(Project.Session.Projects.GetByGuid(linkedProjectGuid),
-                                           XmlElement.GetGuid("linkedfolderguid"));
-            }
-        }
-
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_FOLDER = @"<PROJECT><FOLDER action=""load"" guid=""{0}""/></PROJECT>";
-
-            XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_FOLDER, Guid.ToRQLString()));
-            XmlNodeList folders = xmlDoc.GetElementsByTagName("FOLDER");
-            if (folders.Count != 1)
-            {
-                throw new Exception(String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
-            }
-            return (XmlElement) folders[0];
-        }
-
-        private List<File> RetrieveFiles(string rqlString)
-        {
-            XmlDocument xmlDoc = Project.ExecuteRQL(rqlString);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
-
-            return (from XmlElement xmlNode in xmlNodes select new File(Project, xmlNode)).ToList();
-        }
-
-        public List<File> GetSubListOfFiles(int startCount, int fileCount)
-        {
-            string rqlString = String.Format(LIST_FILES_IN_FOLDER_PARTIAL, Guid.ToRQLString(), startCount, fileCount);
-
-            return RetrieveFiles(rqlString);
-        }
-
-        public List<File> GetFilesByNamePattern(string searchText)
-        {
-            string rqlString = String.Format(FILTER_FILES_BY_TEXT, Guid.ToRQLString(), searchText);
-            return RetrieveFiles(rqlString);
-        }
-
-        public List<File> GetFilesByAuthor(Guid authorGuid)
-        {
-            string rqlString = String.Format(FILTER_FILES_BY_CREATOR, Guid.ToRQLString(), authorGuid.ToRQLString());
-            return RetrieveFiles(rqlString);
-        }
-
-        public List<File> GetFilesByLastModifier(Guid lastModifierGuid)
-        {
-            string rqlString = String.Format(FILTER_FILES_BY_CHANGEAUTHOR, Guid.ToRQLString(),
-                                             lastModifierGuid.ToRQLString());
-            return RetrieveFiles(rqlString);
-        }
-
-        /// <summary>
-        ///     Returns List of files that match a predicate on an attribute
-        /// </summary>
-        /// <param name="attribute"> Attribute which values get checked in the predicate </param>
-        /// <param name="operator"> Opreator e.g. "le" (less equal), "ge" (greater equal), "lt"(less than), "gt" (greater than) or "eq" (equal) </param>
-        /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
-        /// <returns> </returns>
-        public List<File> GetFilesByAttributeComparison(ComparisonFileAttribute attribute, ComparisonOperator @operator,
-                                                        int value)
-        {
-            string rqlString = String.Format(FILTER_FILES_BY_COMMAND, Guid.ToRQLString(), AttributeToString(attribute),
-                                             ComparisonOperatorToString(@operator), value);
-            return RetrieveFiles(rqlString);
-        }
-
-        private static string ComparisonOperatorToString(ComparisonOperator @operator)
-        {
-            switch (@operator)
-            {
-                case ComparisonOperator.Greater:
-                    return "gt";
-                case ComparisonOperator.Less:
-                    return "lt";
-                case ComparisonOperator.LessEqual:
-                    return "le";
-                case ComparisonOperator.GreaterEqual:
-                    return "ge";
-                case ComparisonOperator.Equal:
-                    return "eq";
-                default:
-                    throw new ArgumentException(string.Format("Unknown comparison operator: {0}", @operator));
-            }
-        }
 
         public static string AttributeToString(ComparisonFileAttribute attribute)
         {
@@ -276,12 +161,83 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
+        public void DeleteFiles(List<string> filenames, bool forceDelete)
+        {
+            // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
+            List<string> filesToDelete =
+                filenames.Select(
+                    filename =>
+                    string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();
+
+            XmlDocument xmlDoc =
+                Project.ExecuteRQL(string.Format(DELETE_FILES, Guid.ToRQLString(),
+                                                 string.Join(string.Empty, filesToDelete)));
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("IODATA");
+            if (xmlNodes.Count == 0)
+            {
+                throw new ArgumentException("Could not delete Files.");
+            }
+        }
+
         public FileAttribute FileInfos(String fileName)
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LIST_FILE_ATTRIBUTES, Guid.ToRQLString(), fileName));
             var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
             return new FileAttribute(this, node);
         }
+
+        /// <summary>
+        ///     Returns List of files that match a predicate on an attribute
+        /// </summary>
+        /// <param name="attribute"> Attribute which values get checked in the predicate </param>
+        /// <param name="operator"> Opreator e.g. "le" (less equal), "ge" (greater equal), "lt"(less than), "gt" (greater than) or "eq" (equal) </param>
+        /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
+        /// <returns> </returns>
+        public List<File> GetFilesByAttributeComparison(ComparisonFileAttribute attribute, ComparisonOperator @operator,
+                                                        int value)
+        {
+            string rqlString = String.Format(FILTER_FILES_BY_COMMAND, Guid.ToRQLString(), AttributeToString(attribute),
+                                             ComparisonOperatorToString(@operator), value);
+            return RetrieveFiles(rqlString);
+        }
+
+        public List<File> GetFilesByAuthor(Guid authorGuid)
+        {
+            string rqlString = String.Format(FILTER_FILES_BY_CREATOR, Guid.ToRQLString(), authorGuid.ToRQLString());
+            return RetrieveFiles(rqlString);
+        }
+
+        public List<File> GetFilesByLastModifier(Guid lastModifierGuid)
+        {
+            string rqlString = String.Format(FILTER_FILES_BY_CHANGEAUTHOR, Guid.ToRQLString(),
+                                             lastModifierGuid.ToRQLString());
+            return RetrieveFiles(rqlString);
+        }
+
+        public List<File> GetFilesByNamePattern(string searchText)
+        {
+            string rqlString = String.Format(FILTER_FILES_BY_TEXT, Guid.ToRQLString(), searchText);
+            return RetrieveFiles(rqlString);
+        }
+
+        public List<File> GetSubListOfFiles(int startCount, int fileCount)
+        {
+            string rqlString = String.Format(LIST_FILES_IN_FOLDER_PARTIAL, Guid.ToRQLString(), startCount, fileCount);
+
+            return RetrieveFiles(rqlString);
+        }
+
+        public bool IsAssetManagerFolder
+        {
+            get { return LazyLoad(ref _isAssetManagerFolder); }
+        }
+
+        public Folder LinkedFolder
+        {
+            get { return LazyLoad(ref _linkedFolder); }
+        }
+
+        public Project Project { get; set; }
 
         public void SaveFiles(List<FileSource> sources)
         {
@@ -314,30 +270,75 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        // New Version to delete Files
-        public void DeleteFiles(List<string> filenames, bool forceDelete)
+        protected override void LoadWholeObject()
         {
-            // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
-            List<string> filesToDelete =
-                filenames.Select(
-                    filename =>
-                    string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();
+            LoadXml();
+        }
 
-            XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(DELETE_FILES, Guid.ToRQLString(),
-                                                 string.Join(string.Empty, filesToDelete)));
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("IODATA");
-            if (xmlNodes.Count == 0)
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_FOLDER = @"<PROJECT><FOLDER action=""load"" guid=""{0}""/></PROJECT>";
+
+            XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_FOLDER, Guid.ToRQLString()));
+            XmlNodeList folders = xmlDoc.GetElementsByTagName("FOLDER");
+            if (folders.Count != 1)
             {
-                throw new ArgumentException("Could not delete Files.");
+                throw new Exception(String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
+            }
+            return (XmlElement) folders[0];
+        }
+
+        private static string ComparisonOperatorToString(ComparisonOperator @operator)
+        {
+            switch (@operator)
+            {
+                case ComparisonOperator.Greater:
+                    return "gt";
+                case ComparisonOperator.Less:
+                    return "lt";
+                case ComparisonOperator.LessEqual:
+                    return "le";
+                case ComparisonOperator.GreaterEqual:
+                    return "ge";
+                case ComparisonOperator.Equal:
+                    return "eq";
+                default:
+                    throw new ArgumentException(string.Format("Unknown comparison operator: {0}", @operator));
             }
         }
+
+        // New Version to delete Files
 
         private List<File> GetAllFiles()
         {
             string rqlString = String.Format(LIST_FILES_IN_FOLDER, Guid.ToRQLString());
 
             return RetrieveFiles(rqlString);
+        }
+
+        private void Init()
+        {
+            AllFiles = new CachedList<File>(GetAllFiles, Caching.Enabled);
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _isAssetManagerFolder, "catalog", BoolConvert);
+
+            Guid linkedProjectGuid;
+            if (XmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
+            {
+                _linkedFolder = new Folder(Project.Session.Projects.GetByGuid(linkedProjectGuid),
+                                           XmlElement.GetGuid("linkedfolderguid"));
+            }
+        }
+
+        private List<File> RetrieveFiles(string rqlString)
+        {
+            XmlDocument xmlDoc = Project.ExecuteRQL(rqlString);
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
+
+            return (from XmlElement xmlNode in xmlNodes select new File(Project, xmlNode)).ToList();
         }
 
         #region Nested type: FileSource

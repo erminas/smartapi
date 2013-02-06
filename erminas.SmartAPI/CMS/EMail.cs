@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -18,26 +18,29 @@ using System.Web;
 namespace erminas.SmartAPI.CMS
 {
     /// <summary>
-    /// EMail for sending from the RedDot server.
-    /// An email can be send via <see cref="Session.SendMailFromCurrentUserAccount"/> and <see cref="Session.SendMailFromSystemAccount"/>.
-    /// Use plain text for Message and Subject.
+    ///     EMail for sending from the RedDot server.
+    ///     An email can be send via <see cref="Session.SendMailFromCurrentUserAccount" /> and
+    ///     <see
+    ///         cref="Session.SendMailFromSystemAccount" />
+    ///     .
+    ///     Use plain text for Message and Subject.
     /// </summary>
     public struct EMail
     {
         public string To;
+
+        public string HtmlEncodedMessage { get; private set; }
+
+        public string HtmlEncodedSubject { get; private set; }
 
         public string Message
         {
             set { HtmlEncodedMessage = HttpUtility.HtmlEncode(value); }
         }
 
-        public string HtmlEncodedMessage { get; private set; }
-
         public string Subject
         {
             set { HtmlEncodedSubject = HttpUtility.HtmlEncode(value); }
         }
-
-        public string HtmlEncodedSubject { get; private set; }
     }
 }

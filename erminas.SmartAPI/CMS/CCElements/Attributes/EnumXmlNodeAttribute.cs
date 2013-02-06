@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,9 +35,31 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             _displayStrings = displayStrings;
         }
 
+        public override void Assign(IRDAttribute o)
+        {
+            SetValue(((EnumXmlNodeAttribute<T>) o).GetXmlNodeValue());
+        }
+
         public override object DisplayObject
         {
             get { return _displayStrings != null ? _displayStrings[Value] : Value.ToString(CultureInfo.InvariantCulture); }
+        }
+
+        public override bool Equals(object o)
+        {
+            var other = o as EnumXmlNodeAttribute<T>;
+            return other != null && Equals(Value, other.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = string.Empty;
+            return o is EnumXmlNodeAttribute<T>;
         }
 
         public virtual T Value
@@ -56,28 +78,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             {
                 _value = (T) Enum.Parse(typeof (T), value, true);
             }
-        }
-
-        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            reason = string.Empty;
-            return o is EnumXmlNodeAttribute<T>;
-        }
-
-        public override void Assign(IRDAttribute o)
-        {
-            SetValue(((EnumXmlNodeAttribute<T>) o).GetXmlNodeValue());
-        }
-
-        public override bool Equals(object o)
-        {
-            var other = o as EnumXmlNodeAttribute<T>;
-            return other != null && Equals(Value, other.Value);
-        }
-
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
         }
     }
 }

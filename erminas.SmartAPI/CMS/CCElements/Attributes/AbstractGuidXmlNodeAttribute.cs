@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,73 +26,15 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
-        public T Value
+        public override void Assign(IRDAttribute o)
         {
-            get
-            {
-                if (_value != null)
-                {
-                    return _value;
-                }
-                UpdateValue(GetXmlNodeValue());
-                return _value;
-            }
-
-            set
-            {
-                _value = value;
-                SetXmlNodeValue(value != null ? value.Guid.ToRQLString() : null);
-            }
+            T value = ((AbstractGuidXmlNodeAttribute<T>) o).Value;
+            SetValue(value == null ? null : value.Name);
         }
 
         public override object DisplayObject
         {
             get { return _value == null ? string.Empty : _value.Name; }
-        }
-
-        protected abstract T RetrieveByGuid(Guid guid);
-        protected abstract T RetrieveByName(string name);
-
-        protected override void SetValue(string value)
-        {
-            UpdateValue(value);
-            SetXmlNodeValue(_value == null ? null : _value.Guid.ToRQLString());
-        }
-
-        /// <param name="value"> accepts a guid or a name of an existing reddotobject </param>
-        protected override void UpdateValue(string value)
-        {
-            if (String.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER)
-            {
-                _value = null;
-                return;
-            }
-
-            Guid elementGuid;
-            _value = Guid.TryParse(value, out elementGuid)
-                         ? RetrieveByGuidInternal(elementGuid)
-                         : RetrieveByNameInternal(value);
-        }
-
-        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            var t = (AbstractGuidXmlNodeAttribute<T>) o;
-            if (t.Value == null || RetrieveByName(t.Value.Name) != null)
-            {
-                reason = string.Empty;
-                return true;
-            }
-
-            reason = GetTypeDescription() + " named '" + t.Value.Name + "' not found in target!";
-            return false;
-        }
-
-        protected abstract string GetTypeDescription();
-
-        public override void Assign(IRDAttribute o)
-        {
-            T value = ((AbstractGuidXmlNodeAttribute<T>) o).Value;
-            SetValue(value == null ? null : value.Name);
         }
 
         public override bool Equals(object o)
@@ -117,6 +59,64 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         public override int GetHashCode()
         {
             return Name.GetHashCode();
+        }
+
+        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            var t = (AbstractGuidXmlNodeAttribute<T>) o;
+            if (t.Value == null || RetrieveByName(t.Value.Name) != null)
+            {
+                reason = string.Empty;
+                return true;
+            }
+
+            reason = GetTypeDescription() + " named '" + t.Value.Name + "' not found in target!";
+            return false;
+        }
+
+        public T Value
+        {
+            get
+            {
+                if (_value != null)
+                {
+                    return _value;
+                }
+                UpdateValue(GetXmlNodeValue());
+                return _value;
+            }
+
+            set
+            {
+                _value = value;
+                SetXmlNodeValue(value != null ? value.Guid.ToRQLString() : null);
+            }
+        }
+
+        protected abstract string GetTypeDescription();
+
+        protected abstract T RetrieveByGuid(Guid guid);
+        protected abstract T RetrieveByName(string name);
+
+        protected override void SetValue(string value)
+        {
+            UpdateValue(value);
+            SetXmlNodeValue(_value == null ? null : _value.Guid.ToRQLString());
+        }
+
+        /// <param name="value"> accepts a guid or a name of an existing reddotobject </param>
+        protected override void UpdateValue(string value)
+        {
+            if (String.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER)
+            {
+                _value = null;
+                return;
+            }
+
+            Guid elementGuid;
+            _value = Guid.TryParse(value, out elementGuid)
+                         ? RetrieveByGuidInternal(elementGuid)
+                         : RetrieveByNameInternal(value);
         }
 
         private T RetrieveByGuidInternal(Guid guid)

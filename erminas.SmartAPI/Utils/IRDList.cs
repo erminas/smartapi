@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -27,22 +27,22 @@ namespace erminas.SmartAPI.Utils
     /// <typeparam name="T"> </typeparam>
     public interface IRDList<T> : ICachedList<T> where T : class, IRedDotObject
     {
+        bool ContainsGuid(Guid guid);
+
+        bool ContainsName(string name);
         T GetByGuid(Guid guid);
-        bool TryGetByGuid(Guid guid, out T output);
 
         /// <summary>
         ///     Get the first element with Name == name
         /// </summary>
         T GetByName(string name);
 
+        bool TryGetByGuid(Guid guid, out T output);
+
         /// <summary>
         ///     Try to get the first element with Name == name
         /// </summary>
         /// <returns> true, if an element could be found, false otherwise </returns>
         bool TryGetByName(string name, out T output);
-
-        bool ContainsGuid(Guid guid);
-
-        bool ContainsName(string name);
     }
 }

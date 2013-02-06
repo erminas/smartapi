@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -69,12 +69,6 @@ namespace erminas.SmartAPI.CMS
         {
         }
 
-        public ActionType Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
-
         public string Path
         {
             get
@@ -86,6 +80,12 @@ namespace erminas.SmartAPI.CMS
                 }
                 return path;
             }
+        }
+
+        public ActionType Type
+        {
+            get { return _type; }
+            set { _type = value; }
         }
     }
 }

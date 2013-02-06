@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -38,6 +38,12 @@ namespace erminas.SmartAPI.Utils
             _indexFunc = indexFunc;
         }
 
+        public new ICachedList<T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         protected override List<T> List
         {
             set
@@ -55,6 +61,24 @@ namespace erminas.SmartAPI.Utils
         }
 
         #region IIndexedCachedList<TK,T> Members
+
+        public bool ContainsKey(TK key)
+        {
+            CheckList();
+            return _index.ContainsKey(key);
+        }
+
+        public T Get(TK key)
+        {
+            CheckList();
+            try
+            {
+                return IsCachingEnabled ? _index[key] : List.First(x => _indexFunc(x).Equals(key));
+            } catch (InvalidOperationException e)
+            {
+                throw new KeyNotFoundException(String.Format("No element with key '{0}' found", key), e);
+            }
+        }
 
         public override bool IsCachingEnabled
         {
@@ -76,18 +100,6 @@ namespace erminas.SmartAPI.Utils
             }
         }
 
-        public T Get(TK key)
-        {
-            CheckList();
-            try
-            {
-                return IsCachingEnabled ? _index[key] : List.First(x => _indexFunc(x).Equals(key));
-            } catch (InvalidOperationException e)
-            {
-                throw new KeyNotFoundException(String.Format("No element with key '{0}' found", key), e);
-            }
-        }
-
         public T this[TK key]
         {
             get { return Get(key); }
@@ -105,18 +117,6 @@ namespace erminas.SmartAPI.Utils
             return obj != null;
         }
 
-        public bool ContainsKey(TK key)
-        {
-            CheckList();
-            return _index.ContainsKey(key);
-        }
-
         #endregion
-
-        public new ICachedList<T> Refreshed()
-        {
-            Refresh();
-            return this;
-        }
     }
 }

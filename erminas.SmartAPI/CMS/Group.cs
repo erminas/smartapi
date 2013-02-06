@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -47,12 +47,12 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
+        public string Email { get; set; }
+
         /// <summary>
         ///     All users within a group. Set to "null" if not loaded yet. If there is no user in this group, Users is set to an empty list.
         /// </summary>
         public List<User> Users { get; set; }
-
-        public string Email { get; set; }
 
         private void LoadXml()
         {

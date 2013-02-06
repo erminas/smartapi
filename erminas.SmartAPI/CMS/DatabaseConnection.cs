@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,14 +35,6 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        private void LoadXml()
-        {
-            InitIfPresent(ref _description, "description", x => x);
-            InitIfPresent(ref _databaseServer, "databaseserverguid",
-                          x => new DatabaseServer(Project.Session, GuidConvert(x)));
-            InitIfPresent(ref _databaseName, "databasename", x => x);
-        }
-
         protected override void LoadWholeObject()
         {
             LoadXml();
@@ -61,17 +53,15 @@ namespace erminas.SmartAPI.CMS
             return (XmlElement) xmlNodes[0];
         }
 
-        #region Properties
-
-        public Project Project { get; set; }
-
-        /// <summary>
-        ///     Description of the database connection
-        /// </summary>
-        public string Description
+        private void LoadXml()
         {
-            get { return LazyLoad(ref _description); }
+            InitIfPresent(ref _description, "description", x => x);
+            InitIfPresent(ref _databaseServer, "databaseserverguid",
+                          x => new DatabaseServer(Project.Session, GuidConvert(x)));
+            InitIfPresent(ref _databaseName, "databasename", x => x);
         }
+
+        #region Properties
 
         /// <summary>
         ///     Name of the database used in the connection
@@ -88,6 +78,16 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _databaseServer); }
         }
+
+        /// <summary>
+        ///     Description of the database connection
+        /// </summary>
+        public string Description
+        {
+            get { return LazyLoad(ref _description); }
+        }
+
+        public Project Project { get; set; }
 
         #endregion
 

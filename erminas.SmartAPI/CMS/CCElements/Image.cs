@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,34 +35,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             //todo how to handle folder/subdirfolder ...
         }
 
-        public string Supplement
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
-        }
-
-        public string VSpace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
-        }
-
-        public string HSpace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
-        }
-
         public ImageAlignment Align
         {
             get { return ((StringEnumXmlNodeAttribute<ImageAlignment>) GetAttribute("eltalign")).Value; }
             set { ((StringEnumXmlNodeAttribute<ImageAlignment>) GetAttribute("eltalign")).Value = value; }
-        }
-
-        public string Usemap
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value = value; }
         }
 
         public AltType AltRequierement
@@ -77,28 +53,56 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
         }
 
-        public bool IsHeightAutomaticallyInsertedIntoPage
+        public int? AutomaticMaximumScalingHeight
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltautoheight")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltautoheight")).Value = value; }
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxpicheight")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxpicheight")).Value = value.ToString(); }
         }
 
-        public bool IsWidthAutomaticallyInsertedIntoPage
+        public int? AutomaticMaximumScalingWidth
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltautowidth")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltautowidth")).Value = value; }
-        }
-
-        public bool IsBorderAutomaticallyInsertedIntoPage
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltautoborder")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltautoborder")).Value = value; }
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxpicwidth")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxpicwidth")).Value = value.ToString(); }
         }
 
         public string Border
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
+        }
+
+        public int? ColorDepthInBit
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicdepth")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltpicdepth")).Value = value.ToString(); }
+        }
+
+        /// <summary>
+        ///     All eligible suffixes separated by ";"
+        /// </summary>
+        // todo use list<string> instead
+        public string EligibleSuffixes
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltsuffixes")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltsuffixes")).Value = value; }
+        }
+
+        public string HSpace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
         }
 
         public string HtmlHeight
@@ -113,14 +117,44 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value = value; }
         }
 
-        /// <summary>
-        ///     All eligible suffixes separated by ";"
-        /// </summary>
-        // todo use list<string> instead
-        public string EligibleSuffixes
+        public bool IsBorderAutomaticallyInsertedIntoPage
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsuffixes")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsuffixes")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltautoborder")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltautoborder")).Value = value; }
+        }
+
+        public bool IsHeightAutomaticallyInsertedIntoPage
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltautoheight")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltautoheight")).Value = value; }
+        }
+
+        public bool IsOnlyPathAndFilenameInserted
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
+        }
+
+        public bool IsScaledOrConverted
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value = value; }
+        }
+
+        public bool IsWidthAutomaticallyInsertedIntoPage
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltautowidth")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltautowidth")).Value = value; }
+        }
+
+        public int? MaxFileSizeInKB
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value = value.ToString(); }
         }
 
         public string Quality
@@ -133,6 +167,26 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltfilename")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltfilename")).Value = value; }
+        }
+
+        public int? RequiredPictureHeight
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicheight")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltpicheight")).Value = value.ToString(); }
+        }
+
+        public int? RequiredPictureWidth
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicwidth")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltpicwidth")).Value = value.ToString(); }
         }
 
         public File SrcFile
@@ -158,26 +212,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             }
         }
 
-        public bool IsOnlyPathAndFilenameInserted
+        public string Supplement
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
-        }
-
-        public int? MaxFileSizeInKB
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value = value.ToString(); }
-        }
-
-        public bool IsScaledOrConverted
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value = value; }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
         }
 
         public TargetFormat TargetFormat
@@ -186,54 +224,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringEnumXmlNodeAttribute<TargetFormat>) GetAttribute("elttargetformat")).Value = value; }
         }
 
-        public int? AutomaticMaximumScalingWidth
+        public string Usemap
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxpicwidth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxpicwidth")).Value = value.ToString(); }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value = value; }
         }
 
-        public int? AutomaticMaximumScalingHeight
+        public string VSpace
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxpicheight")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxpicheight")).Value = value.ToString(); }
-        }
-
-        public int? RequiredPictureHeight
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicheight")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltpicheight")).Value = value.ToString(); }
-        }
-
-        public int? RequiredPictureWidth
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicwidth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltpicwidth")).Value = value.ToString(); }
-        }
-
-        public int? ColorDepthInBit
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicdepth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltpicdepth")).Value = value.ToString(); }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -39,17 +39,6 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         #region IValueElement<T> Members
 
-        public virtual T Value
-        {
-            get { return LazyLoad(ref _value); }
-            set { _value = value; }
-        }
-
-        public void SetValueFromString(string value)
-        {
-            Value = string.IsNullOrEmpty(value) ? default(T) : FromString(value);
-        }
-
         public virtual void Commit()
         {
             //TODO bei null/"" SESSIONKEY setzen??
@@ -58,6 +47,17 @@ namespace erminas.SmartAPI.CMS.PageElements
                                     ? Session.SESSIONKEY_PLACEHOLDER
                                     : HttpUtility.HtmlEncode(xmlNodeValue);
             ExecuteCommit(htmlEncode);
+        }
+
+        public void SetValueFromString(string value)
+        {
+            Value = string.IsNullOrEmpty(value) ? default(T) : FromString(value);
+        }
+
+        public virtual T Value
+        {
+            get { return LazyLoad(ref _value); }
+            set { _value = value; }
         }
 
         #endregion
@@ -80,9 +80,12 @@ namespace erminas.SmartAPI.CMS.PageElements
             }
         }
 
-        private void LoadXml()
+        protected abstract T FromString(string value);
+        protected abstract T FromXmlNodeValue(string arg);
+
+        protected virtual string GetXmlNodeValue()
         {
-            InitIfPresent(ref _value, "value", FromXmlNodeValue);
+            return Equals(Value, null) ? null : Value.ToString();
         }
 
         protected override sealed void LoadWholePageElement()
@@ -93,13 +96,9 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected abstract void LoadWholeValueElement();
 
-        protected abstract T FromXmlNodeValue(string arg);
-
-        protected abstract T FromString(string value);
-
-        protected virtual string GetXmlNodeValue()
+        private void LoadXml()
         {
-            return Equals(Value, null) ? null : Value.ToString();
+            InitIfPresent(ref _value, "value", FromXmlNodeValue);
         }
     }
 }

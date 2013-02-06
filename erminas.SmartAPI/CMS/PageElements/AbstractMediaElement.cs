@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -33,12 +33,6 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public File Value
-        {
-            get { return LazyLoad(ref _file); }
-            set { _file = value; }
-        }
-
         public void Commit()
         {
             const string COMMIT =
@@ -51,6 +45,12 @@ namespace erminas.SmartAPI.CMS.PageElements
                                                 Value.Folder.Guid.ToRQLString());
 
             Project.ExecuteRQL(rqlStr);
+        }
+
+        public File Value
+        {
+            get { return LazyLoad(ref _file); }
+            set { _file = value; }
         }
 
         protected override sealed void LoadWholePageElement()

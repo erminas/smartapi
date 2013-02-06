@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -23,6 +23,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        protected override string GetTypeDescription()
+        {
+            return "prefix/suffix";
+        }
+
         protected override Syllable RetrieveByGuid(Guid guid)
         {
             return ((ContentClass) Parent).Project.Syllables.GetByGuid(guid);
@@ -31,11 +36,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         protected override Syllable RetrieveByName(string name)
         {
             return ((ContentClass) Parent).Project.Syllables[name];
-        }
-
-        protected override string GetTypeDescription()
-        {
-            return "prefix/suffix";
         }
     }
 }

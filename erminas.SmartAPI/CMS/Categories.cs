@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string ADD_CATEGORY = @"<PROJECT><CATEGORY action=""addnew"" value=""{0}""/></PROJECT>";
             var xmlDoc = _project.ExecuteRQL(ADD_CATEGORY.RQLFormat(categoryName));
-            
+
             var category = (XmlElement) xmlDoc.SelectSingleNode("//CATEGORY");
             if (category == null)
             {
@@ -55,14 +55,6 @@ namespace erminas.SmartAPI.CMS
             return new Category(_project, category);
         }
 
-        private List<Category> GetCategories()
-        {
-            const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
-            XmlDocument xmlDoc = _project.ExecuteRQL(LIST_CATEGORIES);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
-            return (from XmlElement curNode in xmlNodes select new Category(_project, curNode)).ToList();
-        }
-
         public void Delete(string categoryName)
         {
             Category category;
@@ -70,6 +62,14 @@ namespace erminas.SmartAPI.CMS
             {
                 category.Delete();
             }
+        }
+
+        private List<Category> GetCategories()
+        {
+            const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
+            XmlDocument xmlDoc = _project.ExecuteRQL(LIST_CATEGORIES);
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
+            return (from XmlElement curNode in xmlNodes select new Category(_project, curNode)).ToList();
         }
     }
 }

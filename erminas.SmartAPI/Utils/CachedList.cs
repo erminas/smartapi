@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -34,9 +34,27 @@ namespace erminas.SmartAPI.Utils
             _isCachingEnabled = caching == Caching.Enabled;
         }
 
-        protected Func<List<T>> RetrieveFunc { private get; set; }
+        public int Count
+        {
+            get
+            {
+                CheckList();
+                return List.Count;
+            }
+        }
+
+        protected void CheckList()
+        {
+            if (IsCachingEnabled && List != null)
+            {
+                return;
+            }
+
+            List = RetrieveFunc();
+        }
 
         protected virtual List<T> List { get; set; }
+        protected Func<List<T>> RetrieveFunc { private get; set; }
 
         #region ICachedList<T> Members
 
@@ -52,10 +70,9 @@ namespace erminas.SmartAPI.Utils
             return List.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public void InvalidateCache()
         {
-            CheckList();
-            return List.GetEnumerator();
+            List = null;
         }
 
         public virtual bool IsCachingEnabled
@@ -79,31 +96,13 @@ namespace erminas.SmartAPI.Utils
             return this;
         }
 
-        public void InvalidateCache()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            List = null;
+            CheckList();
+            return List.GetEnumerator();
         }
 
         #endregion
-
-        public int Count
-        {
-            get
-            {
-                CheckList();
-                return List.Count;
-            }
-        }
-
-        protected void CheckList()
-        {
-            if (IsCachingEnabled && List != null)
-            {
-                return;
-            }
-
-            List = RetrieveFunc();
-        }
     }
 
     public enum Caching

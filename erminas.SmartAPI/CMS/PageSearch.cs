@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -33,51 +33,11 @@ namespace erminas.SmartAPI.CMS
             SetDefaults();
         }
 
-        public Page.PageType PageType { get; set; }
-
-        public string Headline { get; set; }
-
-        public bool HeadlineExact { get; set; }
-
         public string Category { get; set; }
-
-        public string Keyword { get; set; }
-
-        public bool KeywordExact { get; set; }
-
-        public string Text { get; set; }
-
-        public bool TextExact { get; set; }
-
-        public int PageIdFrom { get; set; }
-
-        public int PageIdTo { get; set; }
-
+        public ContentClass ContentClass { get; set; }
         public DateTime CreatedFrom { get; set; }
 
         public DateTime CreatedTo { get; set; }
-
-        public int MaxRecords { get; set; }
-
-        public ContentClass ContentClass { get; set; }
-
-        public void SetDefaults()
-        {
-            PageType = Page.PageType.All;
-            Text = null;
-            TextExact = true;
-            Category = null;
-            Keyword = null;
-            KeywordExact = true;
-            Headline = null;
-            HeadlineExact = true;
-            MaxRecords = DEFAULT_MAX_RECORDS;
-            PageIdFrom = -1;
-            PageIdTo = -1;
-            CreatedFrom = DateTime.MinValue;
-            CreatedTo = DateTime.MinValue;
-            ContentClass = null;
-        }
 
         public List<Page> Execute()
         {
@@ -132,6 +92,42 @@ namespace erminas.SmartAPI.CMS
                     let nodeWithLanguageVariantId = AddLanguageVariantId(curNode)
                     select new Page(_project, nodeWithLanguageVariantId)).ToList();
         }
+
+        public string Headline { get; set; }
+
+        public bool HeadlineExact { get; set; }
+
+        public string Keyword { get; set; }
+
+        public bool KeywordExact { get; set; }
+        public int MaxRecords { get; set; }
+
+        public int PageIdFrom { get; set; }
+
+        public int PageIdTo { get; set; }
+        public Page.PageType PageType { get; set; }
+
+        public void SetDefaults()
+        {
+            PageType = Page.PageType.All;
+            Text = null;
+            TextExact = true;
+            Category = null;
+            Keyword = null;
+            KeywordExact = true;
+            Headline = null;
+            HeadlineExact = true;
+            MaxRecords = DEFAULT_MAX_RECORDS;
+            PageIdFrom = -1;
+            PageIdTo = -1;
+            CreatedFrom = DateTime.MinValue;
+            CreatedTo = DateTime.MinValue;
+            ContentClass = null;
+        }
+
+        public string Text { get; set; }
+
+        public bool TextExact { get; set; }
 
         private XmlElement AddLanguageVariantId(XmlElement curNode)
         {

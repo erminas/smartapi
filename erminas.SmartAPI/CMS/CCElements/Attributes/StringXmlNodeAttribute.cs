@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -23,9 +23,20 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        public override void Assign(IRDAttribute o)
+        {
+            SetValue(((StringXmlNodeAttribute) o).GetXmlNodeValue());
+        }
+
         public override object DisplayObject
         {
             get { return _value; }
+        }
+
+        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = string.Empty;
+            return o is StringXmlNodeAttribute;
         }
 
         public virtual string Value
@@ -41,17 +52,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         protected override void UpdateValue(string value)
         {
             _value = value;
-        }
-
-        public override void Assign(IRDAttribute o)
-        {
-            SetValue(((StringXmlNodeAttribute) o).GetXmlNodeValue());
-        }
-
-        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            reason = string.Empty;
-            return o is StringXmlNodeAttribute;
         }
     }
 }

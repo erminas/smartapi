@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -28,13 +28,7 @@ namespace erminas.SmartAPI.CMS
             _workflowPreassignable = new WorkflowPreassignable(this);
         }
 
-        public PreassignedWorkflow PreassignedStructuralWorkflow
-        {
-            get { return _workflowPreassignable.PreassignedStructuralWorkflow; }
-        }
-
-        public void CreateAndPreassignContentWorkflow(string workflowName,
-                                                        IEnumerable<LanguageVariant> languageVariants)
+        public void CreateAndPreassignContentWorkflow(string workflowName, IEnumerable<LanguageVariant> languageVariants)
         {
             _workflowPreassignable.CreateAndPreassignContentWorkflow(workflowName, languageVariants);
         }
@@ -82,6 +76,11 @@ namespace erminas.SmartAPI.CMS
         public void PreassignStructuralWorkflow(Workflow workflow)
         {
             _workflowPreassignable.PreassignStructuralWorkflow(workflow);
+        }
+
+        public PreassignedWorkflow PreassignedStructuralWorkflow
+        {
+            get { return _workflowPreassignable.PreassignedStructuralWorkflow; }
         }
     }
 }

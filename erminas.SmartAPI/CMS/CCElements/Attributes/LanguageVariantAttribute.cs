@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -23,19 +23,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
-        protected override LanguageVariant RetrieveByGuid(Guid guid)
+        public override void Assign(IRDAttribute o)
         {
-            return ((CCElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
-        }
-
-        protected override LanguageVariant RetrieveByName(string name)
-        {
-            return ((CCElement) Parent).ContentClass.Project.LanguageVariants[name];
-        }
-
-        protected override string GetTypeDescription()
-        {
-            return "language variant";
+            LanguageVariant value = ((LanguageVariantAttribute) o).Value;
+            SetValue(value == null ? null : value.Language);
         }
 
         public override bool Equals(object o)
@@ -52,10 +43,19 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return Name.GetHashCode() + 13*(Value != null ? (Value.Name != null ? Value.Name.GetHashCode() : 0) : 0);
         }
 
-        public override void Assign(IRDAttribute o)
+        protected override string GetTypeDescription()
         {
-            LanguageVariant value = ((LanguageVariantAttribute) o).Value;
-            SetValue(value == null ? null : value.Language);
+            return "language variant";
+        }
+
+        protected override LanguageVariant RetrieveByGuid(Guid guid)
+        {
+            return ((CCElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
+        }
+
+        protected override LanguageVariant RetrieveByName(string name)
+        {
+            return ((CCElement) Parent).ContentClass.Project.LanguageVariants[name];
         }
     }
 }

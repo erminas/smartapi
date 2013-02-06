@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -36,16 +36,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltheight")).Value = value; }
         }
 
-        public string Width
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value = value; }
-        }
-
         public string Src
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value; }
+        }
+
+        public string Width
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value = value; }
         }
     }
 }

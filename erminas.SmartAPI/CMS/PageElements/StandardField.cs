@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -33,21 +33,22 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public string SampleText
-        {
-            get { return LazyLoad(ref _sample); }
-        }
-
         public string Description
         {
             get { return LazyLoad(ref _description); }
         }
 
-        private void LoadXml()
+        public string SampleText
         {
-            InitIfPresent(ref _sample, "eltrdsample", x => x);
-            InitIfPresent(ref _sample, "eltrddescription", x => x);
+            get { return LazyLoad(ref _sample); }
         }
+
+        protected override T FromXmlNodeValue(string value)
+        {
+            return FromString(value);
+        }
+
+        protected abstract void LoadWholeStandardField();
 
         protected override void LoadWholeValueElement()
         {
@@ -55,11 +56,10 @@ namespace erminas.SmartAPI.CMS.PageElements
             LoadWholeStandardField();
         }
 
-        protected abstract void LoadWholeStandardField();
-
-        protected override T FromXmlNodeValue(string value)
+        private void LoadXml()
         {
-            return FromString(value);
+            InitIfPresent(ref _sample, "eltrdsample", x => x);
+            InitIfPresent(ref _sample, "eltrddescription", x => x);
         }
     }
 }

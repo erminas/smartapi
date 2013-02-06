@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -104,29 +104,18 @@ namespace erminas.SmartAPI.CMS
             _contextInfoPreparationType = ContextInfoPreparationType.None;
         }
 
-        public bool IsPublishedPagesFolder
+        public void Commit()
         {
-            get { return Guid == PUBLISHED_PAGES_GUID; }
-        }
+            const string SAVE_STRING =
+                @"<PROJECT><EXPORTFOLDER action=""save"" guid=""{0}"" type=""{1}"" name=""{2}"" {3} /></PROJECT>";
 
-        public Project Project { get; private set; }
+            XmlDocument reply =
+                Project.ExecuteRQL(string.Format(SAVE_STRING, Guid.ToRQLString(), ((int) _type), Name, SaveParameters()));
 
-        public string RealName
-        {
-            get { return LazyLoad(ref _realName); }
-            set { _realName = value; }
-        }
-
-        public string RealVirtualName
-        {
-            get { return LazyLoad(ref _realVirtualName); }
-            set { _realVirtualName = value; }
-        }
-
-        public string VirtualName
-        {
-            get { return LazyLoad(ref _virtualName); }
-            set { _virtualName = value; }
+            if (reply.GetElementsByTagName("EXPORTFOLDER").Count != 1)
+            {
+                throw new Exception("Could not save publication folder " + Name);
+            }
         }
 
         public string ContentGroup
@@ -153,16 +142,35 @@ namespace erminas.SmartAPI.CMS
             set { _contexttags = value; }
         }
 
-        public PublicationFolderType Type
+        public void CreateInProject(Project project, Guid parentFolderGuid)
         {
-            get { return LazyLoad(ref _type); }
-            set { _type = value; }
+            const string CREATE_STRING =
+                @"<PROJECT><EXPORTFOLDER action=""assign"" guid=""{0}""><EXPORTFOLDER action=""addnew"" name=""{1}"" type=""{2}"" {3} /></EXPORTFOLDER></PROJECT>";
+
+            XmlDocument reply =
+                project.ExecuteRQL(string.Format(CREATE_STRING, parentFolderGuid.ToRQLString(), Name, ((int) _type),
+                                                 SaveParameters()));
+
+            reply.GetElementsByTagName("EXPORTFOLDER");
+        }
+
+        public void DeleteOnServer()
+        {
+            const string DELETE = @"<PROJECT><EXPORTFOLDER action=""delete"" guid=""{0}""/> </PROJECT>";
+            Project.ExecuteRQL(string.Format(DELETE, Guid.ToRQLString()));
+            //TODO check result
         }
 
         public bool DoCreateLog
         {
             get { return LazyLoad(ref _doCreateLog); }
             set { _doCreateLog = value; }
+        }
+
+        public bool DoIndexForFulltextSearch
+        {
+            get { return LazyLoad(ref _doIndexing); }
+            set { _doIndexing = value; }
         }
 
         public bool DoReleaseAfterImport
@@ -183,17 +191,40 @@ namespace erminas.SmartAPI.CMS
             set { _doOverwriteGroupAssignment = value; }
         }
 
-        public bool DoIndexForFulltextSearch
+        public bool IsPublishedPagesFolder
         {
-            get { return LazyLoad(ref _doIndexing); }
-            set { _doIndexing = value; }
+            get { return Guid == PUBLISHED_PAGES_GUID; }
         }
 
-        public void DeleteOnServer()
+        public Project Project { get; private set; }
+
+        public string RealName
         {
-            const string DELETE = @"<PROJECT><EXPORTFOLDER action=""delete"" guid=""{0}""/> </PROJECT>";
-            Project.ExecuteRQL(string.Format(DELETE, Guid.ToRQLString()));
-            //TODO check result
+            get { return LazyLoad(ref _realName); }
+            set { _realName = value; }
+        }
+
+        public string RealVirtualName
+        {
+            get { return LazyLoad(ref _realVirtualName); }
+            set { _realVirtualName = value; }
+        }
+
+        public PublicationFolderType Type
+        {
+            get { return LazyLoad(ref _type); }
+            set { _type = value; }
+        }
+
+        public string VirtualName
+        {
+            get { return LazyLoad(ref _virtualName); }
+            set { _virtualName = value; }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
         }
 
         protected void LoadXml()
@@ -228,11 +259,6 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
         protected override XmlElement RetrieveWholeObject()
         {
             if (Guid != PUBLISHED_PAGES_GUID)
@@ -252,32 +278,6 @@ namespace erminas.SmartAPI.CMS
         private static string BoolToString(bool value)
         {
             return value ? "1" : "0";
-        }
-
-        public void CreateInProject(Project project, Guid parentFolderGuid)
-        {
-            const string CREATE_STRING =
-                @"<PROJECT><EXPORTFOLDER action=""assign"" guid=""{0}""><EXPORTFOLDER action=""addnew"" name=""{1}"" type=""{2}"" {3} /></EXPORTFOLDER></PROJECT>";
-
-            XmlDocument reply =
-                project.ExecuteRQL(string.Format(CREATE_STRING, parentFolderGuid.ToRQLString(), Name, ((int) _type),
-                                                 SaveParameters()));
-
-            reply.GetElementsByTagName("EXPORTFOLDER");
-        }
-
-        public void Commit()
-        {
-            const string SAVE_STRING =
-                @"<PROJECT><EXPORTFOLDER action=""save"" guid=""{0}"" type=""{1}"" name=""{2}"" {3} /></PROJECT>";
-
-            XmlDocument reply =
-                Project.ExecuteRQL(string.Format(SAVE_STRING, Guid.ToRQLString(), ((int) _type), Name, SaveParameters()));
-
-            if (reply.GetElementsByTagName("EXPORTFOLDER").Count != 1)
-            {
-                throw new Exception("Could not save publication folder " + Name);
-            }
         }
 
         private string SaveParameters()

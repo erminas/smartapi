@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,9 +26,13 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         #region IRDAttribute Members
 
-        public string Name
+        public void Assign(IRDAttribute o)
         {
-            get { return _attribute.Name; }
+        }
+
+        public string Description
+        {
+            get { return _attribute.Description; }
         }
 
         public object DisplayObject
@@ -42,18 +46,14 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return false;
         }
 
-        public void Assign(IRDAttribute o)
+        public string Name
         {
+            get { return _attribute.Name; }
         }
 
         public void Refresh()
         {
             _attribute.Refresh();
-        }
-
-        public string Description
-        {
-            get { return _attribute.Description; }
         }
 
         #endregion

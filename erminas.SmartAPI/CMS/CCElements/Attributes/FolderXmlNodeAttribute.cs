@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -31,6 +31,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             _contentClass = cc;
         }
 
+        protected override string GetTypeDescription()
+        {
+            return "folder";
+        }
+
         protected override Folder RetrieveByGuid(Guid guid)
         {
             return _contentClass.Project.Folders.GetByGuid(guid);
@@ -39,11 +44,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         protected override Folder RetrieveByName(string name)
         {
             return _contentClass.Project.Folders[name];
-        }
-
-        protected override string GetTypeDescription()
-        {
-            return "folder";
         }
     }
 }

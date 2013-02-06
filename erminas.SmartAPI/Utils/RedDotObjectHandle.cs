@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -47,15 +47,15 @@ namespace erminas.SmartAPI.Utils
 
         #region IRedDotObject Members
 
-        public string Name
-        {
-            get { return _name; }
-        }
-
         public Guid Guid
         {
             get { return _guid; }
             set { throw new InvalidOperationException(); }
+        }
+
+        public string Name
+        {
+            get { return _name; }
         }
 
         #endregion

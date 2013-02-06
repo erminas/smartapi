@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,6 +35,16 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
+        public override void Commit()
+        {
+            //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
+            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
+                                             _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
+                                             _value.Seconds/(24.0*60.0*60.0), (int) ElementType));
+            //TODO check guid
+            //xml
+        }
+
         protected override TimeSpan FromString(string value)
         {
             try
@@ -44,6 +54,11 @@ namespace erminas.SmartAPI.CMS.PageElements
             {
                 throw new ArgumentException(string.Format("Invalid time value: {0}", value), e);
             }
+        }
+
+        protected override TimeSpan FromXmlNodeValue(string value)
+        {
+            return value.ToOADate().TimeOfDay;
         }
 
         protected override string GetXmlNodeValue()
@@ -58,21 +73,6 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override void LoadWholeStandardField()
         {
-        }
-
-        protected override TimeSpan FromXmlNodeValue(string value)
-        {
-            return value.ToOADate().TimeOfDay;
-        }
-
-        public override void Commit()
-        {
-            //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
-                                             _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
-                                             _value.Seconds/(24.0*60.0*60.0), (int) ElementType));
-            //TODO check guid
-            //xml
         }
     }
 }

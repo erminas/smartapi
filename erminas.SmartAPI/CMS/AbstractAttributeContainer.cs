@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -23,30 +23,29 @@ namespace erminas.SmartAPI.CMS
     public class AbstractAttributeContainer : IAttributeContainer
     {
         private readonly Dictionary<string, IRDAttribute> _attributeMap = new Dictionary<string, IRDAttribute>();
+        private readonly List<IRDAttribute> _attributes = new List<IRDAttribute>();
 
         protected AbstractAttributeContainer()
         {
-            Attributes = new List<IRDAttribute>();
         }
 
         protected AbstractAttributeContainer(XmlElement node)
         {
             XmlElement = (XmlElement) node.Clone();
-            Attributes = new List<IRDAttribute>();
         }
 
-        #region IAttributeContainer Members
-
-        public IEnumerable<IRDAttribute> Attributes { get; private set; }
-
-        public void RegisterAttribute(IRDAttribute attribute)
+        public void AssignAttributes(IEnumerable<IRDAttribute> attributes)
         {
-            if (_attributeMap.ContainsKey(attribute.Name))
+            foreach (var curAttribute in attributes)
             {
-                throw new ArgumentException("multiple definitions of attribute: " + attribute.Name);
+                var ownAttribute = GetAttribute(curAttribute.Name);
+                ownAttribute.Assign(curAttribute);
             }
-            Attributes.Add(attribute);
-            _attributeMap.Add(attribute.Name, attribute);
+        }
+
+        public IEnumerable<IRDAttribute> Attributes
+        {
+            get { return _attributes.AsReadOnly(); }
         }
 
         public IRDAttribute GetAttribute(string name)
@@ -56,24 +55,23 @@ namespace erminas.SmartAPI.CMS
 
         public void RefreshAttributeValues()
         {
-            foreach (IRDAttribute rdAttribute in Attributes)
+            foreach (var rdAttribute in Attributes)
             {
                 rdAttribute.Refresh();
             }
         }
 
-        public XmlElement XmlElement { get; set; }
-
-        public void AssignAttributes(List<IRDAttribute> attributes)
+        public void RegisterAttribute(IRDAttribute attribute)
         {
-            foreach (IRDAttribute curAttribute in attributes)
+            if (_attributeMap.ContainsKey(attribute.Name))
             {
-                IRDAttribute ownAttribute = GetAttribute(curAttribute.Name);
-                ownAttribute.Assign(curAttribute);
+                throw new ArgumentException("multiple definitions of attribute: " + attribute.Name);
             }
+            _attributes.Add(attribute);
+            _attributeMap.Add(attribute.Name, attribute);
         }
 
-        #endregion
+        public XmlElement XmlElement { get; set; }
 
         protected void CreateAttributes(params string[] attributeNames)
         {

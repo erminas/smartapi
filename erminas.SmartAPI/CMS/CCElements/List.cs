@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -30,16 +30,45 @@ namespace erminas.SmartAPI.CMS.CCElements
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
+        public override sealed ContentClassCategory Category
+        {
+            get { return ContentClassCategory.Structural; }
+        }
+
+        public string FontClass
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value = value; }
+        }
+
+        public string FontColor
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
+        }
+
+        public string FontFace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value = value; }
+        }
+
+        public string FontSize
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value = value; }
+        }
+
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
         {
             get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
             set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
         }
 
-        public PageElements.Container PreassignedTargetContainer
+        public bool IsFontBold
         {
-            get { return _targetContainerPreassignment.TargetContainer; }
-            set { _targetContainerPreassignment.TargetContainer = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value = value; }
         }
 
         public bool IsOnlyPathAndFilenameInserted
@@ -54,41 +83,12 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
         }
 
-        public string FontClass
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value = value; }
-        }
-
-        public string FontSize
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value = value; }
-        }
-
-        public bool IsFontBold
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value = value; }
-        }
-
-        public string FontFace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value = value; }
-        }
-
-        public string FontColor
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
-        }
-
-        public override sealed ContentClassCategory Category
-        {
-            get { return ContentClassCategory.Structural; }
-        }
-
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
+
+        public PageElements.Container PreassignedTargetContainer
+        {
+            get { return _targetContainerPreassignment.TargetContainer; }
+            set { _targetContainerPreassignment.TargetContainer = value; }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -42,41 +42,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             _type = type;
         }
 
-        public override object DisplayObject
-        {
-            get { return Text; }
-        }
-
-        public string Text
-        {
-            get
-            {
-                if (_text == null)
-                {
-                    var parent = ((CCElement) Parent);
-                    LanguageVariant lang = parent.LanguageVariant;
-                    _text = _guid == Guid.Empty
-                                ? string.Empty
-                                : parent.ContentClass.Project.GetTextContent(_guid, lang,
-                                                                             ((int) _type).ToString(
-                                                                                 CultureInfo.InvariantCulture));
-                }
-                return _text;
-            }
-            set
-            {
-                _hasChanged = value != Text;
-                _text = value;
-            }
-        }
-
-        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            var attr = o as TextContentAttribute;
-            reason = "";
-            return attr != null && attr._type == _type;
-        }
-
         public override void Assign(IRDAttribute o)
         {
             var attr = (TextContentAttribute) o;
@@ -113,9 +78,9 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             _hasChanged = false;
         }
 
-        protected override void UpdateValue(string value)
+        public override object DisplayObject
         {
-            _guid = !string.IsNullOrEmpty(value) ? new Guid(value) : new Guid();
+            get { return Text; }
         }
 
         public override bool Equals(object o)
@@ -127,6 +92,41 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         public override int GetHashCode()
         {
             return _type.GetHashCode() + 23*base.GetHashCode();
+        }
+
+        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            var attr = o as TextContentAttribute;
+            reason = "";
+            return attr != null && attr._type == _type;
+        }
+
+        public string Text
+        {
+            get
+            {
+                if (_text == null)
+                {
+                    var parent = ((CCElement) Parent);
+                    LanguageVariant lang = parent.LanguageVariant;
+                    _text = _guid == Guid.Empty
+                                ? string.Empty
+                                : parent.ContentClass.Project.GetTextContent(_guid, lang,
+                                                                             ((int) _type).ToString(
+                                                                                 CultureInfo.InvariantCulture));
+                }
+                return _text;
+            }
+            set
+            {
+                _hasChanged = value != Text;
+                _text = value;
+            }
+        }
+
+        protected override void UpdateValue(string value)
+        {
+            _guid = !string.IsNullOrEmpty(value) ? new Guid(value) : new Guid();
         }
     }
 }

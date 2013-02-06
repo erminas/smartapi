@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -38,53 +38,17 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Get an element of the list by name. Returns null, if no such element could be found.
-        /// </summary>
-        /// <param name="name"> Name of the element to get </param>
-        public CCElement this[string name]
-        {
-            get { return Elements.Find(x => x.Name == name); }
-        }
-
-        /// <summary>
-        ///     Get an element of the list by its position in the list
-        /// </summary>
-        public CCElement this[int index]
-        {
-            get { return Elements[index]; }
-        }
-
-        /// <summary>
         ///     The content class this element list belongs to
         /// </summary>
         public ContentClass ContentClass { get; set; }
 
-        #region IEnumerable<CCElement> Members
-
-        public IEnumerator<CCElement> GetEnumerator()
-        {
-            return Elements.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Elements.GetEnumerator();
-        }
-
-        #endregion
-
         /// <summary>
-        ///     Get an element of the list by name.
+        ///     Number of content class elements contained in this list.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">thrown, if no element with .Name == name could be found</exception>
-        public CCElement GetByName(string name)
+        /// <returns> </returns>
+        public int Count()
         {
-            CCElement element = this[name];
-            if (element == null)
-            {
-                throw new KeyNotFoundException(string.Format("No element with name {0} available", name));
-            }
-            return element;
+            return Elements.Count;
         }
 
         /// <summary>
@@ -101,15 +65,46 @@ namespace erminas.SmartAPI.CMS
             return element;
         }
 
-        public bool TryGetByName(string name, out CCElement element)
+        /// <summary>
+        ///     Get an element of the list by name.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">thrown, if no element with .Name == name could be found</exception>
+        public CCElement GetByName(string name)
         {
-            element = this[name];
-            return element != null;
+            CCElement element = this[name];
+            if (element == null)
+            {
+                throw new KeyNotFoundException(string.Format("No element with name {0} available", name));
+            }
+            return element;
+        }
+
+        /// <summary>
+        ///     Get an element of the list by name. Returns null, if no such element could be found.
+        /// </summary>
+        /// <param name="name"> Name of the element to get </param>
+        public CCElement this[string name]
+        {
+            get { return Elements.Find(x => x.Name == name); }
+        }
+
+        /// <summary>
+        ///     Get an element of the list by its position in the list
+        /// </summary>
+        public CCElement this[int index]
+        {
+            get { return Elements[index]; }
         }
 
         public bool TryGetByGuid(Guid guid, out CCElement element)
         {
             element = Elements.Find(x => x.Guid == guid);
+            return element != null;
+        }
+
+        public bool TryGetByName(string name, out CCElement element)
+        {
+            element = this[name];
             return element != null;
         }
 
@@ -137,21 +132,26 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        /// <summary>
-        ///     Number of content class elements contained in this list.
-        /// </summary>
-        /// <returns> </returns>
-        public int Count()
-        {
-            return Elements.Count;
-        }
-
         #region Properties
 
         /// <summary>
         ///     The content class elements in the list
         /// </summary>
         public List<CCElement> Elements { get; set; }
+
+        #endregion
+
+        #region IEnumerable<CCElement> Members
+
+        public IEnumerator<CCElement> GetEnumerator()
+        {
+            return Elements.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Elements.GetEnumerator();
+        }
 
         #endregion
     }

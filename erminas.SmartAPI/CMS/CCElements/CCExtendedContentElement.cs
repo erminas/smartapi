@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,10 +26,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             CreateAttributes("eltbeginmark", "eltendmark", "eltrddescription");
         }
 
-        public string StartTagForAutomaticProcessing
+        public string Description
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value = value; }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
         }
 
         public string EndTagForAutomaticProcessing
@@ -38,10 +38,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value = value; }
         }
 
-        public string Description
+        public string StartTagForAutomaticProcessing
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value = value; }
         }
     }
 }

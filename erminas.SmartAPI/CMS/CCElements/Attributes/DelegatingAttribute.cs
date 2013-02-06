@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -39,19 +39,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         #region IRDAttribute Members
 
-        public object DisplayObject
-        {
-            get { return _getValueDisplayString(_getValue()); }
-        }
-
-        public string Name { get; private set; }
-
-        public bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            reason = string.Empty;
-            return o is DelegatingAttribute<T>;
-        }
-
         public void Assign(IRDAttribute o)
         {
             //don't set value, if element isn't initialized
@@ -69,11 +56,24 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             get { return _description; }
         }
 
+        public object DisplayObject
+        {
+            get { return _getValueDisplayString(_getValue()); }
+        }
+
         public override bool Equals(object o)
         {
             var attr = o as DelegatingAttribute<T>;
             return attr != null && Name == attr.Name && Equals(_getValue(), attr._getValue());
         }
+
+        public bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = string.Empty;
+            return o is DelegatingAttribute<T>;
+        }
+
+        public string Name { get; private set; }
 
         public void Refresh()
         {

@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -92,10 +92,24 @@ namespace erminas.SmartAPI.CMS
 
         #endregion
 
-        protected void InitGuidAndName()
+        /// <summary>
+        ///     Two RedDotObjects are considered equal, if their guids are equal.
+        /// </summary>
+        /// <param name="other"> </param>
+        /// <returns> </returns>
+        public override bool Equals(object other)
         {
-            InitIfPresent(ref _guid, "guid", GuidConvert);
-            InitIfPresent(ref _name, "name", x => x);
+            var o = other as IRedDotObject;
+            if (o == null)
+            {
+                return false;
+            }
+            return ReferenceEquals(this, other) || o.Guid.Equals(_guid);
+        }
+
+        public override int GetHashCode()
+        {
+            return _guid.GetHashCode();
         }
 
         /// <summary>
@@ -104,6 +118,11 @@ namespace erminas.SmartAPI.CMS
         public static Guid GuidConvert(string str)
         {
             return new Guid(str);
+        }
+
+        public override string ToString()
+        {
+            return Name + " (" + Guid.ToRQLString() + ")";
         }
 
         /// <summary>
@@ -126,11 +145,21 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Convert a string to a bool? value, e.g. for <see cref="InitIfPresent{T}" />
+        ///     Init a variable with the value of an attribute of <see cref="XmlNode" /> .
         /// </summary>
-        protected static bool? NullableBoolConvert(string str)
+        /// <typeparam name="T"> </typeparam>
+        /// <param name="variable"> </param>
+        /// <param name="attributeName"> </param>
+        /// <param name="converter"> </param>
+        protected void EnsuredInit<T>(ref T variable, string attributeName, Func<string, T> converter)
         {
-            return BoolConvert(str);
+            string value = XmlElement.GetAttributeValue(attributeName);
+            if (string.IsNullOrEmpty(value))
+            {
+                //TODO eigene exception
+                throw new Exception("Missing value for attribute " + attributeName);
+            }
+            variable = converter(value);
         }
 
         /// <summary>
@@ -157,6 +186,12 @@ namespace erminas.SmartAPI.CMS
             return xmlElement.NodeToString();
         }
 
+        protected void InitGuidAndName()
+        {
+            InitIfPresent(ref _guid, "guid", GuidConvert);
+            InitIfPresent(ref _name, "name", x => x);
+        }
+
         /// <summary>
         ///     Init a variable with the value of an attribute of <see cref="XmlNode" /> . The variable only gets set to a value, if the
         ///     <see
@@ -177,46 +212,11 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Init a variable with the value of an attribute of <see cref="XmlNode" /> .
+        ///     Convert a string to a bool? value, e.g. for <see cref="InitIfPresent{T}" />
         /// </summary>
-        /// <typeparam name="T"> </typeparam>
-        /// <param name="variable"> </param>
-        /// <param name="attributeName"> </param>
-        /// <param name="converter"> </param>
-        protected void EnsuredInit<T>(ref T variable, string attributeName, Func<string, T> converter)
+        protected static bool? NullableBoolConvert(string str)
         {
-            string value = XmlElement.GetAttributeValue(attributeName);
-            if (string.IsNullOrEmpty(value))
-            {
-                //TODO eigene exception
-                throw new Exception("Missing value for attribute " + attributeName);
-            }
-            variable = converter(value);
-        }
-
-        /// <summary>
-        ///     Two RedDotObjects are considered equal, if their guids are equal.
-        /// </summary>
-        /// <param name="other"> </param>
-        /// <returns> </returns>
-        public override bool Equals(object other)
-        {
-            var o = other as IRedDotObject;
-            if (o == null)
-            {
-                return false;
-            }
-            return ReferenceEquals(this, other) || o.Guid.Equals(_guid);
-        }
-
-        public override int GetHashCode()
-        {
-            return _guid.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return Name + " (" + Guid.ToRQLString() + ")";
+            return BoolConvert(str);
         }
     }
 }

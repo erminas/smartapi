@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -29,19 +29,8 @@ namespace erminas.SmartAPI.CMS
             Project = project;
         }
 
-        public Project Project { get; set; }
-
         public CachedList<PublicationSetting> ExportSettings { get; private set; }
-
-        private List<PublicationSetting> LoadExportSettings()
-        {
-            const string LOAD_PUBLICATION_PACKAGE =
-                @"<PROJECT><EXPORTPACKET action=""loadpacket"" guid=""{0}"" /></PROJECT>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
-
-            return (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
-                    select new PublicationSetting(this, curSetting)).ToList();
-        }
+        public Project Project { get; set; }
 
         protected override void LoadWholeObject()
         {
@@ -52,6 +41,16 @@ namespace erminas.SmartAPI.CMS
             const string LOAD_PUBLICATION_PACKAGE = @"<PROJECT><EXPORTPACKET action=""load"" guid=""{0}""/></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
             return (XmlElement) xmlDoc.GetElementsByTagName("EXPORTPACKET")[0];
+        }
+
+        private List<PublicationSetting> LoadExportSettings()
+        {
+            const string LOAD_PUBLICATION_PACKAGE =
+                @"<PROJECT><EXPORTPACKET action=""loadpacket"" guid=""{0}"" /></PROJECT>";
+            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
+
+            return (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
+                    select new PublicationSetting(this, curSetting)).ToList();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -73,12 +73,6 @@ namespace erminas.SmartAPI.CMS
 
         #region IPageElement Members
 
-        public LanguageVariant LanguageVariant
-        {
-            get { return _languageVariant; }
-            internal set { _languageVariant = value; }
-        }
-
         public virtual ElementType ElementType
         {
             get
@@ -97,54 +91,18 @@ namespace erminas.SmartAPI.CMS
             set { Type = value; }
         }
 
+        public LanguageVariant LanguageVariant
+        {
+            get { return _languageVariant; }
+            internal set { _languageVariant = value; }
+        }
+
         public Page Page
         {
             get { return LazyLoad(ref _page); }
         }
 
         #endregion
-
-        public static void RegisterType(ElementType typeValue, Type type)
-        {
-            if (!typeof (PageElement).IsAssignableFrom(type))
-            {
-                //use format to be safe from potentially refactoring names
-                throw new ArgumentException(String.Format("TypeId is not a subclass of {0}", typeof (PageElement).Name));
-            }
-
-            if (TYPES.ContainsKey(typeValue))
-            {
-                throw new ArgumentException("There is already a type registered for " + typeValue);
-            }
-
-            TYPES.Add(typeValue, type);
-        }
-
-        private void LoadXml()
-        {
-            //language variant must be loaded before the page referenced by pageguid, because it is used in its c'tor
-            EnsuredInit(ref _languageVariant, "languagevariantid", Project.LanguageVariants.Get);
-            EnsuredInit(ref _page, "pageguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
-        }
-
-        protected override sealed void LoadWholeObject()
-        {
-            LoadXml();
-            LoadWholePageElement();
-        }
-
-        protected abstract void LoadWholePageElement();
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            using (new LanguageContext(LanguageVariant))
-            {
-                return
-                    (XmlElement)
-                    Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString()))
-                           .GetElementsByTagName("ELT")[0];
-            }
-        }
 
         /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
@@ -182,6 +140,48 @@ namespace erminas.SmartAPI.CMS
                 var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELT")[0];
                 return CreateElement(project, xmlNode);
             }
+        }
+
+        public static void RegisterType(ElementType typeValue, Type type)
+        {
+            if (!typeof (PageElement).IsAssignableFrom(type))
+            {
+                //use format to be safe from potentially refactoring names
+                throw new ArgumentException(String.Format("TypeId is not a subclass of {0}", typeof (PageElement).Name));
+            }
+
+            if (TYPES.ContainsKey(typeValue))
+            {
+                throw new ArgumentException("There is already a type registered for " + typeValue);
+            }
+
+            TYPES.Add(typeValue, type);
+        }
+
+        protected override sealed void LoadWholeObject()
+        {
+            LoadXml();
+            LoadWholePageElement();
+        }
+
+        protected abstract void LoadWholePageElement();
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            using (new LanguageContext(LanguageVariant))
+            {
+                return
+                    (XmlElement)
+                    Project.ExecuteRQL(string.Format(RETRIEVE_PAGE_ELEMENT, Guid.ToRQLString()))
+                           .GetElementsByTagName("ELT")[0];
+            }
+        }
+
+        private void LoadXml()
+        {
+            //language variant must be loaded before the page referenced by pageguid, because it is used in its c'tor
+            EnsuredInit(ref _languageVariant, "languagevariantid", Project.LanguageVariants.Get);
+            EnsuredInit(ref _page, "pageguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
         }
     }
 }

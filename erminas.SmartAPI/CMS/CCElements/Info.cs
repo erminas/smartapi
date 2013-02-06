@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -28,29 +28,6 @@ namespace erminas.SmartAPI.CMS.CCElements
                              "eltlanguagevariantguid");
         }
 
-        public override ContentClassCategory Category
-        {
-            get { return ContentClassCategory.Meta; }
-        }
-
-        public Locale Locale
-        {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
-        }
-
-        public DateTimeFormat DateFormat
-        {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value; }
-            set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
-        }
-
-        public bool IsUsingRfc3066
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltuserfc3066")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltuserfc3066")).Value = value; }
-        }
-
         /// <summary>
         ///     A list of all possible values for the Content property (=Project.InfoAttributes)
         /// </summary>
@@ -59,16 +36,57 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClass.Project.InfoAttributes; }
         }
 
+        public override ContentClassCategory Category
+        {
+            get { return ContentClassCategory.Meta; }
+        }
+
         public InfoAttribute Content
         {
             get { return ((InfoElementAttribute) GetAttribute("eltsubtype")).Value; }
             set { ((InfoElementAttribute) GetAttribute("eltsubtype")).Value = value; }
         }
 
+        public DateTimeFormat DateFormat
+        {
+            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value; }
+            set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
+        }
+
+        public bool IsNotConvertingCharactersToHtml
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
+        }
+
         public bool IsUsingDataOfPageInTargetContainer
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltevalcalledpage")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltevalcalledpage")).Value = value; }
+        }
+
+        public bool IsUsingMainLink
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltusemainlink")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltusemainlink")).Value = value; }
+        }
+
+        public bool IsUsingRfc3066
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltuserfc3066")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltuserfc3066")).Value = value; }
+        }
+
+        public Locale Locale
+        {
+            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
+            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
+        }
+
+        public ProjectVariant ProjectVariant
+        {
+            get { return ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value; }
+            set { ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value = value; }
         }
 
         public string Separator
@@ -81,24 +99,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value = value; }
-        }
-
-        public bool IsNotConvertingCharactersToHtml
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
-        }
-
-        public bool IsUsingMainLink
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltusemainlink")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltusemainlink")).Value = value; }
-        }
-
-        public ProjectVariant ProjectVariant
-        {
-            get { return ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value; }
-            set { ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value = value; }
         }
     }
 }

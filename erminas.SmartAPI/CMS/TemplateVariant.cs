@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -32,22 +32,6 @@ namespace erminas.SmartAPI.CMS
 
     public static class PdfOrientationUtils
     {
-        public static string ToRQLString(this PdfOrientation value)
-        {
-            switch (value)
-            {
-                case PdfOrientation.Default:
-                    return "default";
-                case PdfOrientation.Portrait:
-                    return "portrait";
-                case PdfOrientation.Landscape:
-                    return "landscape";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (PdfOrientationUtils).Name, value));
-            }
-        }
-
         public static PdfOrientation ToPdfOrientation(this string value)
         {
             switch (value.ToUpperInvariant())
@@ -61,6 +45,22 @@ namespace erminas.SmartAPI.CMS
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (PdfOrientation).Name, value));
+            }
+        }
+
+        public static string ToRQLString(this PdfOrientation value)
+        {
+            switch (value)
+            {
+                case PdfOrientation.Default:
+                    return "default";
+                case PdfOrientation.Portrait:
+                    return "portrait";
+                case PdfOrientation.Landscape:
+                    return "landscape";
+                default:
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
+                                                              typeof (PdfOrientationUtils).Name, value));
             }
         }
     }
@@ -112,15 +112,81 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        //TODO mit reddotobjecthandle ersetzen
-        public TemplateVariantHandle Handle
+        /// <summary>
+        ///     Assign this template to a specific project variant
+        /// </summary>
+        public void AssignToProjectVariant(ProjectVariant variant, bool doNotPublish, bool doNotUseTidy)
         {
-            get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
+            const string ASSIGN_PROJECT_VARIANT =
+                @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS> <TEMPLATEVARIANT guid=""{1}"">
+                                                    <PROJECTVARIANTS action=""assign""><PROJECTVARIANT donotgenerate=""{3}"" donotusetidy=""{4}"" guid=""{2}"" />
+                                                    </PROJECTVARIANTS></TEMPLATEVARIANT></TEMPLATEVARIANTS></TEMPLATE>";
+
+            ContentClass.Project.ExecuteRQL(string.Format(ASSIGN_PROJECT_VARIANT, ContentClass.Guid.ToRQLString(),
+                                                          Guid.ToRQLString(), variant.Guid.ToRQLString(),
+                                                          doNotPublish.ToRQLString(), doNotUseTidy.ToRQLString()));
         }
 
-        public bool HasContainerPageReference
+        /// <summary>
+        /// </summary>
+        public bool ContainsAreaMarksInPage
         {
-            get { return LazyLoad(ref _hasContainerPageReference); }
+            get { return !LazyLoad(ref _noStartEndMarkers); }
+        }
+
+        public ContentClass ContentClass { get; private set; }
+
+        /// <summary>
+        ///     Copy this template over to another content class
+        /// </summary>
+        /// <param name="target"> </param>
+        public void CopyToContentClass(ContentClass target)
+        {
+            const string ADD_TEMPLATE_VARIANT = @"<TEMPLATE action=""assign"" guid=""{0}"">
+                    <TEMPLATEVARIANTS action=""addnew"">
+                        <TEMPLATEVARIANT name=""{1}"" description=""{2}"" code=""{3}"" fileextension=""{4}"" insertstylesheetinpage=""{5}"" nostartendmarkers=""{6}"" containerpagereference=""{7}""  pdforientation=""{8}"">
+                        {3}
+                        </TEMPLATEVARIANT>
+                    </TEMPLATEVARIANTS>
+                </TEMPLATE>";
+            XmlDocument xmlDoc =
+                target.Project.ExecuteRQL(
+                    string.Format(ADD_TEMPLATE_VARIANT, target.Guid.ToRQLString(), HttpUtility.HtmlEncode(Name),
+                                  HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
+                                  HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
+                                  ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
+                                  PdfOrientation), Project.RqlType.SessionKeyInProject);
+            if (xmlDoc.DocumentElement.InnerText.Trim().Length == 0)
+            {
+                return;
+            }
+            string errorMsg = string.Format("Error during addition of template variant '{0}' to content class '{1}'.",
+                                            Name, target.Name);
+            //sometimes it's <IODATA><ERROR>Reason</ERROR></IODATA> and sometimes just <IODATA>ERROR</IODATA>
+            XmlNodeList errorElements = xmlDoc.GetElementsByTagName("ERROR");
+            if (errorElements.Count > 0)
+            {
+                throw new Exception(errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
+            }
+            throw new Exception(errorMsg);
+        }
+
+        //TODO mit reddotobjecthandle ersetzen
+
+        /// <summary>
+        ///     Timestamp of the creation of the template
+        /// </summary>
+        public DateTime CreationDate
+        {
+            get { return LazyLoad(ref _creationDate); }
+        }
+
+        /// <summary>
+        ///     User who created the template
+        /// </summary>
+        public User CreationUser
+        {
+            get { return LazyLoad(ref _createUser); }
         }
 
         /// <summary>
@@ -149,61 +215,6 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Timestamp of the last change to the template
-        /// </summary>
-        public DateTime LastChangeDate
-        {
-            get { return LazyLoad(ref _changeDate); }
-        }
-
-        /// <summary>
-        ///     Timestamp of the creation of the template
-        /// </summary>
-        public DateTime CreationDate
-        {
-            get { return LazyLoad(ref _creationDate); }
-        }
-
-        /// <summary>
-        ///     User who created the template
-        /// </summary>
-        public User CreationUser
-        {
-            get { return LazyLoad(ref _createUser); }
-        }
-
-        /// <summary>
-        ///     User who last changed the template
-        /// </summary>
-        public User LastChangeUser
-        {
-            get { return LazyLoad(ref _changeUser); }
-        }
-
-        /// <summary>
-        ///     Current release status of the template
-        /// </summary>
-        public State ReleaseStatus
-        {
-            get { return LazyLoad(ref _status); }
-        }
-
-        /// <summary>
-        ///     Denoting whether or not a stylesheet should be automatically built into the header area of a page.
-        /// </summary>
-        public bool IsStylesheetIncludedInHeader
-        {
-            get { return LazyLoad(ref _isStylesheetIncluded); }
-        }
-
-        /// <summary>
-        /// </summary>
-        public bool ContainsAreaMarksInPage
-        {
-            get { return !LazyLoad(ref _noStartEndMarkers); }
-        }
-
-        /// <summary>
         ///     Description of the template
         /// </summary>
         public string Description
@@ -216,10 +227,14 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _fileExtension); }
         }
 
-        public PdfOrientation PdfOrientation
+        public TemplateVariantHandle Handle
         {
-            get { return LazyLoad(ref _pdfOrientation); }
-            set { _pdfOrientation = value; }
+            get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
+        }
+
+        public bool HasContainerPageReference
+        {
+            get { return LazyLoad(ref _hasContainerPageReference); }
         }
 
         public bool IsLocked
@@ -227,21 +242,56 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _isLocked); }
         }
 
-        public ContentClass ContentClass { get; private set; }
+        /// <summary>
+        ///     Denoting whether or not a stylesheet should be automatically built into the header area of a page.
+        /// </summary>
+        public bool IsStylesheetIncludedInHeader
+        {
+            get { return LazyLoad(ref _isStylesheetIncluded); }
+        }
 
         /// <summary>
-        ///     Assign this template to a specific project variant
+        ///     Timestamp of the last change to the template
         /// </summary>
-        public void AssignToProjectVariant(ProjectVariant variant, bool doNotPublish, bool doNotUseTidy)
+        public DateTime LastChangeDate
         {
-            const string ASSIGN_PROJECT_VARIANT =
-                @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS> <TEMPLATEVARIANT guid=""{1}"">
-                                                    <PROJECTVARIANTS action=""assign""><PROJECTVARIANT donotgenerate=""{3}"" donotusetidy=""{4}"" guid=""{2}"" />
-                                                    </PROJECTVARIANTS></TEMPLATEVARIANT></TEMPLATEVARIANTS></TEMPLATE>";
+            get { return LazyLoad(ref _changeDate); }
+        }
 
-            ContentClass.Project.ExecuteRQL(string.Format(ASSIGN_PROJECT_VARIANT, ContentClass.Guid.ToRQLString(),
-                                                          Guid.ToRQLString(), variant.Guid.ToRQLString(),
-                                                          doNotPublish.ToRQLString(), doNotUseTidy.ToRQLString()));
+        /// <summary>
+        ///     User who last changed the template
+        /// </summary>
+        public User LastChangeUser
+        {
+            get { return LazyLoad(ref _changeUser); }
+        }
+
+        public PdfOrientation PdfOrientation
+        {
+            get { return LazyLoad(ref _pdfOrientation); }
+            set { _pdfOrientation = value; }
+        }
+
+        /// <summary>
+        ///     Current release status of the template
+        /// </summary>
+        public State ReleaseStatus
+        {
+            get { return LazyLoad(ref _status); }
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_TEMPLATEVARIANT =
+                @"<TEMPLATE><TEMPLATEVARIANT action=""load"" readonly=""1"" guid=""{0}"" /></TEMPLATE>";
+            XmlDocument xmlDoc = ContentClass.Project.ExecuteRQL(string.Format(LOAD_TEMPLATEVARIANT, Guid.ToRQLString()));
+
+            return (XmlElement) xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")[0];
         }
 
         private void LoadXml()
@@ -281,55 +331,6 @@ namespace erminas.SmartAPI.CMS
                               ? State.WaitsForRelease
                               : State.Released;
             }
-        }
-
-        /// <summary>
-        ///     Copy this template over to another content class
-        /// </summary>
-        /// <param name="target"> </param>
-        public void CopyToContentClass(ContentClass target)
-        {
-            const string ADD_TEMPLATE_VARIANT = @"<TEMPLATE action=""assign"" guid=""{0}"">
-                    <TEMPLATEVARIANTS action=""addnew"">
-                        <TEMPLATEVARIANT name=""{1}"" description=""{2}"" code=""{3}"" fileextension=""{4}"" insertstylesheetinpage=""{5}"" nostartendmarkers=""{6}"" containerpagereference=""{7}""  pdforientation=""{8}"">
-                        {3}
-                        </TEMPLATEVARIANT>
-                    </TEMPLATEVARIANTS>
-                </TEMPLATE>";
-            XmlDocument xmlDoc =
-                target.Project.ExecuteRQL(
-                    string.Format(ADD_TEMPLATE_VARIANT, target.Guid.ToRQLString(), HttpUtility.HtmlEncode(Name),
-                                  HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
-                                  HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
-                                  ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
-                                  PdfOrientation), Project.RqlType.SessionKeyInProject);
-            if (xmlDoc.DocumentElement.InnerText.Trim().Length == 0)
-            {
-                return;
-            }
-            string errorMsg = string.Format("Error during addition of template variant '{0}' to content class '{1}'.",
-                                            Name, target.Name);
-            //sometimes it's <IODATA><ERROR>Reason</ERROR></IODATA> and sometimes just <IODATA>ERROR</IODATA>
-            XmlNodeList errorElements = xmlDoc.GetElementsByTagName("ERROR");
-            if (errorElements.Count > 0)
-            {
-                throw new Exception(errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
-            }
-            throw new Exception(errorMsg);
-        }
-
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_TEMPLATEVARIANT =
-                @"<TEMPLATE><TEMPLATEVARIANT action=""load"" readonly=""1"" guid=""{0}"" /></TEMPLATE>";
-            XmlDocument xmlDoc = ContentClass.Project.ExecuteRQL(string.Format(LOAD_TEMPLATEVARIANT, Guid.ToRQLString()));
-
-            return (XmlElement) xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")[0];
         }
 
         #region Nested type: TemplateVariantHandle

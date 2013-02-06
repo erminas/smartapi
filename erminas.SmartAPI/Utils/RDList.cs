@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -32,32 +32,6 @@ namespace erminas.SmartAPI.Utils
 
         #region IRDList<T> Members
 
-        public T GetByGuid(Guid guid)
-        {
-            CheckList();
-            return List.First(x => x.Guid == guid);
-        }
-
-        public bool TryGetByGuid(Guid guid, out T output)
-        {
-            CheckList();
-            output = List.Find(x => x.Guid == guid);
-            return output != null;
-        }
-
-        public T GetByName(string name)
-        {
-            CheckList();
-            return List.First(x => x.Name == name);
-        }
-
-        public bool TryGetByName(string name, out T output)
-        {
-            CheckList();
-            output = List.Find(x => x.Name == name);
-            return output != null;
-        }
-
         public bool ContainsGuid(Guid guid)
         {
             T tmp;
@@ -70,10 +44,36 @@ namespace erminas.SmartAPI.Utils
             return TryGetByName(name, out tmp);
         }
 
+        public T GetByGuid(Guid guid)
+        {
+            CheckList();
+            return List.First(x => x.Guid == guid);
+        }
+
+        public T GetByName(string name)
+        {
+            CheckList();
+            return List.First(x => x.Name == name);
+        }
+
         public new RDList<T> Refreshed()
         {
             Refresh();
             return this;
+        }
+
+        public bool TryGetByGuid(Guid guid, out T output)
+        {
+            CheckList();
+            output = List.Find(x => x.Guid == guid);
+            return output != null;
+        }
+
+        public bool TryGetByName(string name, out T output)
+        {
+            CheckList();
+            output = List.Find(x => x.Name == name);
+            return output != null;
         }
 
         #endregion

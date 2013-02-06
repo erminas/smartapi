@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -31,10 +31,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Content; }
         }
 
-        public bool IsNotRelevantForWorklow
+        public bool IsHiddenInProjectStructure
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinclient")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinclient")).Value = value; }
         }
 
         public bool IsLanguageIndependent
@@ -43,16 +43,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
         }
 
-        public bool IsHiddenInProjectStructure
+        public bool IsNotConvertingCharactersToHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinclient")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinclient")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
         }
 
-        public bool IsNotVisibleOnPublishedPage
+        public bool IsNotRelevantForWorklow
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
         }
 
         public bool IsNotUsedInForm
@@ -61,10 +61,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
         }
 
-        public bool IsNotConvertingCharactersToHtml
+        public bool IsNotVisibleOnPublishedPage
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value = value; }
         }
 
         #region ICanBeRequiredForEditing Members

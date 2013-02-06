@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -57,6 +57,11 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
+        public DbTypeId DBType
+        {
+            get { return LazyLoad(ref _dBType); }
+        }
+
         public bool IsCreateAllowed
         {
             get { return LazyLoad(ref _isCreateAllowed); }
@@ -68,19 +73,7 @@ namespace erminas.SmartAPI.CMS
             get { return LazyLoad(ref _productGuid); }
         }
 
-        public DbTypeId DBType
-        {
-            get { return LazyLoad(ref _dBType); }
-        }
-
         public Session Session { get; set; }
-
-        private void LoadXml()
-        {
-            InitIfPresent(ref _isCreateAllowed, "createallowed", BoolConvert);
-            InitIfPresent(ref _productGuid, "productguid", GuidConvert);
-            InitIfPresent(ref _dBType, "dbtypeid", x => (DbTypeId) int.Parse(x));
-        }
 
         protected override void LoadWholeObject()
         {
@@ -90,6 +83,13 @@ namespace erminas.SmartAPI.CMS
         protected override XmlElement RetrieveWholeObject()
         {
             return Session.DatabaseServers.GetByGuid(Guid).XmlElement;
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _isCreateAllowed, "createallowed", BoolConvert);
+            InitIfPresent(ref _productGuid, "productguid", GuidConvert);
+            InitIfPresent(ref _dBType, "dbtypeid", x => (DbTypeId) int.Parse(x));
         }
     }
 }

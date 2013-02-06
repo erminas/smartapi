@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -17,8 +17,8 @@ namespace erminas.SmartAPI.CMS.PageElements
 {
     public interface IValueElement<T> : IPageElement
     {
-        T Value { get; set; }
-        void SetValueFromString(string value);
         void Commit();
+        void SetValueFromString(string value);
+        T Value { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -23,6 +23,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        protected override string GetTypeDescription()
+        {
+            return "project variant";
+        }
+
         protected override ProjectVariant RetrieveByGuid(Guid guid)
         {
             return ((CCElement) Parent).ContentClass.Project.ProjectVariants.GetByGuid(guid);
@@ -31,11 +36,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         protected override ProjectVariant RetrieveByName(string name)
         {
             return ((CCElement) Parent).ContentClass.Project.ProjectVariants[name];
-        }
-
-        protected override string GetTypeDescription()
-        {
-            return "project variant";
         }
     }
 }

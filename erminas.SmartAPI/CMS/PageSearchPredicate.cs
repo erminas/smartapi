@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -41,15 +41,15 @@ namespace erminas.SmartAPI.CMS
 
         #endregion
 
+        protected static string EqualityOperatorToString(EqualityOperatorType type)
+        {
+            return type == EqualityOperatorType.Equal ? "eq" : "ne";
+        }
+
         protected static string ToSearchItemStringInternal(string key, string value, string @operator)
         {
             const string BASIC_SEARCH_ITEM = @"<SEARCHITEM key=""{0}"" value=""{1}"" operator=""{2}""/>";
             return string.Format(BASIC_SEARCH_ITEM, key, value, @operator);
-        }
-
-        protected static string EqualityOperatorToString(EqualityOperatorType type)
-        {
-            return type == EqualityOperatorType.Equal ? "eq" : "ne";
         }
     }
 

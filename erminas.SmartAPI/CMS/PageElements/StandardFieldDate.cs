@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -37,6 +37,15 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
+        public override void Commit()
+        {
+            //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
+            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
+                                             (int) ElementType));
+            //TODO check guid
+            //xml
+        }
+
         protected override DateTime FromString(string value)
         {
             try
@@ -48,6 +57,11 @@ namespace erminas.SmartAPI.CMS.PageElements
             }
         }
 
+        protected override DateTime FromXmlNodeValue(string value)
+        {
+            return BASE_DATE.AddDays(int.Parse(value));
+        }
+
         protected override string GetXmlNodeValue()
         {
             return Value == default(DateTime)
@@ -57,20 +71,6 @@ namespace erminas.SmartAPI.CMS.PageElements
 
         protected override void LoadWholeStandardField()
         {
-        }
-
-        protected override DateTime FromXmlNodeValue(string value)
-        {
-            return BASE_DATE.AddDays(int.Parse(value));
-        }
-
-        public override void Commit()
-        {
-            //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
-                                             (int) ElementType));
-            //TODO check guid
-            //xml
         }
     }
 }

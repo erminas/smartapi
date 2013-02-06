@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -209,17 +209,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         #region IRDAttribute Members
 
-        public void Refresh()
-        {
-            string xmlNodeValue = GetXmlNodeValue();
-
-            UpdateValue(string.IsNullOrEmpty(xmlNodeValue) || xmlNodeValue == Session.SESSIONKEY_PLACEHOLDER
-                            ? null
-                            : xmlNodeValue);
-        }
-
-        public string Name { get; private set; }
-        public abstract object DisplayObject { get; }
+        public abstract void Assign(IRDAttribute o);
 
         public string Description
         {
@@ -235,6 +225,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             }
         }
 
+        public abstract object DisplayObject { get; }
+
         public override bool Equals(object o)
         {
             var attr = o as RDXmlNodeAttribute;
@@ -248,11 +240,29 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         }
 
         public abstract bool IsAssignableFrom(IRDAttribute o, out string reason);
-        public abstract void Assign(IRDAttribute o);
+        public string Name { get; private set; }
+
+        public void Refresh()
+        {
+            string xmlNodeValue = GetXmlNodeValue();
+
+            UpdateValue(string.IsNullOrEmpty(xmlNodeValue) || xmlNodeValue == Session.SESSIONKEY_PLACEHOLDER
+                            ? null
+                            : xmlNodeValue);
+        }
 
         #endregion
 
-        protected abstract void UpdateValue(string value);
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
+        public virtual string GetXmlNodeValue()
+        {
+            string value = Parent.XmlElement.GetAttributeValue(Name);
+            return string.IsNullOrEmpty(value) ? null : value;
+        }
 
         protected virtual void SetValue(string value)
         {
@@ -266,15 +276,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                                                 string.IsNullOrEmpty(value) ? Session.SESSIONKEY_PLACEHOLDER : value);
         }
 
-        public virtual string GetXmlNodeValue()
-        {
-            string value = Parent.XmlElement.GetAttributeValue(Name);
-            return string.IsNullOrEmpty(value) ? null : value;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
+        protected abstract void UpdateValue(string value);
     }
 }

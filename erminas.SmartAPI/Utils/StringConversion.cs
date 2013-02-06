@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -22,6 +22,12 @@ namespace erminas.SmartAPI.Utils
 {
     public static class StringConversion
     {
+        public static string RQLFormat(this string value, params object[] args)
+        {
+            IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
+            return string.Format(value, newArgs.ToArray());
+        }
+
         /// <summary>
         ///     Converts a Guid to the format expected by the RedDot server. ALWAYS use this format when sending a Guid to the server.
         /// </summary>
@@ -39,12 +45,6 @@ namespace erminas.SmartAPI.Utils
         public static string ToRQLString(this Boolean value)
         {
             return value ? "1" : "0";
-        }
-
-        public static string RQLFormat(this string value, params object[] args)
-        {
-            IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
-            return string.Format(value, newArgs.ToArray());
         }
 
         private static object ConvertRQL(object o)

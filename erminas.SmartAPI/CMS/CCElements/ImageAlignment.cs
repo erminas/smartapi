@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -35,16 +35,16 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public static class ImageAlignmentUtils
     {
-        public static string ToRQLString(this ImageAlignment align)
-        {
-            return align == ImageAlignment.NotSet ? "" : align.ToString();
-        }
-
         public static ImageAlignment ToImageAlignment(this string value)
         {
             return string.IsNullOrEmpty(value)
                        ? ImageAlignment.NotSet
                        : (ImageAlignment) Enum.Parse(typeof (ImageAlignment), value);
+        }
+
+        public static string ToRQLString(this ImageAlignment align)
+        {
+            return align == ImageAlignment.NotSet ? "" : align.ToString();
         }
     }
 }

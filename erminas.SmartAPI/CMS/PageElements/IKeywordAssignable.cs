@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,8 +19,8 @@ namespace erminas.SmartAPI.CMS.PageElements
 {
     public interface IKeywordAssignable
     {
-        IRDList<Keyword> AssignedKeywords { get; }
         void AssignKeyword(Keyword keyword);
+        IRDList<Keyword> AssignedKeywords { get; }
         void UnassignKeyword(Keyword keyword);
     }
 }

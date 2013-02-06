@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -17,9 +17,8 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IPageElement : IRedDotObject
     {
-        LanguageVariant LanguageVariant { get; }
-
         ElementType ElementType { get; set; }
+        LanguageVariant LanguageVariant { get; }
 
         Page Page { get; }
     }

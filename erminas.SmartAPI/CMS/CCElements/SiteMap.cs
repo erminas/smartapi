@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -34,6 +34,84 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Structural; }
         }
 
+        public string EndOfColumn
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolclose")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltcolclose")).Value = value; }
+        }
+
+        public string EndOfLine
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltrowclose")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltrowclose")).Value = value; }
+        }
+
+        public string EndOfTable
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("elttableclose")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("elttableclose")).Value = value; }
+        }
+
+        public SiteMapFormat Format
+        {
+            get { return ((EnumXmlNodeAttribute<SiteMapFormat>) GetAttribute("eltformat")).Value; }
+            set { ((EnumXmlNodeAttribute<SiteMapFormat>) GetAttribute("eltformat")).Value = value; }
+        }
+
+        public bool IsSyntaxConformingToXHtml
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+        }
+
+        public int? MaxErrorCount
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltdropouts")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltdropouts")).Value = value.ToString(); }
+        }
+
+        public int? MaxSearchDepth
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltsearchdepth")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltsearchdepth")).Value = value.ToString(); }
+        }
+
+        public int? NestingLevel
+        {
+            get
+            {
+                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltdepth")).Value;
+                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
+            }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltdepth")).Value = value.ToString(); }
+        }
+
+        public string StartOfColumn
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolopen")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltcolopen")).Value = value; }
+        }
+
+        public string StartOfLine
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltrowopen")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltrowopen")).Value = value; }
+        }
+
+        public string StartOfTable
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("elttableopen")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("elttableopen")).Value = value; }
+        }
+
         public File XslStyleSheet
         {
             get
@@ -52,84 +130,6 @@ namespace erminas.SmartAPI.CMS.CCElements
                 ((StringXmlNodeAttribute) GetAttribute("eltxslfile")).Value = value.Name;
                 ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value.Folder;
             }
-        }
-
-        public SiteMapFormat Format
-        {
-            get { return ((EnumXmlNodeAttribute<SiteMapFormat>) GetAttribute("eltformat")).Value; }
-            set { ((EnumXmlNodeAttribute<SiteMapFormat>) GetAttribute("eltformat")).Value = value; }
-        }
-
-        public string StartOfColumn
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolopen")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolopen")).Value = value; }
-        }
-
-        public string EndOfColumn
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolclose")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolclose")).Value = value; }
-        }
-
-        public string StartOfLine
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrowopen")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrowopen")).Value = value; }
-        }
-
-        public string EndOfLine
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrowclose")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrowclose")).Value = value; }
-        }
-
-        public string StartOfTable
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elttableopen")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elttableopen")).Value = value; }
-        }
-
-        public string EndOfTable
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elttableclose")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elttableclose")).Value = value; }
-        }
-
-        public bool IsSyntaxConformingToXHtml
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
-        }
-
-        public int? NestingLevel
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltdepth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltdepth")).Value = value.ToString(); }
-        }
-
-        public int? MaxSearchDepth
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltsearchdepth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsearchdepth")).Value = value.ToString(); }
-        }
-
-        public int? MaxErrorCount
-        {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltdropouts")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltdropouts")).Value = value.ToString(); }
         }
     }
 

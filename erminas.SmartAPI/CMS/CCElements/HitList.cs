@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -32,21 +32,6 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public static class HitListTypeUtils
     {
-        public static string ToRQLString(this HitListType value)
-        {
-            switch (value)
-            {
-                case HitListType.NotSet:
-                    return string.Empty;
-                case HitListType.MatchingImages:
-                    return "Grafik";
-                case HitListType.MatchingTexts:
-                    return "Text";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HitListType).Name, value));
-            }
-        }
-
         public static HitListType ToHitListType(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -62,6 +47,21 @@ namespace erminas.SmartAPI.CMS.CCElements
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (HitListType).Name, value));
+            }
+        }
+
+        public static string ToRQLString(this HitListType value)
+        {
+            switch (value)
+            {
+                case HitListType.NotSet:
+                    return string.Empty;
+                case HitListType.MatchingImages:
+                    return "Grafik";
+                case HitListType.MatchingTexts:
+                    return "Text";
+                default:
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HitListType).Name, value));
             }
         }
     }
@@ -80,6 +80,42 @@ namespace erminas.SmartAPI.CMS.CCElements
                                                            BasicAlignmentUtils.ToBasicAlignment);
         }
 
+        public BasicAlignment Align
+        {
+            get { return ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value; }
+            set { ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value = value; }
+        }
+
+        public string AltText
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
+        }
+
+        public string Border
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
+        }
+
+        public override void Commit()
+        {
+            using (new LanguageContext(LanguageVariant))
+            {
+                //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
+                XmlElement.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
+
+                ContentClass.Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>",
+                                                Project.RqlType.SessionKeyInProject);
+            }
+        }
+
+        public string HSpace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
+        }
+
         public HitListType HitListType
         {
             get { return ((StringEnumXmlNodeAttribute<HitListType>) GetAttribute("elthittype")).Value; }
@@ -94,46 +130,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             }
         }
 
-        public string Border
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
-        }
-
-        public string VSpace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
-        }
-
-        public string HSpace
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
-        }
-
-        public string Usemap
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value = value; }
-        }
-
-        public BasicAlignment Align
-        {
-            get { return ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value; }
-            set { ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value = value; }
-        }
-
         public bool IsAltPreassignedAutomatically
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltpresetalt")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltpresetalt")).Value = value; }
-        }
-
-        public string AltText
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
         }
 
         public string Supplement
@@ -142,16 +142,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
         }
 
-        public override void Commit()
+        public string Usemap
         {
-            using (new LanguageContext(LanguageVariant))
-            {
-                //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
-                XmlElement.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value = value; }
+        }
 
-                ContentClass.Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>",
-                                                Project.RqlType.SessionKeyInProject);
-            }
+        public string VSpace
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
         }
     }
 }

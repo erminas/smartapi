@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -52,12 +52,12 @@ namespace erminas.SmartAPI.CMS
 
         public Preassigned<ContentClass> ContentClasses { get; private set; }
 
-        public Preassigned<IPageDefinition> PageDefinitions { get; private set; }
-
         public void InvalidateCache()
         {
             _isDirty = true;
         }
+
+        public Preassigned<IPageDefinition> PageDefinitions { get; private set; }
 
         public void Refresh()
         {
@@ -68,14 +68,12 @@ namespace erminas.SmartAPI.CMS
             _pageDefinitions = ExtractPageDefinitions(pageDefinitions);
         }
 
-        private void Remove(ContentClass contentClass)
+        public void Set(IEnumerable<ContentClass> contentClasses, IEnumerable<IPageDefinition> pageDefinitions)
         {
-            Set(ContentClasses.Except(new[] {contentClass}), PageDefinitions);
-        }
+            var assignmentQuery = ToAssignmentQuery(contentClasses, pageDefinitions);
+            ExecuteAssignmentQuery(assignmentQuery);
 
-        private void Remove(IPageDefinition pageDefinition)
-        {
-            Set(ContentClasses, PageDefinitions.Except(new[] {pageDefinition}));
+            InvalidateCache();
         }
 
         private void Add(IPageDefinition pageDefinition)
@@ -83,13 +81,30 @@ namespace erminas.SmartAPI.CMS
             Set(ContentClasses, PageDefinitions.Union(new[] {pageDefinition}));
         }
 
-        private List<IPageDefinition> ExtractPageDefinitions(XmlNodeList pageDefinitions)
+        private void Add(ContentClass contentClass)
         {
-            return (from XmlElement curPageDefinition in pageDefinitions
-                    select
-                        new PageDefinition(
-                        new ContentClass(Element.ContentClass.Project, curPageDefinition.GetGuid("templateguid")),
-                        curPageDefinition)).Cast<IPageDefinition>().ToList();
+            Set(ContentClasses.Union(new List<ContentClass> {contentClass}), PageDefinitions);
+        }
+
+        private void ExecuteAssignmentQuery(string assignmentQuery)
+        {
+            var xmlDoc = Element.ContentClass.Project.ExecuteRQL(assignmentQuery);
+
+            if (!xmlDoc.InnerText.Contains("ok"))
+            {
+                throw new SmartAPIException(Element.ContentClass.Project.Session.ServerLogin,
+                                            string.Format("Could not set presassigned content classes for {0}", Element));
+            }
+        }
+
+        private void ExecuteLoadQuery(out XmlNodeList contentClasses, out XmlNodeList pageDefinitions)
+        {
+            const string LOAD_PREASSIGNMENT =
+                @"<TEMPLATELIST action=""load"" linkguid=""{0}"" assigntemplates=""1"" withpagedefinitions=""1""/>";
+
+            var xmlDoc = Element.ContentClass.Project.ExecuteRQL(LOAD_PREASSIGNMENT.RQLFormat(Element));
+            contentClasses = xmlDoc.SelectNodes("//TEMPLATE[@selectinnewpage='1']");
+            pageDefinitions = xmlDoc.SelectNodes("//PAGEDEFINITION[@selectinnewpage='1']");
         }
 
         private List<ContentClass> ExtractContentClasses(XmlNodeList contentClasses)
@@ -103,14 +118,13 @@ namespace erminas.SmartAPI.CMS
                             }).ToList();
         }
 
-        private void ExecuteLoadQuery(out XmlNodeList contentClasses, out XmlNodeList pageDefinitions)
+        private List<IPageDefinition> ExtractPageDefinitions(XmlNodeList pageDefinitions)
         {
-            const string LOAD_PREASSIGNMENT =
-                @"<TEMPLATELIST action=""load"" linkguid=""{0}"" assigntemplates=""1"" withpagedefinitions=""1""/>";
-
-            var xmlDoc = Element.ContentClass.Project.ExecuteRQL(LOAD_PREASSIGNMENT.RQLFormat(Element));
-            contentClasses = xmlDoc.SelectNodes("//TEMPLATE[@selectinnewpage='1']");
-            pageDefinitions = xmlDoc.SelectNodes("//PAGEDEFINITION[@selectinnewpage='1']");
+            return (from XmlElement curPageDefinition in pageDefinitions
+                    select
+                        new PageDefinition(
+                        new ContentClass(Element.ContentClass.Project, curPageDefinition.GetGuid("templateguid")),
+                        curPageDefinition)).Cast<IPageDefinition>().ToList();
         }
 
         private IEnumerable<ContentClass> GetContentClasses()
@@ -131,23 +145,14 @@ namespace erminas.SmartAPI.CMS
             return _pageDefinitions;
         }
 
-        public void Set(IEnumerable<ContentClass> contentClasses, IEnumerable<IPageDefinition> pageDefinitions)
+        private void Remove(ContentClass contentClass)
         {
-            var assignmentQuery = ToAssignmentQuery(contentClasses, pageDefinitions);
-            ExecuteAssignmentQuery(assignmentQuery);
-
-            InvalidateCache();
+            Set(ContentClasses.Except(new[] {contentClass}), PageDefinitions);
         }
 
-        private void ExecuteAssignmentQuery(string assignmentQuery)
+        private void Remove(IPageDefinition pageDefinition)
         {
-            var xmlDoc = Element.ContentClass.Project.ExecuteRQL(assignmentQuery);
-
-            if (!xmlDoc.InnerText.Contains("ok"))
-            {
-                throw new SmartAPIException(Element.ContentClass.Project.Session.ServerLogin,
-                                            string.Format("Could not set presassigned content classes for {0}", Element));
-            }
+            Set(ContentClasses, PageDefinitions.Except(new[] {pageDefinition}));
         }
 
         private string ToAssignmentQuery(IEnumerable<ContentClass> contentClasses,
@@ -166,11 +171,6 @@ namespace erminas.SmartAPI.CMS
                 @"<TEMPLATE><ELEMENT action=""assign"" guid=""{0}""><TEMPLATES extendedrestriction=""{1}"">{2}</TEMPLATES></ELEMENT></TEMPLATE>";
             string assignmentQuery = SET_PREASSIGNMENT_ENVELOPE.RQLFormat(Element, false, assignments);
             return assignmentQuery;
-        }
-
-        private void Add(ContentClass contentClass)
-        {
-            Set(ContentClasses.Union(new List<ContentClass> {contentClass}), PageDefinitions);
         }
 
         //Also apply this restriction to connecting existing pages 
@@ -205,14 +205,19 @@ namespace erminas.SmartAPI.CMS
             _parent = parent;
         }
 
+        public void Add(T element)
+        {
+            _parent.Add(element);
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             return _parent.Get().GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public void Remove(T element)
         {
-            return _parent.Get().GetEnumerator();
+            _parent.Remove(element);
         }
 
         public void Set(IEnumerable<T> elements)
@@ -220,14 +225,9 @@ namespace erminas.SmartAPI.CMS
             _parent.Set(elements);
         }
 
-        public void Add(T element)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            _parent.Add(element);
-        }
-
-        public void Remove(T element)
-        {
-            _parent.Remove(element);
+            return _parent.Get().GetEnumerator();
         }
     }
 }

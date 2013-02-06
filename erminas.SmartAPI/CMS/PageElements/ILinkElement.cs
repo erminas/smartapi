@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -27,12 +27,12 @@ namespace erminas.SmartAPI.CMS.PageElements
 
     public interface ILinkElement : IPageElement, ILinkTarget
     {
-        IRDList<IPage> ConnectedPages { get; }
-        LinkType LinkType { get; }
-        bool IsReference { get; }
-        void Reference(ILinkTarget target);
-        void DeleteReference();
         void Connect(IPage page);
+        IRDList<IPage> ConnectedPages { get; }
+        void DeleteReference();
         void Disconnect(IPage page);
+        bool IsReference { get; }
+        LinkType LinkType { get; }
+        void Reference(ILinkTarget target);
     }
 }

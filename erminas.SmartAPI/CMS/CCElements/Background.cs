@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -32,16 +32,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Content; }
         }
 
-        public bool IsNotRelevantForWorklow
+        public bool IsDragAndDropActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
-        }
-
-        public bool IsLanguageIndependent
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
         }
 
         public bool IsHiddenInProjectStructure
@@ -50,16 +44,22 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinclient")).Value = value; }
         }
 
+        public bool IsLanguageIndependent
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
+        }
+
+        public bool IsNotRelevantForWorklow
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
+        }
+
         public bool IsNotUsedInForm
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
-        }
-
-        public bool IsDragAndDropActivated
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
         }
 
         public File SrcFile

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,6 +26,11 @@ namespace erminas.SmartAPI.CMS.CCElements
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
+        public override ContentClassCategory Category
+        {
+            get { return ContentClassCategory.Structural; }
+        }
+
         public bool IsDynamic
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltisdynamic")).Value; }
@@ -36,11 +41,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltistargetcontainer")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltistargetcontainer")).Value = value; }
-        }
-
-        public override ContentClassCategory Category
-        {
-            get { return ContentClassCategory.Structural; }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }

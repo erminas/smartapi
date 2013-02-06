@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -43,6 +43,16 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             parent.RegisterAttribute(this);
         }
 
+        public string GetDefaultValueStringFromParent()
+        {
+            return _parent.DefaultValueString;
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
         public string Value
         {
             get
@@ -67,15 +77,55 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             }
         }
 
-        #region IRDAttribute Members
+        #region Nested type: OptionListEntry
 
-        public string Name { get; private set; }
-
-        public bool IsAssignableFrom(IRDAttribute o, out string reason)
+        public struct OptionListEntry
         {
-            reason = String.Empty;
-            return o is OptionListSelectionAttribute;
+            public readonly bool IsDefault;
+            public readonly string Name;
+            public readonly string Value;
+
+            public OptionListEntry(string name, string value, bool isDefault)
+            {
+                Name = name;
+                Value = value;
+                IsDefault = isDefault;
+            }
         }
+
+        #endregion
+
+        #region Nested type: OptionListValue
+
+        public class OptionListValue
+        {
+            public Dictionary<string, List<OptionListEntry>> Entries { get; set; }
+        }
+
+        #endregion
+
+        #region Nested type: SourceTarget
+
+        private class SourceTarget
+        {
+            public override bool Equals(object obj)
+            {
+                var other = obj as SourceTarget;
+                return other != null && Source.Attribute(IDENTIFIER) == other.Source.Attribute(IDENTIFIER);
+            }
+
+            public override int GetHashCode()
+            {
+                return Source.Attribute(IDENTIFIER).GetHashCode();
+            }
+
+            public XElement Source { get; set; }
+            public XElement Target { get; set; }
+        }
+
+        #endregion
+
+        #region IRDAttribute Members
 
         public void Assign(IRDAttribute o)
         {
@@ -141,6 +191,39 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             _parent.DefaultValueString = targetDefaultSelection;
         }
 
+        public string Description
+        {
+            get { return "Selection"; }
+        }
+
+        public object DisplayObject
+        {
+            get
+            {
+                XDocument doc = XDocument.Parse(Value);
+                string defaultValueString = GetDefaultValueStringFromParent();
+                Dictionary<string, List<OptionListEntry>> entries = (from item in doc.Descendants("ITEM")
+                                                                     group item by item.Attribute("languageid").Value
+                                                                     into langgroups
+                                                                     select
+                                                                         new
+                                                                             {
+                                                                                 Language = langgroups.Key,
+                                                                                 Entries = (from entry in langgroups
+                                                                                            select
+                                                                                                new OptionListEntry(
+                                                                                                entry.Attribute("name")
+                                                                                                     .Value, entry.Value,
+                                                                                                entry.Parent.Attribute(
+                                                                                                    IDENTIFIER).Value ==
+                                                                                                defaultValueString)).ToList()
+                                                                             }).ToDictionary(key => key.Language,
+                                                                                             value => value.Entries);
+
+                return new OptionListValue {Entries = entries};
+            }
+        }
+
         public override bool Equals(object o)
         {
             var other = o as OptionListSelectionAttribute;
@@ -195,100 +278,17 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return defaultNames.SequenceEqual(otherDefaultNames);
         }
 
+        public bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = String.Empty;
+            return o is OptionListSelectionAttribute;
+        }
+
+        public string Name { get; private set; }
+
         public void Refresh()
         {
             _value = null;
-        }
-
-        public string Description
-        {
-            get { return "Selection"; }
-        }
-
-        public object DisplayObject
-        {
-            get
-            {
-                XDocument doc = XDocument.Parse(Value);
-                string defaultValueString = GetDefaultValueStringFromParent();
-                Dictionary<string, List<OptionListEntry>> entries = (from item in doc.Descendants("ITEM")
-                                                                     group item by item.Attribute("languageid").Value
-                                                                     into langgroups
-                                                                     select
-                                                                         new
-                                                                             {
-                                                                                 Language = langgroups.Key,
-                                                                                 Entries = (from entry in langgroups
-                                                                                            select
-                                                                                                new OptionListEntry(
-                                                                                                entry.Attribute("name")
-                                                                                                     .Value, entry.Value,
-                                                                                                entry.Parent.Attribute(
-                                                                                                    IDENTIFIER).Value ==
-                                                                                                defaultValueString)).ToList()
-                                                                             }).ToDictionary(key => key.Language,
-                                                                                             value => value.Entries);
-
-                return new OptionListValue {Entries = entries};
-            }
-        }
-
-        #endregion
-
-        public string GetDefaultValueStringFromParent()
-        {
-            return _parent.DefaultValueString;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
-        #region Nested type: OptionListEntry
-
-        public struct OptionListEntry
-        {
-            public readonly bool IsDefault;
-            public readonly string Name;
-            public readonly string Value;
-
-            public OptionListEntry(string name, string value, bool isDefault)
-            {
-                Name = name;
-                Value = value;
-                IsDefault = isDefault;
-            }
-        }
-
-        #endregion
-
-        #region Nested type: OptionListValue
-
-        public class OptionListValue
-        {
-            public Dictionary<string, List<OptionListEntry>> Entries { get; set; }
-        }
-
-        #endregion
-
-        #region Nested type: SourceTarget
-
-        private class SourceTarget
-        {
-            public XElement Source { get; set; }
-            public XElement Target { get; set; }
-
-            public override bool Equals(object obj)
-            {
-                var other = obj as SourceTarget;
-                return other != null && Source.Attribute(IDENTIFIER) == other.Source.Attribute(IDENTIFIER);
-            }
-
-            public override int GetHashCode()
-            {
-                return Source.Attribute(IDENTIFIER).GetHashCode();
-            }
         }
 
         #endregion

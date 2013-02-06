@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -37,6 +37,18 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             get { return _customValue ?? base.DisplayObject; }
         }
 
+        public override bool Equals(object o)
+        {
+            var other = o as EnumWithCustomValuesXmlNodeAttribute<T>;
+            return other != null &&
+                   (_customValue == null ? Equals(Value, other.Value) : _customValue.Equals(other._customValue));
+        }
+
+        public override int GetHashCode()
+        {
+            return _customValue == null ? Value.GetHashCode() : _customValue.GetHashCode();
+        }
+
         protected override void UpdateValue(string value)
         {
             try
@@ -48,18 +60,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 _customValue = value;
                 SetXmlNodeValue(value);
             }
-        }
-
-        public override bool Equals(object o)
-        {
-            var other = o as EnumWithCustomValuesXmlNodeAttribute<T>;
-            return other != null &&
-                   (_customValue == null ? Equals(Value, other.Value) : _customValue.Equals(other._customValue));
-        }
-
-        public override int GetHashCode()
-        {
-            return _customValue == null ? Value.GetHashCode() : _customValue.GetHashCode();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -30,16 +30,27 @@ namespace erminas.SmartAPI.CMS.CCElements
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
         }
 
+        public override ContentClassCategory Category
+        {
+            get { return ContentClassCategory.Structural; }
+        }
+
+        public string Coords
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value = value; }
+        }
+
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
         {
             get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
             set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
         }
 
-        public PageElements.Container PreassignedTargetContainer
+        public bool IsOnlyPathAndFilenameInserted
         {
-            get { return _targetContainerPreassignment.TargetContainer; }
-            set { _targetContainerPreassignment.TargetContainer = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
         }
 
         public bool IsSyntaxConformingToXHtml
@@ -48,16 +59,12 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
         }
 
-        public string Supplement
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
-        }
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
 
-        public bool IsOnlyPathAndFilenameInserted
+        public PageElements.Container PreassignedTargetContainer
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
+            get { return _targetContainerPreassignment.TargetContainer; }
+            set { _targetContainerPreassignment.TargetContainer = value; }
         }
 
         //TODO use enum instead
@@ -67,24 +74,17 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((StringXmlNodeAttribute) GetAttribute("eltshape")).Value = value; }
         }
 
+        public string Supplement
+        {
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+        }
+
         //TODO use enum instead
         public string Target
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("elttarget")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("elttarget")).Value = value; }
         }
-
-        public string Coords
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value = value; }
-        }
-
-        public override ContentClassCategory Category
-        {
-            get { return ContentClassCategory.Structural; }
-        }
-
-        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }

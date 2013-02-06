@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,14 +13,9 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Web.Script.Serialization;
-using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
-
 namespace erminas.SmartAPI.CMS
 {
-    public interface IContentClassElement : IRedDotObject
+    public interface IContentClassElement : IRedDotObject, IAttributeContainer
     {
         /// <summary>
         ///     Element category of the lement
@@ -28,31 +23,20 @@ namespace erminas.SmartAPI.CMS
         ContentClassCategory Category { get; }
 
         /// <summary>
-        ///     TypeId of the element.
+        ///     Save element on the server. Saves only the attributes!
         /// </summary>
-        ElementType Type { get; }
+        void Commit();
+
+        ContentClass ContentClass { get; set; }
 
         /// <summary>
         ///     Language variant of the element.
         /// </summary>
         LanguageVariant LanguageVariant { get; }
 
-        ContentClass ContentClass { get; set; }
-
-        [ScriptIgnore]
-        List<IRDAttribute> Attributes { get; }
-
-        [ScriptIgnore]
-        XmlElement XmlNode { get; set; }
-
         /// <summary>
-        ///     Save element on the server. Saves only the attributes!
+        ///     TypeId of the element.
         /// </summary>
-        void Commit();
-
-        void RegisterAttribute(IRDAttribute attribute);
-        IRDAttribute GetAttribute(string name);
-        void RefreshAttributeValues();
-        void AssignAttributes(List<IRDAttribute> attributes);
+        ElementType Type { get; }
     }
 }

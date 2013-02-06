@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -68,6 +68,11 @@ namespace erminas.SmartAPI.CMS
             get { return (_formatTypes & DateTimeFormatTypes.Date) == DateTimeFormatTypes.Date; }
         }
 
+        public bool IsDateTimeFormat
+        {
+            get { return (_formatTypes & DateTimeFormatTypes.DateTime) == DateTimeFormatTypes.DateTime; }
+        }
+
         public bool IsTimeFormat
         {
             get
@@ -75,11 +80,6 @@ namespace erminas.SmartAPI.CMS
                 //Nothing can be combined with time formats.
                 return _formatTypes == DateTimeFormatTypes.Time;
             }
-        }
-
-        public bool IsDateTimeFormat
-        {
-            get { return (_formatTypes & DateTimeFormatTypes.DateTime) == DateTimeFormatTypes.DateTime; }
         }
     }
 

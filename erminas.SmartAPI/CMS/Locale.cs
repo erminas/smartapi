@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -48,16 +48,6 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         public IndexedCachedList<int, DateTimeFormat> DateTimeFormats { get; private set; }
 
-        public override string ToString()
-        {
-            return Country + " (" + Language + ")";
-        }
-
-        private bool Equals(Locale other)
-        {
-            return string.Equals(Id, other.Id);
-        }
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -78,6 +68,16 @@ namespace erminas.SmartAPI.CMS
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Country + " (" + Language + ")";
+        }
+
+        private bool Equals(Locale other)
+        {
+            return string.Equals(Id, other.Id);
         }
 
         private List<DateTimeFormat> GetFormats()

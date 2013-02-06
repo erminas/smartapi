@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -34,25 +34,6 @@ namespace erminas.SmartAPI.CMS
             _workflow = workflow;
         }
 
-        public ReadOnlyCollection<LanguageVariant> LanguageVariants
-        {
-            get
-            {
-                if (_languageVariants == null)
-                {
-                    RefreshLanguageVariants();
-                }
-
-                return _languageVariants;
-            }
-        }
-
-        public XmlElement XmlNode
-        {
-            get { return _workflow.XmlElement; }
-            set { _workflow.XmlElement = value; }
-        }
-
         public IEnumerable<WorkFlowAction> Actions()
         {
             return _workflow.Actions();
@@ -61,69 +42,6 @@ namespace erminas.SmartAPI.CMS
         public bool CanBeInherited
         {
             get { return _workflow.CanBeInherited; }
-        }
-
-        public Guid Guid
-        {
-            get { return _workflow.Guid; }
-            set { _workflow.Guid = value; }
-        }
-
-        public bool IsGlobal
-        {
-            get { return _workflow.IsGlobal; }
-        }
-
-        public bool IsStructureWorkflow
-        {
-            get { return _workflow.IsStructureWorkflow; }
-        }
-
-        public string Name
-        {
-            get { return _workflow.Name; }
-            set { _workflow.Name = value; }
-        }
-
-        public void Refresh()
-        {
-            _workflow.Refresh();
-            RefreshLanguageVariants();
-        }
-
-        public void EnsureInitialization()
-        {
-            _workflow.EnsureInitialization();
-        }
-
-        public override bool Equals(object o)
-        {
-            var workflow = o as Workflow;
-            return workflow != null && workflow.Guid == Guid;
-        }
-
-        public override int GetHashCode()
-        {
-            return _workflow.GetHashCode();
-        }
-
-        private void InvalidateCache()
-        {
-            _languageVariants = null;
-        }
-
-        private ReadOnlyCollection<LanguageVariant> GetPreAssignmentLanguageVariants()
-        {
-            const string LOAD_LANGUAGES =
-                @"<WORKFLOW guid=""{0}""><LANGUAGEVARIANTS action=""workflowexisting"" linkguid=""{1}""/></WORKFLOW>";
-
-            Project project = ElementPreassignedTo.ContentClass.Project;
-
-            var xmlDoc = project.ExecuteRQL(LOAD_LANGUAGES.RQLFormat(_workflow, ElementPreassignedTo));
-            var languageVariants = xmlDoc.GetElementsByTagName("LANGUAGEVARIANT");
-
-            return (from XmlElement curLanguage in languageVariants
-                    select project.LanguageVariants[curLanguage.GetAttributeValue("language")]).ToList().AsReadOnly();
         }
 
         public void DisconnectWorkflowFromLinkCompletely()
@@ -152,6 +70,88 @@ namespace erminas.SmartAPI.CMS
             IEnumerable<LanguageVariant> languages =
                 languageVariants.Select(language => project.LanguageVariants[language]);
             DisconnectWorkflowFromLinkForLanguages(languages);
+        }
+
+        public void EnsureInitialization()
+        {
+            _workflow.EnsureInitialization();
+        }
+
+        public override bool Equals(object o)
+        {
+            var workflow = o as Workflow;
+            return workflow != null && workflow.Guid == Guid;
+        }
+
+        public override int GetHashCode()
+        {
+            return _workflow.GetHashCode();
+        }
+
+        public Guid Guid
+        {
+            get { return _workflow.Guid; }
+            set { _workflow.Guid = value; }
+        }
+
+        public bool IsGlobal
+        {
+            get { return _workflow.IsGlobal; }
+        }
+
+        public bool IsStructureWorkflow
+        {
+            get { return _workflow.IsStructureWorkflow; }
+        }
+
+        public ReadOnlyCollection<LanguageVariant> LanguageVariants
+        {
+            get
+            {
+                if (_languageVariants == null)
+                {
+                    RefreshLanguageVariants();
+                }
+
+                return _languageVariants;
+            }
+        }
+
+        public string Name
+        {
+            get { return _workflow.Name; }
+            set { _workflow.Name = value; }
+        }
+
+        public void Refresh()
+        {
+            _workflow.Refresh();
+            RefreshLanguageVariants();
+        }
+
+        public XmlElement XmlNode
+        {
+            get { return _workflow.XmlElement; }
+            set { _workflow.XmlElement = value; }
+        }
+
+        private ReadOnlyCollection<LanguageVariant> GetPreAssignmentLanguageVariants()
+        {
+            const string LOAD_LANGUAGES =
+                @"<WORKFLOW guid=""{0}""><LANGUAGEVARIANTS action=""workflowexisting"" linkguid=""{1}""/></WORKFLOW>";
+
+            Project project = ElementPreassignedTo.ContentClass.Project;
+
+            var xmlDoc = project.ExecuteRQL(LOAD_LANGUAGES.RQLFormat(_workflow, ElementPreassignedTo));
+            var languageVariants = xmlDoc.GetElementsByTagName("LANGUAGEVARIANT");
+
+            return (from XmlElement curLanguage in languageVariants
+                    select project.LanguageVariants[curLanguage.GetAttributeValue("language")]).ToList().AsReadOnly();
+        }
+
+        private void InvalidateCache()
+        {
+            _languageVariants = null;
         }
 
         private void RefreshLanguageVariants()

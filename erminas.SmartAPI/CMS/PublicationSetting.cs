@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -34,33 +34,19 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        public PublicationPackage PublicationPackage { get; set; }
-
-        public IEnumerable<PublicationTarget> PublishingTargets
-        {
-            get { return _publishingTargets.ToList(); }
-        }
-
-        public ProjectVariant ProjectVariant { get; private set; }
-
-        public LanguageVariant LanguageVariant { get; private set; }
-
         public NameIndexedRDList<PublicationFolderSetting> ExportFolderSettings
         {
             get { return _exportFolderSettings; }
         }
 
-        private void LoadXml()
-        {
-            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlElement.GetGuid("projectvariantguid"));
+        public LanguageVariant LanguageVariant { get; private set; }
+        public ProjectVariant ProjectVariant { get; private set; }
 
-            Name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
-                   XmlElement.GetAttributeValue("languagevariantname");
-            LanguageVariant =
-                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
-            XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
-            _publishingTargets =
-                (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
+        public PublicationPackage PublicationPackage { get; set; }
+
+        public IEnumerable<PublicationTarget> PublishingTargets
+        {
+            get { return _publishingTargets.ToList(); }
         }
 
         public void SetPublishingTargetsAndCommit(List<PublicationTarget> newTargets)
@@ -105,6 +91,19 @@ namespace erminas.SmartAPI.CMS
                             {
                                 Name = curSegment.GetAttributeValue("value")
                             }).ToList();
+        }
+
+        private void LoadXml()
+        {
+            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlElement.GetGuid("projectvariantguid"));
+
+            Name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
+                   XmlElement.GetAttributeValue("languagevariantname");
+            LanguageVariant =
+                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
+            XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
+            _publishingTargets =
+                (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
         }
     }
 }

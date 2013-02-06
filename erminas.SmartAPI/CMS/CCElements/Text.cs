@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
 
@@ -33,7 +34,26 @@ namespace erminas.SmartAPI.CMS.CCElements
             _defaultText = new TextContentAttribute(this, TextContentAttribute.TextType.Default, "eltdefaulttextguid");
             _exampleText = new TextContentAttribute(this, TextContentAttribute.TextType.Sample, "eltrdexampleguid");
 
-            _maxSizeAttribute = (StringXmlNodeAttribute) Attributes.Find(x => x.Name == "eltmaxsize");
+            _maxSizeAttribute = (StringXmlNodeAttribute) Attributes.First(x => x.Name == "eltmaxsize");
+        }
+
+        public override void Commit()
+        {
+            _defaultText.Commit();
+            _exampleText.Commit();
+            base.Commit();
+        }
+
+        public string DefaultText
+        {
+            get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
+            set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
+        }
+
+        public string ExampleText
+        {
+            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
+            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
         }
 
         public bool IsCrlfConvertedToBr
@@ -42,10 +62,28 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("eltcrlftobr")).Value = value; }
         }
 
+        public bool IsDirectEditActivated
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
+        }
+
+        public bool IsDragAndDropActivated
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
+        }
+
         public bool IsTextFilterDeactivated
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltdeactivatetextfilter")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltdeactivatetextfilter")).Value = value; }
+        }
+
+        public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value = value; }
         }
 
         public int? MaxCharacterCount
@@ -62,43 +100,6 @@ namespace erminas.SmartAPI.CMS.CCElements
                     throw new ArgumentNullException("value");
                 }
             }
-        }
-
-        public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value = value; }
-        }
-
-        public bool IsDirectEditActivated
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
-        }
-
-        public bool IsDragAndDropActivated
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
-        }
-
-        public string DefaultText
-        {
-            get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
-            set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
-        }
-
-        public string ExampleText
-        {
-            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
-            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
-        }
-
-        public override void Commit()
-        {
-            _defaultText.Commit();
-            _exampleText.Commit();
-            base.Commit();
         }
     }
 }

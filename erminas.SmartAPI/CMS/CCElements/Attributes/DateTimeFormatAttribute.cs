@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,6 +26,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        public override void Assign(IRDAttribute o)
+        {
+            var attr = (DateTimeFormatAttribute) o;
+            SetValue(attr.GetXmlNodeValue());
+        }
+
         public override object DisplayObject
         {
             get
@@ -47,6 +53,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             }
         }
 
+        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = string.Empty;
+            return o is DateTimeFormatAttribute;
+        }
+
         public DateTimeFormat Value
         {
             get
@@ -62,6 +74,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             set { SetValue(value.TypeId.ToString(CultureInfo.InvariantCulture)); }
         }
 
+        protected override void UpdateValue(string value)
+        {
+            _type = string.IsNullOrEmpty(value) ? (int?) null : int.Parse(value);
+        }
+
         private DateTimeFormat GetDateTimeFormat()
         {
             int lcid;
@@ -72,23 +89,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             }
 
             return ((CCElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
-        }
-
-        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            reason = string.Empty;
-            return o is DateTimeFormatAttribute;
-        }
-
-        public override void Assign(IRDAttribute o)
-        {
-            var attr = (DateTimeFormatAttribute) o;
-            SetValue(attr.GetXmlNodeValue());
-        }
-
-        protected override void UpdateValue(string value)
-        {
-            _type = string.IsNullOrEmpty(value) ? (int?) null : int.Parse(value);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,8 +20,8 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IPartialRedDotObject : IRedDotObject
     {
-        void Refresh();
         void EnsureInitialization();
+        void Refresh();
     }
 
     /// <summary>
@@ -84,7 +84,38 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         protected bool IsInitialized { get; set; }
 
+        /// <summary>
+        ///     If the object or a variable already is initialized, returns the variable value, otherwise calls <code>LoadXml(RetrieveWholeObject())</code> to initialized the object. And returns the variable value afterwards;
+        /// </summary>
+        /// <typeparam name="T"> TypeId of the variable </typeparam>
+        /// <param name="value"> variable </param>
+        /// <returns> Value of the variable, after initialization was ensured </returns>
+        protected T LazyLoad<T>(ref T value)
+        {
+            if (IsInitialized || !Equals(value, default(T)))
+            {
+                return value;
+            }
+            Refresh();
+            return value;
+        }
+
+        protected abstract void LoadWholeObject();
+
+        /// <summary>
+        ///     Returns an XmlNode with which contains the complete information on this object. This gets called, if the object is only partially initialized and other information is needed.
+        /// </summary>
+        protected abstract XmlElement RetrieveWholeObject();
+
         #region IPartialRedDotObject Members
+
+        public void EnsureInitialization()
+        {
+            if (!IsInitialized)
+            {
+                Refresh();
+            }
+        }
 
         public override sealed string Name
         {
@@ -101,37 +132,6 @@ namespace erminas.SmartAPI.CMS
             IsInitialized = true;
         }
 
-        public void EnsureInitialization()
-        {
-            if (!IsInitialized)
-            {
-                Refresh();
-            }
-        }
-
         #endregion
-
-        protected abstract void LoadWholeObject();
-
-        /// <summary>
-        ///     Returns an XmlNode with which contains the complete information on this object. This gets called, if the object is only partially initialized and other information is needed.
-        /// </summary>
-        protected abstract XmlElement RetrieveWholeObject();
-
-        /// <summary>
-        ///     If the object or a variable already is initialized, returns the variable value, otherwise calls <code>LoadXml(RetrieveWholeObject())</code> to initialized the object. And returns the variable value afterwards;
-        /// </summary>
-        /// <typeparam name="T"> TypeId of the variable </typeparam>
-        /// <param name="value"> variable </param>
-        /// <returns> Value of the variable, after initialization was ensured </returns>
-        protected T LazyLoad<T>(ref T value)
-        {
-            if (IsInitialized || !Equals(value, default(T)))
-            {
-                return value;
-            }
-            Refresh();
-            return value;
-        }
     }
 }

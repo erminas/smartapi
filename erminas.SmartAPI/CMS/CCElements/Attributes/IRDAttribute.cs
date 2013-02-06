@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,16 +20,17 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     /// </summary>
     public interface IRDAttribute
     {
+        void Assign(IRDAttribute o);
+        string Description { get; }
+        object DisplayObject { get; }
+        bool Equals(object o);
+        bool IsAssignableFrom(IRDAttribute o, out string reason);
+
         /// <summary>
         ///     Name of the attribute, usually the name of an XML attribute
         /// </summary>
         string Name { get; }
 
-        object DisplayObject { get; }
-        string Description { get; }
-        bool IsAssignableFrom(IRDAttribute o, out string reason);
-        void Assign(IRDAttribute o);
-        bool Equals(object o);
         void Refresh();
     }
 }

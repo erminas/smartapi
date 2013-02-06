@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -40,16 +40,22 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Meta; }
         }
 
-        public Locale Locale
-        {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
-        }
-
         public DateTimeFormat DateTimeFormat
         {
             get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value; }
             set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
+        }
+
+        public FileSizeUnit FileSizeUnit
+        {
+            get { return ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value; }
+            set { ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value = value; }
+        }
+
+        public Locale Locale
+        {
+            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
+            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
         }
 
         public string ReferencedElementName
@@ -62,12 +68,6 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             get { return ((EnumXmlNodeAttribute<MediaTypeAttribute>) GetAttribute("eltmediatypeattribute")).Value; }
             set { ((EnumXmlNodeAttribute<MediaTypeAttribute>) GetAttribute("eltmediatypeattribute")).Value = value; }
-        }
-
-        public FileSizeUnit FileSizeUnit
-        {
-            get { return ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value; }
-            set { ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value = value; }
         }
     }
 

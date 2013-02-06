@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -25,9 +25,36 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        public override void Assign(IRDAttribute o)
+        {
+            var boolAttribute = (BoolXmlNodeAttribute) o;
+            SetValue(boolAttribute._value ? "1" : "0");
+        }
+
         public override object DisplayObject
         {
             get { return _value ? "yes" : "no"; }
+        }
+
+        public override bool Equals(object o)
+        {
+            var attr = o as BoolXmlNodeAttribute;
+            if (attr == null || !attr.Name.Equals(Name))
+            {
+                return false;
+            }
+            return attr._value == _value;
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() + 7*_value.GetHashCode();
+        }
+
+        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
+        {
+            reason = string.Empty;
+            return o is BoolXmlNodeAttribute;
         }
 
         public bool Value
@@ -58,33 +85,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 default:
                     throw new ArgumentException("wrong boolean value: " + value);
             }
-        }
-
-        public override bool Equals(object o)
-        {
-            var attr = o as BoolXmlNodeAttribute;
-            if (attr == null || !attr.Name.Equals(Name))
-            {
-                return false;
-            }
-            return attr._value == _value;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode() + 7*_value.GetHashCode();
-        }
-
-        public override void Assign(IRDAttribute o)
-        {
-            var boolAttribute = (BoolXmlNodeAttribute) o;
-            SetValue(boolAttribute._value ? "1" : "0");
-        }
-
-        public override bool IsAssignableFrom(IRDAttribute o, out string reason)
-        {
-            reason = string.Empty;
-            return o is BoolXmlNodeAttribute;
         }
     }
 }

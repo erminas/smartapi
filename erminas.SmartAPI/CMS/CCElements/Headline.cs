@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -31,19 +31,22 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Content; }
         }
 
-        [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
-        public bool IsNotRelevantForWorklow
+        public string Description
         {
-            get
-            {
-                ContentClass.Project.Session.EnsureVersion();
-                return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value;
-            }
-            set
-            {
-                ContentClass.Project.Session.EnsureVersion();
-                ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value;
-            }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+        }
+
+        public bool IsDirectEditActivated
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
+        }
+
+        public bool IsDragAndDropActivated
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
@@ -61,34 +64,31 @@ namespace erminas.SmartAPI.CMS.CCElements
             }
         }
 
-        public bool IsNotUsedInForm
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
-        }
-
         public bool IsNotConvertingCharactersToHtml
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
         }
 
-        public string Description
+        [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        public bool IsNotRelevantForWorklow
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get
+            {
+                ContentClass.Project.Session.EnsureVersion();
+                return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value;
+            }
+            set
+            {
+                ContentClass.Project.Session.EnsureVersion();
+                ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value;
+            }
         }
 
-        public bool IsDirectEditActivated
+        public bool IsNotUsedInForm
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
-        }
-
-        public bool IsDragAndDropActivated
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
+            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
         }
     }
 }

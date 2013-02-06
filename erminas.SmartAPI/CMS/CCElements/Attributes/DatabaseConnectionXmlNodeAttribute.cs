@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -23,6 +23,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
         }
 
+        protected override string GetTypeDescription()
+        {
+            return "database connection";
+        }
+
         protected override DatabaseConnection RetrieveByGuid(Guid guid)
         {
             return ((CCElement) Parent).ContentClass.Project.DatabaseConnections.GetByGuid(guid);
@@ -31,11 +36,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         protected override DatabaseConnection RetrieveByName(string name)
         {
             return ((CCElement) Parent).ContentClass.Project.DatabaseConnections.GetByName(name);
-        }
-
-        protected override string GetTypeDescription()
-        {
-            return "database connection";
         }
     }
 }

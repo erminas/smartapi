@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -44,6 +44,8 @@ namespace erminas.SmartAPI.CMS.PageElements
             AssignedKeywords.InvalidateCache();
         }
 
+        public IRDList<Keyword> AssignedKeywords { get; private set; }
+
         public void UnassignKeyword(Keyword keyword)
         {
             ExecuteUnassignKeyword(keyword);
@@ -51,24 +53,6 @@ namespace erminas.SmartAPI.CMS.PageElements
             ExecutePagebuilderLinkCleanup();
 
             AssignedKeywords.InvalidateCache();
-        }
-
-        public IRDList<Keyword> AssignedKeywords { get; private set; }
-
-        private void Init()
-        {
-            AssignedKeywords = new RDList<Keyword>(GetAssignedKeywords, Caching.Enabled);
-        }
-
-        private List<Keyword> GetAssignedKeywords()
-        {
-            const string LOAD_KEYWORDS = @"<LINK guid=""{0}""><KEYWORDS action=""load""/></LINK>";
-            var xmlDoc = Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(this), Project.RqlType.SessionKeyInProject);
-
-            var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
-            return keywords == null
-                       ? new List<Keyword>()
-                       : (from XmlElement keyword in keywords select new Keyword(Project, keyword)).ToList();
         }
 
         private void ExecuteAssignKeyword(Keyword keyword)
@@ -90,6 +74,22 @@ namespace erminas.SmartAPI.CMS.PageElements
             const string UNASSIGN_KEYWORD =
                 @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS><KEYWORD guid=""{1}"" delete=""1"" changed=""1"" /></KEYWORDS></LINK>";
             Project.ExecuteRQL(UNASSIGN_KEYWORD.RQLFormat(this, keyword), Project.RqlType.SessionKeyInProject);
+        }
+
+        private List<Keyword> GetAssignedKeywords()
+        {
+            const string LOAD_KEYWORDS = @"<LINK guid=""{0}""><KEYWORDS action=""load""/></LINK>";
+            var xmlDoc = Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+
+            var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
+            return keywords == null
+                       ? new List<Keyword>()
+                       : (from XmlElement keyword in keywords select new Keyword(Project, keyword)).ToList();
+        }
+
+        private void Init()
+        {
+            AssignedKeywords = new RDList<Keyword>(GetAssignedKeywords, Caching.Enabled);
         }
     }
 }

@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -69,6 +69,18 @@ namespace erminas.SmartAPI.CMS
             _project = project;
         }
 
+        public int Count()
+        {
+            XmlDocument xmlDoc = RunQuery(true);
+            return
+                ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").GetValueOrDefault();
+        }
+
+        public List<ResultGroup> Execute()
+        {
+            return ToResult(RunQuery(false));
+        }
+
         public GroupByType GroupBy { get; set; }
 
         public SortDirection GroupSortDirection { get; set; }
@@ -83,21 +95,45 @@ namespace erminas.SmartAPI.CMS
 
         public User User { get; set; }
 
+        private static string GroupByTypeToString(GroupByType type)
+        {
+            switch (type)
+            {
+                case GroupByType.ContentClass:
+                    return "contentclass";
+                case GroupByType.CreatedBy:
+                    return "createdby";
+                case GroupByType.ChangedBy:
+                    return "changedby";
+                case GroupByType.None:
+                    return "";
+                default:
+                    throw new ArgumentException(String.Format("Unknown group by type: {0}", type));
+            }
+        }
+
         private LanguageVariant LanguageVariantOfSearchResults
         {
             get { return LanguageVariant ?? _project.CurrentLanguageVariant; }
         }
 
-        public List<ResultGroup> Execute()
+        private static string OrderByTypeToString(OrderByType order)
         {
-            return ToResult(RunQuery(false));
-        }
-
-        public int Count()
-        {
-            XmlDocument xmlDoc = RunQuery(true);
-            return
-                ((XmlElement) xmlDoc.GetElementsByTagName("PAGES")[0]).GetIntAttributeValue("hits").GetValueOrDefault();
+            switch (order)
+            {
+                case OrderByType.PageId:
+                    return "pageid";
+                case OrderByType.Headline:
+                    return "headline";
+                case OrderByType.CreationDate:
+                    return "createdate";
+                case OrderByType.ChangeDate:
+                    return "changedate";
+                case OrderByType.ContentClass:
+                    return "contentclass";
+                default:
+                    throw new ArgumentException(String.Format("Unknown sort direction: {0}", order));
+            }
         }
 
         private XmlDocument RunQuery(bool isCountOnly)
@@ -140,6 +176,30 @@ namespace erminas.SmartAPI.CMS
             }
 
             return _project.ExecuteRQL(string.Format(XSEARCH, arguments, searchItems));
+        }
+
+        private static string SortDirectionToString(SortDirection dir)
+        {
+            switch (dir)
+            {
+                case SortDirection.Ascending:
+                    return "ASC";
+                case SortDirection.Descending:
+                    return "DESC";
+                default:
+                    throw new ArgumentException(String.Format("Unknown sort direction: {0}", dir));
+            }
+        }
+
+        private IEnumerable<ReleaseInfo> ToReleases(XmlElement releases)
+        {
+            return (from XmlElement curRelease in releases
+                    let users = curRelease.GetElementsByTagName("USER")
+                    select
+                        new ReleaseInfo(curRelease.GetIntAttributeValue("assentcount").GetValueOrDefault(),
+                                        curRelease.GetIntAttributeValue("requiredassentcount").GetValueOrDefault(),
+                                        from XmlElement curUser in releases.GetElementsByTagName("USER")
+                                        select new ReleaseInfo.UserInfo(_project, curUser))).ToList();
         }
 
         private List<ResultGroup> ToResult(XmlDocument doc)
@@ -207,66 +267,6 @@ namespace erminas.SmartAPI.CMS
                                     workflowElement.GetIntAttributeValue("escalationtimeout").Value,
                                     from XmlElement curSupplement in workflowElement.GetElementsByTagName("SUPPLEMENT")
                                     select new Note(workflow, curSupplement));
-        }
-
-        private IEnumerable<ReleaseInfo> ToReleases(XmlElement releases)
-        {
-            return (from XmlElement curRelease in releases
-                    let users = curRelease.GetElementsByTagName("USER")
-                    select
-                        new ReleaseInfo(curRelease.GetIntAttributeValue("assentcount").GetValueOrDefault(),
-                                        curRelease.GetIntAttributeValue("requiredassentcount").GetValueOrDefault(),
-                                        from XmlElement curUser in releases.GetElementsByTagName("USER")
-                                        select new ReleaseInfo.UserInfo(_project, curUser))).ToList();
-        }
-
-        private static string GroupByTypeToString(GroupByType type)
-        {
-            switch (type)
-            {
-                case GroupByType.ContentClass:
-                    return "contentclass";
-                case GroupByType.CreatedBy:
-                    return "createdby";
-                case GroupByType.ChangedBy:
-                    return "changedby";
-                case GroupByType.None:
-                    return "";
-                default:
-                    throw new ArgumentException(String.Format("Unknown group by type: {0}", type));
-            }
-        }
-
-        private static string SortDirectionToString(SortDirection dir)
-        {
-            switch (dir)
-            {
-                case SortDirection.Ascending:
-                    return "ASC";
-                case SortDirection.Descending:
-                    return "DESC";
-                default:
-                    throw new ArgumentException(String.Format("Unknown sort direction: {0}", dir));
-            }
-        }
-
-        private static string OrderByTypeToString(OrderByType order)
-        {
-            switch (order)
-            {
-                case OrderByType.PageId:
-                    return "pageid";
-                case OrderByType.Headline:
-                    return "headline";
-                case OrderByType.CreationDate:
-                    return "createdate";
-                case OrderByType.ChangeDate:
-                    return "changedate";
-                case OrderByType.ContentClass:
-                    return "contentclass";
-                default:
-                    throw new ArgumentException(String.Format("Unknown sort direction: {0}", order));
-            }
         }
     }
 }

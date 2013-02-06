@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -24,11 +24,6 @@ namespace erminas.SmartAPI.Utils
     /// <typeparam name="T"> TypeId of objects in the list </typeparam>
     public interface ICachedList<out T> : IEnumerable<T>, ICaching where T : class
     {
-        /// <summary>
-        ///     True == caching is enabled False == caching is disabled
-        /// </summary>
-        bool IsCachingEnabled { get; set; }
-
         int Count { get; }
 
         /// <summary>
@@ -38,6 +33,11 @@ namespace erminas.SmartAPI.Utils
         /// <returns> Element at position pos </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown, if pos is not a valid index></exception>
         T GetByPosition(int pos);
+
+        /// <summary>
+        ///     True == caching is enabled False == caching is disabled
+        /// </summary>
+        bool IsCachingEnabled { get; set; }
 
         ICachedList<T> Refreshed();
     }

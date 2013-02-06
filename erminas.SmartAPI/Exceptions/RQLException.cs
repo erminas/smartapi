@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -154,12 +154,6 @@ namespace erminas.SmartAPI.Exceptions
 
         public ErrorCode ErrorCode { get; set; }
 
-        public string Response
-        {
-            get { return (Data[RESPONSE] ?? "").ToString(); }
-            private set { Data.Add(RESPONSE, value); }
-        }
-
         public string ErrorMessage
         {
             get { return (Data[ERROR_MESSAGE] ?? "").ToString(); }
@@ -169,6 +163,12 @@ namespace erminas.SmartAPI.Exceptions
         public override string Message
         {
             get { return string.Format("RQL request to '{0}' failed. Error message: '{1}'", Server, ErrorMessage); }
+        }
+
+        public string Response
+        {
+            get { return (Data[RESPONSE] ?? "").ToString(); }
+            private set { Data.Add(RESPONSE, value); }
         }
     }
 }

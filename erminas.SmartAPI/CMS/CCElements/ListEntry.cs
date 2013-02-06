@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -31,22 +31,16 @@ namespace erminas.SmartAPI.CMS.CCElements
             get { return ContentClassCategory.Content; }
         }
 
-        public string StartTagForAutomaticProcessing
-        {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value = value; }
-        }
-
         public string EndTagForAutomaticProcessing
         {
             get { return ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value; }
             set { ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value = value; }
         }
 
-        public bool IsNotVisibleOnPublishedPage
+        public Folder Folder
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value = value; }
+            get { return ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value; }
+            set { ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value; }
         }
 
         public bool IsNotUsedInForm
@@ -55,16 +49,22 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
         }
 
+        public bool IsNotVisibleOnPublishedPage
+        {
+            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value; }
+            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value = value; }
+        }
+
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
             get { return ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value; }
             set { ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value = value; }
         }
 
-        public Folder Folder
+        public string StartTagForAutomaticProcessing
         {
-            get { return ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value; }
-            set { ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value; }
+            get { return ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value; }
+            set { ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value = value; }
         }
     }
 }

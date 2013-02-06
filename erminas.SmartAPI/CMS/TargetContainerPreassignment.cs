@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -29,12 +29,18 @@ namespace erminas.SmartAPI.CMS
             _element = element;
         }
 
+        internal bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
+        {
+            get { return _element.XmlElement.GetBoolAttributeValue("usepagemainlinktargetcontainer").GetValueOrDefault(); }
+            set { _element.XmlElement.SetAttributeValue("usepagemainlinktargetcontainer", value.ToRQLString()); }
+        }
+
         internal Container TargetContainer
         {
             get
             {
                 Guid guid;
-                if (!_element.XmlNode.TryGetGuid("elttargetcontainerguid", out guid))
+                if (!_element.XmlElement.TryGetGuid("elttargetcontainerguid", out guid))
                 {
                     return null;
                 }
@@ -50,15 +56,9 @@ namespace erminas.SmartAPI.CMS
             }
             set
             {
-                _element.XmlNode.SetAttributeValue("elttargetcontainerguid",
-                                                   value == null ? null : value.Guid.ToRQLString());
+                _element.XmlElement.SetAttributeValue("elttargetcontainerguid",
+                                                      value == null ? null : value.Guid.ToRQLString());
             }
-        }
-
-        internal bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
-        {
-            get { return _element.XmlNode.GetBoolAttributeValue("usepagemainlinktargetcontainer").GetValueOrDefault(); }
-            set { _element.XmlNode.SetAttributeValue("usepagemainlinktargetcontainer", value.ToRQLString()); }
         }
     }
 }

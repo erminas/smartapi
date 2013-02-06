@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -49,14 +49,6 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     The current language variant.
-        /// </summary>
-        public LanguageVariant LanguageVariant
-        {
-            get { return LazyLoad(ref _languageVariant); }
-        }
-
-        /// <summary>
         ///     Use after setting Name to rename category on the server.
         /// </summary>
         public void Commit()
@@ -73,25 +65,6 @@ namespace erminas.SmartAPI.CMS
                 throw new SmartAPIException(Project.Session.ServerLogin,
                                             string.Format("Could not rename category to '{0}'", Name));
             }
-        }
-
-        private void LoadXml()
-        {
-            EnsuredInit(ref _name, "value", HttpUtility.HtmlDecode);
-            InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
-        }
-
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_CATEGORY = @"<PROJECT><CATEGORY action=""load"" guid=""{0}""/></PROJECT>";
-            return
-                (XmlElement)
-                Project.ExecuteRQL(string.Format(LOAD_CATEGORY, Guid.ToRQLString())).GetElementsByTagName("CATEGORY")[0];
         }
 
         /// <summary>
@@ -122,13 +95,6 @@ namespace erminas.SmartAPI.CMS
             Project.Categories.InvalidateCache();
         }
 
-        private static bool IsCategoryStillUsed(XmlElement category)
-        {
-            return category.GetIntAttributeValue("countkeywordonpag").GetValueOrDefault() > 0 ||
-                   category.GetIntAttributeValue("countkeywordonpge") > 0 ||
-                   category.GetIntAttributeValue("countkeywordonpgeandpag") > 0;
-        }
-
         /// <summary>
         ///     Delete the category, even if its keywords are actively used in connecting pages to containers/lists.
         ///     This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
@@ -153,6 +119,14 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
+        ///     The current language variant.
+        /// </summary>
+        public LanguageVariant LanguageVariant
+        {
+            get { return LazyLoad(ref _languageVariant); }
+        }
+
+        /// <summary>
         ///     Same as
         ///     <code>
         /// string newCategoryName = ...;
@@ -164,6 +138,32 @@ namespace erminas.SmartAPI.CMS
         {
             Name = newCategoryName;
             Commit();
+        }
+
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_CATEGORY = @"<PROJECT><CATEGORY action=""load"" guid=""{0}""/></PROJECT>";
+            return
+                (XmlElement)
+                Project.ExecuteRQL(string.Format(LOAD_CATEGORY, Guid.ToRQLString())).GetElementsByTagName("CATEGORY")[0];
+        }
+
+        private static bool IsCategoryStillUsed(XmlElement category)
+        {
+            return category.GetIntAttributeValue("countkeywordonpag").GetValueOrDefault() > 0 ||
+                   category.GetIntAttributeValue("countkeywordonpge") > 0 ||
+                   category.GetIntAttributeValue("countkeywordonpgeandpag") > 0;
+        }
+
+        private void LoadXml()
+        {
+            EnsuredInit(ref _name, "value", HttpUtility.HtmlDecode);
+            InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
         }
     }
 }

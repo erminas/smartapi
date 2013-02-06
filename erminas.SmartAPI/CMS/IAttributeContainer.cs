@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -21,12 +21,12 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IAttributeContainer
     {
-        XmlElement XmlElement { get; set; }
-        IEnumerable<IRDAttribute> Attributes { get; }
-        void RegisterAttribute(IRDAttribute attribute);
         void AssignAttributes(IEnumerable<IRDAttribute> attributes);
+        IEnumerable<IRDAttribute> Attributes { get; }
         IRDAttribute GetAttribute(string name);
 
         void RefreshAttributeValues();
+        void RegisterAttribute(IRDAttribute attribute);
+        XmlElement XmlElement { get; set; }
     }
 }

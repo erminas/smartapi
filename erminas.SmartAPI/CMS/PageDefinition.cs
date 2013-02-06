@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -28,14 +28,14 @@ namespace erminas.SmartAPI.CMS
             LoadXml();
         }
 
-        public string Description
-        {
-            get { return _description; }
-        }
-
         public ContentClass ContentClass
         {
             get { return _contentClass; }
+        }
+
+        public string Description
+        {
+            get { return _description; }
         }
 
         private void LoadXml()

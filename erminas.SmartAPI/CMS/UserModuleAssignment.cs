@@ -1,4 +1,4 @@
-// Smart API - .Net programatical access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -61,10 +61,32 @@ namespace erminas.SmartAPI.CMS
                                                                      Caching.Enabled);
         }
 
-        public bool IsTranslationEditor
+        public void AddServerManagerRights(ServerManagerRights right)
+        {
+            ServerManagerRights |= right;
+        }
+
+        public bool HasAccessToAssetManager
         {
             get { return IsModuleAssigned(ModuleType.Translation); }
             set { SetIsModuleAssigned(ModuleType.Translation, value); }
+        }
+
+        public bool HasAccessToSmartEdit
+        {
+            get { return IsModuleAssigned(ModuleType.SmartEdit); }
+            set { SetIsModuleAssigned(ModuleType.SmartEdit, value); }
+        }
+
+        public bool HasAccessToSmartTree
+        {
+            get { return IsModuleAssigned(ModuleType.SmartTree); }
+            set { SetIsModuleAssigned(ModuleType.SmartTree, value); }
+        }
+
+        public bool IsModuleAssigned(ModuleType moduleType)
+        {
+            return _assignedModules.ContainsKey(moduleType);
         }
 
         public bool IsServerManager
@@ -77,6 +99,17 @@ namespace erminas.SmartAPI.CMS
         {
             get { return IsModuleAssigned(ModuleType.TemplateEditor); }
             set { SetIsModuleAssigned(ModuleType.TemplateEditor, value); }
+        }
+
+        public bool IsTranslationEditor
+        {
+            get { return IsModuleAssigned(ModuleType.Translation); }
+            set { SetIsModuleAssigned(ModuleType.Translation, value); }
+        }
+
+        public void RemoveServerManagerRights(ServerManagerRights right)
+        {
+            ServerManagerRights ^= right;
         }
 
         public ServerManagerRights ServerManagerRights
@@ -106,22 +139,116 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        public bool HasAccessToSmartEdit
+        public void SetIsModuleAssigned(ModuleType moduleType, bool assign)
         {
-            get { return IsModuleAssigned(ModuleType.SmartEdit); }
-            set { SetIsModuleAssigned(ModuleType.SmartEdit, value); }
+            var module = _user.Session.Modules[moduleType];
+
+            var modulesToAssign = new List<Module> {module};
+            if (IsModuleDependentOnSmartEdit(moduleType))
+            {
+                var smartEditModule = _user.Session.Modules[ModuleType.SmartEdit];
+                modulesToAssign.Add(smartEditModule);
+            }
+            string moduleAssignmentSubString = CreateModuleAssignmentSubString(modulesToAssign, assign);
+            ExecuteSaveModules(moduleAssignmentSubString);
         }
 
-        public bool HasAccessToSmartTree
+        public void SetModuleAssignment(UserModuleAssignment otherAssignment)
         {
-            get { return IsModuleAssigned(ModuleType.SmartTree); }
-            set { SetIsModuleAssigned(ModuleType.SmartTree, value); }
+            var modulesToUnassign = this.Except(otherAssignment, new NameEqualityComparer<Module>());
+
+            string unassign = CreateModuleAssignmentSubString(modulesToUnassign, false);
+            string assign = CreateModuleAssignmentSubString(otherAssignment, true);
+
+            ExecuteSaveModules(unassign + assign);
+
+            ServerManagerRights = otherAssignment.ServerManagerRights;
         }
 
-        public bool HasAccessToAssetManager
+        private static string CreateModuleAssignmentSubString(IEnumerable<Module> modulesToUnassign, bool value)
         {
-            get { return IsModuleAssigned(ModuleType.Translation); }
-            set { SetIsModuleAssigned(ModuleType.Translation, value); }
+            return modulesToUnassign.Aggregate("",
+                                               (s, module) =>
+                                               s + @"<MODULE guid=""{0}"" checked=""{1}"" />".RQLFormat(module, value));
+        }
+
+        private void ExecuteSaveModules(string modules)
+        {
+            const string SAVE_MODULES =
+                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><MODULES>{1}</MODULES></USER></ADMINISTRATION>";
+            _user.Session.ExecuteRQL(SAVE_MODULES.RQLFormat(_user, modules));
+            _assignedModules.InvalidateCache();
+        }
+
+        private List<Module> GetAssignedModules()
+        {
+            const string LIST_ASSIGNED_MODULES =
+                @"<ADMINISTRATION><MODULES action=""list"" userguid=""{0}"" countlicense=""1""/></ADMINISTRATION>";
+            var xmlDoc = _user.Session.ExecuteRQL(LIST_ASSIGNED_MODULES.RQLFormat(_user));
+            //create a copy of the elements because the XmlNodeList returned by GetElementsByTagName would get modified during iteration in the linq/ToList() expression
+            //due to the cloning of XmlElement in the Module->AbstractAttributeContainer c'tor. This would lead to an InvalidOperationException.
+            var modules = xmlDoc.GetElementsByTagName("MODULE").Cast<XmlElement>().ToList();
+
+            return (from curModule in modules where IsAssignedModule(curModule) select new Module(curModule)).ToList();
+        }
+
+        private static ServerManagerRights GetServerManagerRights(Module serverManagerModule)
+        {
+            return
+                (ServerManagerRights)
+                serverManagerModule.XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
+        }
+
+        private static bool IsAssignedModule(XmlElement curModule)
+        {
+            return curModule.GetBoolAttributeValue("checked").GetValueOrDefault();
+        }
+
+        private static bool IsModuleDependentOnSmartEdit(ModuleType moduleType)
+        {
+            return moduleType == ModuleType.SmartTree || moduleType == ModuleType.TemplateEditor ||
+                   moduleType == ModuleType.Translation || moduleType == ModuleType.Assets;
+        }
+
+        private static ServerManagerRights ResolveAssignUsersToGroupDependencies(ServerManagerRights rights)
+        {
+            const ServerManagerRights DEPENDENT_ON_ASSIGN_USER_TO_GROUP =
+                ServerManagerRights.EditUsers | ServerManagerRights.CreateGroups | ServerManagerRights.CreateUsers;
+            if (!rights.HasFlag(ServerManagerRights.AssignUsersToGroups) &&
+                (rights & DEPENDENT_ON_ASSIGN_USER_TO_GROUP) != 0)
+            {
+                rights |= ServerManagerRights.AssignUsersToGroups;
+            }
+            return rights;
+        }
+
+        private static ServerManagerRights ResolveDepenciesOfAdministerDirectoryServices(ServerManagerRights value)
+        {
+            if (value.HasFlag(ServerManagerRights.AdministerDirectoryServices))
+            {
+                value |= ServerManagerRights.CreateUsers | ServerManagerRights.EditUsers |
+                         ServerManagerRights.DeleteUsers | ServerManagerRights.AssignUsersToGroups |
+                         ServerManagerRights.DeleteGroups | ServerManagerRights.CreateGroups;
+            }
+            return value;
+        }
+
+        private static ServerManagerRights ResolveEditUsersDependencies(ServerManagerRights value)
+        {
+            if (value.HasFlag(ServerManagerRights.CreateUsers))
+            {
+                value |= ServerManagerRights.EditUsers;
+            }
+            return value;
+        }
+
+        private ServerManagerRights RightsWithResolvedDepenecies(ServerManagerRights value)
+        {
+            value = ResolveAssignUsersToGroupDependencies(value);
+            value = ResolveEditUsersDependencies(value);
+            value = ResolveDepenciesOfAdministerDirectoryServices(value);
+
+            return value;
         }
 
         #region ICaching Members
@@ -151,132 +278,5 @@ namespace erminas.SmartAPI.CMS
         }
 
         #endregion
-
-        private ServerManagerRights RightsWithResolvedDepenecies(ServerManagerRights value)
-        {
-            value = ResolveAssignUsersToGroupDependencies(value);
-            value = ResolveEditUsersDependencies(value);
-            value = ResolveDepenciesOfAdministerDirectoryServices(value);
-
-            return value;
-        }
-
-        private static ServerManagerRights ResolveDepenciesOfAdministerDirectoryServices(ServerManagerRights value)
-        {
-            if (value.HasFlag(ServerManagerRights.AdministerDirectoryServices))
-            {
-                value |= ServerManagerRights.CreateUsers | ServerManagerRights.EditUsers |
-                         ServerManagerRights.DeleteUsers | ServerManagerRights.AssignUsersToGroups |
-                         ServerManagerRights.DeleteGroups | ServerManagerRights.CreateGroups;
-            }
-            return value;
-        }
-
-        private static ServerManagerRights ResolveEditUsersDependencies(ServerManagerRights value)
-        {
-            if (value.HasFlag(ServerManagerRights.CreateUsers))
-            {
-                value |= ServerManagerRights.EditUsers;
-            }
-            return value;
-        }
-
-        private static ServerManagerRights ResolveAssignUsersToGroupDependencies(ServerManagerRights rights)
-        {
-            const ServerManagerRights DEPENDENT_ON_ASSIGN_USER_TO_GROUP =
-                ServerManagerRights.EditUsers | ServerManagerRights.CreateGroups | ServerManagerRights.CreateUsers;
-            if (!rights.HasFlag(ServerManagerRights.AssignUsersToGroups) &&
-                (rights & DEPENDENT_ON_ASSIGN_USER_TO_GROUP) != 0)
-            {
-                rights |= ServerManagerRights.AssignUsersToGroups;
-            }
-            return rights;
-        }
-
-        private static ServerManagerRights GetServerManagerRights(Module serverManagerModule)
-        {
-            return
-                (ServerManagerRights)
-                serverManagerModule.XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
-        }
-
-        public bool IsModuleAssigned(ModuleType moduleType)
-        {
-            return _assignedModules.ContainsKey(moduleType);
-        }
-
-        private List<Module> GetAssignedModules()
-        {
-            const string LIST_ASSIGNED_MODULES =
-                @"<ADMINISTRATION><MODULES action=""list"" userguid=""{0}"" countlicense=""1""/></ADMINISTRATION>";
-            var xmlDoc = _user.Session.ExecuteRQL(LIST_ASSIGNED_MODULES.RQLFormat(_user));
-            //create a copy of the elements because the XmlNodeList returned by GetElementsByTagName would get modified during iteration in the linq/ToList() expression
-            //due to the cloning of XmlElement in the Module->AbstractAttributeContainer c'tor. This would lead to an InvalidOperationException.
-            var modules = xmlDoc.GetElementsByTagName("MODULE").Cast<XmlElement>().ToList();
-
-            return (from curModule in modules where IsAssignedModule(curModule) select new Module(curModule)).ToList();
-        }
-
-        private static bool IsAssignedModule(XmlElement curModule)
-        {
-            return curModule.GetBoolAttributeValue("checked").GetValueOrDefault();
-        }
-
-        public void SetIsModuleAssigned(ModuleType moduleType, bool assign)
-        {
-            var module = _user.Session.Modules[moduleType];
-
-            var modulesToAssign = new List<Module> {module};
-            if (IsModuleDependentOnSmartEdit(moduleType))
-            {
-                var smartEditModule = _user.Session.Modules[ModuleType.SmartEdit];
-                modulesToAssign.Add(smartEditModule);
-            }
-            string moduleAssignmentSubString = CreateModuleAssignmentSubString(modulesToAssign, assign);
-            ExecuteSaveModules(moduleAssignmentSubString);
-        }
-
-        private static bool IsModuleDependentOnSmartEdit(ModuleType moduleType)
-        {
-            return moduleType == ModuleType.SmartTree || moduleType == ModuleType.TemplateEditor ||
-                   moduleType == ModuleType.Translation || moduleType == ModuleType.Assets;
-        }
-
-        public void AddServerManagerRights(ServerManagerRights right)
-        {
-            ServerManagerRights |= right;
-        }
-
-        public void RemoveServerManagerRights(ServerManagerRights right)
-        {
-            ServerManagerRights ^= right;
-        }
-
-        public void SetModuleAssignment(UserModuleAssignment otherAssignment)
-        {
-            var modulesToUnassign = this.Except(otherAssignment, new NameEqualityComparer<Module>());
-
-            string unassign = CreateModuleAssignmentSubString(modulesToUnassign, false);
-            string assign = CreateModuleAssignmentSubString(otherAssignment, true);
-
-            ExecuteSaveModules(unassign + assign);
-
-            ServerManagerRights = otherAssignment.ServerManagerRights;
-        }
-
-        private static string CreateModuleAssignmentSubString(IEnumerable<Module> modulesToUnassign, bool value)
-        {
-            return modulesToUnassign.Aggregate("",
-                                               (s, module) =>
-                                               s + @"<MODULE guid=""{0}"" checked=""{1}"" />".RQLFormat(module, value));
-        }
-
-        private void ExecuteSaveModules(string modules)
-        {
-            const string SAVE_MODULES =
-                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><MODULES>{1}</MODULES></USER></ADMINISTRATION>";
-            _user.Session.ExecuteRQL(SAVE_MODULES.RQLFormat(_user, modules));
-            _assignedModules.InvalidateCache();
-        }
     }
 }

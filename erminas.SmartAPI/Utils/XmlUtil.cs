@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programatical access to RedDot servers
+﻿// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -54,54 +54,6 @@ namespace erminas.SmartAPI.Utils
             return element;
         }
 
-        public static XmlElement GetSingleElement(this XmlDocument doc, string tagName)
-        {
-            var nodes = doc.GetElementsByTagName(tagName);
-            if (nodes.Count != 1)
-            {
-                throw new SmartAPIInternalException(
-                    string.Format("Invalid number of {0} elements in XML reply from server. Expected: 1 actual: {1}",
-                                  tagName, nodes.Count));
-            }
-
-            return (XmlElement) nodes[0];
-        }
-
-        /// <summary>
-        ///     Sets an attribute to a value. If no fitting <see cref="XmlAttribute" /> exists, a new one is created/appended and its value set.
-        /// </summary>
-        /// <param name="xmlElement"> The node </param>
-        /// <param name="attributeName"> Name of the attribute </param>
-        /// <param name="value"> Value to set the attribute to </param>
-        public static void SetAttributeValue(this XmlElement xmlElement, string attributeName, string value)
-        {
-            XmlAttribute attr = xmlElement.Attributes[attributeName];
-            if (attr == null)
-            {
-                AddAttribute(xmlElement, attributeName, value);
-            }
-            else
-            {
-                attr.Value = value;
-            }
-        }
-
-        /// <summary>
-        ///     Creates a string representation of an <see cref="XmlNode" />
-        /// </summary>
-        /// <param name="xmlElement"> The node </param>
-        /// <returns>
-        ///     string representation of <see cref="xmlElement" />
-        /// </returns>
-        public static string NodeToString(this XmlElement xmlElement)
-        {
-            var sw = new StringWriter();
-            var xw = new XmlTextWriter(sw);
-            xmlElement.WriteTo(xw);
-
-            return sw.ToString();
-        }
-
         /// <summary>
         ///     Gets the value of an attribute. If the attribute does not exists, null is returned.
         /// </summary>
@@ -112,12 +64,6 @@ namespace erminas.SmartAPI.Utils
         {
             XmlAttribute attr = xmlElement.Attributes[attributeName];
             return attr == null ? null : attr.Value;
-        }
-
-        public static int? GetIntAttributeValue(this XmlElement xmlElement, string attributeName)
-        {
-            XmlAttribute attr = xmlElement.Attributes[attributeName];
-            return attr == null ? (int?) null : int.Parse(attr.Value);
         }
 
         public static bool? GetBoolAttributeValue(this XmlElement xmlElement, string attributeName)
@@ -157,22 +103,10 @@ namespace erminas.SmartAPI.Utils
             return Guid.Parse(xmlElement.GetAttributeValue(attributeName));
         }
 
-        public static bool TryGetGuid(this XmlElement xmlElement, out Guid guid)
+        public static int? GetIntAttributeValue(this XmlElement xmlElement, string attributeName)
         {
-            return TryGetGuid(xmlElement, "guid", out guid);
-        }
-
-        public static bool TryGetGuid(this XmlElement xmlElement, string attributeName, out Guid guid)
-        {
-            string strValue = xmlElement.GetAttributeValue(attributeName);
-            if (string.IsNullOrEmpty(strValue))
-            {
-                guid = Guid.Empty;
-                return false;
-            }
-
-            guid = Guid.Parse(strValue);
-            return true;
+            XmlAttribute attr = xmlElement.Attributes[attributeName];
+            return attr == null ? (int?) null : int.Parse(attr.Value);
         }
 
         public static string GetName(this XmlElement xmlElement)
@@ -191,15 +125,81 @@ namespace erminas.SmartAPI.Utils
             return strValue.ToOADate();
         }
 
+        public static XmlElement GetSingleElement(this XmlDocument doc, string tagName)
+        {
+            var nodes = doc.GetElementsByTagName(tagName);
+            if (nodes.Count != 1)
+            {
+                throw new SmartAPIInternalException(
+                    string.Format("Invalid number of {0} elements in XML reply from server. Expected: 1 actual: {1}",
+                                  tagName, nodes.Count));
+            }
+
+            return (XmlElement) nodes[0];
+        }
+
+        public static bool IsContainingOk(this XmlDocument xmlDoc)
+        {
+            return xmlDoc.InnerText.Contains("ok");
+        }
+
+        /// <summary>
+        ///     Creates a string representation of an <see cref="XmlNode" />
+        /// </summary>
+        /// <param name="xmlElement"> The node </param>
+        /// <returns>
+        ///     string representation of <see cref="xmlElement" />
+        /// </returns>
+        public static string NodeToString(this XmlElement xmlElement)
+        {
+            var sw = new StringWriter();
+            var xw = new XmlTextWriter(sw);
+            xmlElement.WriteTo(xw);
+
+            return sw.ToString();
+        }
+
+        /// <summary>
+        ///     Sets an attribute to a value. If no fitting <see cref="XmlAttribute" /> exists, a new one is created/appended and its value set.
+        /// </summary>
+        /// <param name="xmlElement"> The node </param>
+        /// <param name="attributeName"> Name of the attribute </param>
+        /// <param name="value"> Value to set the attribute to </param>
+        public static void SetAttributeValue(this XmlElement xmlElement, string attributeName, string value)
+        {
+            XmlAttribute attr = xmlElement.Attributes[attributeName];
+            if (attr == null)
+            {
+                AddAttribute(xmlElement, attributeName, value);
+            }
+            else
+            {
+                attr.Value = value;
+            }
+        }
+
         public static DateTime ToOADate(this string value)
         {
             string valueNormalizedToInvariantCulture = value.Replace(",", ".");
             return DateTime.FromOADate(Double.Parse(valueNormalizedToInvariantCulture, CultureInfo.InvariantCulture));
         }
 
-        public static bool IsContainingOk(this XmlDocument xmlDoc)
+        public static bool TryGetGuid(this XmlElement xmlElement, out Guid guid)
         {
-            return xmlDoc.InnerText.Contains("ok");
+            return TryGetGuid(xmlElement, "guid", out guid);
+        }
+
+        public static bool TryGetGuid(this XmlElement xmlElement, string attributeName, out Guid guid)
+        {
+            string strValue = xmlElement.GetAttributeValue(attributeName);
+            if (string.IsNullOrEmpty(strValue))
+            {
+                guid = Guid.Empty;
+                return false;
+            }
+
+            guid = Guid.Parse(strValue);
+            return true;
         }
     }
 }
