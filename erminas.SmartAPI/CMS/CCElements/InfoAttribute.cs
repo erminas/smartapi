@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         public readonly string Name;
         public readonly InfoType Type;
 
-        public InfoAttribute(XmlElement xmlElement)
+        internal InfoAttribute(XmlElement xmlElement)
         {
             Type = (InfoType) Enum.Parse(typeof (InfoType), xmlElement.Name, true);
             Id = int.Parse(xmlElement.GetAttributeValue("id"));

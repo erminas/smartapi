@@ -96,14 +96,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Description
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get { return GetAttributeValue<string>("eltrddescription"); }
+            set
+            {
+                SetAttributeValue("eltrddescription", value);
+            }
         }
 
         public string ExampleText
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value; }
+            get { return GetAttributeValue<string>("eltrdexample"); }
+            set
+            {
+                SetAttributeValue("eltrdexample", value);
+            }
         }
 
         public HtmlTarget HtmlTarget
@@ -114,8 +120,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsCrlfConvertedToBr
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltcrlftobr")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltcrlftobr")).Value = value; }
+            get { return GetAttributeValue<bool>("eltcrlftobr"); }
+            set { SetAttributeValue("eltcrlftobr", value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -126,44 +132,50 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsDynamic
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltisdynamic")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltisdynamic")).Value = value; }
+            get { return GetAttributeValue<bool>("eltisdynamic"); }
+            set { SetAttributeValue("eltisdynamic", value); }
+        }
+
+        public bool IsEditingMandatory
+        {
+            get { return GetAttributeValue<bool>("eltrequired"); }
+            set { SetAttributeValue("eltrequired", value); }
         }
 
         public bool IsLanguageIndependent
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
+            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
+            set { SetAttributeValue("eltlanguageindependent", value); }
         }
 
         public bool IsLinkNotAutomaticallyRemoved
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonotremove")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonotremove")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdonotremove"); }
+            set { SetAttributeValue("eltdonotremove", value); }
         }
 
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
+            set { SetAttributeValue("eltdonothtmlencode", value); }
         }
 
         public bool IsNotRelevantForWorklow
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
+            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
+            set { SetAttributeValue("eltignoreworkflow", value); }
         }
 
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
+            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
+            set { SetAttributeValue("eltonlyhrefvalue", value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
+            set { SetAttributeValue("eltxhtmlcompliant", value); }
         }
 
         public LanguageVariant LanguageVariantToSwitchTo
@@ -188,18 +200,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Supplement
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+            get { return GetAttributeValue<string>("eltsupplement"); }
+            set
+            {
+                SetAttributeValue("eltsupplement", value);
+            }
         }
-
-        #region ICanBeRequiredForEditing Members
-
-        public bool IsEditingMandatory
-        {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
-        }
-
-        #endregion
     }
 }

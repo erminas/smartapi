@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
 using System.Xml;
 using erminas.SmartAPI.CMS.PageElements;
 using erminas.SmartAPI.Utils;
@@ -49,7 +51,9 @@ namespace erminas.SmartAPI.CMS
             {
                 foreach (object curAttr in curType.GetCustomAttributes(typeof (PageElementType), false))
                 {
-                    if (curType.GetConstructor(new[] {typeof (Project), typeof (XmlElement)}) == null)
+                    if (
+                        curType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+                                               new[] {typeof (Project), typeof (XmlElement)}, null) == null)
                     {
                         throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlElement)",
                                                           curType.Name));
@@ -118,11 +122,10 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new ArgumentException(string.Format("Unknown element type: {0}", typeValue));
             }
-
-            return (PageElement) // ReSharper disable PossibleNullReferenceException
-                   type.GetConstructor(new[] {typeof (Project), typeof (XmlElement)})
-                       .Invoke(new object[] // ReSharper restore PossibleNullReferenceException
-                           {project, xmlElement});
+            return
+                (PageElement)
+                Activator.CreateInstance(type, BindingFlags.NonPublic | BindingFlags.Instance, null,
+                                         new object[] {project, xmlElement}, CultureInfo.InvariantCulture);
         }
 
         /// <summary>

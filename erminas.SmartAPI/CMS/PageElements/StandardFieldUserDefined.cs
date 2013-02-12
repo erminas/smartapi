@@ -34,7 +34,7 @@ namespace erminas.SmartAPI.CMS.PageElements
             _regex = regex;
         }
 
-        public StandardFieldUserDefined(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldUserDefined(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }

@@ -19,7 +19,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class ProjectVariantAttribute : AbstractGuidXmlNodeAttribute<ProjectVariant>
     {
-        public ProjectVariantAttribute(CCElement parent, string name) : base(parent, name)
+        public ProjectVariantAttribute(ContentClassElement parent, string name)
+            : base(parent.ContentClass.Project.Session, parent, name)
         {
         }
 
@@ -30,12 +31,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override ProjectVariant RetrieveByGuid(Guid guid)
         {
-            return ((CCElement) Parent).ContentClass.Project.ProjectVariants.GetByGuid(guid);
+            return ((ContentClassElement) Parent).ContentClass.Project.ProjectVariants.GetByGuid(guid);
         }
 
         protected override ProjectVariant RetrieveByName(string name)
         {
-            return ((CCElement) Parent).ContentClass.Project.ProjectVariants[name];
+            return ((ContentClassElement) Parent).ContentClass.Project.ProjectVariants[name];
         }
     }
 }

@@ -18,9 +18,9 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class IVW : CCElement
+    public class IVW : ContentClassElement
     {
-        public IVW(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal IVW(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltheight", "eltwidth", "eltsrc");
         }
@@ -32,20 +32,29 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Height
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltheight")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltheight")).Value = value; }
+            get { return GetAttributeValue<string>("eltheight"); }
+            set
+            {
+                SetAttributeValue("eltheight", value);
+            }
         }
 
         public string Src
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value; }
+            get { return GetAttributeValue<string>("eltsrc"); }
+            set
+            {
+                SetAttributeValue("eltsrc", value);
+            }
         }
 
         public string Width
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value = value; }
+            get { return GetAttributeValue<string>("eltwidth"); }
+            set
+            {
+                SetAttributeValue("eltwidth", value);
+            }
         }
     }
 }

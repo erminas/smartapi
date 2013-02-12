@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldTime)]
     public sealed class StandardFieldTime : StandardField<TimeSpan>
     {
-        public StandardFieldTime(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldTime(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

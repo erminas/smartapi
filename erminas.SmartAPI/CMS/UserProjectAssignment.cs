@@ -82,6 +82,14 @@ namespace erminas.SmartAPI.CMS
 
         public UserRole UserRole { get; set; }
 
+        /// <summary>
+        /// TODO warum ist das nicht oeffentlich?
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="project"></param>
+        /// <param name="role"></param>
+        /// <param name="extendedUserRoles"></param>
+        /// <returns></returns>
         internal static UserProjectAssignment Create(User user, Project project, UserRole role,
                                                      ExtendedUserRoles extendedUserRoles)
         {

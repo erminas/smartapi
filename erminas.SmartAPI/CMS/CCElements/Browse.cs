@@ -57,19 +57,21 @@ namespace erminas.SmartAPI.CMS.CCElements
         }
     }
 
-    public class Browse : CCElement
+    public class Browse : ContentClassElement
     {
-        public Browse(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Browse(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguageindependent", "eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace",
                              "eltusermap", "eltsupplement", "eltonlyhrefvalue", "eltxhtmlcompliant", "eltsrc", "eltalt",
                              "eltsrcsubdirguid", "eltrddescription", "eltrdexample");
+// ReSharper disable ObjectCreationAsStatement
             new EnumXmlNodeAttribute<Direction>(this, "eltdirection");
             new EnumXmlNodeAttribute<Appearance>(this, "eltnextpagetype");
             new StringXmlNodeAttribute(this, "eltdefaultvalue");
             new BoolXmlNodeAttribute(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<BrowseAlignment>(this, "eltalign", BrowseAlignmentUtils.ToRQLString,
                                                             BrowseAlignmentUtils.ToBrowseAlignment);
+// ReSharper restore ObjectCreationAsStatement
         }
 
         public BrowseAlignment Align
@@ -80,8 +82,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string AltText
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
+            get { return GetAttributeValue<string>("eltalt"); }
+            set
+            {
+                SetAttributeValue("eltalt", value);
+            }
         }
 
         public Appearance Appearance
@@ -92,8 +97,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Border
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
+            get { return GetAttributeValue<string>("eltborder"); }
+            set
+            {
+                SetAttributeValue("eltborder", value);
+            }
         }
 
         public override ContentClassCategory Category
@@ -103,14 +111,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string DefaultValue
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltdefaultvalue")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltdefaultvalue")).Value = value; }
+            get { return GetAttributeValue<string>("eltdefaultvalue"); }
+            set
+            {
+                SetAttributeValue("eltdefaultvalue", value);
+            }
         }
 
         public string Description
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get { return GetAttributeValue<string>("eltrddescription"); }
+            set
+            {
+                SetAttributeValue("eltrddescription", value);
+            }
         }
 
         public Direction Direction
@@ -121,38 +135,44 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string HSpace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
+            get { return GetAttributeValue<string>("elthspace"); }
+            set
+            {
+                SetAttributeValue("elthspace", value);
+            }
         }
 
         public string Height
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltheight")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltheight")).Value = value; }
+            get { return GetAttributeValue<string>("eltheight"); }
+            set
+            {
+                SetAttributeValue("eltheight", value);
+            }
         }
 
         public bool IsAltPreassignedAutomatically
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltpresetalt")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltpresetalt")).Value = value; }
+            get { return GetAttributeValue<bool>("eltpresetalt"); }
+            set { SetAttributeValue("eltpresetalt", value); }
         }
 
         public bool IsLanguageIndependent
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
+            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
+            set { SetAttributeValue("eltlanguageindependent", value); }
         }
 
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
+            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
+            set { SetAttributeValue("eltonlyhrefvalue", value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
+            set { SetAttributeValue("eltxhtmlcompliant", value); }
         }
 
         public File SampleImageFile
@@ -200,26 +220,38 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Supplement
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+            get { return GetAttributeValue<string>("eltsupplement"); }
+            set
+            {
+                SetAttributeValue("eltsupplement", value);
+            }
         }
 
         public string Usemap
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value = value; }
+            get { return GetAttributeValue<string>("eltusermap"); }
+            set
+            {
+                SetAttributeValue("eltusermap", value);
+            }
         }
 
         public string VSpace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
+            get { return GetAttributeValue<string>("eltvspace"); }
+            set
+            {
+                SetAttributeValue("eltvspace", value);
+            }
         }
 
         public string Width
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltwidth")).Value = value; }
+            get { return GetAttributeValue<string>("eltwidth"); }
+            set
+            {
+                SetAttributeValue("eltwidth", value);
+            }
         }
     }
 }

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.CMS.CCElements.Attributes;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -79,6 +80,55 @@ namespace erminas.SmartAPI.CMS
             {
                 AttributeFactory.CreateAttribute(this, curAttr);
             }
+        }
+
+        protected virtual T GetAttributeValue<T>(string attributeName)
+        {
+            var type = typeof (T);
+            if (type == typeof (string))
+            {
+                return (T) (object) ((StringXmlNodeAttribute) GetAttribute(attributeName)).Value;
+            }
+
+            if (type == typeof (Folder))
+            {
+                return (T) (object) ((FolderXmlNodeAttribute) GetAttribute(attributeName)).Value;
+            }
+
+            if (type == typeof (bool))
+            {
+                return (T) (object) ((BoolXmlNodeAttribute) GetAttribute(attributeName)).Value;
+            }
+
+            throw new SmartAPIInternalException(
+                string.Format("In GetAttributeValue<T> for attribute {1}, unexpected attribute type: {0}",
+                              typeof (T).Name, attributeName));
+        }
+
+        protected virtual void SetAttributeValue<T>(string attributeName, T value)
+        {
+            var type = typeof (T);
+            if (type == typeof (string))
+            {
+                ((StringXmlNodeAttribute) GetAttribute(attributeName)).Value = (string) (object) value;
+                return;
+            }
+
+            if (type == typeof (Folder))
+            {
+                ((FolderXmlNodeAttribute) GetAttribute(attributeName)).Value = (Folder) (object) value;
+                return;
+            }
+
+            if (type == typeof (bool))
+            {
+                ((BoolXmlNodeAttribute) GetAttribute(attributeName)).Value = (bool) (object) value;
+                return;
+            }
+
+            throw new SmartAPIInternalException(
+                string.Format("In SetAttributeValue<T> for  attribute {1}, unexpected attribute type: {0}",
+                              typeof (T).Name, attributeName));
         }
     }
 }

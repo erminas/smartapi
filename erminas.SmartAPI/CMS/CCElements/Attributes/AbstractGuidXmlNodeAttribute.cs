@@ -14,16 +14,20 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public abstract class AbstractGuidXmlNodeAttribute<T> : RDXmlNodeAttribute where T : RedDotObject
     {
+        private readonly Session _session;
         private T _value;
 
-        protected AbstractGuidXmlNodeAttribute(RedDotObject parent, string name) : base(parent, name, false)
+        protected AbstractGuidXmlNodeAttribute(Session session, RedDotObject parent, string name)
+            : base(parent, name, false)
         {
+            _session = session;
         }
 
         public override void Assign(IRDAttribute o)
@@ -121,22 +125,28 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         private T RetrieveByGuidInternal(Guid guid)
         {
-            T tmp = RetrieveByGuid(guid);
-            if (tmp == null)
+            try
             {
-                throw new ArgumentException("could not retrieve: " + guid.ToRQLString());
+                return RetrieveByGuid(guid);
+            } catch (InvalidOperationException e)
+            {
+                throw new SmartAPIException(_session.ServerLogin,
+                                            string.Format("Could not retrieve {0} with GUID {1}", GetTypeDescription(),
+                                                          guid.ToRQLString()), e);
             }
-            return tmp;
         }
 
         private T RetrieveByNameInternal(string name)
         {
-            T tmp = RetrieveByName(name);
-            if (tmp == null)
+            try
             {
-                throw new ArgumentException("could not retrieve: " + name);
+                return RetrieveByName(name);
+            } catch (InvalidOperationException e)
+            {
+                throw new SmartAPIException(_session.ServerLogin,
+                                            string.Format("Could not retrieve {0} with name {1}", GetTypeDescription(),
+                                                          name), e);
             }
-            return tmp;
         }
     }
 }

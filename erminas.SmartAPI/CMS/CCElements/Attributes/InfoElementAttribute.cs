@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private int? _id;
 
-        public InfoElementAttribute(CCElement parent, string name) : base(parent, name, true)
+        public InfoElementAttribute(ContentClassElement parent, string name) : base(parent, name, true)
         {
         }
 
@@ -33,7 +33,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override object DisplayObject
         {
-            get { return _id == null ? null : ((CCElement) Parent).ContentClass.Project.InfoAttributes[_id.Value].Name; }
+            get
+            {
+                return _id == null
+                           ? null
+                           : ((ContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value].Name;
+            }
         }
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)
@@ -44,7 +49,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public InfoAttribute Value
         {
-            get { return _id == null ? null : ((CCElement) Parent).ContentClass.Project.InfoAttributes[_id.Value]; }
+            get { return _id == null ? null : ((ContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value]; }
             set { SetValue(value == null ? null : value.Id.ToString(CultureInfo.InvariantCulture)); }
         }
 

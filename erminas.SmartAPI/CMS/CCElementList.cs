@@ -26,14 +26,15 @@ namespace erminas.SmartAPI.CMS
     /// <summary>
     ///     A list of content class elements.
     /// </summary>
-    public class CCElementList : RedDotObject, IEnumerable<CCElement>
+    public class CCElementList : RedDotObject, IEnumerable<ContentClassElement>
     {
         private static readonly ILog LOGGER = LogManager.GetLogger(typeof (CCElementList));
+        private readonly List<ContentClassElement> _elements;
 
         public CCElementList(ContentClass project, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = project;
-            Elements = new List<CCElement>();
+            _elements = new List<ContentClassElement>();
             LoadXml();
         }
 
@@ -48,16 +49,16 @@ namespace erminas.SmartAPI.CMS
         /// <returns> </returns>
         public int Count()
         {
-            return Elements.Count;
+            return _elements.Count;
         }
 
         /// <summary>
         ///     Get an element on the list by guid.
         /// </summary>
         /// <exception cref="KeyNotFoundException">thrown, if no element with .Guid == guid could be found</exception>
-        public CCElement GetByGuid(Guid guid)
+        public ContentClassElement GetByGuid(Guid guid)
         {
-            CCElement element = Elements.Find(x => x.Guid == guid);
+            ContentClassElement element = _elements.Find(x => x.Guid == guid);
             if (element == null)
             {
                 throw new KeyNotFoundException(string.Format("No element with guid {0} available", guid.ToRQLString()));
@@ -69,9 +70,9 @@ namespace erminas.SmartAPI.CMS
         ///     Get an element of the list by name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">thrown, if no element with .Name == name could be found</exception>
-        public CCElement GetByName(string name)
+        public ContentClassElement GetByName(string name)
         {
-            CCElement element = this[name];
+            ContentClassElement element = this[name];
             if (element == null)
             {
                 throw new KeyNotFoundException(string.Format("No element with name {0} available", name));
@@ -79,33 +80,48 @@ namespace erminas.SmartAPI.CMS
             return element;
         }
 
+        public IEnumerator<ContentClassElement> GetEnumerator()
+        {
+            return _elements.GetEnumerator();
+        }
+
         /// <summary>
         ///     Get an element of the list by name. Returns null, if no such element could be found.
         /// </summary>
         /// <param name="name"> Name of the element to get </param>
-        public CCElement this[string name]
+        public ContentClassElement this[string name]
         {
-            get { return Elements.Find(x => x.Name == name); }
+            get { return _elements.Find(x => x.Name == name); }
         }
 
         /// <summary>
         ///     Get an element of the list by its position in the list
         /// </summary>
-        public CCElement this[int index]
+        public ContentClassElement this[int index]
         {
-            get { return Elements[index]; }
+            get { return _elements[index]; }
         }
 
-        public bool TryGetByGuid(Guid guid, out CCElement element)
+        public bool TryGetByGuid(Guid guid, out ContentClassElement element)
         {
-            element = Elements.Find(x => x.Guid == guid);
+            element = _elements.Find(x => x.Guid == guid);
             return element != null;
         }
 
-        public bool TryGetByName(string name, out CCElement element)
+        public bool TryGetByName(string name, out ContentClassElement element)
         {
             element = this[name];
             return element != null;
+        }
+
+        internal int RemoveAll(Predicate<IContentClassElement> predicate)
+        {
+            return _elements.RemoveAll(predicate);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _elements.GetEnumerator();
         }
 
         private void LoadXml()
@@ -115,7 +131,7 @@ namespace erminas.SmartAPI.CMS
             {
                 try
                 {
-                    Elements.Add(CCElement.CreateElement(ContentClass, curElementNode));
+                    _elements.Add(ContentClassElement.CreateElement(ContentClass, curElementNode));
                 } catch (Exception e)
                 {
                     string elttypeStr = curElementNode.GetAttributeValue("elttype") ??
@@ -131,28 +147,5 @@ namespace erminas.SmartAPI.CMS
                 }
             }
         }
-
-        #region Properties
-
-        /// <summary>
-        ///     The content class elements in the list
-        /// </summary>
-        public List<CCElement> Elements { get; set; }
-
-        #endregion
-
-        #region IEnumerable<CCElement> Members
-
-        public IEnumerator<CCElement> GetEnumerator()
-        {
-            return Elements.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Elements.GetEnumerator();
-        }
-
-        #endregion
     }
 }

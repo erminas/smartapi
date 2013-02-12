@@ -30,12 +30,12 @@ namespace erminas.SmartAPI.CMS
     /// <remarks>
     ///     For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
-    public abstract class CCElement : RedDotObject, IContentClassElement
+    public abstract class ContentClassElement : RedDotObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private LanguageVariant _languageVariant;
 
-        protected CCElement(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
+        protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
@@ -82,12 +82,95 @@ namespace erminas.SmartAPI.CMS
         public ContentClass ContentClass { get; set; }
 
         /// <summary>
+        ///     Language variant of the element (a separate instance exists for every language variant on the server).
+        /// </summary>
+        public LanguageVariant LanguageVariant
+        {
+            get
+            {
+                return _languageVariant ??
+                       (_languageVariant =
+                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
+            }
+        }
+
+        public override string Name { get; set; }
+
+        /// <summary>
+        ///     TypeId of the element.
+        /// </summary>
+        public ElementType Type { get; private set; }
+
+        /// <summary>
+        ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
+        ///     Make sure to set the language variant in the target project into which the element should be copied, first.
+        /// </summary>
+        /// <param name="contentClass"> target content class, into which the element should be copied </param>
+        /// <returns> the created copy </returns>
+        /// <remarks>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>Override this method, if you need to set other values than the direct attributes of the element (e.g. setting text values of TextHtml elements)</description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The target content class is only modified on the server, thus the content class object does not contain the newly created element.
+        ///                 If you need an updated version of the content class, you have to retrieve it again with
+        ///                 <code>new ContentClass(Project, Guid);</code>
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        /// </remarks>
+        internal ContentClassElement CopyToContentClass(ContentClass contentClass)
+        {
+            ContentClassElement newContentClassElement = CreateElement(contentClass, Type);
+            foreach (IRDAttribute attr in Attributes)
+            {
+                IRDAttribute newAttr = newContentClassElement.Attributes.First(x => x.Name == attr.Name);
+                try
+                {
+                    newAttr.Assign(attr);
+                } catch (Exception e)
+                {
+                    throw new Exception(
+                        string.Format(
+                            "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
+                            attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
+                }
+            }
+
+            var node = (XmlElement) newContentClassElement.XmlElement.Clone();
+            node.Attributes.RemoveNamedItem("guid");
+            string creationString = GetSaveString(node);
+
+            // <summary>
+            // RQL for creating an element from a content class.
+            // Two parameters:
+            // 1. Content class guid
+            // 2. Element to create, make sure it contains an attribute "action" with the value "save"!
+            // </summary>
+            const string CREATE_ELEMENT = @"<TEMPLATE guid=""{0}"">{1}</TEMPLATE>";
+
+            XmlDocument rqlResult =
+                contentClass.Project.ExecuteRQL(string.Format(CREATE_ELEMENT, contentClass.Guid.ToRQLString(),
+                                                              creationString));
+            var resultElementNode = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
+            if (resultElementNode == null)
+            {
+                throw new Exception("error during creation of element: " + Name);
+            }
+            newContentClassElement.Guid = resultElementNode.GetGuid();
+
+            return newContentClassElement;
+        }
+
+        /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
         /// <param name="contentClass"> parent content class that contains the element </param>
         /// <param name="xmlElement"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static CCElement CreateElement(ContentClass contentClass, XmlElement xmlElement)
+        internal static ContentClassElement CreateElement(ContentClass contentClass, XmlElement xmlElement)
         {
             var type = (ElementType) int.Parse(xmlElement.GetAttributeValue("elttype"));
             switch (type)
@@ -159,95 +242,12 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Language variant of the element (a separate instance exists for every language variant on the server).
-        /// </summary>
-        public LanguageVariant LanguageVariant
-        {
-            get
-            {
-                return _languageVariant ??
-                       (_languageVariant =
-                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
-            }
-        }
-
-        public override string Name { get; set; }
-
-        /// <summary>
-        ///     TypeId of the element.
-        /// </summary>
-        public ElementType Type { get; private set; }
-
-        /// <summary>
-        ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
-        ///     Make sure to set the language variant in the target project into which the element should be copied, first.
-        /// </summary>
-        /// <param name="contentClass"> target content class, into which the element should be copied </param>
-        /// <returns> the created copy </returns>
-        /// <remarks>
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>Override this method, if you need to set other values than the direct attributes of the element (e.g. setting text values of TextHtml elements)</description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 The target content class is only modified on the server, thus the content class object does not contain the newly created element.
-        ///                 If you need an updated version of the content class, you have to retrieve it again with
-        ///                 <code>new ContentClass(Project, Guid);</code>
-        ///             </description>
-        ///         </item>
-        ///     </list>
-        /// </remarks>
-        internal CCElement CopyToContentClass(ContentClass contentClass)
-        {
-            CCElement newCcElement = CreateElement(contentClass, Type);
-            foreach (IRDAttribute attr in Attributes)
-            {
-                IRDAttribute newAttr = newCcElement.Attributes.First(x => x.Name == attr.Name);
-                try
-                {
-                    newAttr.Assign(attr);
-                } catch (Exception e)
-                {
-                    throw new Exception(
-                        string.Format(
-                            "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
-                            attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
-                }
-            }
-
-            var node = (XmlElement) newCcElement.XmlElement.Clone();
-            node.Attributes.RemoveNamedItem("guid");
-            string creationString = GetSaveString(node);
-
-            // <summary>
-            // RQL for creating an element from a content class.
-            // Two parameters:
-            // 1. Content class guid
-            // 2. Element to create, make sure it contains an attribute "action" with the value "save"!
-            // </summary>
-            const string CREATE_ELEMENT = @"<TEMPLATE guid=""{0}"">{1}</TEMPLATE>";
-
-            XmlDocument rqlResult =
-                contentClass.Project.ExecuteRQL(string.Format(CREATE_ELEMENT, contentClass.Guid.ToRQLString(),
-                                                              creationString));
-            var resultElementNode = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
-            if (resultElementNode == null)
-            {
-                throw new Exception("error during creation of element: " + Name);
-            }
-            newCcElement.Guid = resultElementNode.GetGuid();
-
-            return newCcElement;
-        }
-
-        /// <summary>
         ///     Create an empty element of a specific type as child of a content class. Does not insert the element into the contentclass itself, but just provides a vanilla element with an XML node that contains only the "elttype" and the empty "guid" attribute.
         /// </summary>
         /// <param name="contentClass"> parent content class of the element </param>
         /// <param name="elementType"> type of the element </param>
         /// <returns> </returns>
-        internal static CCElement CreateElement(ContentClass contentClass, ElementType elementType)
+        private static ContentClassElement CreateElement(ContentClass contentClass, ElementType elementType)
         {
             var doc = new XmlDocument();
             XmlElement element = doc.CreateElement("ELEMENT");

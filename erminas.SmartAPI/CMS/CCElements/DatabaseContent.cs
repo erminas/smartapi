@@ -63,7 +63,7 @@ namespace erminas.SmartAPI.CMS.CCElements
         }
     }
 
-    public class DatabaseContent : CCElement
+    public class DatabaseContent : ContentClassElement
     {
         #region StaticAttributeInit
 
@@ -77,18 +77,20 @@ namespace erminas.SmartAPI.CMS.CCElements
         {
             protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
             {
-                return new DatabaseConnectionXmlNodeAttribute((CCElement) element, name);
+                return new DatabaseConnectionXmlNodeAttribute((ContentClassElement) element, name);
             }
         }
 
         #endregion
 
-        public DatabaseContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal DatabaseContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltislistentry", "eltlisttype", "eltdatabasename", "elttablename", "eltcolumnname",
                              "eltcolumniotype", "eltrelatedfolderguid", "eltformatting", "eltbincolumnname", "eltborder",
                              "eltvspace", "elthspace", "eltsupplement", "eltalt");
+// ReSharper disable ObjectCreationAsStatement
             new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,
+                                                           // ReSharper restore ObjectCreationAsStatement
                                                            BasicAlignmentUtils.ToBasicAlignment);
 
             //We need to add eltsrc with sessionkey, because otherwise eltalt won't get stored (setting alt through the smart tree doesn't work for that reason).
@@ -106,14 +108,20 @@ namespace erminas.SmartAPI.CMS.CCElements
         /// </summary>
         public string AltText
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
+            get { return GetAttributeValue<string>("eltalt"); }
+            set
+            {
+                SetAttributeValue("eltalt", value);
+            }
         }
 
         public string Border
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
+            get { return GetAttributeValue<string>("eltborder"); }
+            set
+            {
+                SetAttributeValue("eltborder", value);
+            }
         }
 
         public override ContentClassCategory Category
@@ -123,21 +131,30 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string DataFieldForBinayData
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltbincolumnname")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltbincolumnname")).Value = value; }
+            get { return GetAttributeValue<string>("eltbincolumnname"); }
+            set
+            {
+                SetAttributeValue("eltbincolumnname", value);
+            }
         }
 
         public string DataFieldName
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolumnname")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolumnname")).Value = value; }
+            get { return GetAttributeValue<string>("eltcolumnname"); }
+            set
+            {
+                SetAttributeValue("eltcolumnname", value);
+            }
         }
 
         //todo implement as enum/special type
         public string DataFieldType
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolumniotype")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolumniotype")).Value = value; }
+            get { return GetAttributeValue<string>("eltcolumniotype"); }
+            set
+            {
+                SetAttributeValue("eltcolumniotype", value);
+            }
         }
 
         public DatabaseConnection DatabaseConnection
@@ -148,14 +165,17 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string HSpace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
+            get { return GetAttributeValue<string>("elthspace"); }
+            set
+            {
+                SetAttributeValue("elthspace", value);
+            }
         }
 
         public bool IsListEntry
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltislistentry")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltislistentry")).Value = value; }
+            get { return GetAttributeValue<bool>("eltislistentry"); }
+            set { SetAttributeValue("eltislistentry", value); }
         }
 
         public ListType ListType
@@ -175,32 +195,44 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public Folder PublicationFolder
         {
-            get { return ((FolderXmlNodeAttribute) GetAttribute("eltrelatedfolderguid")).Value; }
-            set { ((FolderXmlNodeAttribute) GetAttribute("eltrelatedfolderguid")).Value = value; }
+            get { return GetAttributeValue<Folder>("eltrelatedfolderguid"); }
+            set { SetAttributeValue("eltrelatedfolderguid", value); }
         }
 
         public string Supplement
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+            get { return GetAttributeValue<string>("eltsupplement"); }
+            set
+            {
+                SetAttributeValue("eltsupplement", value);
+            }
         }
 
         public string TableName
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elttablename")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elttablename")).Value = value; }
+            get { return GetAttributeValue<string>("elttablename"); }
+            set
+            {
+                SetAttributeValue("elttablename", value);
+            }
         }
 
         public string UserDefinedFormat
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value = value; }
+            get { return GetAttributeValue<string>("eltformatting"); }
+            set
+            {
+                SetAttributeValue("eltformatting", value);
+            }
         }
 
         public string VSpace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
+            get { return GetAttributeValue<string>("eltvspace"); }
+            set
+            {
+                SetAttributeValue("eltvspace", value);
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Media(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Media(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

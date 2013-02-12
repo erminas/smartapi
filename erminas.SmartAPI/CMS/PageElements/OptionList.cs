@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public OptionList(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal OptionList(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

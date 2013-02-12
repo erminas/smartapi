@@ -79,6 +79,18 @@ namespace erminas.SmartAPI.CMS
             IsInitialized = false;
         }
 
+        protected override T GetAttributeValue<T>(string attributeName)
+        {
+            EnsureInitialization();
+            return base.GetAttributeValue<T>(attributeName);
+        }
+
+        protected override void SetAttributeValue<T>(string attributeName, T value)
+        {
+            EnsureInitialization();
+            base.SetAttributeValue(attributeName, value);
+        }
+
         /// <summary>
         ///     Indicates, wether the object is already completly initialized (true) or not (false).
         /// </summary>

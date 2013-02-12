@@ -24,8 +24,9 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private readonly Func<string, T> _parseEnum;
         private readonly Func<T, string> _toStringValue;
 
-        public StringEnumXmlNodeAttribute(CCElement parent, string name, Func<T, string> toStringValueRepresentation,
-                                          Func<string, T> parseEnum) : base(parent, name, false)
+        public StringEnumXmlNodeAttribute(ContentClassElement parent, string name,
+                                          Func<T, string> toStringValueRepresentation, Func<string, T> parseEnum)
+            : base(parent, name, false)
         {
             _toStringValue = toStringValueRepresentation;
             _parseEnum = parseEnum;

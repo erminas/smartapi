@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Area(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Area(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

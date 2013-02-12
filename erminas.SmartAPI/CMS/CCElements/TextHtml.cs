@@ -58,10 +58,12 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class TextHtml : Text
     {
-        public TextHtml(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal TextHtml(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             //TODO checken, ob die werte in editoroptions nicht invertiert enthalten sind
+// ReSharper disable ObjectCreationAsStatement
             new EditorOptionsAttribute(this, "elteditoroptions");
+// ReSharper restore ObjectCreationAsStatement
         }
 
         public EditorSettings TextEditorSettings

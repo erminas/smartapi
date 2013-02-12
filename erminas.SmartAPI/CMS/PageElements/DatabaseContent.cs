@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public DatabaseContent(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal DatabaseContent(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

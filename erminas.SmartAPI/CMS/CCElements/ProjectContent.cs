@@ -18,11 +18,11 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class ProjectContent : CCElement
+    public class ProjectContent : ContentClassElement
     {
         private readonly ElementReferenceAttribute _elementReference;
 
-        public ProjectContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal ProjectContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltislistentry", "eltinvisibleinpage", "eltisreffield");
             _elementReference = new ElementReferenceAttribute(this);
@@ -35,23 +35,23 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsHitList
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltislistentry")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltislistentry")).Value = value; }
+            get { return GetAttributeValue<bool>("eltislistentry"); }
+            set { SetAttributeValue("eltislistentry", value); }
         }
 
         public bool IsNotVisibleOnPublishedPage
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value = value; }
+            get { return GetAttributeValue<bool>("eltinvisibleinpage"); }
+            set { SetAttributeValue("eltinvisibleinpage", value); }
         }
 
         public bool IsReferenceField
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltisreffield")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltisreffield")).Value = value; }
+            get { return GetAttributeValue<bool>("eltisreffield"); }
+            set { SetAttributeValue("eltisreffield", value); }
         }
 
-        public CCElement ReferencedElement
+        public ContentClassElement ReferencedElement
         {
             get { return _elementReference.Value; }
             set { _elementReference.Value = value; }

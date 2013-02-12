@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
@@ -28,14 +27,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsDirectEditActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdirectedit"); }
+            set { SetAttributeValue("eltdirectedit", value); }
         }
 
         public bool IsDragAndDropActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdragdrop"); }
+            set { SetAttributeValue("eltdragdrop", value); }
         }
     }
 }

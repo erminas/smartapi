@@ -14,45 +14,44 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
     public class TextAnchor : Anchor
     {
-        public TextAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal TextAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltfontclass", "eltfontsize", "eltfontbold", "eltfontface", "eltfontcolor");
         }
 
         public string FontClass
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontclass"); }
+            set { SetAttributeValue("eltfontclass", value); }
         }
 
         public string FontColor
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontcolor"); }
+            set { SetAttributeValue("eltfontcolor", value); }
         }
 
         public string FontFace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontface"); }
+            set { SetAttributeValue("eltfontface", value); }
         }
 
         public string FontSize
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontsize"); }
+            set { SetAttributeValue("eltfontsize", value); }
         }
 
         public bool IsFontBold
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value = value; }
+            get { return GetAttributeValue<bool>("eltfontbold"); }
+            set { SetAttributeValue("eltfontbold", value); }
         }
     }
 }

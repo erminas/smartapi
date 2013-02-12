@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class CategoryXmlNodeAttribute : AbstractGuidXmlNodeAttribute<Category>
     {
-        public CategoryXmlNodeAttribute(ContentClass parent, string name) : base(parent, name)
+        public CategoryXmlNodeAttribute(ContentClass parent, string name) : base(parent.Project.Session, parent, name)
         {
         }
 
@@ -51,7 +51,11 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override Category RetrieveByGuid(Guid guid)
         {
-            return ((ContentClass) Parent).Project.Categories.GetByGuid(guid);
+            //after a deletion of a category, references to it can still be present in the system and
+            //thus we can't throw an exception but have to handle it like no category is assigned (RedDot seems to handle it that way).
+            Category category;
+            ((ContentClass) Parent).Project.Categories.TryGetByGuid(guid, out category);
+            return category;
         }
 
         protected override Category RetrieveByName(string name)

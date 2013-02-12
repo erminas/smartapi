@@ -39,7 +39,7 @@ namespace erminas.SmartAPI.CMS
 
         public DateTime CreatedTo { get; set; }
 
-        public List<Page> Execute()
+        public IEnumerable<Page> Execute()
         {
             var rqlXml = new XmlDocument();
             XmlElement pageElement = rqlXml.CreateElement("PAGE");

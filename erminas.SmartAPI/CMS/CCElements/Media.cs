@@ -67,18 +67,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     #endregion
 
-    public class Media : CCElement, ICanBeRequiredForEditing
+    public class Media : ContentClassElement, ICanBeRequiredForEditing
     {
-        public Media(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Media(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "elthideinform",
                              "eltsuffixes", "eltdonotremove", "eltconvert", "eltmaxsize", "eltcompression",
                              "elttargetformat", "eltonlynonwebsources", "eltmaxpicwidth", "eltmaxpicheight",
                              "eltpicwidth", "eltpicheight", "eltpicdepth", "eltfilename", "eltdragdrop", "eltrdexample",
                              "eltrdexamplesubdirguid", "eltsrc", "eltsrcsubdirguid");
+// ReSharper disable ObjectCreationAsStatement
             new StringEnumXmlNodeAttribute<MediaConversionMode>(this, "eltconvertmode",
                                                                 MediaConversionModeUtils.ToRQLString,
                                                                 MediaConversionModeUtils.ToMediaConversionMode);
+// ReSharper restore ObjectCreationAsStatement
         }
 
         public int? AutomaticMaximumScalingHeight
@@ -128,44 +130,47 @@ namespace erminas.SmartAPI.CMS.CCElements
         // todo use list<string> instead
         public string EligibleSuffixes
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsuffixes")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsuffixes")).Value = value; }
+            get { return GetAttributeValue<string>("eltsuffixes"); }
+            set
+            {
+                SetAttributeValue("eltsuffixes", value);
+            }
         }
 
         public bool IsConvertingOnlyNonWebCompatibleFiles
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlynonwebsources")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlynonwebsources")).Value = value; }
+            get { return GetAttributeValue<bool>("eltonlynonwebsources"); }
+            set { SetAttributeValue("eltonlynonwebsources", value); }
         }
 
         public bool IsLanguageIndependent
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value; }
+            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
+            set { SetAttributeValue("eltlanguageindependent", value); }
         }
 
         public bool IsLinkNotAutomaticallyRemoved
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonotremove")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonotremove")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdonotremove"); }
+            set { SetAttributeValue("eltdonotremove", value); }
         }
 
         public bool IsNotRelevantForWorklow
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value; }
+            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
+            set { SetAttributeValue("eltignoreworkflow", value); }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
+            get { return GetAttributeValue<bool>("elthideinform"); }
+            set { SetAttributeValue("elthideinform", value); }
         }
 
         public bool IsScaledOrConverted
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltconvert")).Value = value; }
+            get { return GetAttributeValue<bool>("eltconvert"); }
+            set { SetAttributeValue("eltconvert", value); }
         }
 
         public int? MaxFileSizeInKB
@@ -180,14 +185,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Quality
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcompression")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcompression")).Value = value; }
+            get { return GetAttributeValue<string>("eltcompression"); }
+            set
+            {
+                SetAttributeValue("eltcompression", value);
+            }
         }
 
         public string RequiredNamePattern
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfilename")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfilename")).Value = value; }
+            get { return GetAttributeValue<string>("eltfilename"); }
+            set
+            {
+                SetAttributeValue("eltfilename", value);
+            }
         }
 
         public int? RequiredPictureHeight
@@ -263,8 +274,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsEditingMandatory
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltrequired")).Value = value; }
+            get { return GetAttributeValue<bool>("eltrequired"); }
+            set { SetAttributeValue("eltrequired", value); }
         }
 
         #endregion

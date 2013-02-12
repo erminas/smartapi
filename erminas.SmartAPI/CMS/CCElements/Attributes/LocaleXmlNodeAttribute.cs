@@ -139,7 +139,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         private int? _lcid;
 
-        public LocaleXmlNodeAttribute(CCElement cc, string name) : base(cc, name)
+        public LocaleXmlNodeAttribute(ContentClassElement contentClass, string name) : base(contentClass, name)
         {
         }
 
@@ -151,7 +151,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public override object DisplayObject
         {
-            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
+            get
+            {
+                return _lcid == null
+                           ? null
+                           : ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value];
+            }
         }
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)
@@ -162,7 +167,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         public Locale Value
         {
-            get { return _lcid == null ? null : ((CCElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value]; }
+            get
+            {
+                return _lcid == null
+                           ? null
+                           : ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value];
+            }
             set { SetValue(value == null ? null : value.LCID.ToString(CultureInfo.InvariantCulture)); }
         }
 

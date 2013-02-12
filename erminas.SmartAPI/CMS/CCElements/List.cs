@@ -37,26 +37,38 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string FontClass
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontclass")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontclass"); }
+            set
+            {
+                SetAttributeValue("eltfontclass", value);
+            }
         }
 
         public string FontColor
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontcolor")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontcolor"); }
+            set
+            {
+                SetAttributeValue("eltfontcolor", value);
+            }
         }
 
         public string FontFace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontface")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontface"); }
+            set
+            {
+                SetAttributeValue("eltfontface", value);
+            }
         }
 
         public string FontSize
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltfontsize")).Value = value; }
+            get { return GetAttributeValue<string>("eltfontsize"); }
+            set
+            {
+                SetAttributeValue("eltfontsize", value);
+            }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -67,20 +79,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsFontBold
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltfontbold")).Value = value; }
+            get { return GetAttributeValue<bool>("eltfontbold"); }
+            set { SetAttributeValue("eltfontbold", value); }
         }
 
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
+            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
+            set { SetAttributeValue("eltonlyhrefvalue", value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
+            set { SetAttributeValue("eltxhtmlcompliant", value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }

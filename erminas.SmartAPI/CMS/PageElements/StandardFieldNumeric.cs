@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     [PageElementType(ElementType.StandardFieldNumeric)]
     public class StandardFieldNumeric : StandardField<string>
     {
-        public StandardFieldNumeric(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldNumeric(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -30,7 +29,7 @@ namespace erminas.SmartAPI.CMS
     {
         public Group()
         {
-            Users = null;
+            //Users = new List<User>();
         }
 
         /// <summary>
@@ -49,10 +48,10 @@ namespace erminas.SmartAPI.CMS
 
         public string Email { get; set; }
 
-        /// <summary>
-        ///     All users within a group. Set to "null" if not loaded yet. If there is no user in this group, Users is set to an empty list.
-        /// </summary>
-        public List<User> Users { get; set; }
+        // /// <summary>
+        // ///     All users within a group. Set to "null" if not loaded yet. If there is no user in this group, Users is set to an empty list.
+        // /// </summary>
+        // public IEnumerable<User> Users { get; set; }
 
         private void LoadXml()
         {

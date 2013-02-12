@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private int? _type;
 
-        public DateTimeFormatAttribute(CCElement parent, string name) : base(parent, name, true)
+        public DateTimeFormatAttribute(ContentClassElement parent, string name) : base(parent, name, true)
         {
         }
 
@@ -88,7 +88,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 return null;
             }
 
-            return ((CCElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
+            return
+                ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
         }
     }
 }

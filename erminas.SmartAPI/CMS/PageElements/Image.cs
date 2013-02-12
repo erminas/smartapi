@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Image(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Image(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

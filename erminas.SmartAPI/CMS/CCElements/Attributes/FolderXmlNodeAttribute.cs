@@ -21,12 +21,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private readonly ContentClass _contentClass;
 
-        public FolderXmlNodeAttribute(CCElement parent, string name) : this(parent, parent.ContentClass, name)
+        public FolderXmlNodeAttribute(ContentClassElement parent, string name) : this(parent, parent.ContentClass, name)
         {
         }
 
-        public FolderXmlNodeAttribute(IAttributeContainer parent, ContentClass cc, string name)
-            : base((RedDotObject) parent, name)
+        private FolderXmlNodeAttribute(IAttributeContainer parent, ContentClass cc, string name)
+            : base(cc.Project.Session, (RedDotObject) parent, name)
         {
             _contentClass = cc;
         }

@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Background(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Background(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

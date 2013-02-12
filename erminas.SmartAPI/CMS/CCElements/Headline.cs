@@ -18,9 +18,9 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class Headline : CCElement
+    public class Headline : ContentClassElement
     {
-        public Headline(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Headline(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode", "elthideinform",
                              "eltrddescription", "eltdirectedit", "eltdragdrop");
@@ -33,20 +33,23 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Description
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get { return GetAttributeValue<string>("eltrddescription"); }
+            set
+            {
+                SetAttributeValue("eltrddescription", value);
+            }
         }
 
         public bool IsDirectEditActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdirectedit"); }
+            set { SetAttributeValue("eltdirectedit", value); }
         }
 
         public bool IsDragAndDropActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdragdrop"); }
+            set { SetAttributeValue("eltdragdrop", value); }
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
@@ -55,19 +58,19 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 ContentClass.Project.Session.EnsureVersion();
-                return ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value;
+                return GetAttributeValue<bool>("eltlanguageindependent");
             }
             set
             {
                 ContentClass.Project.Session.EnsureVersion();
-                ((BoolXmlNodeAttribute) GetAttribute("eltlanguageindependent")).Value = value;
+                SetAttributeValue("eltlanguageindependent", value);
             }
         }
 
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
+            set { SetAttributeValue("eltdonothtmlencode", value); }
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
@@ -76,19 +79,19 @@ namespace erminas.SmartAPI.CMS.CCElements
             get
             {
                 ContentClass.Project.Session.EnsureVersion();
-                return ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value;
+                return GetAttributeValue<bool>("eltignoreworkflow");
             }
             set
             {
                 ContentClass.Project.Session.EnsureVersion();
-                ((BoolXmlNodeAttribute) GetAttribute("eltignoreworkflow")).Value = value;
+                SetAttributeValue("eltignoreworkflow", value);
             }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
+            get { return GetAttributeValue<bool>("elthideinform"); }
+            set { SetAttributeValue("elthideinform", value); }
         }
     }
 }

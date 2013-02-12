@@ -14,13 +14,12 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
     public class Container : AbstractWorkflowPreassignable, IContentClassPreassignable
     {
-        public Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltistargetcontainer", "eltisdynamic");
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
@@ -33,14 +32,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsDynamic
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltisdynamic")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltisdynamic")).Value = value; }
+            get { return GetAttributeValue<bool>("eltisdynamic"); }
+            set { SetAttributeValue("eltisdynamic", value); }
         }
 
         public bool IsTargetContainer
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltistargetcontainer")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltistargetcontainer")).Value = value; }
+            get { return GetAttributeValue<bool>("eltistargetcontainer"); }
+            set { SetAttributeValue("eltistargetcontainer", value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }

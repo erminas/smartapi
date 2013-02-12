@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Xml;
 
 namespace erminas.SmartAPI.CMS.PageElements
@@ -22,9 +23,14 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private int _maxSize;
 
-        public StandardFieldText(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldText(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
+        }
+
+        public StandardFieldText(Project project, Guid guid, LanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
+        {
         }
 
         public int MaxSize

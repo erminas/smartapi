@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardFieldDate : StandardField
     {
-        public StandardFieldDate(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal StandardFieldDate(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }
@@ -57,8 +57,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string UserDefinedDateFormat
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value = value; }
+            get { return GetAttributeValue<string>("eltformatting"); }
+            set
+            {
+                SetAttributeValue("eltformatting", value);
+            }
         }
     }
 }

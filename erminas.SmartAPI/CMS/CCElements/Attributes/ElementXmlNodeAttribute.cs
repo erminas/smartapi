@@ -14,12 +14,14 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 
 namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
-    public class ElementXmlNodeAttribute : AbstractGuidXmlNodeAttribute<CCElement>
+    public class ElementXmlNodeAttribute : AbstractGuidXmlNodeAttribute<ContentClassElement>
     {
-        public ElementXmlNodeAttribute(IAttributeContainer parent, string name) : base((RedDotObject) parent, name)
+        public ElementXmlNodeAttribute(ContentClassElement parent, string name)
+            : base(parent.ContentClass.Project.Session, parent, name)
         {
         }
 
@@ -28,19 +30,19 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             return "element";
         }
 
-        protected override CCElement RetrieveByGuid(Guid elementGuid)
+        protected override ContentClassElement RetrieveByGuid(Guid elementGuid)
         {
-            var parentCcElement = (CCElement) Parent;
+            var parentCcElement = (ContentClassElement) Parent;
             return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].Elements.Find(
+                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].FirstOrDefault(
                     x => x.Guid.Equals(elementGuid));
         }
 
-        protected override CCElement RetrieveByName(string name)
+        protected override ContentClassElement RetrieveByName(string name)
         {
-            var parentCcElement = (CCElement) Parent;
+            var parentCcElement = (ContentClassElement) Parent;
             return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].Elements.Find(
+                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].FirstOrDefault(
                     x => x.Name == name);
         }
     }

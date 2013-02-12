@@ -18,7 +18,7 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS
 {
-    public abstract class AbstractWorkflowPreassignable : CCElement
+    public abstract class AbstractWorkflowPreassignable : ContentClassElement
     {
         private readonly WorkflowPreassignable _workflowPreassignable;
 

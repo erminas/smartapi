@@ -18,9 +18,9 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class ListEntry : CCElement
+    public class ListEntry : ContentClassElement
     {
-        public ListEntry(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal ListEntry(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("elthideinform", "eltinvisibleinpage", "eltbeginmark", "eltendmark", "eltwholetext",
                              "eltfolderguid");
@@ -33,38 +33,44 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string EndTagForAutomaticProcessing
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value = value; }
+            get { return GetAttributeValue<string>("eltendmark"); }
+            set
+            {
+                SetAttributeValue("eltendmark", value);
+            }
         }
 
         public Folder Folder
         {
-            get { return ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value; }
-            set { ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value; }
+            get { return GetAttributeValue<Folder>("eltfolderguid"); }
+            set { SetAttributeValue("eltfolderguid", value); }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
+            get { return GetAttributeValue<bool>("elthideinform"); }
+            set { SetAttributeValue("elthideinform", value); }
         }
 
         public bool IsNotVisibleOnPublishedPage
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltinvisibleinpage")).Value = value; }
+            get { return GetAttributeValue<bool>("eltinvisibleinpage"); }
+            set { SetAttributeValue("eltinvisibleinpage", value); }
         }
 
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value = value; }
+            get { return GetAttributeValue<bool>("eltwholetext"); }
+            set { SetAttributeValue("eltwholetext", value); }
         }
 
         public string StartTagForAutomaticProcessing
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value = value; }
+            get { return GetAttributeValue<string>("eltbeginmark"); }
+            set
+            {
+                SetAttributeValue("eltbeginmark", value);
+            }
         }
     }
 }

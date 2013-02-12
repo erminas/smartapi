@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS
 
         private LanguageVariant _languageVariant;
 
-        public Category(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Category(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             Keywords = new Keywords(this);
@@ -127,12 +127,15 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Same as
-        ///     <code>
-        /// string newCategoryName = ...;
-        /// category.Name = newCategoryName;
+        ///     Renames the category directly on the server.
+        ///     Thus it is the same as:
+        ///     <example>
+        ///         <code>
+        /// string newCategoryName = ...; <br />
+        /// category.Name = newCategoryName;<br /> 
         /// category.Commit();
         /// </code>
+        ///     </example>
         /// </summary>
         public void Rename(string newCategoryName)
         {
@@ -155,7 +158,7 @@ namespace erminas.SmartAPI.CMS
 
         private static bool IsCategoryStillUsed(XmlElement category)
         {
-            return category.GetIntAttributeValue("countkeywordonpag").GetValueOrDefault() > 0 ||
+            return category.GetIntAttributeValue("countkeywordonpag") > 0 ||
                    category.GetIntAttributeValue("countkeywordonpge") > 0 ||
                    category.GetIntAttributeValue("countkeywordonpgeandpag") > 0;
         }

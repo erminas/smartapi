@@ -24,12 +24,12 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private File _file;
 
-        public AbstractMediaElement(Project project, Guid guid, LanguageVariant languageVariant)
+        protected AbstractMediaElement(Project project, Guid guid, LanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        public AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

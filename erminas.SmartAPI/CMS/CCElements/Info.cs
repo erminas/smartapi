@@ -19,9 +19,9 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class Info : CCElement
+    public class Info : ContentClassElement
     {
-        public Info(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Info(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltsubtype", "eltevalcalledpage", "eltuserfc3066", "eltkeywordseparator", "eltformatno",
                              "eltlcid", "eltformatting", "eltdonothtmlencode", "eltusemainlink", "eltprojectvariantguid",
@@ -55,26 +55,26 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
+            set { SetAttributeValue("eltdonothtmlencode", value); }
         }
 
         public bool IsUsingDataOfPageInTargetContainer
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltevalcalledpage")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltevalcalledpage")).Value = value; }
+            get { return GetAttributeValue<bool>("eltevalcalledpage"); }
+            set { SetAttributeValue("eltevalcalledpage", value); }
         }
 
         public bool IsUsingMainLink
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltusemainlink")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltusemainlink")).Value = value; }
+            get { return GetAttributeValue<bool>("eltusemainlink"); }
+            set { SetAttributeValue("eltusemainlink", value); }
         }
 
         public bool IsUsingRfc3066
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltuserfc3066")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltuserfc3066")).Value = value; }
+            get { return GetAttributeValue<bool>("eltuserfc3066"); }
+            set { SetAttributeValue("eltuserfc3066", value); }
         }
 
         public Locale Locale
@@ -91,14 +91,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Separator
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltkeywordseparator")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltkeywordseparator")).Value = value; }
+            get { return GetAttributeValue<string>("eltkeywordseparator"); }
+            set
+            {
+                SetAttributeValue("eltkeywordseparator", value);
+            }
         }
 
         public string UserDefinedDateFormat
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltformatting")).Value = value; }
+            get { return GetAttributeValue<string>("eltformatting"); }
+            set
+            {
+                SetAttributeValue("eltformatting", value);
+            }
         }
     }
 }

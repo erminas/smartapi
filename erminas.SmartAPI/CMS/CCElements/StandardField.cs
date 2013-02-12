@@ -18,15 +18,17 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class StandardField : CCExtendedContentElement
+    public class StandardField : ExtendedContentClassContentElement
     {
-        public StandardField(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        protected StandardField(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltrdexample", /*"eltparentelementname",*/ "eltparentelementguid");
+// ReSharper disable ObjectCreationAsStatement
             new StringXmlNodeAttribute(this, "eltdefaultvalue");
+// ReSharper restore ObjectCreationAsStatement
         }
 
-        public CCElement ChildElementOf
+        public ContentClassElement ChildElementOf
         {
             get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
             set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
@@ -34,14 +36,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string DefaultValue
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltdefaultvalue")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltdefaultvalue")).Value = value; }
+            get { return GetAttributeValue<string>("eltdefaultvalue"); }
+            set
+            {
+                SetAttributeValue("eltdefaultvalue", value);
+            }
         }
 
         public string Sample
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value; }
+            get { return GetAttributeValue<string>("eltrdexample"); }
+            set
+            {
+                SetAttributeValue("eltrdexample", value);
+            }
         }
     }
 }

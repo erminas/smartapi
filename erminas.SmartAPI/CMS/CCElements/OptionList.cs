@@ -28,19 +28,21 @@ namespace erminas.SmartAPI.CMS.CCElements
     //defaultvalue gets automatically handled by optionlistselectionattribute
     //if a value is assigend for optionlistdata, the defaultvalue will get set, too, from the same
     //source
-    public class OptionList : CCContentElement
+    public class OptionList : ContentClassContentElement
     {
         private const string ELTDEFAULTVALUE = "eltdefaultvalue";
 
-        public OptionList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal OptionList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguagedependentvalue", "eltlanguagedependentname", "eltuserdefinedallowed",
                              "eltrdexample", "eltrddescription", "eltorderby", /*"eltparentelementname",*/
                              "eltparentelementguid");
+// ReSharper disable ObjectCreationAsStatement
             new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
+// ReSharper restore ObjectCreationAsStatement
         }
 
-        public CCElement ChildElementOf
+        public ContentClassElement ChildElementOf
         {
             get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
             set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
@@ -55,8 +57,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Description
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get { return GetAttributeValue<string>("eltrddescription"); }
+            set
+            {
+                SetAttributeValue("eltrddescription", value);
+            }
         }
 
         public string Entries
@@ -67,26 +72,29 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool HasLanguageDependendNames
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentname")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentname")).Value = value; }
+            get { return GetAttributeValue<bool>("eltlanguagedependentname"); }
+            set { SetAttributeValue("eltlanguagedependentname", value); }
         }
 
         public bool HasLanguageDependendValues
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltlanguagedependentvalue")).Value = value; }
+            get { return GetAttributeValue<bool>("eltlanguagedependentvalue"); }
+            set { SetAttributeValue("eltlanguagedependentvalue", value); }
         }
 
         public bool IsAllowingOtherValues
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltuserdefinedallowed")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltuserdefinedallowed")).Value = value; }
+            get { return GetAttributeValue<bool>("eltuserdefinedallowed"); }
+            set { SetAttributeValue("eltuserdefinedallowed", value); }
         }
 
         public string SampleText
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value; }
+            get { return GetAttributeValue<string>("eltrdexample"); }
+            set
+            {
+                SetAttributeValue("eltrdexample", value);
+            }
         }
 
         public SortMode SortMode

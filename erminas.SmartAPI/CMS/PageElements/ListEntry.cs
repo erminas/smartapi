@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public ListEntry(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal ListEntry(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

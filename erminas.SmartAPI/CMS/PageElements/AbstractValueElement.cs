@@ -37,8 +37,6 @@ namespace erminas.SmartAPI.CMS.PageElements
             LoadXml();
         }
 
-        #region IValueElement<T> Members
-
         public virtual void Commit()
         {
             //TODO bei null/"" SESSIONKEY setzen??
@@ -47,6 +45,11 @@ namespace erminas.SmartAPI.CMS.PageElements
                                     ? Session.SESSIONKEY_PLACEHOLDER
                                     : HttpUtility.HtmlEncode(xmlNodeValue);
             ExecuteCommit(htmlEncode);
+        }
+
+        public void DeleteValue()
+        {
+            Value = default(T);
         }
 
         public void SetValueFromString(string value)
@@ -58,13 +61,6 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
             get { return LazyLoad(ref _value); }
             set { _value = value; }
-        }
-
-        #endregion
-
-        public void DeleteValue()
-        {
-            Value = default(T);
         }
 
         protected void ExecuteCommit(string valueToSave)

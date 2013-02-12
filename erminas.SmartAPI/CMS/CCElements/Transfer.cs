@@ -14,13 +14,12 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class Transfer : CCElement
+    public class Transfer : ContentClassElement
     {
-        public Transfer(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Transfer(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltdonothtmlencode", "elthideinform");
         }
@@ -32,14 +31,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdonothtmlencode")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
+            set { SetAttributeValue("eltdonothtmlencode", value); }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("elthideinform")).Value = value; }
+            get { return GetAttributeValue<bool>("elthideinform"); }
+            set { SetAttributeValue("elthideinform", value); }
         }
     }
 }

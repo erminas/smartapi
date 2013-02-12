@@ -121,7 +121,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class Frame : AbstractWorkflowPreassignable, IContentClassPreassignable
     {
-        public Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltframename", "eltmarginwidth", "eltmarginheight", "eltscrolling",
                              "eltsrc", "eltsupplement", "eltframeborder", "eltnoresize");
@@ -136,8 +136,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string FrameName
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltframename")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltframename")).Value = value; }
+            get { return GetAttributeValue<string>("eltframename"); }
+            set
+            {
+                SetAttributeValue("eltframename", value);
+            }
         }
 
         public Frameborder Frameborder
@@ -148,26 +151,32 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsNotResizing
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltnoresize")).Value = value; }
+            get { return GetAttributeValue<bool>("eltnoresize"); }
+            set { SetAttributeValue("eltnoresize", value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
+            set { SetAttributeValue("eltxhtmlcompliant", value); }
         }
 
         public string MarginHeight
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltmarginheight")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmarginheight")).Value = value; }
+            get { return GetAttributeValue<string>("eltmarginheight"); }
+            set
+            {
+                SetAttributeValue("eltmarginheight", value);
+            }
         }
 
         public string MarginWidth
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltmarginwidth")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmarginwidth")).Value = value; }
+            get { return GetAttributeValue<string>("eltmarginwidth"); }
+            set
+            {
+                SetAttributeValue("eltmarginwidth", value);
+            }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
@@ -180,14 +189,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Src
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value; }
+            get { return GetAttributeValue<string>("eltsrc"); }
+            set
+            {
+                SetAttributeValue("eltsrc", value);
+            }
         }
 
         public string Supplement
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+            get { return GetAttributeValue<string>("eltsupplement"); }
+            set
+            {
+                SetAttributeValue("eltsupplement", value);
+            }
         }
     }
 }

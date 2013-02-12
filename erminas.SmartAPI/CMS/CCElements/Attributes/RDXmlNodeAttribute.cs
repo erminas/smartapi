@@ -177,9 +177,10 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     //{"eltrefelementguid",""},
                     //{"eltrefelementtype",""},
                     {"eltconvertmode", "Convert selected documents"},
+                    {"ignoreglobalworkflow", "Not relevant for global content workflow"},
                     {"keywordrequired", "Keyword required"},
-                    {"requiredcategory", "Keyword required from category"}
-
+                    {"requiredcategory", "Keyword required from category"},
+                    {"selectinnewpage", "Available via the shortcut menu in SmartEdit"}
                     //{"",""},
                     //{"",""},
                     //{"",""},

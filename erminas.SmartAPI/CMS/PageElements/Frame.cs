@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Frame(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Frame(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

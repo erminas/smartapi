@@ -70,14 +70,16 @@ namespace erminas.SmartAPI.CMS.CCElements
 
     public class HitList : List
     {
-        public HitList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal HitList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace", "eltusermap", "eltsupplement",
                              "eltalt");
 
+// ReSharper disable ObjectCreationAsStatement
             new BoolXmlNodeAttribute(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,
                                                            BasicAlignmentUtils.ToBasicAlignment);
+// ReSharper restore ObjectCreationAsStatement
         }
 
         public BasicAlignment Align
@@ -88,14 +90,20 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string AltText
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltalt")).Value = value; }
+            get { return GetAttributeValue<string>("eltalt"); }
+            set
+            {
+                SetAttributeValue("eltalt", value);
+            }
         }
 
         public string Border
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltborder")).Value = value; }
+            get { return GetAttributeValue<string>("eltborder"); }
+            set
+            {
+                SetAttributeValue("eltborder", value);
+            }
         }
 
         public override void Commit()
@@ -112,8 +120,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string HSpace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elthspace")).Value = value; }
+            get { return GetAttributeValue<string>("elthspace"); }
+            set
+            {
+                SetAttributeValue("elthspace", value);
+            }
         }
 
         public HitListType HitListType
@@ -132,26 +143,35 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsAltPreassignedAutomatically
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltpresetalt")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltpresetalt")).Value = value; }
+            get { return GetAttributeValue<bool>("eltpresetalt"); }
+            set { SetAttributeValue("eltpresetalt", value); }
         }
 
         public string Supplement
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+            get { return GetAttributeValue<string>("eltsupplement"); }
+            set
+            {
+                SetAttributeValue("eltsupplement", value);
+            }
         }
 
         public string Usemap
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltusermap")).Value = value; }
+            get { return GetAttributeValue<string>("eltusermap"); }
+            set
+            {
+                SetAttributeValue("eltusermap", value);
+            }
         }
 
         public string VSpace
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltvspace")).Value = value; }
+            get { return GetAttributeValue<string>("eltvspace"); }
+            set
+            {
+                SetAttributeValue("eltvspace", value);
+            }
         }
     }
 }

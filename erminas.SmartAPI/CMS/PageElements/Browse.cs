@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Browse(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Browse(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

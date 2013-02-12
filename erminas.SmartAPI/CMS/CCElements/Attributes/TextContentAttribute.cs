@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private bool _hasChanged;
         private string _text;
 
-        public TextContentAttribute(CCElement parent, TextType type, string name) : base(parent, name)
+        public TextContentAttribute(ContentClassElement parent, TextType type, string name) : base(parent, name)
         {
             _type = type;
         }
@@ -54,7 +54,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             {
                 return;
             }
-            var parent = ((CCElement) Parent);
+            var parent = ((ContentClassElement) Parent);
             LanguageVariant lang = parent.LanguageVariant;
 
             if (string.IsNullOrEmpty(_text))
@@ -107,7 +107,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             {
                 if (_text == null)
                 {
-                    var parent = ((CCElement) Parent);
+                    var parent = ((ContentClassElement) Parent);
                     LanguageVariant lang = parent.LanguageVariant;
                     _text = _guid == Guid.Empty
                                 ? string.Empty

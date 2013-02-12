@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 
-        public Area(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Area(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltsupplement", "eltonlyhrefvalue", "eltshape", "elttarget",
                              "eltcoords");
@@ -37,8 +37,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Coords
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcoords")).Value = value; }
+            get { return GetAttributeValue<string>("eltcoords"); }
+            set
+            {
+                SetAttributeValue("eltcoords", value);
+            }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -49,14 +52,14 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltonlyhrefvalue")).Value = value; }
+            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
+            set { SetAttributeValue("eltonlyhrefvalue", value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
+            set { SetAttributeValue("eltxhtmlcompliant", value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
@@ -70,21 +73,30 @@ namespace erminas.SmartAPI.CMS.CCElements
         //TODO use enum instead
         public string Shape
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltshape")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltshape")).Value = value; }
+            get { return GetAttributeValue<string>("eltshape"); }
+            set
+            {
+                SetAttributeValue("eltshape", value);
+            }
         }
 
         public string Supplement
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsupplement")).Value = value; }
+            get { return GetAttributeValue<string>("eltsupplement"); }
+            set
+            {
+                SetAttributeValue("eltsupplement", value);
+            }
         }
 
         //TODO use enum instead
         public string Target
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elttarget")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elttarget")).Value = value; }
+            get { return GetAttributeValue<string>("elttarget"); }
+            set
+            {
+                SetAttributeValue("elttarget", value);
+            }
         }
     }
 }

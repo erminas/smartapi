@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         private String _customValue;
 
-        public EnumWithCustomValuesXmlNodeAttribute(CCElement parent, string name) : base(parent, name)
+        public EnumWithCustomValuesXmlNodeAttribute(ContentClassElement parent, string name) : base(parent, name)
         {
         }
 

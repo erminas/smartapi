@@ -18,9 +18,9 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public abstract class CCExtendedContentElement : CCContentElement
+    public abstract class ExtendedContentClassContentElement : ContentClassContentElement
     {
-        protected CCExtendedContentElement(ContentClass contentClass, XmlElement xmlElement)
+        protected ExtendedContentClassContentElement(ContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             CreateAttributes("eltbeginmark", "eltendmark", "eltrddescription");
@@ -28,20 +28,29 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string Description
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrddescription")).Value = value; }
+            get { return GetAttributeValue<string>("eltrddescription"); }
+            set
+            {
+                SetAttributeValue("eltrddescription", value);
+            }
         }
 
         public string EndTagForAutomaticProcessing
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltendmark")).Value = value; }
+            get { return GetAttributeValue<string>("eltendmark"); }
+            set
+            {
+                SetAttributeValue("eltendmark", value);
+            }
         }
 
         public string StartTagForAutomaticProcessing
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltbeginmark")).Value = value; }
+            get { return GetAttributeValue<string>("eltbeginmark"); }
+            set
+            {
+                SetAttributeValue("eltbeginmark", value);
+            }
         }
     }
 }

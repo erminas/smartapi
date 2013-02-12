@@ -21,15 +21,15 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class ElementReferenceAttribute : IRDAttribute
     {
-        private readonly CCElement _parent;
+        private readonly ContentClassElement _parent;
 
-        public ElementReferenceAttribute(CCElement parent)
+        public ElementReferenceAttribute(ContentClassElement parent)
         {
             _parent = parent;
             parent.RegisterAttribute(this);
         }
 
-        public CCElement Value
+        public ContentClassElement Value
         {
             get
             {
@@ -65,19 +65,21 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
             var other = (ElementReferenceAttribute) o;
 
-            CCElement otherCCElement = other.Value;
+            ContentClassElement otherContentClassElement = other.Value;
             try
             {
                 Project project =
-                    _parent.ContentClass.Project.Session.Projects[otherCCElement.ContentClass.Project.Name];
-                ContentClass cc = project.ContentClasses.GetByName(otherCCElement.ContentClass.Name);
-                Value = cc.Elements[otherCCElement.LanguageVariant.Language].GetByName(otherCCElement.Name);
+                    _parent.ContentClass.Project.Session.Projects[otherContentClassElement.ContentClass.Project.Name];
+                ContentClass cc = project.ContentClasses.GetByName(otherContentClassElement.ContentClass.Name);
+                Value =
+                    cc.Elements[otherContentClassElement.LanguageVariant.Language].GetByName(
+                        otherContentClassElement.Name);
             } catch (Exception e)
             {
                 throw new Exception(
                     string.Format("Can't find project/content class/element {0}/{1}/{2} on server",
-                                  otherCCElement.ContentClass.Project.Name, otherCCElement.ContentClass.Name,
-                                  otherCCElement.Name), e);
+                                  otherContentClassElement.ContentClass.Project.Name,
+                                  otherContentClassElement.ContentClass.Name, otherContentClassElement.Name), e);
             }
         }
 
@@ -90,13 +92,14 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         {
             get
             {
-                CCElement ccElement = Value;
-                if (ccElement == null)
+                ContentClassElement contentClassElement = Value;
+                if (contentClassElement == null)
                 {
                     return "not set";
                 }
-                return string.Format("Element {0} of content class {1} in project {2}", ccElement.Name,
-                                     ccElement.ContentClass.Name, ccElement.ContentClass.Project.Name);
+                return string.Format("Element {0} of content class {1} in project {2}", contentClassElement.Name,
+                                     contentClassElement.ContentClass.Name,
+                                     contentClassElement.ContentClass.Project.Name);
             }
         }
 

@@ -65,8 +65,8 @@
     <Compile Include="CMS\CCElements\Attributes\ElementReferenceAttribute.cs" />
     <Compile Include="CMS\CCElements\Attributes\StringEnumXmlNodeAttribute.cs" />
     <Compile Include="CMS\CCElements\BasicAlignment.cs" />
-    <Compile Include="CMS\CCElements\CCContentElement.cs" />
-    <Compile Include="CMS\CCElements\CCExtendedContentElement.cs" />
+    <Compile Include="CMS\CCElements\ContentClassContentElement.cs" />
+    <Compile Include="CMS\CCElements\ExtendedContentClassContentElement.cs" />
     <Compile Include="CMS\CCElements\ICanBeRequiredForEditing.cs" />
     <Compile Include="CMS\CCElements\ImageAlignment.cs" />
     <Compile Include="CMS\CCElements\ProjectContent.cs" />
@@ -101,6 +101,7 @@
     <Compile Include="CMS\PageElements\TextAscii.cs" />
     <Compile Include="CMS\PageElements\Transfer.cs" />
     <Compile Include="CMS\PreassignedWorkflow.cs" />
+    <Compile Include="CMS\RecycleBin.cs" />
     <Compile Include="CMS\TargetContainerPreassignment.cs" />
     <Compile Include="CMS\UserModuleAssignment.cs" />
     <Compile Include="CMS\UserProjectAssignment.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="Exceptions\FileDataException.cs" />
     <Compile Include="CMS\AbstractAttributeContainer.cs" />
     <Compile Include="CMS\Category.cs" />
-    <Compile Include="CMS\CCElement.cs" />
+    <Compile Include="CMS\ContentClassElement.cs" />
     <Compile Include="CMS\CCElements\AltType.cs" />
     <Compile Include="CMS\CCElements\Anchor.cs" />
     <Compile Include="CMS\CCElements\Area.cs" />

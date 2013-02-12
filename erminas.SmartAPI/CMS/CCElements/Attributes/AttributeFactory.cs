@@ -163,11 +163,13 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                     {"eltxslfile", new StringAttributeFactory()},
                     {"framesetafterlist", new BoolAttributeFactory()},
                     {"guid", new StringAttributeFactory()},
+                    {"ignoreglobalworkflow", new BoolAttributeFactory()},
                     {"keywordrequired", new BoolAttributeFactory()},
                     {"languagevariantid", new StringAttributeFactory()},
                     {"name", new StringAttributeFactory()},
                     {"praefixguid", new SyllableAttributeFactory()},
                     {"requiredcategory", new CategoryAttributeFactory()},
+                    {"selectinnewpage", new BoolAttributeFactory()},
                     {"showpagerange", new BoolAttributeFactory()},
                     {"suffixguid", new SyllableAttributeFactory()},
                     {"usedefaultrangesettings", new BoolAttributeFactory()},
@@ -178,7 +180,9 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             FACTORIES.Add(attributeName, factory);
         }
 
-        public static IRDAttribute CreateAttribute(IAttributeContainer element, string attributeName)
+        protected abstract RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name);
+
+        internal static IRDAttribute CreateAttribute(IAttributeContainer element, string attributeName)
         {
             try
             {
@@ -189,8 +193,6 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
                 throw new MissingAttributeException(attributeName);
             }
         }
-
-        protected abstract RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name);
     }
 
     public class MissingAttributeException : SmartAPIInternalException
@@ -204,7 +206,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new LanguageVariantAttribute((CCElement) element, name);
+            return new LanguageVariantAttribute((ContentClassElement) element, name);
         }
     }
 
@@ -212,7 +214,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new ProjectVariantAttribute((CCElement) element, name);
+            return new ProjectVariantAttribute((ContentClassElement) element, name);
         }
     }
 
@@ -220,7 +222,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new InfoElementAttribute((CCElement) element, name);
+            return new InfoElementAttribute((ContentClassElement) element, name);
         }
     }
 
@@ -228,7 +230,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new DateTimeFormatAttribute((CCElement) element, name);
+            return new DateTimeFormatAttribute((ContentClassElement) element, name);
         }
     }
 
@@ -236,7 +238,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new LocaleXmlNodeAttribute((CCElement) element, name);
+            return new LocaleXmlNodeAttribute((ContentClassElement) element, name);
         }
     }
 
@@ -268,7 +270,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new FolderXmlNodeAttribute((CCElement) element, name);
+            return new FolderXmlNodeAttribute((ContentClassElement) element, name);
         }
     }
 
@@ -338,7 +340,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
     {
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
-            return new ElementXmlNodeAttribute(element, name);
+            return new ElementXmlNodeAttribute((ContentClassElement) element, name);
         }
     }
 

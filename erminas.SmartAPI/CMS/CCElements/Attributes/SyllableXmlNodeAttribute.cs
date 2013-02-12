@@ -19,7 +19,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class SyllableXmlNodeAttribute : AbstractGuidXmlNodeAttribute<Syllable>
     {
-        public SyllableXmlNodeAttribute(ContentClass element, string name) : base(element, name)
+        public SyllableXmlNodeAttribute(ContentClass element, string name)
+            : base(element.Project.Session, element, name)
         {
         }
 

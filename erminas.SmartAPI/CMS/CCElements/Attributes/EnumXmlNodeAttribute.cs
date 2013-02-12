@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
         private readonly Dictionary<T, string> _displayStrings;
         protected T _value;
 
-        public EnumXmlNodeAttribute(CCElement parent, string name, bool initValue = true)
+        public EnumXmlNodeAttribute(ContentClassElement parent, string name, bool initValue = true)
             : base(parent, name, initValue)
         {
         }

@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS
         public readonly Project Project;
         private Category _category;
 
-        public Keyword(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Keyword(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();

@@ -19,7 +19,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class LanguageVariantAttribute : AbstractGuidXmlNodeAttribute<LanguageVariant>
     {
-        public LanguageVariantAttribute(CCElement parent, string name) : base(parent, name)
+        public LanguageVariantAttribute(ContentClassElement parent, string name)
+            : base(parent.ContentClass.Project.Session, parent, name)
         {
         }
 
@@ -50,12 +51,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override LanguageVariant RetrieveByGuid(Guid guid)
         {
-            return ((CCElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
+            return ((ContentClassElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
         }
 
         protected override LanguageVariant RetrieveByName(string name)
         {
-            return ((CCElement) Parent).ContentClass.Project.LanguageVariants[name];
+            return ((ContentClassElement) Parent).ContentClass.Project.LanguageVariants[name];
         }
     }
 }

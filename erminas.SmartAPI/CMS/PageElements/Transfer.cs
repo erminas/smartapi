@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Transfer(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Transfer(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

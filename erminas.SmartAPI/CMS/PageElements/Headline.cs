@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.PageElements
         {
         }
 
-        public Headline(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Headline(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.PageElements
     {
         private readonly DateTime BASE_DATE = new DateTime(1899, 12, 30);
 
-        public StandardFieldDate(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldDate(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

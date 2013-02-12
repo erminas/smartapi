@@ -26,12 +26,14 @@ namespace erminas.SmartAPI.CMS.CCElements
         MBytes
     }
 
-    public class Attribute : CCElement
+    public class Attribute : ContentClassElement
     {
-        public Attribute(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Attribute(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltmediatypename", "eltmediatypeattribute", "eltlcid", "eltformatno");
+// ReSharper disable ObjectCreationAsStatement
             new StringEnumXmlNodeAttribute<FileSizeUnit>(this, "eltformatting", x => x.ToString(),
+                                                         // ReSharper restore ObjectCreationAsStatement
                                                          x => (FileSizeUnit) Enum.Parse(typeof (FileSizeUnit), x));
         }
 
@@ -60,8 +62,11 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string ReferencedElementName
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltmediatypename")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmediatypename")).Value = value; }
+            get { return GetAttributeValue<string>("eltmediatypename"); }
+            set
+            {
+                SetAttributeValue("eltmediatypename", value);
+            }
         }
 
         public MediaTypeAttribute SelectedAttribute

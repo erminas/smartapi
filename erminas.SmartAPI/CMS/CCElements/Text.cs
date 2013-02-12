@@ -20,7 +20,7 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public abstract class Text : CCExtendedContentElement
+    public abstract class Text : ExtendedContentClassContentElement
     {
         private readonly TextContentAttribute _defaultText;
         private readonly TextContentAttribute _exampleText;
@@ -58,32 +58,32 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsCrlfConvertedToBr
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltcrlftobr")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltcrlftobr")).Value = value; }
+            get { return GetAttributeValue<bool>("eltcrlftobr"); }
+            set { SetAttributeValue("eltcrlftobr", value); }
         }
 
         public bool IsDirectEditActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdirectedit")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdirectedit"); }
+            set { SetAttributeValue("eltdirectedit", value); }
         }
 
         public bool IsDragAndDropActivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdragdrop")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdragdrop"); }
+            set { SetAttributeValue("eltdragdrop", value); }
         }
 
         public bool IsTextFilterDeactivated
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltdeactivatetextfilter")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltdeactivatetextfilter")).Value = value; }
+            get { return GetAttributeValue<bool>("eltdeactivatetextfilter"); }
+            set { SetAttributeValue("eltdeactivatetextfilter", value); }
         }
 
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltwholetext")).Value = value; }
+            get { return GetAttributeValue<bool>("eltwholetext"); }
+            set { SetAttributeValue("eltwholetext", value); }
         }
 
         public int? MaxCharacterCount

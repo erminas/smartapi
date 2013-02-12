@@ -19,14 +19,16 @@ using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class SiteMap : CCElement
+    public class SiteMap : ContentClassElement
     {
-        public SiteMap(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal SiteMap(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltdepth", "eltsearchdepth", "elttableopen", "elttableclose",
                              "eltrowopen", "eltrowclose", "eltcolopen", "eltcolclose", "eltdropouts", "eltxslfile",
                              "eltfolderguid");
+// ReSharper disable ObjectCreationAsStatement
             new EnumXmlNodeAttribute<SiteMapFormat>(this, "eltformat");
+// ReSharper restore ObjectCreationAsStatement
         }
 
         public override ContentClassCategory Category
@@ -36,20 +38,29 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string EndOfColumn
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolclose")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolclose")).Value = value; }
+            get { return GetAttributeValue<string>("eltcolclose"); }
+            set
+            {
+                SetAttributeValue("eltcolclose", value);
+            }
         }
 
         public string EndOfLine
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrowclose")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrowclose")).Value = value; }
+            get { return GetAttributeValue<string>("eltrowclose"); }
+            set
+            {
+                SetAttributeValue("eltrowclose", value);
+            }
         }
 
         public string EndOfTable
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elttableclose")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elttableclose")).Value = value; }
+            get { return GetAttributeValue<string>("elttableclose"); }
+            set
+            {
+                SetAttributeValue("elttableclose", value);
+            }
         }
 
         public SiteMapFormat Format
@@ -60,8 +71,8 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value; }
-            set { ((BoolXmlNodeAttribute) GetAttribute("eltxhtmlcompliant")).Value = value; }
+            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
+            set { SetAttributeValue("eltxhtmlcompliant", value); }
         }
 
         public int? MaxErrorCount
@@ -96,20 +107,29 @@ namespace erminas.SmartAPI.CMS.CCElements
 
         public string StartOfColumn
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltcolopen")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltcolopen")).Value = value; }
+            get { return GetAttributeValue<string>("eltcolopen"); }
+            set
+            {
+                SetAttributeValue("eltcolopen", value);
+            }
         }
 
         public string StartOfLine
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("eltrowopen")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltrowopen")).Value = value; }
+            get { return GetAttributeValue<string>("eltrowopen"); }
+            set
+            {
+                SetAttributeValue("eltrowopen", value);
+            }
         }
 
         public string StartOfTable
         {
-            get { return ((StringXmlNodeAttribute) GetAttribute("elttableopen")).Value; }
-            set { ((StringXmlNodeAttribute) GetAttribute("elttableopen")).Value = value; }
+            get { return GetAttributeValue<string>("elttableopen"); }
+            set
+            {
+                SetAttributeValue("elttableopen", value);
+            }
         }
 
         public File XslStyleSheet

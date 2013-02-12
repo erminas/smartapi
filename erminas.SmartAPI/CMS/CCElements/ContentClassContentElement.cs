@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+// Smart API - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,29 +13,28 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
 
 namespace erminas.SmartAPI.CMS.CCElements
 {
-    public class Background : ContentClassElement
+    public abstract class ContentClassContentElement : ContentClassElement, ICanBeRequiredForEditing
     {
-        internal Background(ContentClass cc, XmlElement xmlElement) : base(cc, xmlElement)
+        protected ContentClassContentElement(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "elthideinform", "eltinvisibleinclient",
-                             "eltdragdrop", "eltsrcsubdirguid", "eltsrc");
+            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "eltinvisibleinclient",
+                             "eltinvisibleinpage", "elthideinform", "eltdonothtmlencode");
         }
 
-        public override ContentClassCategory Category
+        public override sealed ContentClassCategory Category
         {
             get { return ContentClassCategory.Content; }
         }
 
-        public bool IsDragAndDropActivated
+        public bool IsEditingMandatory
         {
-            get { return GetAttributeValue<bool>("eltdragdrop"); }
-            set { SetAttributeValue("eltdragdrop", value); }
+            get { return GetAttributeValue<bool>("eltrequired"); }
+            set { SetAttributeValue("eltrequired", value); }
         }
 
         public bool IsHiddenInProjectStructure
@@ -50,6 +49,12 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { SetAttributeValue("eltlanguageindependent", value); }
         }
 
+        public bool IsNotConvertingCharactersToHtml
+        {
+            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
+            set { SetAttributeValue("eltdonothtmlencode", value); }
+        }
+
         public bool IsNotRelevantForWorklow
         {
             get { return GetAttributeValue<bool>("eltignoreworkflow"); }
@@ -62,27 +67,10 @@ namespace erminas.SmartAPI.CMS.CCElements
             set { SetAttributeValue("elthideinform", value); }
         }
 
-        public File SrcFile
+        public bool IsNotVisibleOnPublishedPage
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value != null ? value.Name : "";
-                if (value != null)
-                {
-                    ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value.Folder;
-                }
-            }
+            get { return GetAttributeValue<bool>("eltinvisibleinpage"); }
+            set { SetAttributeValue("eltinvisibleinpage", value); }
         }
     }
 }

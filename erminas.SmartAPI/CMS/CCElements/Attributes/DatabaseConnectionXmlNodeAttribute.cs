@@ -19,7 +19,8 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     public class DatabaseConnectionXmlNodeAttribute : AbstractGuidXmlNodeAttribute<DatabaseConnection>
     {
-        public DatabaseConnectionXmlNodeAttribute(CCElement parent, string name) : base(parent, name)
+        public DatabaseConnectionXmlNodeAttribute(ContentClassElement parent, string name)
+            : base(parent.ContentClass.Project.Session, parent, name)
         {
         }
 
@@ -30,12 +31,12 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 
         protected override DatabaseConnection RetrieveByGuid(Guid guid)
         {
-            return ((CCElement) Parent).ContentClass.Project.DatabaseConnections.GetByGuid(guid);
+            return ((ContentClassElement) Parent).ContentClass.Project.DatabaseConnections.GetByGuid(guid);
         }
 
         protected override DatabaseConnection RetrieveByName(string name)
         {
-            return ((CCElement) Parent).ContentClass.Project.DatabaseConnections.GetByName(name);
+            return ((ContentClassElement) Parent).ContentClass.Project.DatabaseConnections.GetByName(name);
         }
     }
 }

@@ -19,18 +19,18 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
 {
     internal class DelegatingAttribute<T> : IRDAttribute
     {
-        public readonly CCElement CcElement;
+        public readonly ContentClassElement ContentClassElement;
         private readonly string _description;
         private readonly Func<T> _getValue;
         private readonly Func<T, string> _getValueDisplayString;
         private readonly Action<T> _setValue;
 
-        public DelegatingAttribute(CCElement ccElement, string name, Func<T> getFunction, Action<T> setFunction,
-                                   Func<T, string> getValueDisplayString, string description)
+        public DelegatingAttribute(ContentClassElement contentClassElement, string name, Func<T> getFunction,
+                                   Action<T> setFunction, Func<T, string> getValueDisplayString, string description)
         {
-            CcElement = ccElement;
+            ContentClassElement = contentClassElement;
             Name = name;
-            ccElement.RegisterAttribute(this);
+            contentClassElement.RegisterAttribute(this);
             _getValue = getFunction;
             _setValue = setFunction;
             _getValueDisplayString = getValueDisplayString;
@@ -44,7 +44,7 @@ namespace erminas.SmartAPI.CMS.CCElements.Attributes
             //don't set value, if element isn't initialized
             //needed for textelements, which need to set the text
             //after the element is created
-            if (!CcElement.Guid.Equals((Guid.Empty)))
+            if (!ContentClassElement.Guid.Equals((Guid.Empty)))
             {
                 var da = (DelegatingAttribute<T>) o;
                 _setValue(da._getValue());

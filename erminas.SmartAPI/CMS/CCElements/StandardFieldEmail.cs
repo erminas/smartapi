@@ -19,7 +19,7 @@ namespace erminas.SmartAPI.CMS.CCElements
 {
     public class StandardFieldEmail : StandardFieldNonDate
     {
-        public StandardFieldEmail(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal StandardFieldEmail(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
     }
