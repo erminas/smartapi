@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             PublicationSetting = parent;
         }
 
-        public PublicationFolderSetting(PublicationSetting parent, XmlElement element) : base(element)
+        internal PublicationFolderSetting(PublicationSetting parent, XmlElement element) : base(element)
         {
             PublicationSetting = parent;
 

@@ -51,7 +51,7 @@ namespace erminas.SmartAPI.CMS.Administration
             Session = session;
         }
 
-        public DatabaseServer(Session session, XmlElement xmlElement) : base(xmlElement)
+        internal DatabaseServer(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
             LoadXml();

@@ -130,7 +130,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         private bool _isAssetManagerFolder;
         private Folder _linkedFolder;
 
-        public Folder(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Folder(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();

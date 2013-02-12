@@ -96,7 +96,7 @@ namespace erminas.SmartAPI.CMS.Project
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
 
-        public Project(Session session, XmlElement xmlElement) : base(xmlElement)
+        internal Project(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
             LoadXml();

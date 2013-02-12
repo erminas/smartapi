@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         private TargetType _type;
         private string _urlPrefix;
 
-        public PublicationTarget(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal PublicationTarget(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();

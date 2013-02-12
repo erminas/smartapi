@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         private readonly NameIndexedRDList<PublicationFolderSetting> _exportFolderSettings;
         private List<PublicationTarget> _publishingTargets;
 
-        public PublicationSetting(PublicationPackage package, XmlElement xmlElement) : base(xmlElement)
+        internal PublicationSetting(PublicationPackage package, XmlElement xmlElement) : base(xmlElement)
         {
             _exportFolderSettings = new NameIndexedRDList<PublicationFolderSetting>(LoadExportFolderSettings,
                                                                                     Caching.Enabled);

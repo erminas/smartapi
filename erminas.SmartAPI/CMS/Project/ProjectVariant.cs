@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.Project
             Project = project;
         }
 
-        public ProjectVariant(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal ProjectVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
         }

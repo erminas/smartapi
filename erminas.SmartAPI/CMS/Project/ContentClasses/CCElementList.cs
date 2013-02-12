@@ -32,7 +32,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private static readonly ILog LOGGER = LogManager.GetLogger(typeof (CCElementList));
         private readonly List<ContentClassElement> _elements;
 
-        public CCElementList(ContentClass project, XmlElement xmlElement) : base(xmlElement)
+        internal CCElementList(ContentClass project, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = project;
             _elements = new List<ContentClassElement>();

@@ -134,7 +134,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             MaxWaitForDeletion = DEFAULT_WAIT_FOR_DELETION;
         }
 
-        public Page(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Page(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();

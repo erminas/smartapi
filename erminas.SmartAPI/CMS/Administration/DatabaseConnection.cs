@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS.Administration
             Project = project;
         }
 
-        public DatabaseConnection(Project.Project project, XmlElement xmlElement) : base(xmlElement)
+        internal DatabaseConnection(Project.Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();

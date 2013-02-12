@@ -107,7 +107,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             ContentClass = contentClass;
         }
 
-        public TemplateVariant(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
+        internal TemplateVariant(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClass = contentClass;
             LoadXml();

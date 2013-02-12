@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
     {
         private readonly Project _project;
 
-        public ContentClassFolder(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal ContentClassFolder(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
             _project = project;

@@ -77,7 +77,7 @@ namespace erminas.SmartAPI.CMS.Administration
         /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="session"> The cms session used to retrieve this user </param>
         /// <param name="xmlElement"> USER XML-Element to get data from </param>
-        public User(Session session, XmlElement xmlElement) : base(xmlElement)
+        internal User(Session session, XmlElement xmlElement) : base(xmlElement)
         {
             Session = session;
             Init();

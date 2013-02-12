@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.Project
     {
         protected readonly Project Project;
 
-        public Syllable(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Syllable(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
         }

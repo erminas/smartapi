@@ -32,7 +32,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
         public readonly Workflow Workflow;
 
-        public Note(Workflow workflow, XmlElement xmlElement) : base(xmlElement)
+        internal Note(Workflow workflow, XmlElement xmlElement) : base(xmlElement)
         {
             Workflow = workflow;
             LoadXml();

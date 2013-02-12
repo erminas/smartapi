@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project
         private bool _isCurrentLanguageVariant;
         private string _language;
 
-        public LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
             LoadXml();

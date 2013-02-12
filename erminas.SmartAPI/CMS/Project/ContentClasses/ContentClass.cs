@@ -105,7 +105,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         #endregion
 
-        public ContentClass(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal ContentClass(Project project, XmlElement xmlElement) : base(xmlElement)
         {
             Project = project;
 
@@ -824,7 +824,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             private readonly ContentClass _parent;
 
-            public CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
+            internal CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
             {
                 Debug.Assert(xmlElement != null);
                 _parent = parent;
@@ -916,7 +916,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             private Folder _folder;
             private User _user;
 
-            public CCVersion(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
+            internal CCVersion(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
             {
                 ContentClass = parent;
             }
