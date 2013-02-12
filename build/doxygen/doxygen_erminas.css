@@ -22,3 +22,7 @@ div.dynheader {
 .tabs2 {
 	font-size: 12px;
 }
+
+.mdescLeft, .mdescRight, .memItemLeft, .memItemRight, .memTemplItemLeft, .memTemplItemRight, .memTemplParams { 
+	background-color: white;
+}
