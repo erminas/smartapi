@@ -15,6 +15,7 @@
 
 using System;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.Utils
 {

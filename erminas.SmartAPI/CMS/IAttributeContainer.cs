@@ -15,7 +15,7 @@
 
 using System.Collections.Generic;
 using System.Xml;
-using erminas.SmartAPI.CMS.CCElements.Attributes;
+using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS
 {

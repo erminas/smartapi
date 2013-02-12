@@ -16,6 +16,7 @@
 using System;
 using System.Runtime.Serialization;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.CMS.Project.Pages;
 
 namespace erminas.SmartAPI.Exceptions
 {

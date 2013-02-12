@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.CMS.Project.Pages;
 
 namespace erminas.SmartAPI.Exceptions
 {

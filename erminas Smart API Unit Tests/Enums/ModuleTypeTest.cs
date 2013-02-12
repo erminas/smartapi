@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas_Smart_API_Unit_Tests.Enums

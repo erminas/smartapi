@@ -16,6 +16,7 @@
 using System;
 using System.Web.Script.Serialization;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS

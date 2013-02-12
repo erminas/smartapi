@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using erminas.SmartAPI.Utils;
+using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas_Smart_API_Unit_Tests
 {
