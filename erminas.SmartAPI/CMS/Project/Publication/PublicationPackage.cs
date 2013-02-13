@@ -22,16 +22,14 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationPackage : PartialRedDotObject
+    public class PublicationPackage : PartialRedDotProjectObject
     {
-        public PublicationPackage(Project project, Guid guid) : base(guid)
+        public PublicationPackage(Project project, Guid guid) : base(project, guid)
         {
             ExportSettings = new CachedList<PublicationSetting>(LoadExportSettings, Caching.Enabled);
-            Project = project;
         }
 
         public CachedList<PublicationSetting> ExportSettings { get; private set; }
-        public Project Project { get; set; }
 
         protected override void LoadWholeObject()
         {

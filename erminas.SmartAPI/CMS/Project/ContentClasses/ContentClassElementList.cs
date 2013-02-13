@@ -28,14 +28,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     /// <summary>
     ///     A list of content class elements.
     /// </summary>
-    public class CCElementList : RedDotObject, IEnumerable<ContentClassElement>
+    public class ContentClassElementList : RedDotProjectObject, IEnumerable<ContentClassElement>
     {
-        private static readonly ILog LOGGER = LogManager.GetLogger(typeof (CCElementList));
+        private static readonly ILog LOGGER = LogManager.GetLogger(typeof (ContentClassElementList));
         private readonly List<ContentClassElement> _elements;
 
-        internal CCElementList(ContentClass project, XmlElement xmlElement) : base(xmlElement)
+        internal ContentClassElementList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass.Project, xmlElement)
         {
-            ContentClass = project;
+            ContentClass = contentClass;
             _elements = new List<ContentClassElement>();
             LoadXml();
         }
@@ -145,7 +145,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     string str = "Could not create element '" + curElementNode.GetAttributeValue("eltname") +
                                  "' of type '" + typeStr + "'";
                     LOGGER.Error(str + ": " + e.Message);
-                    throw new SmartAPIException(ContentClass.Project.Session.ServerLogin, str, e);
+                    throw new SmartAPIException(Session.ServerLogin, str, e);
                 }
             }
         }

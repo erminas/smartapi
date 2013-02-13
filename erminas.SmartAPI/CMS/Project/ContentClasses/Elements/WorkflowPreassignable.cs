@@ -128,7 +128,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             if (workflow.IsStructureWorkflow)
             {
-                throw new SmartAPIException(_element.ContentClass.Project.Session.ServerLogin,
+                throw new SmartAPIException(_element.Session.ServerLogin,
                                             "Workflow for preassignment is a structural workflow, although a content workflow is expected");
             }
 
@@ -147,7 +147,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             if (!workflow.IsStructureWorkflow)
             {
-                throw new SmartAPIException(_element.ContentClass.Project.Session.ServerLogin,
+                throw new SmartAPIException(_element.Session.ServerLogin,
                                             "Workflow for preassignment is not a structural workflow");
             }
 

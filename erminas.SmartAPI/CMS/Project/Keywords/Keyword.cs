@@ -52,7 +52,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             var keyword = xmlDoc.SelectSingleNode(keywordXPath);
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not rename keyword to '{0}'", Name));
             }
         }
@@ -70,13 +70,13 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not delete keyword {0}", this));
             }
 
             if (IsKeywordStillUsed(keyword))
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format(
                                                 "Could not delete keyword {0}, because it is still used for page connections",
                                                 this));
@@ -101,7 +101,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             //TODO execute page builder command
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not delete keyword {0}", this));
             }
 

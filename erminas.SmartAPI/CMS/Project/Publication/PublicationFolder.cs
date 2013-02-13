@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationFolder : PartialRedDotObject, IProjectObject
+    public class PublicationFolder : PartialRedDotProjectObject
     {
         #region ContentType enum
 
@@ -92,16 +92,15 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             PUBLISHED_PAGES_NODE.SetAttributeValue("guid", PUBLISHED_PAGES_GUID_STRING);
         }
 
-        public PublicationFolder(string name, PublicationFolderType type)
+        public PublicationFolder(string name, PublicationFolderType type) :base (null)
         {
             _contextInfoPreparationType = ContextInfoPreparationType.None;
             Name = name;
             _type = type;
         }
 
-        public PublicationFolder(Project project, Guid guid) : base(guid)
+        public PublicationFolder(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
             _contextInfoPreparationType = ContextInfoPreparationType.None;
         }
 
@@ -196,8 +195,6 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         {
             get { return Guid == PUBLISHED_PAGES_GUID; }
         }
-
-        public Project Project { get; private set; }
 
         public string RealName
         {
@@ -359,6 +356,9 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             return optionalParameters;
         }
 
-        public Session Session { get { return Project != null ? Project.Session : null; } }
+        public override Session Session
+        {
+            get { return Project != null ? Project.Session : null; }
+        }
     }
 }

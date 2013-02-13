@@ -19,7 +19,7 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS
 {
-    public interface IAttributeContainer
+    public interface IAttributeContainer : ISessionObject
     {
         void AssignAttributes(IEnumerable<IRDAttribute> attributes);
         IEnumerable<IRDAttribute> Attributes { get; }

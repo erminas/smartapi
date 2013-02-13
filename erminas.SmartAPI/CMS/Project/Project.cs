@@ -96,16 +96,15 @@ namespace erminas.SmartAPI.CMS.Project
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
 
-        internal Project(Session session, XmlElement xmlElement) : base(xmlElement)
+        internal Project(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
-            Session = session;
             LoadXml();
             Init();
         }
 
-        public Project(Session session, Guid guid) : base(guid)
+        public Project(Session session, Guid guid)
+            : base(session, guid)
         {
-            Session = session;
             Init();
         }
 
@@ -209,7 +208,7 @@ namespace erminas.SmartAPI.CMS.Project
             return ProjectVariants.FirstOrDefault(x => x.IsUsedAsDisplayFormat);
         }
 
-        /// <see cref="Administration.Session.GetTextContent" />
+        /// <see cref="CMS.Session.GetTextContent" />
         public string GetTextContent(Guid textElementGuid, LanguageVariant lang, string typeString)
         {
             return Session.GetTextContent(Guid, lang, textElementGuid, typeString);
@@ -299,13 +298,7 @@ namespace erminas.SmartAPI.CMS.Project
             _currentLanguageVariant = language;
         }
 
-        /// <summary>
-        ///     The session object this project belongs to. All RQL queries are executed in this session.
-        /// </summary>
-        [ScriptIgnore]
-        public Session Session { get; private set; }
-
-        /// <see cref="Administration.Session.SetTextContent" />
+        /// <see cref="CMS.Session.SetTextContent" />
         public Guid SetTextContent(Guid textElementGuid, LanguageVariant languageVariant, string typeString,
                                    string content)
         {

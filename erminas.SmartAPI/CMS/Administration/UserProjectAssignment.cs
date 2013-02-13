@@ -112,7 +112,7 @@ namespace erminas.SmartAPI.CMS.Administration
             var intAttributeValue = projectElement.GetIntAttributeValue(attributeName);
             if (intAttributeValue == null)
             {
-                throw new SmartAPIException(_user.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Missing attribute '{0}' in user/project assignment",
                                                           attributeName));
             }

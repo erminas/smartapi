@@ -34,10 +34,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     /// <summary>
     ///     Represents a content class in RedDot.
     /// </summary>
-    public class ContentClass : PartialRedDotObject
+    public class ContentClass : PartialRedDotProjectObject
     {
         private CCEditableAreaSettings _editableAreaSettings;
-        private Dictionary<string, CCElementList> _elements;
+        private Dictionary<string, ContentClassElementList> _elements;
         //private LanguageVariant _languageVariant;
         private Syllable _prefix;
         private Syllable _suffix;
@@ -92,8 +92,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return LazyLoad(ref _prefix); }
         }
 
-        public Project Project { get; private set; }
-
         /// <summary>
         ///     Default suffix for pages.
         /// </summary>
@@ -105,18 +103,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         #endregion
 
-        internal ContentClass(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal ContentClass(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
-
             Init();
             LoadXml();
             //TODO sharedrights = 1 bei ccs von anderen projekten
         }
 
-        public ContentClass(Project project, Guid guid) : base(guid)
+        public ContentClass(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
             Init();
             //TODO sharedrights = 1 bei ccs von anderen projekten
         }
@@ -245,7 +240,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 {
                     msg += "; Reason: " + msgNode.GetAttributeValue("value");
                 }
-                throw new SmartAPIException(Project.Session.ServerLogin, msg);
+                throw new SmartAPIException(Session.ServerLogin, msg);
             }
         }
 
@@ -263,7 +258,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                    Project.RqlType.SessionKeyInProject);
             } catch (RQLException e)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin, "Could not delete template variant from content class: " + e.Message, e);
+                throw new SmartAPIException(Session.ServerLogin, "Could not delete template variant from content class: " + e.Message, e);
             }
         }
 
@@ -281,7 +276,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     var node = (XmlElement) xmlDoc.GetElementsByTagName("SETTINGS")[0];
                     if (node == null)
                     {
-                        throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not load settings for content class {0}", this));
+                        throw new SmartAPIException(Session.ServerLogin, string.Format("Could not load settings for content class {0}", this));
                     }
                     _editableAreaSettings = new CCEditableAreaSettings(this, node);
                 }
@@ -300,13 +295,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     If there are are two language variants (ENG and GER) and two elements (Text
         /// </example>
         [ScriptIgnore]
-        public Dictionary<string, CCElementList> Elements
+        public Dictionary<string, ContentClassElementList> Elements
         {
             get
             {
                 if (_elements == null)
                 {
-                    _elements = new Dictionary<string, CCElementList>();
+                    _elements = new Dictionary<string, ContentClassElementList>();
                     using (new LanguageContext(Project))
                     {
                         foreach (LanguageVariant curLanguage in Project.LanguageVariants)
@@ -316,7 +311,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                 @"<PROJECT><TEMPLATE action=""load"" guid=""{0}""><ELEMENTS childnodesasattributes=""1"" action=""load""/><TEMPLATEVARIANTS action=""list""/></TEMPLATE></PROJECT>";
                             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_CC_ELEMENTS, Guid.ToRQLString()));
                             var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELEMENTS")[0];
-                            var curElements = new CCElementList(this, xmlNode);
+                            var curElements = new ContentClassElementList(this, xmlNode);
                             _elements.Add(curLanguage.Language, curElements);
                         }
                     }
@@ -349,7 +344,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                     key => key.projectVariant, value => value.templateVariant);
             } catch (RQLException e)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin, "Could not get project variant assignments", e);
+                throw new SmartAPIException(Session.ServerLogin, "Could not get project variant assignments", e);
             }
             finally
             {
@@ -416,7 +411,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <param name="elementName"> Name of the element to remove </param>
         public void RemoveElement(string elementName)
         {
-            foreach (CCElementList curElements in Elements.Values)
+            foreach (ContentClassElementList curElements in Elements.Values)
             {
                 ContentClassElement contentClassElementToRemove = curElements.FirstOrDefault(x => x.Name == elementName);
                 if (contentClassElementToRemove == null)
@@ -527,7 +522,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 ProjectVariant otherVariant;
                 if (!project.ProjectVariants.TryGetByName(curVariant.Name, out otherVariant))
                 {
-                    throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not find project variant {0} in project {1}",
+                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not find project variant {0} in project {1}",
                                                       curVariant.Name, project.Name));
                 }
                 projectVariant.AddAttribute("guid", otherVariant.Guid.ToRQLString());
@@ -579,7 +574,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not assign keyword {0} to content class {1}",
+                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not assign keyword {0} to content class {1}",
                                                       curKeyword.Name, Name));
                 }
             }
@@ -600,7 +595,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     targetCC.GetAttribute(curAttribute.Name).Assign(curAttribute);
                 } catch (Exception e)
                 {
-                    throw new SmartAPIException(Project.Session.ServerLogin, 
+                    throw new SmartAPIException(Session.ServerLogin, 
                         string.Format("Unable to assign attribute {0} in content class {1} of project {2}",
                                       curAttribute.Name, Name, Project.Name), e);
                 }
@@ -610,7 +605,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         private void CopyElementsToCC(ContentClass targetCC)
         {
-            Dictionary<string, CCElementList>.ValueCollection.Enumerator it = Elements.Values.GetEnumerator();
+            Dictionary<string, ContentClassElementList>.ValueCollection.Enumerator it = Elements.Values.GetEnumerator();
             if (!it.MoveNext())
             {
                 return;
@@ -630,7 +625,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 targetCC.SetPreassignedKeywords(keywordsToAssign);
             } catch (Exception e)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not copy preassigned keywords for content class {0}",
                                                           Name), e);
             }
@@ -651,7 +646,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             if (guidTextNode == null || guidTextNode.NodeType != XmlNodeType.Element || guidTextNode.FirstChild == null ||
                 !Guid.TryParse(guidTextNode.FirstChild.Value.Trim(), out newCCGuid))
             {
-                throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not create content class '{0}'",Name ));
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not create content class '{0}'",Name ));
             }
 
             var targetCC = new ContentClass(project, newCCGuid);
@@ -777,7 +772,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                                     Project.RqlType.SessionKeyInProject);
             if (!xmlDoc.InnerText.Contains("ok"))
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not remove element {0} from content class {1} ",
                                                           guid.ToRQLString(), this));
             }
@@ -801,7 +796,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not unlink keyword {0} from content class {1}",
+                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not unlink keyword {0} from content class {1}",
                                                       curKeyword.Name, Name));
                 }
             }
@@ -817,16 +812,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Represents editable area configuration of a content class.
         /// </summary>
-        public class CCEditableAreaSettings : AbstractAttributeContainer
+        public class CCEditableAreaSettings : AbstractAttributeContainer, IProjectObject
         {
             private readonly ContentClass _parent;
 
-            internal CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
+            internal CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement) : base(parent.Session, xmlElement)
             {
                 Debug.Assert(xmlElement != null);
+                Project = parent.Project;
                 _parent = parent;
                 InitAttributes();
             }
+
+            public Project Project { get; private set; }
 
             public string BorderColor
             {
@@ -866,7 +864,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {
-                    throw new SmartAPIException(_parent.Project.Session.ServerLogin, string.Format("Could not save settings for content class {0}", _parent));
+                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not save settings for content class {0}", _parent));
                 }
             }
 
@@ -895,7 +893,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Represents version information on a specific content class version.
         /// </summary>
-        public class CCVersion : RedDotObject
+        public class CCVersion : RedDotProjectObject
         {
             #region Type enum
 
@@ -912,7 +910,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             private Folder _folder;
             private User _user;
 
-            internal CCVersion(ContentClass parent, XmlElement xmlElement) : base(xmlElement)
+            internal CCVersion(ContentClass parent, XmlElement xmlElement) : base(parent.Project, xmlElement)
             {
                 ContentClass = parent;
             }

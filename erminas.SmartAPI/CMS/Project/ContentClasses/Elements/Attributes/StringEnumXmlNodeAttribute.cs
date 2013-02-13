@@ -62,7 +62,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 _value = _parseEnum(value);
             } catch (Exception e)
             {
-                throw new SmartAPIException(((IContentClassElement)Parent).ContentClass.Project.Session.ServerLogin, string.Format("Could not convert value {0} to enum {1}", value, typeof (T).Name), e);
+                throw new SmartAPIException(Parent.Session.ServerLogin, string.Format("Could not convert value {0} to enum {1}", value, typeof (T).Name), e);
             }
         }
     }

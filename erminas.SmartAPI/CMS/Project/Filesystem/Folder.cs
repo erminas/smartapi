@@ -249,7 +249,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
             if (xmlNodes.Count == 0)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin, "Could not save Files.");
+                throw new SmartAPIException(Session.ServerLogin, "Could not save Files.");
             }
         }
 
@@ -264,7 +264,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
             if (xmlNodes.Count == 0)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin, "Could not update Files.");
+                throw new SmartAPIException(Session.ServerLogin, "Could not update Files.");
             }
         }
 
@@ -281,7 +281,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList folders = xmlDoc.GetElementsByTagName("FOLDER");
             if (folders.Count != 1)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin, String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
+                throw new SmartAPIException(Session.ServerLogin, String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
             }
             return (XmlElement) folders[0];
         }

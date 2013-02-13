@@ -30,12 +30,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     /// <remarks>
     ///     For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
-    public abstract class ContentClassElement : RedDotObject, IContentClassElement
+    public abstract class ContentClassElement : RedDotProjectObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private LanguageVariant _languageVariant;
 
-        protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
+        protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement) : base(contentClass.Project, xmlElement)
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
@@ -68,14 +68,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     var newGuid = new Guid(tmpGuidStr);
                     if (!newGuid.Equals(Guid))
                     {
-                        throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                        throw new SmartAPIException(Session.ServerLogin,
                                                     "Unexpected guid in return value");
                     }
                     //if needed could check wether the element has changed on the server, via the checked attribute
                     //-1 = changed 0 = unchanged
                 } catch (Exception e)
                 {
-                    throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                    throw new SmartAPIException(Session.ServerLogin,
                                                 string.Format("Could not save changes to {0}", this), e);
                 }
             }
@@ -97,16 +97,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         public override string Name { get; set; }
-
-        public Project Project
-        {
-            get { return ContentClass.Project; }
-        }
-
-        public Session Session
-        {
-            get { return Project.Session; }
-        }
 
         /// <summary>
         ///     TypeId of the element.
@@ -144,7 +134,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     newAttr.Assign(attr);
                 } catch (Exception e)
                 {
-                    throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                    throw new SmartAPIException(Session.ServerLogin,
                                                 string.Format(
                                                     "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
                                                     attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
@@ -169,7 +159,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             var resultElementNode = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
             if (resultElementNode == null)
             {
-                throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Error during creation of element {0}", this));
             }
             newContentClassElement.Guid = resultElementNode.GetGuid();

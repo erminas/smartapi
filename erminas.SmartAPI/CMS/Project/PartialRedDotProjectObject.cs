@@ -23,17 +23,17 @@ namespace erminas.SmartAPI.CMS.Project
     {
         private readonly Project _project;
 
-        protected PartialRedDotProjectObject(Project project, XmlElement xmlElement) : base(xmlElement)
+        protected PartialRedDotProjectObject(Project project, XmlElement xmlElement) : base(project.Session, xmlElement)
         {
             _project = project;
         }
 
-        protected PartialRedDotProjectObject(Project project, Guid guid) : base(guid)
+        protected PartialRedDotProjectObject(Project project, Guid guid) : base(project.Session, guid)
         {
             _project = project;
         }
 
-        protected PartialRedDotProjectObject(Project project)
+        protected PartialRedDotProjectObject(Project project) : base(project.Session)
         {
             _project = project;
         }
@@ -41,11 +41,6 @@ namespace erminas.SmartAPI.CMS.Project
         public Project Project
         {
             get { return _project; }
-        }
-
-        public Session Session
-        {
-            get { return _project.Session; }
         }
     }
 }

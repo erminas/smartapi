@@ -58,7 +58,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             var category = xmlDoc.SelectSingleNode(categoryXPath);
             if (category == null)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not rename category to '{0}'", Name));
             }
         }
@@ -76,13 +76,13 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             if (category == null)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not delete category {0}", this));
             }
 
             if (IsCategoryStillUsed(category))
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format(
                                                 "Could not delete category {0}, because a keyword is still assigned to a page",
                                                 this));
@@ -107,7 +107,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             //TODO execute page builder command
             if (category == null)
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not delete keyword {0}", this));
             }
 

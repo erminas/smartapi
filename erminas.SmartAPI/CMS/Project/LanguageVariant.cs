@@ -14,18 +14,16 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public class LanguageVariant : RedDotObject, IProjectObject
+    public class LanguageVariant : RedDotProjectObject
     {
         private bool _isCurrentLanguageVariant;
         private string _language;
 
-        internal LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal LanguageVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
         }
 
@@ -40,8 +38,6 @@ namespace erminas.SmartAPI.CMS.Project
             get { return _language; }
         }
 
-        public Project Project { get; private set; }
-
         public void Select()
         {
             Project.SelectLanguageVariant(this);
@@ -51,11 +47,6 @@ namespace erminas.SmartAPI.CMS.Project
         {
             InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
             InitIfPresent(ref _language, "language", x => x);
-        }
-
-        public Session Session
-        {
-            get { return Project.Session; }
         }
     }
 }

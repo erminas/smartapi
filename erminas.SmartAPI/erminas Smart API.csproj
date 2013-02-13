@@ -216,7 +216,7 @@
     <Compile Include="CMS\Administration\Language\Locale.cs" />
     <Compile Include="CMS\Project\Publication\PublicationFolder.cs" />
     <Compile Include="CMS\Project\Syllable.cs" />
-    <Compile Include="CMS\Project\ContentClasses\CCElementList.cs" />
+    <Compile Include="CMS\Project\ContentClasses\ContentClassElementList.cs" />
     <Compile Include="CMS\Project\Filesystem\File.cs" />
     <Compile Include="CMS\Project\Filesystem\Folder.cs" />
     <Compile Include="CMS\Project\Keywords\Keyword.cs" />

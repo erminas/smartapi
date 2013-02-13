@@ -191,7 +191,7 @@ namespace erminas.SmartAPI.CMS.Administration
             //due to the cloning of XmlElement in the Module->AbstractAttributeContainer c'tor. This would lead to an InvalidOperationException.
             var modules = xmlDoc.GetElementsByTagName("MODULE").Cast<XmlElement>().ToList();
 
-            return (from curModule in modules where IsAssignedModule(curModule) select new Module(curModule)).ToList();
+            return (from curModule in modules where IsAssignedModule(curModule) select new Module(Session, curModule)).ToList();
         }
 
         private static ServerManagerRights GetServerManagerRights(Module serverManagerModule)

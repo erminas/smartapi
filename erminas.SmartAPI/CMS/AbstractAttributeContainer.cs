@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.CMS.Project.Filesystem;
 using erminas.SmartAPI.Exceptions;
@@ -27,12 +28,14 @@ namespace erminas.SmartAPI.CMS
         private readonly Dictionary<string, IRDAttribute> _attributeMap = new Dictionary<string, IRDAttribute>();
         private readonly List<IRDAttribute> _attributes = new List<IRDAttribute>();
 
-        protected AbstractAttributeContainer()
+        protected AbstractAttributeContainer(Session session)
         {
+            Session = session;
         }
 
-        protected AbstractAttributeContainer(XmlElement node)
+        protected AbstractAttributeContainer(Session session, XmlElement node)
         {
+            Session = session;
             XmlElement = (XmlElement) node.Clone();
         }
 
@@ -131,5 +134,7 @@ namespace erminas.SmartAPI.CMS
                 string.Format("In SetAttributeValue<T> for  attribute {1}, unexpected attribute type: {0}",
                               typeof (T).Name, attributeName));
         }
+
+        public virtual Session Session { get; private set; }
     }
 }

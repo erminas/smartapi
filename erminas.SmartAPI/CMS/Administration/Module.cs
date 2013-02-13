@@ -94,7 +94,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
     public class Module : RedDotObject
     {
-        internal Module(XmlElement xmlElement) : base(xmlElement)
+        internal Module(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
             LoadXml(xmlElement);
         }

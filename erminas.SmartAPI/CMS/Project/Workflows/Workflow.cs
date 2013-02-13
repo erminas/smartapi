@@ -78,7 +78,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
             if (!reply.Contains("ok"))
             {
-                throw new SmartAPIException(Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not delete workflow {0}", this));
             }
         }
@@ -111,7 +111,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         private void LoadActions()
         {
             _actions =
-                (from XmlElement node in XmlElement.SelectNodes("descendant::NODE") select new WorkFlowAction(node))
+                (from XmlElement node in XmlElement.SelectNodes("descendant::NODE") select new WorkFlowAction(Project, node))
                     .ToList();
         }
 

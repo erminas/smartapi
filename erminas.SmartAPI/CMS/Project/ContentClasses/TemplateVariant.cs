@@ -73,7 +73,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     /// <summary>
     ///     Represents a single template on the RedDot server
     /// </summary>
-    public class TemplateVariant : PartialRedDotObject
+    public class TemplateVariant : PartialRedDotProjectObject
     {
         #region State enum
 
@@ -103,12 +103,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private PdfOrientation _pdfOrientation;
         private State _status;
 
-        public TemplateVariant(ContentClass contentClass, Guid guid) : base(guid)
+        public TemplateVariant(ContentClass contentClass, Guid guid) : base(contentClass.Project, guid)
         {
             ContentClass = contentClass;
         }
 
-        internal TemplateVariant(ContentClass contentClass, XmlElement xmlElement) : base(xmlElement)
+        internal TemplateVariant(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass.Project, xmlElement)
         {
             ContentClass = contentClass;
             LoadXml();
@@ -168,9 +169,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlNodeList errorElements = xmlDoc.GetElementsByTagName("ERROR");
             if (errorElements.Count > 0)
             {
-                throw new SmartAPIException(ContentClass.Project.Session.ServerLogin, errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
+                throw new SmartAPIException(Session.ServerLogin, errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
             }
-            throw new SmartAPIException(ContentClass.Project.Session.ServerLogin, errorMsg);
+            throw new SmartAPIException(Session.ServerLogin, errorMsg);
         }
 
         //TODO mit reddotobjecthandle ersetzen

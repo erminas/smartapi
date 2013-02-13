@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Administration.Language;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
@@ -32,8 +33,9 @@ using erminas.SmartAPI.RedDotCmsXmlServer;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 using log4net;
+using Module = erminas.SmartAPI.CMS.Administration.Module;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS
 {
     /// <summary>
     ///     Session, representing a connection to a red dot server as a specified user.
@@ -450,6 +452,7 @@ namespace erminas.SmartAPI.CMS.Administration
             {
                 if (_sessionKeyStr == null)
                 {
+                    throw new SmartAPIInternalException("No session key available");
                 }
                 return Guid.Parse(_sessionKeyStr);
             }
@@ -658,7 +661,7 @@ namespace erminas.SmartAPI.CMS.Administration
             //the change to the list occurs due to the cloning on the XmlElements in Module->AbstractAttributeContainer c'tor.
             //i have no idea why that changes the list as the same approach works without a problem everywhere else without the need for the intermediate list.
             var moduleElements = xmlDoc.GetElementsByTagName("MODULE").OfType<XmlElement>().ToList();
-            return (from XmlElement curModule in moduleElements select new Module(curModule)).ToList();
+            return (from XmlElement curModule in moduleElements select new Module(this, curModule)).ToList();
         }
 
         private List<Project.Project> GetProjects()
@@ -883,18 +886,16 @@ namespace erminas.SmartAPI.CMS.Administration
 
     public class ApplicationServer : PartialRedDotObject
     {
-        private readonly Session _session;
+        
         private string _from;
         private string _ipAddress;
 
-        public ApplicationServer(Session session, Guid guid) : base(guid)
+        public ApplicationServer(Session session, Guid guid) : base(session, guid)
         {
-            _session = session;
         }
 
-        internal ApplicationServer(Session session, XmlElement element) : base(element)
+        internal ApplicationServer(Session session, XmlElement element) : base(session, element)
         {
-            _session = session;
             LoadXml();
         }
 
@@ -908,11 +909,6 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             get { return LazyLoad(ref _ipAddress); }
             internal set { _ipAddress = value; }
-        }
-
-        public Session Session
-        {
-            get { return _session; }
         }
 
         protected override void LoadWholeObject()

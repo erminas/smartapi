@@ -15,6 +15,7 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -58,7 +59,7 @@ namespace erminas.SmartAPI.CMS
         ///         cref="IsInitialized" />
         ///     )
         /// </summary>
-        protected PartialRedDotObject(XmlElement xmlElement) : base(xmlElement)
+        protected PartialRedDotObject(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
             IsInitialized = true;
         }
@@ -69,12 +70,12 @@ namespace erminas.SmartAPI.CMS
         ///         cref="IsInitialized" />
         ///     )
         /// </summary>
-        protected PartialRedDotObject(Guid guid) : base(guid)
+        protected PartialRedDotObject(Session session, Guid guid) : base(session, guid)
         {
             IsInitialized = false;
         }
 
-        protected PartialRedDotObject()
+        protected PartialRedDotObject(Session session) : base(session)
         {
             IsInitialized = false;
         }

@@ -37,11 +37,11 @@ namespace erminas.SmartAPI.CMS
         private Guid _guid = Guid.Empty;
         protected string _name;
 
-        protected RedDotObject()
+        protected RedDotObject(Session session) : base (session)
         {
         }
 
-        protected RedDotObject(Guid guid)
+        protected RedDotObject(Session session, Guid guid) : base(session)
         {
             Guid = guid;
         }
@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS
         ///     A copy of the XML element is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
         /// <exception cref="ArgumentNullException">thrown, if xmlElement is null</exception>
-        protected RedDotObject(XmlElement xmlElement) : base(xmlElement)
+        protected RedDotObject(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
             if (xmlElement == null)
             {

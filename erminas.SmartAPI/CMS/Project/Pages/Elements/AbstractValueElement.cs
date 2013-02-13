@@ -73,7 +73,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                     Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));
                 if (xmlDoc.GetElementsByTagName("ELT").Count != 1 && !xmlDoc.InnerXml.Contains(Guid.ToRQLString()))
                 {
-                    throw new SmartAPIException(Project.Session.ServerLogin, String.Format("Could not save element {0}", Guid.ToRQLString()));
+                    throw new SmartAPIException(Session.ServerLogin, String.Format("Could not save element {0}", Guid.ToRQLString()));
                 }
             }
         }

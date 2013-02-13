@@ -20,7 +20,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
     //todo implement correctly
-    public class WorkFlowAction : RedDotObject
+    public class WorkFlowAction : RedDotProjectObject
     {
         #region ActionType enum
 
@@ -61,11 +61,11 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
         private ActionType _type;
 
-        internal WorkFlowAction(XmlElement xmlElement) : base(xmlElement)
+        internal WorkFlowAction(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        internal WorkFlowAction(Guid guid) : base(guid)
+        internal WorkFlowAction(Project project, Guid guid) : base(project, guid)
         {
         }
 

@@ -51,7 +51,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             var keyword = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
             if (keyword == null)
             {
-                throw new SmartAPIException(Category.Project.Session.ServerLogin,
+                throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not create the keyword '{0}'", keywordName));
             }
 

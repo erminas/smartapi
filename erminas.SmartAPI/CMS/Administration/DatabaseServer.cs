@@ -42,14 +42,13 @@ namespace erminas.SmartAPI.CMS.Administration
         private bool _isCreateAllowed;
         private Guid _productGuid;
 
-        public DatabaseServer(Session session, Guid guid) : base(guid)
+        public DatabaseServer(Session session, Guid guid)
+            : base(session, guid)
         {
-            Session = session;
         }
 
-        internal DatabaseServer(Session session, XmlElement xmlElement) : base(xmlElement)
+        internal DatabaseServer(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
-            Session = session;
             LoadXml();
         }
 
@@ -68,8 +67,6 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             get { return LazyLoad(ref _productGuid); }
         }
-
-        public Session Session { get; private set; }
 
         protected override void LoadWholeObject()
         {
