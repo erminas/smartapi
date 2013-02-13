@@ -17,7 +17,7 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public interface IPageElement : IRedDotObject
+    public interface IPageElement : IPartialRedDotObject, IProjectObject
     {
         ElementType ElementType { get; set; }
         LanguageVariant LanguageVariant { get; }

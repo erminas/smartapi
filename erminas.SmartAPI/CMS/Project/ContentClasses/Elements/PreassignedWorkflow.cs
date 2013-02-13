@@ -160,5 +160,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             _languageVariants = GetPreAssignmentLanguageVariants();
         }
+
+        public Session Session { get { return _workflow.Session; } }
+        public Project Project { get { return _workflow.Project; } }
     }
 }

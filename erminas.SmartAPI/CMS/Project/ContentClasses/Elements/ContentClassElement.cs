@@ -17,7 +17,9 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -66,13 +68,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     var newGuid = new Guid(tmpGuidStr);
                     if (!newGuid.Equals(Guid))
                     {
-                        throw new Exception("unexpected guid in return value");
+                        throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                                                    "Unexpected guid in return value");
                     }
                     //if needed could check wether the element has changed on the server, via the checked attribute
                     //-1 = changed 0 = unchanged
                 } catch (Exception e)
                 {
-                    throw new Exception("could not save changes to " + Name, e);
+                    throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                                                string.Format("Could not save changes to {0}", this), e);
                 }
             }
         }
@@ -93,6 +97,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         public override string Name { get; set; }
+
+        public Project Project
+        {
+            get { return ContentClass.Project; }
+        }
+
+        public Session Session
+        {
+            get { return Project.Session; }
+        }
 
         /// <summary>
         ///     TypeId of the element.
@@ -130,10 +144,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     newAttr.Assign(attr);
                 } catch (Exception e)
                 {
-                    throw new Exception(
-                        string.Format(
-                            "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
-                            attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
+                    throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                                                string.Format(
+                                                    "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
+                                                    attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
                 }
             }
 
@@ -155,7 +169,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             var resultElementNode = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
             if (resultElementNode == null)
             {
-                throw new Exception("error during creation of element: " + Name);
+                throw new SmartAPIException(ContentClass.Project.Session.ServerLogin,
+                                            string.Format("Error during creation of element {0}", this));
             }
             newContentClassElement.Guid = resultElementNode.GetGuid();
 

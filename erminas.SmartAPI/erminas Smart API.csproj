@@ -58,7 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMS\ISessionObject.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\AbstractWorkflowPreassignable.cs" />
+    <Compile Include="CMS\Project\IProjectObject.cs" />
     <Compile Include="CMS\Project\Keywords\Categories.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\CategoryXmlNodeAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\ElementReferenceAttribute.cs" />
@@ -100,10 +102,12 @@
     <Compile Include="CMS\Project\Pages\Elements\TextAscii.cs" />
     <Compile Include="CMS\Project\Pages\Elements\Transfer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\PreassignedWorkflow.cs" />
+    <Compile Include="CMS\Project\PartialRedDotProjectObject.cs" />
     <Compile Include="CMS\Project\RecycleBin.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\TargetContainerPreassignment.cs" />
     <Compile Include="CMS\Administration\UserModuleAssignment.cs" />
     <Compile Include="CMS\Administration\UserProjectAssignment.cs" />
+    <Compile Include="CMS\Project\RedDotProjectObject.cs" />
     <Compile Include="CMS\VersionAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\WorkflowPreassignable.cs" />
     <Compile Include="Exceptions\InvalidServerVersionException.cs" />
@@ -174,7 +178,7 @@
     <Compile Include="CMS\Project\ContentClasses\Elements\TextAscii.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\TextHtml.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Transfer.cs" />
-    <Compile Include="CMS\Administration\DatabaseConnection.cs" />
+    <Compile Include="CMS\Project\DatabaseConnection.cs" />
     <Compile Include="CMS\Administration\Language\DateTimeFormat.cs" />
     <Compile Include="CMS\Administration\DatabaseServer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\ElementType.cs" />
@@ -224,7 +228,7 @@
     <Compile Include="CMS\Project\Publication\PublicationPackage.cs" />
     <Compile Include="CMS\Project\Publication\PublicationTarget.cs" />
     <Compile Include="CMS\RedDotObject.cs" />
-    <Compile Include="CMS\Administration\Session.cs" />
+    <Compile Include="CMS\Session.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClass.cs" />
     <Compile Include="CMS\Project\Filesystem\ContentClassFolder.cs" />
     <Compile Include="CMS\Project\ContentClasses\TemplateVariant.cs" />

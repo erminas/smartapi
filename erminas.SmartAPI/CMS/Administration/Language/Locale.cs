@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Administration.Language
 {
-    public class Locale
+    public class Locale : ISessionObject
     {
         public readonly string Country;
         public readonly string Id;
@@ -30,11 +30,11 @@ namespace erminas.SmartAPI.CMS.Administration.Language
         public readonly int LCID;
         public readonly string Language;
         public readonly string RFCLanguageId;
-        public readonly Session Session;
+        private readonly Session _session;
 
         public Locale(Session session, XmlElement xmlElement)
         {
-            Session = session;
+            _session = session;
             Id = xmlElement.GetAttributeValue("id");
             Country = xmlElement.GetAttributeValue("country");
             Language = xmlElement.GetAttributeValue("language");
@@ -105,7 +105,7 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             const string LOAD_TIME_FORMATS =
                 @"<TEMPLATE><ELEMENT action=""load"" ><{0}FORMATS action=""list"" lcid=""{1}""/></ELEMENT></TEMPLATE>";
             string formatTypeString = types.ToString().ToUpper();
-            XmlDocument result = Session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID));
+            XmlDocument result = _session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID));
 
             var timeformats = result.GetElementsByTagName(formatTypeString + "FORMATS")[0] as XmlElement;
             if (timeformats == null)
@@ -118,5 +118,7 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             string answerElementsName = types == DateTimeFormatTypes.Time ? "TIMEFORMAT" : "DATEFORMAT";
             return timeformats.GetElementsByTagName(answerElementsName);
         }
+
+        public Session Session { get { return _session; } }
     }
 }

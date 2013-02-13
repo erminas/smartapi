@@ -19,16 +19,17 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationFolderSetting : PartialRedDotObject
+    public class PublicationFolderSetting : PartialRedDotProjectObject
     {
         private PublicationFolder _publicationFolder;
 
-        public PublicationFolderSetting(PublicationSetting parent, Guid guid) : base(guid)
+        public PublicationFolderSetting(PublicationSetting parent, Guid guid) : base(parent.Project, guid)
         {
             PublicationSetting = parent;
         }
 
-        internal PublicationFolderSetting(PublicationSetting parent, XmlElement element) : base(element)
+        internal PublicationFolderSetting(PublicationSetting parent, XmlElement element)
+            : base(parent.Project, element)
         {
             PublicationSetting = parent;
 

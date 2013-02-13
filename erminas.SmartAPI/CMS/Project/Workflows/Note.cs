@@ -18,7 +18,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    public class Note : RedDotObject
+    public class Note : RedDotProjectObject
     {
         #region NoteType enum
 
@@ -32,7 +32,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
         public readonly Workflow Workflow;
 
-        internal Note(Workflow workflow, XmlElement xmlElement) : base(xmlElement)
+        internal Note(Workflow workflow, XmlElement xmlElement) : base(workflow.Project, xmlElement)
         {
             Workflow = workflow;
             LoadXml();

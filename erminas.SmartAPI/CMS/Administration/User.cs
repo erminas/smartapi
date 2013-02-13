@@ -46,9 +46,8 @@ namespace erminas.SmartAPI.CMS.Administration
     /// <summary>
     ///     A user in the RedDot system.
     /// </summary>
-    public class User : PartialRedDotObject
+    public class User : PartialRedDotObject, ISessionObject
     {
-        public readonly Session Session;
         private Guid _accountSystemGuid;
         private string _description;
         private string _email;
@@ -86,18 +85,91 @@ namespace erminas.SmartAPI.CMS.Administration
             LoadXml();
         }
 
-        public UserProjectAssignment AssignProject(Project.Project project, UserRole role, ExtendedUserRoles extendedRoles)
+        public Guid AccountSystemGuid
+        {
+            get { return LazyLoad(ref _accountSystemGuid); }
+        }
+
+        public UserProjectAssignment AssignProject(Project.Project project, UserRole role,
+                                                   ExtendedUserRoles extendedRoles)
         {
             //TODO check result ...
             return UserProjectAssignment.Create(this, project, role, extendedRoles);
         }
 
+        public string Description
+        {
+            get { return LazyLoad(ref _description); }
+        }
+
+        public DirectEditActivation DirectEditActivationType
+        {
+            get { return _invertDirectEdit; }
+        }
+
+        public string EMail
+        {
+            get { return LazyLoad(ref _email); }
+        }
+
+        public string Fullname
+        {
+            get { return LazyLoad(ref _fullname); }
+        }
+
+        public int Id
+        {
+            get { return LazyLoad(ref _id); }
+        }
+
+        public bool IsPasswordwordChangeableByCurrentUser
+        {
+            get { return LazyLoad(ref _isPasswordChangeableByCurrentUser); }
+        }
+
+        public Locale LanguageOfUserInterface
+        {
+            get { return LazyLoad(ref _userLanguage); }
+        }
+
+        public DateTime LastLoginDate
+        {
+            get { return LazyLoad(ref _loginDate); }
+        }
+
+        public Locale Locale
+        {
+            get { return _locale; }
+        }
+
+        public int MaxLevel
+        {
+            get { return LazyLoad(ref _maxLevel); }
+        }
+
+        public int MaximumNumberOfSessions
+        {
+            get { return LazyLoad(ref _maxSessionCount); }
+        }
+
         public UserModuleAssignment ModuleAssignment { get; private set; }
+
+        public string NavigationType
+        {
+            get { return LazyLoad(ref _navigationType); }
+        }
+
+        public int PreferredEditor
+        {
+            get { return LazyLoad(ref _preferredEditor); }
+        }
 
         /// <summary>
         ///     List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
         /// </summary>
         public IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; private set; }
+
+        public Session Session { get; private set; }
 
         public void UnassignProject(Project.Project project)
         {
@@ -173,79 +245,5 @@ namespace erminas.SmartAPI.CMS.Administration
             InitIfPresent(ref _userPofileChangeRestrictions, "userlimits",
                           s => (UserPofileChangeRestrictions) Enum.Parse(typeof (UserPofileChangeRestrictions), s));
         }
-
-        #region Properties
-
-        public Guid AccountSystemGuid
-        {
-            get { return LazyLoad(ref _accountSystemGuid); }
-        }
-
-        public string Description
-        {
-            get { return LazyLoad(ref _description); }
-        }
-
-        public DirectEditActivation DirectEditActivationType
-        {
-            get { return _invertDirectEdit; }
-        }
-
-        public string EMail
-        {
-            get { return LazyLoad(ref _email); }
-        }
-
-        public string Fullname
-        {
-            get { return LazyLoad(ref _fullname); }
-        }
-
-        public int Id
-        {
-            get { return LazyLoad(ref _id); }
-        }
-
-        public bool IsPasswordwordChangeableByCurrentUser
-        {
-            get { return LazyLoad(ref _isPasswordChangeableByCurrentUser); }
-        }
-
-        public Locale LanguageOfUserInterface
-        {
-            get { return LazyLoad(ref _userLanguage); }
-        }
-
-        public DateTime LastLoginDate
-        {
-            get { return LazyLoad(ref _loginDate); }
-        }
-
-        public Locale Locale
-        {
-            get { return _locale; }
-        }
-
-        public int MaxLevel
-        {
-            get { return LazyLoad(ref _maxLevel); }
-        }
-
-        public int MaximumNumberOfSessions
-        {
-            get { return LazyLoad(ref _maxSessionCount); }
-        }
-
-        public string NavigationType
-        {
-            get { return LazyLoad(ref _navigationType); }
-        }
-
-        public int PreferredEditor
-        {
-            get { return LazyLoad(ref _preferredEditor); }
-        }
-
-        #endregion
     }
 }

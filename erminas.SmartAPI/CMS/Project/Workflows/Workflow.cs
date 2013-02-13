@@ -23,7 +23,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    public interface IWorkflow : IPartialRedDotObject
+    public interface IWorkflow : IPartialRedDotObject, IProjectObject
     {
         IEnumerable<WorkFlowAction> Actions();
         bool CanBeInherited { get; }
@@ -31,17 +31,15 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         bool IsStructureWorkflow { get; }
     }
 
-    public class Workflow : PartialRedDotObject, IWorkflow
+    public class Workflow : PartialRedDotProjectObject, IWorkflow
     {
-        public readonly Project Project;
         private IEnumerable<WorkFlowAction> _actions;
         private bool _canBeInherited;
         private bool _isGlobal;
         private bool _isStructureWorkflow;
 
-        internal Workflow(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Workflow(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
             //if we don't have any actions, the element might have been initialized with only partial information,
             //so a refresh is needed to access actions.
@@ -52,9 +50,8 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             }
         }
 
-        public Workflow(Project project, Guid guid) : base(guid)
+        public Workflow(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
         }
 
         // TODO: Add a more useful action method which retains the 'flow' of the workflow!

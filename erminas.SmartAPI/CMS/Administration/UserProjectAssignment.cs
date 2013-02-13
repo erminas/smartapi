@@ -36,13 +36,15 @@ namespace erminas.SmartAPI.CMS.Administration
         Visitor = 5
     }
 
-    public class UserProjectAssignment
+    public class UserProjectAssignment : ISessionObject
     {
         private readonly User _user;
+        private readonly Session _session;
 
         internal UserProjectAssignment(User user, XmlElement projectAssignment)
         {
             _user = user;
+            _session = _user.Session;
             LoadXml(projectAssignment);
         }
 
@@ -50,6 +52,7 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             Project = project;
             _user = user;
+            _session = _user.Session;
             UserRole = role;
             IsTemplateEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TemplateEditor);
             IsTranslationEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TranslationEditor);
@@ -81,6 +84,11 @@ namespace erminas.SmartAPI.CMS.Administration
         }
 
         public UserRole UserRole { get; set; }
+
+        public Session Session
+        {
+            get { return _session; }
+        }
 
         /// <summary>
         /// TODO warum ist das nicht oeffentlich?

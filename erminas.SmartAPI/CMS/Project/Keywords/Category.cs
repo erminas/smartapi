@@ -24,27 +24,23 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// <summary>
     ///     A category entry of a project in the RedDot server.
     /// </summary>
-    public class Category : PartialRedDotObject
+    public class Category : PartialRedDotProjectObject
     {
         /// <summary>
         ///     All keywords belonging to this category, indexed by name. This list is cached by default.
         /// </summary>
         public readonly Keywords Keywords;
 
-        public readonly Project Project;
-
         private LanguageVariant _languageVariant;
 
-        internal Category(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Category(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             Keywords = new Keywords(this);
             LoadXml();
         }
 
-        public Category(Project project, Guid guid) : base(guid)
+        public Category(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
             Keywords = new Keywords(this);
         }
 

@@ -18,7 +18,7 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
-    public interface ILinkTarget : IRedDotObject
+    public interface ILinkTarget : IRedDotObject, IProjectObject
     {
         IRDList<ILinkElement> ReferencedBy { get; }
     }

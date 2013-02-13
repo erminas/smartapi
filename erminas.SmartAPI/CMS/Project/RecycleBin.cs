@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public class RecycleBin
+    public class RecycleBin : IProjectObject
     {
         private readonly Project _project;
 
@@ -55,5 +56,8 @@ namespace erminas.SmartAPI.CMS.Project
             search.Predicates.Add(new SpecialPagePredicate(SpecialPagePredicate.PageCategoryType.RecycleBin));
             return search;
         }
+
+        public Session Session { get { return Project.Session; } }
+        public Project Project { get { return _project; } }
     }
 }

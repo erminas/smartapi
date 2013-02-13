@@ -19,7 +19,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationTarget : PartialRedDotObject
+    public class PublicationTarget : PartialRedDotProjectObject
     {
         #region TargetType enum
 
@@ -37,17 +37,14 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         private TargetType _type;
         private string _urlPrefix;
 
-        internal PublicationTarget(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal PublicationTarget(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
         }
 
-        public PublicationTarget(Guid guid) : base(guid)
+        public PublicationTarget(Project project, Guid guid) : base(project, guid)
         {
         }
-
-        public Project Project { get; private set; }
 
         public TargetType Type
         {

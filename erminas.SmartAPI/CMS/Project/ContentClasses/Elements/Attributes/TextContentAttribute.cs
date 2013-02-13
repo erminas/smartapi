@@ -15,6 +15,7 @@
 
 using System;
 using System.Globalization;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
@@ -71,9 +72,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                                                                _text).ToRQLString());
             } catch (Exception e)
             {
-                throw new Exception(
-                    "could not set " + _type.ToString().ToLower() + " text for " + parent.Name + "(" +
-                    parent.Guid.ToRQLString() + ")", e);
+                throw new SmartAPIException(((IContentClassElement)Parent).ContentClass.Project.Session.ServerLogin,
+                    string.Format("Could not set {0} text for {1}", _type.ToString().ToLower(), parent), e);
             }
             _hasChanged = false;
         }

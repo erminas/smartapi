@@ -21,10 +21,10 @@ namespace erminas.SmartAPI.CMS.Administration
     /// <summary>
     ///     A database server entry in RedDot.
     /// </summary>
-    public class DatabaseServer : PartialRedDotObject
+    public class DatabaseServer : PartialRedDotObject, ISessionObject
     {
         #region DbTypeId enum
-
+        // ReSharper disable InconsistentNaming
         public enum DbTypeId
         {
             Jet3 = 1,
@@ -34,12 +34,8 @@ namespace erminas.SmartAPI.CMS.Administration
             ODBC = 5,
             Oracle_OLEDB = 8
         }
-
-        #endregion
-
-        // ReSharper disable InconsistentNaming
-
         // ReSharper restore InconsistentNaming
+        #endregion
 
         private DbTypeId _dBType;
 
@@ -73,7 +69,7 @@ namespace erminas.SmartAPI.CMS.Administration
             get { return LazyLoad(ref _productGuid); }
         }
 
-        public Session Session { get; set; }
+        public Session Session { get; private set; }
 
         protected override void LoadWholeObject()
         {

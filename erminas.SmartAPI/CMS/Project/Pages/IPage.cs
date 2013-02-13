@@ -108,8 +108,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// </summary>
         Page Parent { get; }
 
-        Project Project { get; }
-
         /// <summary>
         ///     Rejects the page from the current level of workflow.
         /// </summary>

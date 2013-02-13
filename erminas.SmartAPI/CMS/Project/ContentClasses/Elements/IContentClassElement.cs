@@ -15,7 +15,7 @@
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IContentClassElement : IRedDotObject, IAttributeContainer
+    public interface IContentClassElement : IRedDotObject, IAttributeContainer, IProjectObject
     {
         /// <summary>
         ///     Element category of the lement

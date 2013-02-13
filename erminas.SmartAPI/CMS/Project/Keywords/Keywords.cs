@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -29,12 +30,13 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// <remarks>
     ///     We don't subclass NameIndexedRDList, because renaming to existing names is allowed and could lead to duplicate keyword names.
     /// </remarks>
-    public class Keywords : RDList<Keyword>
+    public class Keywords : RDList<Keyword>, IProjectObject
     {
         public readonly Category Category;
 
         internal Keywords(Category category) : base(Caching.Enabled)
         {
+            Project = category.Project;
             Category = category;
             RetrieveFunc = GetKeywords;
         }
@@ -96,5 +98,8 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
                 (from XmlElement curNode in xmlNodes select new Keyword(Category.Project, curNode) {Category = Category})
                     .Union(kategoryKeyword).ToList();
         }
+
+        public Session Session { get { return Project.Session; } }
+        public Project Project { get; private set; }
     }
 }

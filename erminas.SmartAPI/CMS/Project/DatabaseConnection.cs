@@ -15,23 +15,22 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.Project
 {
     /// <summary>
     ///     A database connection entry in the RedDot server.
     /// </summary>
-    public class DatabaseConnection : PartialRedDotObject
+    public class DatabaseConnection : PartialRedDotProjectObject
     {
-        public DatabaseConnection(Project.Project project, Guid guid) : base(guid)
+        public DatabaseConnection(CMS.Project.Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
         }
 
-        internal DatabaseConnection(Project.Project project, XmlElement xmlElement) : base(xmlElement)
+        internal DatabaseConnection(CMS.Project.Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
         }
 
@@ -60,9 +59,7 @@ namespace erminas.SmartAPI.CMS.Administration
                           x => new DatabaseServer(Project.Session, GuidConvert(x)));
             InitIfPresent(ref _databaseName, "databasename", x => x);
         }
-
-        #region Properties
-
+        
         /// <summary>
         ///     Name of the database used in the connection
         /// </summary>
@@ -87,16 +84,9 @@ namespace erminas.SmartAPI.CMS.Administration
             get { return LazyLoad(ref _description); }
         }
 
-        public Project.Project Project { get; set; }
-
-        #endregion
-
-        #region Fields
-
         private string _databaseName;
         private DatabaseServer _databaseServer;
         private string _description;
 
-        #endregion
     }
 }

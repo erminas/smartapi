@@ -25,11 +25,11 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
     /// <summary>
     ///     A folder containing content classes.
     /// </summary>
-    public class ContentClassFolder : RedDotObject
+    public class ContentClassFolder : RedDotProjectObject
     {
         private readonly Project _project;
 
-        internal ContentClassFolder(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal ContentClassFolder(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
             _project = project;

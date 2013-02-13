@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     ///         cref="PartialRedDotObject.Refresh" />
     ///     to see them reflected in the status field,
     /// </summary>
-    public class Page : PartialRedDotObject, IPage
+    public class Page : PartialRedDotProjectObject, IPage
     {
         /// <summary>
         ///     Default value for <see cref="MaxWaitForDeletion" /> (1.25s).
@@ -134,9 +134,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             MaxWaitForDeletion = DEFAULT_WAIT_FOR_DELETION;
         }
 
-        internal Page(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Page(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
             //reset isinitialized, because other information can still be retrieved
             //TODO find a clean solution for the various partial initialization states the page can be in
@@ -145,9 +144,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             InitProperties();
         }
 
-        public Page(Project project, Guid guid, LanguageVariant languageVariant) : base(guid)
+        public Page(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid)
         {
-            Project = project;
             _lang = languageVariant;
             InitProperties();
         }
@@ -702,7 +700,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return _parentPage ?? (_parentPage = MainLinkElement != null ? MainLinkElement.Page : null); }
         }
 
-        public Project Project { get; private set; }
         public IRDList<ILinkElement> ReferencedBy { get; private set; }
 
         /// <summary>

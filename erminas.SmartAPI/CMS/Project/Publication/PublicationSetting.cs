@@ -22,12 +22,12 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationSetting : RedDotObject
+    public class PublicationSetting : RedDotProjectObject
     {
         private readonly NameIndexedRDList<PublicationFolderSetting> _exportFolderSettings;
         private List<PublicationTarget> _publishingTargets;
 
-        internal PublicationSetting(PublicationPackage package, XmlElement xmlElement) : base(xmlElement)
+        internal PublicationSetting(PublicationPackage package, XmlElement xmlElement) : base(package.Project, xmlElement)
         {
             _exportFolderSettings = new NameIndexedRDList<PublicationFolderSetting>(LoadExportFolderSettings,
                                                                                     Caching.Enabled);
@@ -60,7 +60,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                                                   (current, curTarget) =>
                                                   current +
                                                   string.Format(SINGLE_EXPORT_TARGET, curTarget.Guid.ToRQLString(), "1"));
-            string removeTargets = _publishingTargets.Where(x => !newTargets.Any(y => y.Guid == x.Guid))
+            string removeTargets = _publishingTargets.Where(x => newTargets.All(y => y.Guid != x.Guid))
                                                      .Aggregate("",
                                                                 (current, curTarget) =>
                                                                 current +
@@ -104,7 +104,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                 PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
             XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
-                (from XmlElement curTarget in exportTargets select new PublicationTarget(curTarget.GetGuid())).ToList();
+                (from XmlElement curTarget in exportTargets select new PublicationTarget(Project, curTarget.GetGuid())).ToList();
         }
     }
 }

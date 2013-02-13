@@ -223,7 +223,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Versioning information for the latest version of the content class.
         /// </summary>
-        [ScriptIgnore]
         public CCVersion CurrentVersion
         {
             get { return Versions.FirstOrDefault(); }
@@ -246,7 +245,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 {
                     msg += "; Reason: " + msgNode.GetAttributeValue("value");
                 }
-                throw new Exception(msg);
+                throw new SmartAPIException(Project.Session.ServerLogin, msg);
             }
         }
 
@@ -264,14 +263,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                    Project.RqlType.SessionKeyInProject);
             } catch (RQLException e)
             {
-                throw new Exception("Could not delete template variant from content class: " + e.Message);
+                throw new SmartAPIException(Project.Session.ServerLogin, "Could not delete template variant from content class: " + e.Message, e);
             }
         }
 
         /// <summary>
         ///     EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
         /// </summary>
-        [ScriptIgnore]
         public CCEditableAreaSettings EditableAreaSettings
         {
             get
@@ -283,8 +281,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     var node = (XmlElement) xmlDoc.GetElementsByTagName("SETTINGS")[0];
                     if (node == null)
                     {
-                        throw new Exception("could not load settings for content class '" + Name + "' (" +
-                                            Guid.ToRQLString() + ")");
+                        throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not load settings for content class {0}", this));
                     }
                     _editableAreaSettings = new CCEditableAreaSettings(this, node);
                 }
@@ -352,7 +349,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                     key => key.projectVariant, value => value.templateVariant);
             } catch (RQLException e)
             {
-                throw new Exception("Could not get project variant assignments", e);
+                throw new SmartAPIException(Project.Session.ServerLogin, "Could not get project variant assignments", e);
             }
             finally
             {
@@ -530,7 +527,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 ProjectVariant otherVariant;
                 if (!project.ProjectVariants.TryGetByName(curVariant.Name, out otherVariant))
                 {
-                    throw new Exception(string.Format("Could not find project variant {0} in project {1}",
+                    throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not find project variant {0} in project {1}",
                                                       curVariant.Name, project.Name));
                 }
                 projectVariant.AddAttribute("guid", otherVariant.Guid.ToRQLString());
@@ -582,7 +579,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    throw new Exception(string.Format("Could not assign keyword {0} to content class {1}",
+                    throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not assign keyword {0} to content class {1}",
                                                       curKeyword.Name, Name));
                 }
             }
@@ -603,7 +600,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     targetCC.GetAttribute(curAttribute.Name).Assign(curAttribute);
                 } catch (Exception e)
                 {
-                    throw new Exception(
+                    throw new SmartAPIException(Project.Session.ServerLogin, 
                         string.Format("Unable to assign attribute {0} in content class {1} of project {2}",
                                       curAttribute.Name, Name, Project.Name), e);
                 }
@@ -654,7 +651,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             if (guidTextNode == null || guidTextNode.NodeType != XmlNodeType.Element || guidTextNode.FirstChild == null ||
                 !Guid.TryParse(guidTextNode.FirstChild.Value.Trim(), out newCCGuid))
             {
-                throw new Exception("could not create content class '" + Name + "'");
+                throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not create content class '{0}'",Name ));
             }
 
             var targetCC = new ContentClass(project, newCCGuid);
@@ -804,7 +801,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    throw new Exception(string.Format("Could not unlink keyword {0} from content class {1}",
+                    throw new SmartAPIException(Project.Session.ServerLogin, string.Format("Could not unlink keyword {0} from content class {1}",
                                                       curKeyword.Name, Name));
                 }
             }
@@ -869,8 +866,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {
-                    throw new Exception("could not save settings for content class '" + _parent.Name + "' (" +
-                                        _parent.Guid.ToRQLString() + ")");
+                    throw new SmartAPIException(_parent.Project.Session.ServerLogin, string.Format("Could not save settings for content class {0}", _parent));
                 }
             }
 

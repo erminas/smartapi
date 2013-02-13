@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using log4net;
 
@@ -144,7 +145,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     string str = "Could not create element '" + curElementNode.GetAttributeValue("eltname") +
                                  "' of type '" + typeStr + "'";
                     LOGGER.Error(str + ": " + e.Message);
-                    throw new Exception(str, e);
+                    throw new SmartAPIException(ContentClass.Project.Session.ServerLogin, str, e);
                 }
             }
         }

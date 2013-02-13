@@ -17,6 +17,7 @@ using System;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
@@ -167,9 +168,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlNodeList errorElements = xmlDoc.GetElementsByTagName("ERROR");
             if (errorElements.Count > 0)
             {
-                throw new Exception(errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
+                throw new SmartAPIException(ContentClass.Project.Session.ServerLogin, errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
             }
-            throw new Exception(errorMsg);
+            throw new SmartAPIException(ContentClass.Project.Session.ServerLogin, errorMsg);
         }
 
         //TODO mit reddotobjecthandle ersetzen

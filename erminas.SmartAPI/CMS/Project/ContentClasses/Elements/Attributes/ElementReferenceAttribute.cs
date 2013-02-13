@@ -15,6 +15,7 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
@@ -76,7 +77,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                         otherContentClassElement.Name);
             } catch (Exception e)
             {
-                throw new Exception(
+                throw new SmartAPIException(_parent.ContentClass.Project.Session.ServerLogin, 
                     string.Format("Can't find project/content class/element {0}/{1}/{2} on server",
                                   otherContentClassElement.ContentClass.Project.Name,
                                   otherContentClassElement.ContentClass.Name, otherContentClassElement.Name), e);

@@ -17,12 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
-    public class Folder : PartialRedDotObject
+    public class Folder : PartialRedDotProjectObject
     {
         #region ComparisonFileAttribute enum
 
@@ -130,16 +131,14 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         private bool _isAssetManagerFolder;
         private Folder _linkedFolder;
 
-        internal Folder(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Folder(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
             Init();
         }
 
-        public Folder(Project project, Guid guid) : base(guid)
+        public Folder(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
             Init();
         }
 
@@ -162,7 +161,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             }
         }
 
-        public void DeleteFiles(List<string> filenames, bool forceDelete)
+        public void DeleteFiles(IEnumerable<string> filenames, bool forceDelete)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
             List<string> filesToDelete =
@@ -238,9 +237,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             get { return LazyLoad(ref _linkedFolder); }
         }
 
-        public Project Project { get; set; }
-
-        public void SaveFiles(List<FileSource> sources)
+        public void SaveFiles(IEnumerable<FileSource> sources)
         {
             List<string> filesToSave =
                 sources.Select(fileSource => string.Format(FILE_TO_SAVE, fileSource.Sourcename, fileSource.Sourcepath))
@@ -252,11 +249,11 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
             if (xmlNodes.Count == 0)
             {
-                throw new ArgumentException("Could not save Files.");
+                throw new SmartAPIException(Project.Session.ServerLogin, "Could not save Files.");
             }
         }
 
-        public void UpdateFiles(List<FileSource> files)
+        public void UpdateFiles(IEnumerable<FileSource> files)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
             List<string> filesToUpdate = files.Select(file => string.Format(FILE_TO_UPDATE, file.Sourcename)).ToList();
@@ -267,7 +264,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
             if (xmlNodes.Count == 0)
             {
-                throw new ArgumentException("Could not update Files.");
+                throw new SmartAPIException(Project.Session.ServerLogin, "Could not update Files.");
             }
         }
 
@@ -284,7 +281,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList folders = xmlDoc.GetElementsByTagName("FOLDER");
             if (folders.Count != 1)
             {
-                throw new Exception(String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
+                throw new SmartAPIException(Project.Session.ServerLogin, String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
             }
             return (XmlElement) folders[0];
         }

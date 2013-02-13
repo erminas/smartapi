@@ -19,6 +19,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
@@ -32,14 +33,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     ///         cref="RegisterType" />
     ///     method.
     /// </summary>
-    public abstract class PageElement : PartialRedDotObject, IPageElement
+    public abstract class PageElement : PartialRedDotProjectObject, IPageElement
     {
         private const string RETRIEVE_PAGE_ELEMENT = @"<ELT action=""load"" guid=""{0}""/>";
 
         private static readonly Dictionary<ElementType, Type> TYPES = new Dictionary<ElementType, Type>();
-
-        protected readonly Project Project;
-
+        
         protected ElementType Type;
         private LanguageVariant _languageVariant;
         private Page _page;
@@ -55,7 +54,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                         curType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
                                                new[] {typeof (Project), typeof (XmlElement)}, null) == null)
                     {
-                        throw new Exception(string.Format("{0} does not contain a constructor (Project, XmlElement)",
+                        throw new SmartAPIInternalException(string.Format("{0} does not contain a constructor (Project, XmlElement)",
                                                           curType.Name));
                     }
                     TYPES.Add(((PageElementType) curAttr).Type, curType);
@@ -63,20 +62,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
         }
 
-        protected PageElement(Project project, Guid guid, LanguageVariant languageVariant) : base(guid)
+        protected PageElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid)
         {
-            Project = project;
             LanguageVariant = languageVariant;
         }
 
-        protected PageElement(Project project, XmlElement xmlElement) : base(xmlElement)
+        protected PageElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
         }
-
-        #region IPageElement Members
-
+        
         public virtual ElementType ElementType
         {
             get
@@ -86,7 +81,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                     object[] types = GetType().GetCustomAttributes(typeof (PageElementType), false);
                     if (types.Length != 1)
                     {
-                        throw new Exception(string.Format("Undefined ElementType for {0}", GetType().Name));
+                        throw new SmartAPIInternalException(string.Format("Undefined ElementType for {0}", GetType().Name));
                     }
                     Type = ((PageElementType) types[0]).Type;
                 }
@@ -98,16 +93,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         public LanguageVariant LanguageVariant
         {
             get { return _languageVariant; }
-            internal set { _languageVariant = value; }
+            private set { _languageVariant = value; }
         }
 
         public Page Page
         {
             get { return LazyLoad(ref _page); }
         }
-
-        #endregion
-
+        
         /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>

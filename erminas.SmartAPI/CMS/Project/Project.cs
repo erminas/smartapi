@@ -54,7 +54,7 @@ namespace erminas.SmartAPI.CMS.Project
     ///         cref="ICachedList{T}.Refresh" />
     ///     ) or lazy ( <see cref="ICachedList{T}.InvalidateCache" /> . Most of the lists are also indexed on the most frequent access property (mostly Name). See the documentation on the properties for details.
     /// </summary>
-    public class Project : PartialRedDotObject
+    public class Project : PartialRedDotObject, ISessionObject
     {
         #region RqlType enum
 

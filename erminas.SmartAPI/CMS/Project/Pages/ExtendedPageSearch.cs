@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     /// <summary>
     ///     An extended page search more powerful than the normale <see cref="PageSearch" /> that can be refined by adding predicates to it (e.g. on the page status).
     /// </summary>
-    public class ExtendedPageSearch
+    public class ExtendedPageSearch : IProjectObject
     {
         #region GroupByType enum
 
@@ -271,5 +271,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                                     from XmlElement curSupplement in workflowElement.GetElementsByTagName("SUPPLEMENT")
                                     select new Note(workflow, curSupplement));
         }
+
+        public Session Session { get { return Project.Session; } }
+        public Project Project { get { return _project; } }
     }
 }

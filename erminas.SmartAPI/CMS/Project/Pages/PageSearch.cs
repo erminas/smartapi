@@ -25,7 +25,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
-    public class PageSearch
+    public class PageSearch : IProjectObject
     {
         private const int DEFAULT_MAX_RECORDS = 20000;
         private readonly Project _project;
@@ -138,6 +138,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             return curNode;
         }
+
+        public Session Session { get { return _project.Session; } }
+        public Project Project { get { return _project; } }
     }
 
     public class ResultGroup

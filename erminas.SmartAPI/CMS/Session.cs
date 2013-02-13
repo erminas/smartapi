@@ -175,14 +175,23 @@ namespace erminas.SmartAPI.CMS.Administration
         public IndexedCachedList<string, Locale> DialogLocales { get; private set; }
 
         /// <summary>
-        ///     Disconnectes the client from the server. Object cannot be used afterwards.
+        ///     Close session on the server and disconnect
         /// </summary>
-        public void Disconnect()
+        public void Dispose()
         {
-            Logout(LogonGuid);
+            try
+            {
+                Logout(LogonGuid);
 
-            // invalidate this object
-            LogonGuid = default(Guid);
+                // invalidate this object
+                LogonGuid = default(Guid);
+            }
+                // ReSharper disable EmptyGeneralCatchClause
+            catch
+                // ReSharper restore EmptyGeneralCatchClause
+            {
+                // exceptions are no longer relevant
+            }
         }
 
         /// <summary>
@@ -215,7 +224,7 @@ namespace erminas.SmartAPI.CMS.Administration
                 return xmlDoc;
             } catch (Exception e)
             {
-                throw new Exception("Illegal response from server", e);
+                throw new SmartAPIException(ServerLogin, "Illegal response from server", e);
             }
         }
 
@@ -237,7 +246,7 @@ namespace erminas.SmartAPI.CMS.Administration
             } catch (Exception e)
             {
                 LOG.Error("Illegal response from server: '" + result + "'", e);
-                throw new Exception("Illegal response from server", e);
+                throw new SmartAPIException(ServerLogin, "Illegal response from server", e);
             }
         }
 
@@ -289,19 +298,10 @@ namespace erminas.SmartAPI.CMS.Administration
             Project.Project project = Projects.FirstOrDefault(x => x.Guid.Equals(guid));
             if (project == null)
             {
-                throw new Exception("No Project with Guid: " + guid + " found.");
+                throw new SmartAPIException(ServerLogin, "No Project with Guid {0} found.".RQLFormat(guid));
             }
 
             return project;
-        }
-
-        /// <summary>
-        ///     Get a project by Name. This method is deprecated, use Projects[name] instead.
-        /// </summary>
-        [Obsolete("GetProject(name) is deprected, please use Projects[name] instead")]
-        public Project.Project GetProject(string name)
-        {
-            return Projects.Get(name);
         }
 
         /// <summary>
@@ -402,7 +402,7 @@ namespace erminas.SmartAPI.CMS.Administration
                 return;
             }
 
-            throw new Exception(String.Format("Couldn't select project {0}", projectGuid.ToRQLString()));
+            throw new SmartAPIException(ServerLogin, String.Format("Couldn't select project {0}", projectGuid.ToRQLString()));
         }
 
         /// <summary>
@@ -482,7 +482,7 @@ namespace erminas.SmartAPI.CMS.Administration
             if (!Guid.TryParse(resultGuidStr, out newGuid) ||
                 (textElementGuid != Guid.Empty && textElementGuid != newGuid))
             {
-                throw new Exception("could not set text for: " + textElementGuid.ToRQLString());
+                throw new SmartAPIException(ServerLogin, "Could not set text for: {0}".RQLFormat(textElementGuid));
             }
             return newGuid;
         }
@@ -619,7 +619,7 @@ namespace erminas.SmartAPI.CMS.Administration
             var languages = xmlDoc.GetElementsByTagName("LANGUAGES")[0] as XmlElement;
             if (languages == null)
             {
-                throw new Exception("could not load languages");
+                throw new SmartAPIException(ServerLogin, "Could not load languages");
             }
 
             return
@@ -879,24 +879,6 @@ namespace erminas.SmartAPI.CMS.Administration
                                                     e);
             }
         }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            try
-            {
-                Disconnect();
-            }
-                // ReSharper disable EmptyGeneralCatchClause
-            catch
-                // ReSharper restore EmptyGeneralCatchClause
-            {
-                // exceptions are no longer relevant
-            }
-        }
-
-        #endregion
     }
 
     public class ApplicationServer : PartialRedDotObject

@@ -13,49 +13,39 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public class LanguageVariant : RedDotObject, IProjectObject
+    public abstract class PartialRedDotProjectObject : PartialRedDotObject, IProjectObject
     {
-        private bool _isCurrentLanguageVariant;
-        private string _language;
+        private readonly Project _project;
 
-        internal LanguageVariant(Project project, XmlElement xmlElement) : base(xmlElement)
+        protected PartialRedDotProjectObject(Project project, XmlElement xmlElement) : base(xmlElement)
         {
-            Project = project;
-            LoadXml();
+            _project = project;
         }
 
-        public bool IsCurrentLanguageVariant
+        protected PartialRedDotProjectObject(Project project, Guid guid) : base(guid)
         {
-            get { return _isCurrentLanguageVariant; }
-            set { _isCurrentLanguageVariant = value; }
+            _project = project;
         }
 
-        public string Language
+        protected PartialRedDotProjectObject(Project project)
         {
-            get { return _language; }
+            _project = project;
         }
 
-        public Project Project { get; private set; }
-
-        public void Select()
+        public Project Project
         {
-            Project.SelectLanguageVariant(this);
-        }
-
-        private void LoadXml()
-        {
-            InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
-            InitIfPresent(ref _language, "language", x => x);
+            get { return _project; }
         }
 
         public Session Session
         {
-            get { return Project.Session; }
+            get { return _project.Session; }
         }
     }
 }

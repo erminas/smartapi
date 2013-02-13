@@ -21,18 +21,15 @@ namespace erminas.SmartAPI.CMS.Project
     /// <summary>
     ///     Represents a prefix or a postfix.
     /// </summary>
-    public class Syllable : PartialRedDotObject
+    public class Syllable : PartialRedDotProjectObject
     {
-        protected readonly Project Project;
 
-        internal Syllable(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Syllable(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
         }
 
-        public Syllable(Project project, Guid guid) : base(guid)
+        public Syllable(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
         }
 
         protected override void LoadWholeObject()

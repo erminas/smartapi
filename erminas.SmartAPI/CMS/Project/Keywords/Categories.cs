@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -29,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// <remarks>
     ///     We don't subclass NameIndexedRDList, because renaming to existing category names is allowed (albeit senseless) and could lead to duplicate category names
     /// </remarks>
-    public class Categories : RDList<Category>
+    public class Categories : RDList<Category>, IProjectObject
     {
         private readonly Project _project;
 
@@ -72,5 +73,8 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
             return (from XmlElement curNode in xmlNodes select new Category(_project, curNode)).ToList();
         }
+
+        public Session Session { get { return _project.Session; } }
+        public Project Project { get { return _project; } }
     }
 }

@@ -19,16 +19,14 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public class ProjectVariant : PartialRedDotObject
+    public class ProjectVariant : PartialRedDotProjectObject
     {
-        public ProjectVariant(Project project, Guid guid) : base(guid)
+        public ProjectVariant(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
         }
 
-        internal ProjectVariant(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal ProjectVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
         }
 
         public bool IsUsedAsDisplayFormat
@@ -48,9 +46,7 @@ namespace erminas.SmartAPI.CMS.Project
                 return value == "1";
             }
         }
-
-        public Project Project { get; private set; }
-
+        
         protected override void LoadWholeObject()
         {
         }

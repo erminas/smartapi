@@ -21,20 +21,17 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
-    public class Keyword : PartialRedDotObject
+    public class Keyword : PartialRedDotProjectObject
     {
-        public readonly Project Project;
         private Category _category;
 
-        internal Keyword(Project project, XmlElement xmlElement) : base(xmlElement)
+        internal Keyword(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            Project = project;
             LoadXml();
         }
 
-        public Keyword(Project project, Guid guid) : base(guid)
+        public Keyword(Project project, Guid guid) : base(project, guid)
         {
-            Project = project;
         }
 
         public Category Category

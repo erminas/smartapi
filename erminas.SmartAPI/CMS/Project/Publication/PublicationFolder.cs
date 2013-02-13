@@ -16,11 +16,12 @@
 using System;
 using System.Web;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationFolder : PartialRedDotObject
+    public class PublicationFolder : PartialRedDotObject, IProjectObject
     {
         #region ContentType enum
 
@@ -357,5 +358,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             }
             return optionalParameters;
         }
+
+        public Session Session { get { return Project != null ? Project.Session : null; } }
     }
 }

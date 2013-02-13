@@ -19,6 +19,7 @@ using System.Linq;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
@@ -68,8 +69,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                     XmlNode selectionsNode = xmlDoc.GetElementsByTagName("SELECTIONS")[0];
                     if (selectionsNode == null)
                     {
-                        throw new Exception("could not load option list data for '" + _parent.Name + "' (" +
-                                            _parent.Guid.ToRQLString() + " )");
+                        throw new SmartAPIException(_parent.ContentClass.Project.Session.ServerLogin, string.Format("Could not load option list data for {0}", _parent));
                     }
                     _value = selectionsNode.OuterXml;
                 }
