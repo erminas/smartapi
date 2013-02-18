@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using erminas.SmartAPI.CMS.Administration;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {

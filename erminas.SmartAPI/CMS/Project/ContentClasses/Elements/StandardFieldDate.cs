@@ -59,10 +59,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string UserDefinedDateFormat
         {
             get { return GetAttributeValue<string>("eltformatting"); }
-            set
-            {
-                SetAttributeValue("eltformatting", value);
-            }
+            set { SetAttributeValue("eltformatting", value); }
         }
     }
 }

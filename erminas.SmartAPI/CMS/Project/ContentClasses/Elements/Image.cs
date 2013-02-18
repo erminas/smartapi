@@ -53,10 +53,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string AltText
         {
             get { return GetAttributeValue<string>("eltalt"); }
-            set
-            {
-                SetAttributeValue("eltalt", value);
-            }
+            set { SetAttributeValue("eltalt", value); }
         }
 
         public int? AutomaticMaximumScalingHeight
@@ -82,10 +79,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Border
         {
             get { return GetAttributeValue<string>("eltborder"); }
-            set
-            {
-                SetAttributeValue("eltborder", value);
-            }
+            set { SetAttributeValue("eltborder", value); }
         }
 
         public int? ColorDepthInBit
@@ -105,37 +99,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string EligibleSuffixes
         {
             get { return GetAttributeValue<string>("eltsuffixes"); }
-            set
-            {
-                SetAttributeValue("eltsuffixes", value);
-            }
+            set { SetAttributeValue("eltsuffixes", value); }
         }
 
         public string HSpace
         {
             get { return GetAttributeValue<string>("elthspace"); }
-            set
-            {
-                SetAttributeValue("elthspace", value);
-            }
+            set { SetAttributeValue("elthspace", value); }
         }
 
         public string HtmlHeight
         {
             get { return GetAttributeValue<string>("eltheight"); }
-            set
-            {
-                SetAttributeValue("eltheight", value);
-            }
+            set { SetAttributeValue("eltheight", value); }
         }
 
         public string HtmlWidth
         {
             get { return GetAttributeValue<string>("eltwidth"); }
-            set
-            {
-                SetAttributeValue("eltwidth", value);
-            }
+            set { SetAttributeValue("eltwidth", value); }
         }
 
         public bool IsBorderAutomaticallyInsertedIntoPage
@@ -181,19 +163,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Quality
         {
             get { return GetAttributeValue<string>("eltcompression"); }
-            set
-            {
-                SetAttributeValue("eltcompression", value);
-            }
+            set { SetAttributeValue("eltcompression", value); }
         }
 
         public string RequiredNamePattern
         {
             get { return GetAttributeValue<string>("eltfilename"); }
-            set
-            {
-                SetAttributeValue("eltfilename", value);
-            }
+            set { SetAttributeValue("eltfilename", value); }
         }
 
         public int? RequiredPictureHeight
@@ -242,10 +218,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
 
         public TargetFormat TargetFormat
@@ -257,19 +230,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Usemap
         {
             get { return GetAttributeValue<string>("eltusermap"); }
-            set
-            {
-                SetAttributeValue("eltusermap", value);
-            }
+            set { SetAttributeValue("eltusermap", value); }
         }
 
         public string VSpace
         {
             get { return GetAttributeValue<string>("eltvspace"); }
-            set
-            {
-                SetAttributeValue("eltvspace", value);
-            }
+            set { SetAttributeValue("eltvspace", value); }
         }
     }
 }

@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem

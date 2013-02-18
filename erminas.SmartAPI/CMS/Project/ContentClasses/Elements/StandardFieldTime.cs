@@ -50,10 +50,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string UserDefinedTimeFormat
         {
             get { return GetAttributeValue<string>("eltformatting"); }
-            set
-            {
-                SetAttributeValue("eltformatting", value);
-            }
+            set { SetAttributeValue("eltformatting", value); }
         }
     }
 }

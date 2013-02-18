@@ -15,6 +15,7 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
@@ -28,8 +29,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             PublicationSetting = parent;
         }
 
-        internal PublicationFolderSetting(PublicationSetting parent, XmlElement element)
-            : base(parent.Project, element)
+        internal PublicationFolderSetting(PublicationSetting parent, XmlElement element) : base(parent.Project, element)
         {
             PublicationSetting = parent;
 
@@ -42,16 +42,13 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                 @"<PROJECT><EXPORTSETTING action=""save"" guid=""{0}""><FOLDEREXPORTSETTING folderguid=""{1}"" guid=""{2}""/></EXPORTSETTING></PROJECT>";
 
             XmlDocument xmlDoc =
-                PublicationSetting.PublicationPackage.Project.ExecuteRQL(string.Format(SAVE_SETTING,
-                                                                                       PublicationSetting.Guid
-                                                                                                         .ToRQLString(),
-                                                                                       _publicationFolder.Guid
-                                                                                                         .ToRQLString(),
-                                                                                       Guid.ToRQLString()));
+                Project.ExecuteRQL(string.Format(SAVE_SETTING, PublicationSetting.Guid.ToRQLString(),
+                                                 _publicationFolder.Guid.ToRQLString(), Guid.ToRQLString()));
 
             if (!xmlDoc.InnerText.Contains("ok"))
             {
-                throw new Exception("Could not change folderexportsetting for " + Guid.ToRQLString());
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not change publication folder setting for {0}", this));
             }
         }
 

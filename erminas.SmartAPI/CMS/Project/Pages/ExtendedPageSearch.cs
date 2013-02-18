@@ -25,7 +25,17 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
     /// <summary>
-    ///     An extended page search more powerful than the normale <see cref="PageSearch" /> that can be refined by adding predicates to it (e.g. on the page status).
+    ///     An extended page search more powerful than the normale <see cref="PageSearch" /> that can be refined by adding filters to it (e.g. on the page status).
+    /// <example>
+    /// <code>
+    /// <pre>
+    /// Project project = ...;
+    /// var search = project.CreateExtendedPageSearch();
+    /// search.Filters.Add(new HeadlineFilter(HeadlineFilter.OperatorType.IsLike, "sometext"));
+    /// var results = search.Execute();
+    /// </pre>
+    /// </code>
+    /// </example>
     /// </summary>
     public class ExtendedPageSearch : IProjectObject
     {
@@ -64,7 +74,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         #endregion
 
-        public readonly List<IPageSearchPredicate> Predicates = new List<IPageSearchPredicate>();
+        public readonly List<IPageSearchFilter> Filters = new List<IPageSearchFilter>();
         private readonly Project _project;
 
         public ExtendedPageSearch(Project project)
@@ -95,6 +105,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public OrderByType OrderBy { get; set; }
 
         public SortDirection OrderDirection { get; set; }
+
+        public Project Project
+        {
+            get { return _project; }
+        }
+
+        public Session Session
+        {
+            get { return Project.Session; }
+        }
 
         public User User { get; set; }
 
@@ -171,10 +191,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
 
             string searchItems = "";
-            if (Predicates.Any())
+            if (Filters.Any())
             {
                 searchItems = "<SEARCHITEMS>";
-                searchItems += Predicates.Aggregate("", (value, curPred) => value + curPred.ToSearchItemString());
+                searchItems += Filters.Aggregate("", (value, curPred) => value + curPred.ToSearchItemString());
                 searchItems += "</SEARCHITEMS>";
             }
 
@@ -271,8 +291,5 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                                     from XmlElement curSupplement in workflowElement.GetElementsByTagName("SUPPLEMENT")
                                     select new Note(workflow, curSupplement));
         }
-
-        public Session Session { get { return Project.Session; } }
-        public Project Project { get { return _project; } }
     }
 }

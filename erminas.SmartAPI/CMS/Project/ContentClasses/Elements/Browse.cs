@@ -84,10 +84,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string AltText
         {
             get { return GetAttributeValue<string>("eltalt"); }
-            set
-            {
-                SetAttributeValue("eltalt", value);
-            }
+            set { SetAttributeValue("eltalt", value); }
         }
 
         public Appearance Appearance
@@ -99,10 +96,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Border
         {
             get { return GetAttributeValue<string>("eltborder"); }
-            set
-            {
-                SetAttributeValue("eltborder", value);
-            }
+            set { SetAttributeValue("eltborder", value); }
         }
 
         public override ContentClassCategory Category
@@ -113,19 +107,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string DefaultValue
         {
             get { return GetAttributeValue<string>("eltdefaultvalue"); }
-            set
-            {
-                SetAttributeValue("eltdefaultvalue", value);
-            }
+            set { SetAttributeValue("eltdefaultvalue", value); }
         }
 
         public string Description
         {
             get { return GetAttributeValue<string>("eltrddescription"); }
-            set
-            {
-                SetAttributeValue("eltrddescription", value);
-            }
+            set { SetAttributeValue("eltrddescription", value); }
         }
 
         public Direction Direction
@@ -137,19 +125,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string HSpace
         {
             get { return GetAttributeValue<string>("elthspace"); }
-            set
-            {
-                SetAttributeValue("elthspace", value);
-            }
+            set { SetAttributeValue("elthspace", value); }
         }
 
         public string Height
         {
             get { return GetAttributeValue<string>("eltheight"); }
-            set
-            {
-                SetAttributeValue("eltheight", value);
-            }
+            set { SetAttributeValue("eltheight", value); }
         }
 
         public bool IsAltPreassignedAutomatically
@@ -222,37 +204,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
 
         public string Usemap
         {
             get { return GetAttributeValue<string>("eltusermap"); }
-            set
-            {
-                SetAttributeValue("eltusermap", value);
-            }
+            set { SetAttributeValue("eltusermap", value); }
         }
 
         public string VSpace
         {
             get { return GetAttributeValue<string>("eltvspace"); }
-            set
-            {
-                SetAttributeValue("eltvspace", value);
-            }
+            set { SetAttributeValue("eltvspace", value); }
         }
 
         public string Width
         {
             get { return GetAttributeValue<string>("eltwidth"); }
-            set
-            {
-                SetAttributeValue("eltwidth", value);
-            }
+            set { SetAttributeValue("eltwidth", value); }
         }
     }
 }

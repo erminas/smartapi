@@ -37,19 +37,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string DefaultValue
         {
             get { return GetAttributeValue<string>("eltdefaultvalue"); }
-            set
-            {
-                SetAttributeValue("eltdefaultvalue", value);
-            }
+            set { SetAttributeValue("eltdefaultvalue", value); }
         }
 
         public string Sample
         {
             get { return GetAttributeValue<string>("eltrdexample"); }
-            set
-            {
-                SetAttributeValue("eltrdexample", value);
-            }
+            set { SetAttributeValue("eltrdexample", value); }
         }
     }
 }

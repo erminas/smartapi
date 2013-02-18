@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -83,6 +82,13 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             InvalidateCache();
         }
 
+        public Project Project { get; private set; }
+
+        public Session Session
+        {
+            get { return Project.Session; }
+        }
+
         private List<Keyword> GetKeywords()
         {
             const string LIST_KEYWORDS =
@@ -98,8 +104,5 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
                 (from XmlElement curNode in xmlNodes select new Keyword(Category.Project, curNode) {Category = Category})
                     .Union(kategoryKeyword).ToList();
         }
-
-        public Session Session { get { return Project.Session; } }
-        public Project Project { get; private set; }
     }
 }

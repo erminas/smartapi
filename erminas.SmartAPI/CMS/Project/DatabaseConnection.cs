@@ -25,41 +25,19 @@ namespace erminas.SmartAPI.CMS.Project
     /// </summary>
     public class DatabaseConnection : PartialRedDotProjectObject
     {
-        public DatabaseConnection(CMS.Project.Project project, Guid guid) : base(project, guid)
+        private string _databaseName;
+        private DatabaseServer _databaseServer;
+        private string _description;
+
+        public DatabaseConnection(Project project, Guid guid) : base(project, guid)
         {
         }
 
-        internal DatabaseConnection(CMS.Project.Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal DatabaseConnection(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_DATABASE_CONNECTION = @"<DATABASE action=""load"" guid=""{0}""/>";
-            XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_DATABASE_CONNECTION, Guid.ToRQLString()),
-                                                    CMS.Project.Project.RqlType.SessionKeyInProject);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
-            if (xmlNodes.Count != 1)
-            {
-                throw new ArgumentException("Could not find database connection with guid " + Guid.ToRQLString());
-            }
-            return (XmlElement) xmlNodes[0];
-        }
-
-        private void LoadXml()
-        {
-            InitIfPresent(ref _description, "description", x => x);
-            InitIfPresent(ref _databaseServer, "databaseserverguid",
-                          x => new DatabaseServer(Project.Session, GuidConvert(x)));
-            InitIfPresent(ref _databaseName, "databasename", x => x);
-        }
-        
         /// <summary>
         ///     Name of the database used in the connection
         /// </summary>
@@ -84,9 +62,30 @@ namespace erminas.SmartAPI.CMS.Project
             get { return LazyLoad(ref _description); }
         }
 
-        private string _databaseName;
-        private DatabaseServer _databaseServer;
-        private string _description;
+        protected override void LoadWholeObject()
+        {
+            LoadXml();
+        }
 
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_DATABASE_CONNECTION = @"<DATABASE action=""load"" guid=""{0}""/>";
+            XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_DATABASE_CONNECTION, Guid.ToRQLString()),
+                                                    Project.RqlType.SessionKeyInProject);
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
+            if (xmlNodes.Count != 1)
+            {
+                throw new ArgumentException("Could not find database connection with guid " + Guid.ToRQLString());
+            }
+            return (XmlElement) xmlNodes[0];
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _description, "description", x => x);
+            InitIfPresent(ref _databaseServer, "databaseserverguid",
+                          x => new DatabaseServer(Project.Session, GuidConvert(x)));
+            InitIfPresent(ref _databaseName, "databasename", x => x);
+        }
     }
 }

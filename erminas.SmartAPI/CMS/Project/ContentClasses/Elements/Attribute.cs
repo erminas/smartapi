@@ -64,10 +64,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string ReferencedElementName
         {
             get { return GetAttributeValue<string>("eltmediatypename"); }
-            set
-            {
-                SetAttributeValue("eltmediatypename", value);
-            }
+            set { SetAttributeValue("eltmediatypename", value); }
         }
 
         public MediaTypeAttribute SelectedAttribute

@@ -40,28 +40,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string EndOfColumn
         {
             get { return GetAttributeValue<string>("eltcolclose"); }
-            set
-            {
-                SetAttributeValue("eltcolclose", value);
-            }
+            set { SetAttributeValue("eltcolclose", value); }
         }
 
         public string EndOfLine
         {
             get { return GetAttributeValue<string>("eltrowclose"); }
-            set
-            {
-                SetAttributeValue("eltrowclose", value);
-            }
+            set { SetAttributeValue("eltrowclose", value); }
         }
 
         public string EndOfTable
         {
             get { return GetAttributeValue<string>("elttableclose"); }
-            set
-            {
-                SetAttributeValue("elttableclose", value);
-            }
+            set { SetAttributeValue("elttableclose", value); }
         }
 
         public SiteMapFormat Format
@@ -109,28 +100,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string StartOfColumn
         {
             get { return GetAttributeValue<string>("eltcolopen"); }
-            set
-            {
-                SetAttributeValue("eltcolopen", value);
-            }
+            set { SetAttributeValue("eltcolopen", value); }
         }
 
         public string StartOfLine
         {
             get { return GetAttributeValue<string>("eltrowopen"); }
-            set
-            {
-                SetAttributeValue("eltrowopen", value);
-            }
+            set { SetAttributeValue("eltrowopen", value); }
         }
 
         public string StartOfTable
         {
             get { return GetAttributeValue<string>("elttableopen"); }
-            set
-            {
-                SetAttributeValue("elttableopen", value);
-            }
+            set { SetAttributeValue("elttableopen", value); }
         }
 
         public File XslStyleSheet

@@ -15,7 +15,6 @@
 
 using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.CMS.Project.Filesystem;
 using erminas.SmartAPI.Utils;
@@ -111,19 +110,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string AltText
         {
             get { return GetAttributeValue<string>("eltalt"); }
-            set
-            {
-                SetAttributeValue("eltalt", value);
-            }
+            set { SetAttributeValue("eltalt", value); }
         }
 
         public string Border
         {
             get { return GetAttributeValue<string>("eltborder"); }
-            set
-            {
-                SetAttributeValue("eltborder", value);
-            }
+            set { SetAttributeValue("eltborder", value); }
         }
 
         public override ContentClassCategory Category
@@ -134,29 +127,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string DataFieldForBinayData
         {
             get { return GetAttributeValue<string>("eltbincolumnname"); }
-            set
-            {
-                SetAttributeValue("eltbincolumnname", value);
-            }
+            set { SetAttributeValue("eltbincolumnname", value); }
         }
 
         public string DataFieldName
         {
             get { return GetAttributeValue<string>("eltcolumnname"); }
-            set
-            {
-                SetAttributeValue("eltcolumnname", value);
-            }
+            set { SetAttributeValue("eltcolumnname", value); }
         }
 
         //todo implement as enum/special type
         public string DataFieldType
         {
             get { return GetAttributeValue<string>("eltcolumniotype"); }
-            set
-            {
-                SetAttributeValue("eltcolumniotype", value);
-            }
+            set { SetAttributeValue("eltcolumniotype", value); }
         }
 
         public DatabaseConnection DatabaseConnection
@@ -168,10 +152,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string HSpace
         {
             get { return GetAttributeValue<string>("elthspace"); }
-            set
-            {
-                SetAttributeValue("elthspace", value);
-            }
+            set { SetAttributeValue("elthspace", value); }
         }
 
         public bool IsListEntry
@@ -204,37 +185,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
 
         public string TableName
         {
             get { return GetAttributeValue<string>("elttablename"); }
-            set
-            {
-                SetAttributeValue("elttablename", value);
-            }
+            set { SetAttributeValue("elttablename", value); }
         }
 
         public string UserDefinedFormat
         {
             get { return GetAttributeValue<string>("eltformatting"); }
-            set
-            {
-                SetAttributeValue("eltformatting", value);
-            }
+            set { SetAttributeValue("eltformatting", value); }
         }
 
         public string VSpace
         {
             get { return GetAttributeValue<string>("eltvspace"); }
-            set
-            {
-                SetAttributeValue("eltvspace", value);
-            }
+            set { SetAttributeValue("eltvspace", value); }
         }
     }
 }

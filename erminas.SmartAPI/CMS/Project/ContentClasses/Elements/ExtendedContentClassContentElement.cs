@@ -28,28 +28,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Description
         {
             get { return GetAttributeValue<string>("eltrddescription"); }
-            set
-            {
-                SetAttributeValue("eltrddescription", value);
-            }
+            set { SetAttributeValue("eltrddescription", value); }
         }
 
         public string EndTagForAutomaticProcessing
         {
             get { return GetAttributeValue<string>("eltendmark"); }
-            set
-            {
-                SetAttributeValue("eltendmark", value);
-            }
+            set { SetAttributeValue("eltendmark", value); }
         }
 
         public string StartTagForAutomaticProcessing
         {
             get { return GetAttributeValue<string>("eltbeginmark"); }
-            set
-            {
-                SetAttributeValue("eltbeginmark", value);
-            }
+            set { SetAttributeValue("eltbeginmark", value); }
         }
     }
 }

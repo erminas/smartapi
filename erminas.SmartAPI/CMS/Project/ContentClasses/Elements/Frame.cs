@@ -137,10 +137,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string FrameName
         {
             get { return GetAttributeValue<string>("eltframename"); }
-            set
-            {
-                SetAttributeValue("eltframename", value);
-            }
+            set { SetAttributeValue("eltframename", value); }
         }
 
         public Frameborder Frameborder
@@ -164,19 +161,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string MarginHeight
         {
             get { return GetAttributeValue<string>("eltmarginheight"); }
-            set
-            {
-                SetAttributeValue("eltmarginheight", value);
-            }
+            set { SetAttributeValue("eltmarginheight", value); }
         }
 
         public string MarginWidth
         {
             get { return GetAttributeValue<string>("eltmarginwidth"); }
-            set
-            {
-                SetAttributeValue("eltmarginwidth", value);
-            }
+            set { SetAttributeValue("eltmarginwidth", value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
@@ -190,19 +181,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Src
         {
             get { return GetAttributeValue<string>("eltsrc"); }
-            set
-            {
-                SetAttributeValue("eltsrc", value);
-            }
+            set { SetAttributeValue("eltsrc", value); }
         }
 
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
     }
 }

@@ -32,28 +32,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Height
         {
             get { return GetAttributeValue<string>("eltheight"); }
-            set
-            {
-                SetAttributeValue("eltheight", value);
-            }
+            set { SetAttributeValue("eltheight", value); }
         }
 
         public string Src
         {
             get { return GetAttributeValue<string>("eltsrc"); }
-            set
-            {
-                SetAttributeValue("eltsrc", value);
-            }
+            set { SetAttributeValue("eltsrc", value); }
         }
 
         public string Width
         {
             get { return GetAttributeValue<string>("eltwidth"); }
-            set
-            {
-                SetAttributeValue("eltwidth", value);
-            }
+            set { SetAttributeValue("eltwidth", value); }
         }
     }
 }

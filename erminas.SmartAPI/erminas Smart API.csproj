@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="CMS\ISessionObject.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\AbstractWorkflowPreassignable.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\DeliveryServerConstraint.cs" />
     <Compile Include="CMS\Project\IProjectObject.cs" />
     <Compile Include="CMS\Project\Keywords\Categories.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\CategoryXmlNodeAttribute.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="CMS\Project\ContentClasses\Elements\TargetFormat.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContentClassElement.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContentClassPreassignable.cs" />
+    <Compile Include="CMS\Project\Pages\Pages.cs" />
     <Compile Include="CMS\Project\Pages\ILinkTarget.cs" />
     <Compile Include="CMS\Project\Pages\IPage.cs" />
     <Compile Include="CMS\Project\Keywords\Keywords.cs" />

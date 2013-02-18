@@ -23,7 +23,6 @@ namespace erminas.SmartAPI.CMS.Project
     /// </summary>
     public class Syllable : PartialRedDotProjectObject
     {
-
         internal Syllable(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }

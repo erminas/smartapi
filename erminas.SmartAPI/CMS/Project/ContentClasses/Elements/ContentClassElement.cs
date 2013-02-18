@@ -17,7 +17,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -35,7 +34,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private LanguageVariant _languageVariant;
 
-        protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement) : base(contentClass.Project, xmlElement)
+        protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass.Project, xmlElement)
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
@@ -68,8 +68,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     var newGuid = new Guid(tmpGuidStr);
                     if (!newGuid.Equals(Guid))
                     {
-                        throw new SmartAPIException(Session.ServerLogin,
-                                                    "Unexpected guid in return value");
+                        throw new SmartAPIException(Session.ServerLogin, "Unexpected guid in return value");
                     }
                     //if needed could check wether the element has changed on the server, via the checked attribute
                     //-1 = changed 0 = unchanged
@@ -239,6 +238,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     return new List(contentClass, xmlElement);
                 case ElementType.ProjectContent:
                     return new ProjectContent(contentClass, xmlElement);
+                case ElementType.ConditionRedDotLiveServer:
+                    return new DeliveryServerConstraint(contentClass, xmlElement);
                 default:
                     throw new ArgumentException("unknown element type: " + type);
             }

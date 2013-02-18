@@ -75,8 +75,7 @@ namespace erminas.SmartAPI.CMS.Administration
         /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="session"> The cms session used to retrieve this user </param>
         /// <param name="xmlElement"> USER XML-Element to get data from </param>
-        internal User(Session session, XmlElement xmlElement)
-            : base(session, xmlElement)
+        internal User(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
             Init();
             // TODO: Read all data
@@ -167,7 +166,7 @@ namespace erminas.SmartAPI.CMS.Administration
         ///     List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
         /// </summary>
         public IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; private set; }
-        
+
         public void UnassignProject(Project.Project project)
         {
             const string UNASSING_PROJECT =

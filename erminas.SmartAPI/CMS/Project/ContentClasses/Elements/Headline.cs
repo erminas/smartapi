@@ -33,10 +33,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Description
         {
             get { return GetAttributeValue<string>("eltrddescription"); }
-            set
-            {
-                SetAttributeValue("eltrddescription", value);
-            }
+            set { SetAttributeValue("eltrddescription", value); }
         }
 
         public bool IsDirectEditActivated

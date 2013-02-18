@@ -132,10 +132,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string EligibleSuffixes
         {
             get { return GetAttributeValue<string>("eltsuffixes"); }
-            set
-            {
-                SetAttributeValue("eltsuffixes", value);
-            }
+            set { SetAttributeValue("eltsuffixes", value); }
         }
 
         public bool IsConvertingOnlyNonWebCompatibleFiles
@@ -187,19 +184,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Quality
         {
             get { return GetAttributeValue<string>("eltcompression"); }
-            set
-            {
-                SetAttributeValue("eltcompression", value);
-            }
+            set { SetAttributeValue("eltcompression", value); }
         }
 
         public string RequiredNamePattern
         {
             get { return GetAttributeValue<string>("eltfilename"); }
-            set
-            {
-                SetAttributeValue("eltfilename", value);
-            }
+            set { SetAttributeValue("eltfilename", value); }
         }
 
         public int? RequiredPictureHeight

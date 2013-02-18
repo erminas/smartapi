@@ -52,7 +52,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
                 return
                     _cachedTargetContainer =
-                    (Pages.Elements.Container) PageElement.CreateElement(_element.ContentClass.Project, guid, _element.LanguageVariant);
+                    (Pages.Elements.Container)
+                    PageElement.CreateElement(_element.ContentClass.Project, guid, _element.LanguageVariant);
             }
             set
             {

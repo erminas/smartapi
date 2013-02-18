@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
@@ -78,8 +77,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
             if (!reply.Contains("ok"))
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not delete workflow {0}", this));
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete workflow {0}", this));
             }
         }
 
@@ -111,8 +109,8 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         private void LoadActions()
         {
             _actions =
-                (from XmlElement node in XmlElement.SelectNodes("descendant::NODE") select new WorkFlowAction(Project, node))
-                    .ToList();
+                (from XmlElement node in XmlElement.SelectNodes("descendant::NODE")
+                 select new WorkFlowAction(Project, node)).ToList();
         }
 
         private void LoadXml()

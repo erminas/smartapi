@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal ImageAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace", "eltusermap",
-                             "eltautoheight", "eltautowidth", "eltautoborder", "eltsrcsubdirguid", "eltimagesupplement",
+                             "eltautoheight", "eltautowidth", "eltfolderguid", "eltautoborder", "eltsrcsubdirguid", "eltimagesupplement",
                              "eltsrc", "eltalt");
 // ReSharper disable ObjectCreationAsStatement
             new BoolXmlNodeAttribute(this, "eltpresetalt");
@@ -43,28 +43,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string AltText
         {
             get { return GetAttributeValue<string>("eltalt"); }
-            set
-            {
-                SetAttributeValue("eltalt", value);
-            }
+            set { SetAttributeValue("eltalt", value); }
         }
 
         public string HSpace
         {
             get { return GetAttributeValue<string>("elthspace"); }
-            set
-            {
-                SetAttributeValue("elthspace", value);
-            }
+            set { SetAttributeValue("elthspace", value); }
         }
 
         public string ImageLinkSupplement
         {
             get { return GetAttributeValue<string>("eltimagesupplement"); }
-            set
-            {
-                SetAttributeValue("eltimagesupplement", value);
-            }
+            set { SetAttributeValue("eltimagesupplement", value); }
         }
 
         public bool IsAltPreassignedAutomatically
@@ -114,19 +105,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Usemap
         {
             get { return GetAttributeValue<string>("eltusermap"); }
-            set
-            {
-                SetAttributeValue("eltusermap", value);
-            }
+            set { SetAttributeValue("eltusermap", value); }
         }
 
         public string VSpace
         {
             get { return GetAttributeValue<string>("eltvspace"); }
-            set
-            {
-                SetAttributeValue("eltvspace", value);
-            }
+            set { SetAttributeValue("eltvspace", value); }
         }
     }
 }

@@ -110,6 +110,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public int PageIdTo { get; set; }
         public Page.PageType PageType { get; set; }
 
+        public Project Project
+        {
+            get { return _project; }
+        }
+
+        public Session Session
+        {
+            get { return _project.Session; }
+        }
+
         public void SetDefaults()
         {
             PageType = Page.PageType.All;
@@ -138,9 +148,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             return curNode;
         }
-
-        public Session Session { get { return _project.Session; } }
-        public Project Project { get { return _project; } }
     }
 
     public class ResultGroup

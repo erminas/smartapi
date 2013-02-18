@@ -37,10 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Coords
         {
             get { return GetAttributeValue<string>("eltcoords"); }
-            set
-            {
-                SetAttributeValue("eltcoords", value);
-            }
+            set { SetAttributeValue("eltcoords", value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -73,29 +70,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Shape
         {
             get { return GetAttributeValue<string>("eltshape"); }
-            set
-            {
-                SetAttributeValue("eltshape", value);
-            }
+            set { SetAttributeValue("eltshape", value); }
         }
 
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
 
         //TODO use enum instead
         public string Target
         {
             get { return GetAttributeValue<string>("elttarget"); }
-            set
-            {
-                SetAttributeValue("elttarget", value);
-            }
+            set { SetAttributeValue("elttarget", value); }
         }
     }
 }

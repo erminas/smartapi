@@ -15,7 +15,6 @@
 
 using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.Utils;
 
@@ -92,19 +91,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string AltText
         {
             get { return GetAttributeValue<string>("eltalt"); }
-            set
-            {
-                SetAttributeValue("eltalt", value);
-            }
+            set { SetAttributeValue("eltalt", value); }
         }
 
         public string Border
         {
             get { return GetAttributeValue<string>("eltborder"); }
-            set
-            {
-                SetAttributeValue("eltborder", value);
-            }
+            set { SetAttributeValue("eltborder", value); }
         }
 
         public override void Commit()
@@ -114,18 +107,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
                 XmlElement.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
 
-                ContentClass.Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>",
-                                                Project.RqlType.SessionKeyInProject);
+                Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>",
+                                   Project.RqlType.SessionKeyInProject);
             }
         }
 
         public string HSpace
         {
             get { return GetAttributeValue<string>("elthspace"); }
-            set
-            {
-                SetAttributeValue("elthspace", value);
-            }
+            set { SetAttributeValue("elthspace", value); }
         }
 
         public HitListType HitListType
@@ -151,28 +141,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
 
         public string Usemap
         {
             get { return GetAttributeValue<string>("eltusermap"); }
-            set
-            {
-                SetAttributeValue("eltusermap", value);
-            }
+            set { SetAttributeValue("eltusermap", value); }
         }
 
         public string VSpace
         {
             get { return GetAttributeValue<string>("eltvspace"); }
-            set
-            {
-                SetAttributeValue("eltvspace", value);
-            }
+            set { SetAttributeValue("eltvspace", value); }
         }
     }
 }

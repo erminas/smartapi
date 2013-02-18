@@ -71,6 +71,11 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             return Id.GetHashCode();
         }
 
+        public Session Session
+        {
+            get { return _session; }
+        }
+
         public override string ToString()
         {
             return Country + " (" + Language + ")";
@@ -118,7 +123,5 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             string answerElementsName = types == DateTimeFormatTypes.Time ? "TIMEFORMAT" : "DATEFORMAT";
             return timeformats.GetElementsByTagName(answerElementsName);
         }
-
-        public Session Session { get { return _session; } }
     }
 }

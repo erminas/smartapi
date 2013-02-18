@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using erminas.SmartAPI.CMS;
 using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.Utils

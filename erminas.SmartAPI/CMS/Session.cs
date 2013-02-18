@@ -88,7 +88,7 @@ namespace erminas.SmartAPI.CMS
         private const string RQL_IODATA_PROJECT_SESSIONKEY =
             @"<IODATA loginguid=""{0}""><PROJECT sessionkey=""{1}"">{2}</PROJECT></IODATA>";
 
-        private const string RQL_LOGIN = @"<ADMINISTRATION action=""login"" name=""{0}"" password=""{1}""/>";
+        private const string RQL_LOGIN = @"<ADMINISTRATION action=""login"" name=""{0}"" password=""{1}""></ADMINISTRATION>";
 
         private const string RQL_LOGIN_FORCE =
             @"<ADMINISTRATION action=""login"" name=""{0}"" password=""{1}"" loginguid=""{2}""/>";
@@ -100,7 +100,7 @@ namespace erminas.SmartAPI.CMS
             @"<IODATA loginguid=""{0}"" sessionkey=""{1}"" format=""1"">{2}</IODATA>";
 
         private static readonly Regex VERSION_REGEXP =
-            new Regex("Management Server&nbsp;\\d+(\\.\\d+)*&nbsp;Build&nbsp;(\\d+\\.\\d+\\.\\d+\\.\\d+)");
+            new Regex("(Management Server&nbsp;|CMS Version )\\d+(\\.\\d+)*&nbsp;Build&nbsp;(\\d+\\.\\d+\\.\\d+\\.\\d+)");
 
         private static readonly ILog LOG = LogManager.GetLogger("Session");
 
@@ -129,6 +129,36 @@ namespace erminas.SmartAPI.CMS
             ApplicationServers = new RDList<ApplicationServer>(GetApplicationServers, Caching.Enabled);
             Locales = new IndexedCachedList<int, Locale>(GetLocales, x => x.LCID, Caching.Enabled);
             DialogLocales = new IndexedCachedList<string, Locale>(GetDialogLocales, x => x.Id, Caching.Enabled);
+        }
+        public enum UseVersioning
+        {
+            Yes = -1,
+            No = 0
+        }
+        public enum ProjectType
+        {
+            TestProject = 1,
+            LiveProject = 0
+        }
+        //todo extrahieren und creation type machen mit default values, oberklasse fuer dingens
+        public Project.Project CreateProjectMsSql(string projectName, ApplicationServer appServer, DatabaseServer dbServer, string databaseName, Locale language, ProjectType type, UseVersioning useVersioning, User user)
+        {
+            const string CREATE_PROJECT =
+                @"<ADMINISTRATION><PROJECT action=""addnew"" projectname=""{0}"" databaseserverguid=""{1}"" editorialserverguid=""{2}"" databasename=""{3}""
+versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{7}"" name=""{8}"" /></LANGUAGEVARIANTS><USERS><USER action=""assign"" guid=""{6}""/></USERS></PROJECT></ADMINISTRATION>";
+
+            var result = ParseRQLResult(ExecuteRql(CREATE_PROJECT.RQLFormat(projectName, dbServer, appServer, databaseName, (int) useVersioning,
+                                                (int) type, user, language.Id, language.Language), IODataFormat.SessionKeyAndLogonGuid));
+
+            var guidStr = result.InnerText;
+            Guid projectGuid;
+            if (!Guid.TryParse(guidStr, out projectGuid))
+            {
+                throw new SmartAPIException(ServerLogin, string.Format("Could not create project {0}", projectName));
+            }
+
+            Projects.InvalidateCache();
+            return new Project.Project(this, projectGuid);
         }
 
         /// <summary>
@@ -404,7 +434,8 @@ namespace erminas.SmartAPI.CMS
                 return;
             }
 
-            throw new SmartAPIException(ServerLogin, String.Format("Couldn't select project {0}", projectGuid.ToRQLString()));
+            throw new SmartAPIException(ServerLogin,
+                                        String.Format("Couldn't select project {0}", projectGuid.ToRQLString()));
         }
 
         /// <summary>
@@ -491,7 +522,7 @@ namespace erminas.SmartAPI.CMS
         }
 
         public Version Version { get; private set; }
-        protected string CmsServerConnectionUrl { get; private set; }
+        private string CmsServerConnectionUrl { get; set; }
 
         internal void EnsureVersion()
         {
@@ -632,10 +663,10 @@ namespace erminas.SmartAPI.CMS
         private XmlDocument GetLoginResponse()
         {
             PasswordAuthentication authData = ServerLogin.AuthData;
-            string rql = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, authData.Username, authData.Password));
+            string rql = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username), HttpUtility.HtmlEncode(authData.Password)));
 
             //hide password in log messages
-            string debugOutputRQL = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, authData.Username, "*****"));
+            string debugOutputRQL = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username), "*****"));
             var xmlDoc = new XmlDocument();
             try
             {
@@ -696,14 +727,14 @@ namespace erminas.SmartAPI.CMS
                 {
                     string responseText = client.DownloadString(versionURI);
                     Match match = VERSION_REGEXP.Match(responseText);
-                    if (match.Groups.Count != 3)
+                    if (match.Groups.Count != 4)
                     {
                         throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
                                                             "Could not retrieve version info of RedDot server at " +
                                                             baseURL + "\n" + responseText);
                     }
 
-                    Version = new Version(match.Groups[2].Value);
+                    Version = new Version(match.Groups[3].Value);
                     CmsServerConnectionUrl = baseURL +
                                              (Version.Major < 11
                                                   ? "webservice/RDCMSXMLServer.WSDL"
@@ -854,6 +885,8 @@ namespace erminas.SmartAPI.CMS
                 binding.ReaderQuotas.MaxStringContentLength = 2097152*10; //20MB
                 binding.ReaderQuotas.MaxArrayLength = 2097152*10; //20mb
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
+                binding.ReceiveTimeout = TimeSpan.FromMinutes(3);
+                binding.SendTimeout = TimeSpan.FromMinutes(3);
 
                 var add = new EndpointAddress(CmsServerConnectionUrl);
 
@@ -886,7 +919,6 @@ namespace erminas.SmartAPI.CMS
 
     public class ApplicationServer : PartialRedDotObject
     {
-        
         private string _from;
         private string _ipAddress;
 

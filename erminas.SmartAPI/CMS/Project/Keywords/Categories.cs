@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -66,6 +65,16 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             }
         }
 
+        public Project Project
+        {
+            get { return _project; }
+        }
+
+        public Session Session
+        {
+            get { return _project.Session; }
+        }
+
         private List<Category> GetCategories()
         {
             const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
@@ -73,8 +82,5 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
             return (from XmlElement curNode in xmlNodes select new Category(_project, curNode)).ToList();
         }
-
-        public Session Session { get { return _project.Session; } }
-        public Project Project { get { return _project; } }
     }
 }

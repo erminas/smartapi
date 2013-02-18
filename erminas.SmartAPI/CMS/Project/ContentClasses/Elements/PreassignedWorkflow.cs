@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Utils;
 
@@ -125,10 +124,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _workflow.Name = value; }
         }
 
+        public Project Project
+        {
+            get { return _workflow.Project; }
+        }
+
         public void Refresh()
         {
             _workflow.Refresh();
             RefreshLanguageVariants();
+        }
+
+        public Session Session
+        {
+            get { return _workflow.Session; }
         }
 
         public XmlElement XmlNode
@@ -160,8 +169,5 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             _languageVariants = GetPreAssignmentLanguageVariants();
         }
-
-        public Session Session { get { return _workflow.Session; } }
-        public Project Project { get { return _workflow.Project; } }
     }
 }

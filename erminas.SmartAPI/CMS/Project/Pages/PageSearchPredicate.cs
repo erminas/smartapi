@@ -19,12 +19,12 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
-    public interface IPageSearchPredicate
+    public interface IPageSearchFilter
     {
         string ToSearchItemString();
     }
 
-    public abstract class AbstractPageSearchPredicate : IPageSearchPredicate
+    public abstract class AbstractPageSearchFilter : IPageSearchFilter
     {
         #region EqualityOperatorType enum
 
@@ -54,7 +54,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
     }
 
-    public class HeadlinePredicate : AbstractPageSearchPredicate
+    public class HeadlineFilter : AbstractPageSearchFilter
     {
         #region OperatorType enum
 
@@ -69,7 +69,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public readonly OperatorType Operator;
         public readonly string Value;
 
-        public HeadlinePredicate(OperatorType op, string value)
+        public HeadlineFilter(OperatorType op, string value)
         {
             Operator = op;
             Value = value;
@@ -81,12 +81,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
     }
 
-    public class HeadlineAndContentPredicate : AbstractPageSearchPredicate
+    public class HeadlineAndContentFilter : AbstractPageSearchFilter
     {
         public readonly EqualityOperatorType Operator;
         public readonly string Value;
 
-        public HeadlineAndContentPredicate(EqualityOperatorType @operator, string value)
+        public HeadlineAndContentFilter(EqualityOperatorType @operator, string value)
         {
             Operator = @operator;
             Value = value;
@@ -98,12 +98,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
     }
 
-    public class WorkflowPredicate : AbstractPageSearchPredicate
+    public class WorkflowFilter : AbstractPageSearchFilter
     {
         public readonly EqualityOperatorType Operator;
         public readonly Workflow Workflow;
 
-        public WorkflowPredicate(EqualityOperatorType @operator, Workflow workflow)
+        public WorkflowFilter(EqualityOperatorType @operator, Workflow workflow)
         {
             Operator = @operator;
             Workflow = workflow;
@@ -116,7 +116,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
     }
 
-    public class SpecialPagePredicate : AbstractPageSearchPredicate
+    public class SpecialPageFilter : AbstractPageSearchFilter
     {
         #region PageCategoryType enum
 
@@ -133,7 +133,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public readonly PageCategoryType PageCategory;
 
-        public SpecialPagePredicate(PageCategoryType pageCategory)
+        public SpecialPageFilter(PageCategoryType pageCategory)
         {
             PageCategory = pageCategory;
         }
@@ -144,7 +144,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
     }
 
-    public class PageStatusPredicate : AbstractPageSearchPredicate
+    public class PageStatusFilter : AbstractPageSearchFilter
     {
         #region PageStatusType enum
 
@@ -174,7 +174,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public readonly UserType User;
 
-        public PageStatusPredicate(PageStatusType pageStatus, UserType user)
+        public PageStatusFilter(PageStatusType pageStatus, UserType user)
         {
             PageStatus = pageStatus;
             User = user;

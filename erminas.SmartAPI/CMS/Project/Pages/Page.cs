@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
@@ -297,7 +296,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 XmlNodeList pages = xmlDoc.GetElementsByTagName("PAGE");
                 if (pages.Count != 1)
                 {
-                    throw new Exception(string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
+                    throw new SmartAPIException(Session.ServerLogin,
+                                                string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
                 }
                 return (XmlElement) pages[0];
             }
@@ -531,7 +531,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                                                  HttpUtility.HtmlEncode(Filename)));
             if (xmlDoc.GetElementsByTagName("PAGE").Count != 1)
             {
-                throw new Exception(string.Format("Could not save changes to page {0}", Guid.ToRQLString()));
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not save changes to page {0}", this));
             }
         }
 

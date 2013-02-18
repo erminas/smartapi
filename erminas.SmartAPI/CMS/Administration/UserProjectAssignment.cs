@@ -38,8 +38,8 @@ namespace erminas.SmartAPI.CMS.Administration
 
     public class UserProjectAssignment : ISessionObject
     {
-        private readonly User _user;
         private readonly Session _session;
+        private readonly User _user;
 
         internal UserProjectAssignment(User user, XmlElement projectAssignment)
         {
@@ -48,7 +48,8 @@ namespace erminas.SmartAPI.CMS.Administration
             LoadXml(projectAssignment);
         }
 
-        private UserProjectAssignment(User user, Project.Project project, UserRole role, ExtendedUserRoles extendedUserRoles)
+        private UserProjectAssignment(User user, Project.Project project, UserRole role,
+                                      ExtendedUserRoles extendedUserRoles)
         {
             Project = project;
             _user = user;
@@ -78,6 +79,11 @@ namespace erminas.SmartAPI.CMS.Administration
         public bool IsTranslationEditor { get; set; }
         public Project.Project Project { get; private set; }
 
+        public Session Session
+        {
+            get { return _session; }
+        }
+
         public User User
         {
             get { return _user; }
@@ -85,13 +91,8 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public UserRole UserRole { get; set; }
 
-        public Session Session
-        {
-            get { return _session; }
-        }
-
         /// <summary>
-        /// TODO warum ist das nicht oeffentlich?
+        ///     TODO warum ist das nicht oeffentlich?
         /// </summary>
         /// <param name="user"></param>
         /// <param name="project"></param>
@@ -122,7 +123,10 @@ namespace erminas.SmartAPI.CMS.Administration
 
         private void LoadXml(XmlElement projectAssignment)
         {
-            Project = new Project.Project(_user.Session, projectAssignment.GetGuid()) {Name = projectAssignment.GetName()};
+            Project = new Project.Project(_user.Session, projectAssignment.GetGuid())
+                {
+                    Name = projectAssignment.GetName()
+                };
 
             UserRole = (UserRole) projectAssignment.GetIntAttributeValue("userlevel").GetValueOrDefault();
             IsTemplateEditor = HasRight(projectAssignment, "templateeditorright");

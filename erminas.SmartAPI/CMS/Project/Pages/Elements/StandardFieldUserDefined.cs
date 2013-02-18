@@ -29,7 +29,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private int _maxSize;
         private Regex _regex;
 
-        internal StandardFieldUserDefined(Project project, XmlElement xmlElement, Regex regex) : base(project, xmlElement)
+        internal StandardFieldUserDefined(Project project, XmlElement xmlElement, Regex regex)
+            : base(project, xmlElement)
         {
             LoadXml();
             _regex = regex;

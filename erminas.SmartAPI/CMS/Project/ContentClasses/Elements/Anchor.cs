@@ -80,7 +80,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltdonotremove", "eltxhtmlcompliant",
                              "eltdonothtmlencode", "eltlanguageindependent", "eltlanguagevariantguid",
-                             "eltprojectvariantguid", "eltfolderguid", "eltcrlftobr", "eltonlyhrefvalue", "eltrequired",
+                             "eltprojectvariantguid", "eltcrlftobr", "eltonlyhrefvalue", "eltrequired",
                              "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid", "eltrddescription", "elttarget");
 // ReSharper disable ObjectCreationAsStatement
             new StringXmlNodeAttribute(this, "eltvalue");
@@ -97,19 +97,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Description
         {
             get { return GetAttributeValue<string>("eltrddescription"); }
-            set
-            {
-                SetAttributeValue("eltrddescription", value);
-            }
+            set { SetAttributeValue("eltrddescription", value); }
         }
 
         public string ExampleText
         {
             get { return GetAttributeValue<string>("eltrdexample"); }
-            set
-            {
-                SetAttributeValue("eltrdexample", value);
-            }
+            set { SetAttributeValue("eltrdexample", value); }
         }
 
         public HtmlTarget HtmlTarget
@@ -201,10 +195,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Supplement
         {
             get { return GetAttributeValue<string>("eltsupplement"); }
-            set
-            {
-                SetAttributeValue("eltsupplement", value);
-            }
+            set { SetAttributeValue("eltsupplement", value); }
         }
     }
 }

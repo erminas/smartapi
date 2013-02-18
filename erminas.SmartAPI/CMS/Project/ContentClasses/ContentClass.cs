@@ -258,7 +258,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                    Project.RqlType.SessionKeyInProject);
             } catch (RQLException e)
             {
-                throw new SmartAPIException(Session.ServerLogin, "Could not delete template variant from content class: " + e.Message, e);
+                throw new SmartAPIException(Session.ServerLogin,
+                                            "Could not delete template variant from content class: " + e.Message, e);
             }
         }
 
@@ -276,7 +277,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     var node = (XmlElement) xmlDoc.GetElementsByTagName("SETTINGS")[0];
                     if (node == null)
                     {
-                        throw new SmartAPIException(Session.ServerLogin, string.Format("Could not load settings for content class {0}", this));
+                        throw new SmartAPIException(Session.ServerLogin,
+                                                    string.Format("Could not load settings for content class {0}", this));
                     }
                     _editableAreaSettings = new CCEditableAreaSettings(this, node);
                 }
@@ -522,8 +524,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 ProjectVariant otherVariant;
                 if (!project.ProjectVariants.TryGetByName(curVariant.Name, out otherVariant))
                 {
-                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not find project variant {0} in project {1}",
-                                                      curVariant.Name, project.Name));
+                    throw new SmartAPIException(Session.ServerLogin,
+                                                string.Format("Could not find project variant {0} in project {1}",
+                                                              curVariant.Name, project.Name));
                 }
                 projectVariant.AddAttribute("guid", otherVariant.Guid.ToRQLString());
             }
@@ -574,8 +577,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not assign keyword {0} to content class {1}",
-                                                      curKeyword.Name, Name));
+                    throw new SmartAPIException(Session.ServerLogin,
+                                                string.Format("Could not assign keyword {0} to content class {1}",
+                                                              curKeyword.Name, Name));
                 }
             }
         }
@@ -595,9 +599,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     targetCC.GetAttribute(curAttribute.Name).Assign(curAttribute);
                 } catch (Exception e)
                 {
-                    throw new SmartAPIException(Session.ServerLogin, 
-                        string.Format("Unable to assign attribute {0} in content class {1} of project {2}",
-                                      curAttribute.Name, Name, Project.Name), e);
+                    throw new SmartAPIException(Session.ServerLogin,
+                                                string.Format(
+                                                    "Unable to assign attribute {0} in content class {1} of project {2}",
+                                                    curAttribute.Name, Name, Project.Name), e);
                 }
             }
             targetCC.CommitAttributes();
@@ -646,7 +651,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             if (guidTextNode == null || guidTextNode.NodeType != XmlNodeType.Element || guidTextNode.FirstChild == null ||
                 !Guid.TryParse(guidTextNode.FirstChild.Value.Trim(), out newCCGuid))
             {
-                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not create content class '{0}'",Name ));
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not create content class '{0}'", Name));
             }
 
             var targetCC = new ContentClass(project, newCCGuid);
@@ -796,8 +802,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
-                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not unlink keyword {0} from content class {1}",
-                                                      curKeyword.Name, Name));
+                    throw new SmartAPIException(Session.ServerLogin,
+                                                string.Format("Could not unlink keyword {0} from content class {1}",
+                                                              curKeyword.Name, Name));
                 }
             }
         }
@@ -816,7 +823,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             private readonly ContentClass _parent;
 
-            internal CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement) : base(parent.Session, xmlElement)
+            internal CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement)
+                : base(parent.Session, xmlElement)
             {
                 Debug.Assert(xmlElement != null);
                 Project = parent.Project;
@@ -824,33 +832,22 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 InitAttributes();
             }
 
-            public Project Project { get; private set; }
-
             public string BorderColor
             {
                 get { return GetAttributeValue<string>("bordercolor"); }
-                set
-                {
-                    SetAttributeValue("bordercolor", value);
-                }
+                set { SetAttributeValue("bordercolor", value); }
             }
 
             public string BorderStyle
             {
                 get { return GetAttributeValue<string>("borderstyle"); }
-                set
-                {
-                    SetAttributeValue("borderstyle", value);
-                }
+                set { SetAttributeValue("borderstyle", value); }
             }
 
             public string BorderWidth
             {
                 get { return GetAttributeValue<string>("borderwidth"); }
-                set
-                {
-                    SetAttributeValue("borderwidth", value);
-                }
+                set { SetAttributeValue("borderwidth", value); }
             }
 
             public void Commit()
@@ -864,7 +861,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {
-                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not save settings for content class {0}", _parent));
+                    throw new SmartAPIException(Session.ServerLogin,
+                                                string.Format("Could not save settings for content class {0}", _parent));
                 }
             }
 
@@ -879,6 +877,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 get { return GetAttributeValue<bool>("showpagerange"); }
                 set { SetAttributeValue("showpagerange", value); }
             }
+
+            public Project Project { get; private set; }
 
             private void InitAttributes()
             {

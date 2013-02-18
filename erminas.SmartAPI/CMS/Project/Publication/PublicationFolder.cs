@@ -16,12 +16,12 @@
 using System;
 using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationFolder : PartialRedDotProjectObject
+    public class PublicationFolder : PartialRedDotObject, IProjectObject
     {
         #region ContentType enum
 
@@ -92,15 +92,16 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             PUBLISHED_PAGES_NODE.SetAttributeValue("guid", PUBLISHED_PAGES_GUID_STRING);
         }
 
-        public PublicationFolder(string name, PublicationFolderType type) :base (null)
+        public PublicationFolder(string name, PublicationFolderType type) : base(null)
         {
             _contextInfoPreparationType = ContextInfoPreparationType.None;
             Name = name;
             _type = type;
         }
 
-        public PublicationFolder(Project project, Guid guid) : base(project, guid)
+        public PublicationFolder(Project project, Guid guid) : base(project.Session, guid)
         {
+            Project = project;
             _contextInfoPreparationType = ContextInfoPreparationType.None;
         }
 
@@ -114,7 +115,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
             if (reply.GetElementsByTagName("EXPORTFOLDER").Count != 1)
             {
-                throw new Exception("Could not save publication folder " + Name);
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not save publication folder {0}", this));
             }
         }
 
@@ -206,6 +208,11 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         {
             get { return LazyLoad(ref _realVirtualName); }
             set { _realVirtualName = value; }
+        }
+
+        public override Session Session
+        {
+            get { return Project != null ? Project.Session : null; }
         }
 
         public PublicationFolderType Type
@@ -356,9 +363,6 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             return optionalParameters;
         }
 
-        public override Session Session
-        {
-            get { return Project != null ? Project.Session : null; }
-        }
+        public Project Project { get; private set; }
     }
 }

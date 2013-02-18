@@ -73,7 +73,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             } catch (Exception e)
             {
                 throw new SmartAPIException(parent.Session.ServerLogin,
-                    string.Format("Could not set {0} text for {1}", _type.ToString().ToLower(), parent), e);
+                                            string.Format("Could not set {0} text for {1}", _type.ToString().ToLower(),
+                                                          parent), e);
             }
             _hasChanged = false;
         }

@@ -37,37 +37,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string FontClass
         {
             get { return GetAttributeValue<string>("eltfontclass"); }
-            set
-            {
-                SetAttributeValue("eltfontclass", value);
-            }
+            set { SetAttributeValue("eltfontclass", value); }
         }
 
         public string FontColor
         {
             get { return GetAttributeValue<string>("eltfontcolor"); }
-            set
-            {
-                SetAttributeValue("eltfontcolor", value);
-            }
+            set { SetAttributeValue("eltfontcolor", value); }
         }
 
         public string FontFace
         {
             get { return GetAttributeValue<string>("eltfontface"); }
-            set
-            {
-                SetAttributeValue("eltfontface", value);
-            }
+            set { SetAttributeValue("eltfontface", value); }
         }
 
         public string FontSize
         {
             get { return GetAttributeValue<string>("eltfontsize"); }
-            set
-            {
-                SetAttributeValue("eltfontsize", value);
-            }
+            set { SetAttributeValue("eltfontsize", value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable

@@ -77,10 +77,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                         otherContentClassElement.Name);
             } catch (Exception e)
             {
-                throw new SmartAPIException(_parent.Session.ServerLogin, 
-                    string.Format("Can't find project/content class/element {0}/{1}/{2} on server",
-                                  otherContentClassElement.ContentClass.Project.Name,
-                                  otherContentClassElement.ContentClass.Name, otherContentClassElement.Name), e);
+                throw new SmartAPIException(_parent.Session.ServerLogin,
+                                            string.Format(
+                                                "Can't find project/content class/element {0}/{1}/{2} on server",
+                                                otherContentClassElement.ContentClass.Project.Name,
+                                                otherContentClassElement.ContentClass.Name,
+                                                otherContentClassElement.Name), e);
             }
         }
 

@@ -38,7 +38,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private const string RETRIEVE_PAGE_ELEMENT = @"<ELT action=""load"" guid=""{0}""/>";
 
         private static readonly Dictionary<ElementType, Type> TYPES = new Dictionary<ElementType, Type>();
-        
+
         protected ElementType Type;
         private LanguageVariant _languageVariant;
         private Page _page;
@@ -54,8 +54,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                         curType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
                                                new[] {typeof (Project), typeof (XmlElement)}, null) == null)
                     {
-                        throw new SmartAPIInternalException(string.Format("{0} does not contain a constructor (Project, XmlElement)",
-                                                          curType.Name));
+                        throw new SmartAPIInternalException(
+                            string.Format("{0} does not contain a constructor (Project, XmlElement)", curType.Name));
                     }
                     TYPES.Add(((PageElementType) curAttr).Type, curType);
                 }
@@ -71,36 +71,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             LoadXml();
         }
-        
-        public virtual ElementType ElementType
-        {
-            get
-            {
-                if (Type == ElementType.None)
-                {
-                    object[] types = GetType().GetCustomAttributes(typeof (PageElementType), false);
-                    if (types.Length != 1)
-                    {
-                        throw new SmartAPIInternalException(string.Format("Undefined ElementType for {0}", GetType().Name));
-                    }
-                    Type = ((PageElementType) types[0]).Type;
-                }
-                return Type;
-            }
-            set { Type = value; }
-        }
 
-        public LanguageVariant LanguageVariant
-        {
-            get { return _languageVariant; }
-            private set { _languageVariant = value; }
-        }
-
-        public Page Page
-        {
-            get { return LazyLoad(ref _page); }
-        }
-        
         /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
         /// </summary>
@@ -136,6 +107,36 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                 var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELT")[0];
                 return CreateElement(project, xmlNode);
             }
+        }
+
+        public virtual ElementType ElementType
+        {
+            get
+            {
+                if (Type == ElementType.None)
+                {
+                    object[] types = GetType().GetCustomAttributes(typeof (PageElementType), false);
+                    if (types.Length != 1)
+                    {
+                        throw new SmartAPIInternalException(string.Format("Undefined ElementType for {0}",
+                                                                          GetType().Name));
+                    }
+                    Type = ((PageElementType) types[0]).Type;
+                }
+                return Type;
+            }
+            set { Type = value; }
+        }
+
+        public LanguageVariant LanguageVariant
+        {
+            get { return _languageVariant; }
+            private set { _languageVariant = value; }
+        }
+
+        public Page Page
+        {
+            get { return LazyLoad(ref _page); }
         }
 
         public static void RegisterType(ElementType typeValue, Type type)

@@ -16,7 +16,7 @@
 using System;
 using System.Web.Script.Serialization;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS
         private Guid _guid = Guid.Empty;
         protected string _name;
 
-        protected RedDotObject(Session session) : base (session)
+        protected RedDotObject(Session session) : base(session)
         {
         }
 
@@ -157,8 +157,8 @@ namespace erminas.SmartAPI.CMS
             string value = XmlElement.GetAttributeValue(attributeName);
             if (string.IsNullOrEmpty(value))
             {
-                //TODO eigene exception
-                throw new Exception("Missing value for attribute " + attributeName);
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Missing value for attribute {0}", attributeName));
             }
             variable = converter(value);
         }

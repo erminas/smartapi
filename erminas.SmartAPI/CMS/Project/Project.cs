@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
@@ -24,9 +23,9 @@ using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Filesystem;
 using erminas.SmartAPI.CMS.Project.Keywords;
-using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.CMS.Project.Publication;
 using erminas.SmartAPI.CMS.Project.Workflows;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
@@ -54,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project
     ///         cref="ICachedList{T}.Refresh" />
     ///     ) or lazy ( <see cref="ICachedList{T}.InvalidateCache" /> . Most of the lists are also indexed on the most frequent access property (mostly Name). See the documentation on the properties for details.
     /// </summary>
-    public class Project : PartialRedDotObject, ISessionObject
+    public class Project : PartialRedDotObject
     {
         #region RqlType enum
 
@@ -90,21 +89,20 @@ namespace erminas.SmartAPI.CMS.Project
 
         #endregion
 
-        private readonly Dictionary<string, IndexedRDList<int, Page>> _pagesByLanguage =
-            new Dictionary<string, IndexedRDList<int, Page>>();
-
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
+        private readonly Pages.Pages _pages;
 
         internal Project(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
+            _pages = new Pages.Pages(this);
             LoadXml();
             Init();
         }
 
-        public Project(Session session, Guid guid)
-            : base(session, guid)
+        public Project(Session session, Guid guid) : base(session, guid)
         {
+            _pages = new Pages.Pages(this);
             Init();
         }
 
@@ -146,6 +144,17 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<DatabaseConnection> DatabaseConnections { get; private set; }
+
+        /// <summary>
+        ///     Delete this project and its database on the database server
+        /// </summary>
+        public void DeleteWithDatabase(string databaseUser, string databaseName)
+        {
+            const string DELETE_PROJECT =
+                @"<ADMINISTRATION><PROJECT action=""delete"" guid=""{0}"" deletedb=""{1}"" user=""{2}"" password=""{3}""/></ADMINISTRATION>";
+            Session.ExecuteRQL(DELETE_PROJECT.RQLFormat(this, true, databaseUser, databaseName));
+            //empty response on success, so errors can't be detected
+        }
 
         /// <summary>
         ///     Execute an rql query.
@@ -220,6 +229,24 @@ namespace erminas.SmartAPI.CMS.Project
         [ScriptIgnore]
         public IIndexedCachedList<int, InfoAttribute> InfoAttributes { get; private set; }
 
+        public bool IsArchivingActive
+        {
+            get
+            {
+                EnsureInitialization();
+                return XmlElement.GetIntAttributeValue("archive").GetValueOrDefault() == -1;
+            }
+        }
+
+        public bool IsVersioningActive
+        {
+            get
+            {
+                EnsureInitialization();
+                return XmlElement.GetIntAttributeValue("versioning").GetValueOrDefault() == -1;
+            }
+        }
+
         /// <summary>
         ///     All keywords, indexed by name. The list is cached by default.
         /// </summary>
@@ -286,9 +313,9 @@ namespace erminas.SmartAPI.CMS.Project
                                             RqlType.SessionKeyInProject);
             if (!xmlDoc.InnerText.Contains("ok"))
             {
-                //TODO richtige exception
-                throw new Exception("could not load language variant '" + language.Language + "' for project '" +
-                                    Guid.ToRQLString() + "'");
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not load language variant '{0}' for project {1}",
+                                                          language.Language, this));
             }
             if (_currentLanguageVariant != null)
             {
@@ -348,6 +375,7 @@ namespace erminas.SmartAPI.CMS.Project
 
         protected override XmlElement RetrieveWholeObject()
         {
+            //TODO muss hier stattfinden, wenn user kein servermanager ist, sieht er nicht alle projekte -> Projects schlaegt fehl
             return Session.Projects.First(x => x.Guid.Equals(Guid)).XmlElement;
         }
 
@@ -390,146 +418,6 @@ namespace erminas.SmartAPI.CMS.Project
             InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));
         }
 
-        #region PAGES
-
-        /// <summary>
-        ///     Create a new page and link it.
-        /// </summary>
-        /// <param name="cc"> Content class of the page </param>
-        /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
-        /// <param name="headline"> The headline, or null (default) for the default headline </param>
-        /// <returns> The newly created (and linked) page </returns>
-        public Page CreateAndConnectPage(ContentClass cc, Guid linkGuid, string headline = null)
-        {
-            const string CREATE_AND_LINK_PAGE = @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
-            XmlDocument xmlDoc =
-                ExecuteRQL(string.Format(CREATE_AND_LINK_PAGE, linkGuid.ToRQLString(), PageCreationString(cc, headline)));
-            return CreatePageFromCreationReply(xmlDoc);
-        }
-
-        /// <summary>
-        ///     Create a new page.
-        /// </summary>
-        /// <param name="cc"> Content class of the page </param>
-        /// <param name="headline"> The headline, or null (default) for the default headline </param>
-        /// <returns> The newly created page </returns>
-        public Page CreatePage(ContentClass cc, string headline = null)
-        {
-            XmlDocument xmlDoc = ExecuteRQL(PageCreationString(cc, headline));
-            return CreatePageFromCreationReply(xmlDoc);
-        }
-
-        /// <summary>
-        ///     All pages of the a specific language variant, indexed by page id. The list is cached by default.
-        /// </summary>
-        public IndexedRDList<int, Page> GetPagesForLanguageVariant(string language)
-        {
-            LanguageVariant languageVariant = LanguageVariants[language];
-            using (new LanguageContext(languageVariant))
-            {
-                return _pagesByLanguage.GetOrAdd(language, () => new IndexedRDList<int, Page>(() =>
-                    {
-                        using (new LanguageContext(languageVariant))
-                        {
-                            return GetPages();
-                        }
-                    }, x => x.Id, Caching.Enabled));
-            }
-        }
-
-        /// <summary>
-        ///     All pages of the current language variant, indexed by page id. The list is cached by default.
-        /// </summary>
-        [ScriptIgnore]
-        public IndexedRDList<int, Page> PagesOfCurrentLanguageVariant
-        {
-            get { return GetPagesForLanguageVariant(CurrentLanguageVariant.Language); }
-        }
-
-        private Page CreatePageFromCreationReply(XmlDocument xmlDoc)
-        {
-            try
-            {
-                var pageItem = (XmlElement) xmlDoc.GetElementsByTagName("PAGE")[0];
-                return new Page(this, pageItem);
-            } catch (Exception e)
-            {
-                throw new Exception("Could not create page", e);
-            }
-        }
-
-        private static string PageCreationString(ContentClass cc, string headline = null)
-        {
-            const string PAGE_CREATION_STRING = @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
-
-            string headlineString = headline == null
-                                        ? ""
-                                        : string.Format(@"headline=""{0}""", HttpUtility.HtmlEncode(headline));
-            return string.Format(PAGE_CREATION_STRING, cc.Guid.ToRQLString(), headlineString);
-        }
-
-        #region Page Search
-
-        /// <summary>
-        ///     Create an extended page search on this project.
-        /// </summary>
-        /// <see cref="CreatePageSearch" />
-        public ExtendedPageSearch CreateExtendedPageSearch()
-        {
-            return new ExtendedPageSearch(this);
-        }
-
-        /// <summary>
-        ///     Create a simple page search on this project.
-        /// </summary>
-        /// <see cref="CreateExtendedPageSearch" />
-        public PageSearch CreatePageSearch()
-        {
-            return new PageSearch(this);
-        }
-
-        /// <summary>
-        ///     Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator parameter and returns the search result.
-        /// </summary>
-        /// <param name="configurator"> Action to configure the search </param>
-        /// <returns> The search results </returns>
-        /// <example>
-        ///     The following code searches for all pages with headline "test": <code>var results = project.SearchForPages(search => search.Headline="test");</code>
-        /// </example>
-        public IEnumerable<Page> SearchForPages(Action<PageSearch> configurator = null)
-        {
-            var search = new PageSearch(this);
-            if (configurator != null)
-            {
-                configurator(search);
-            }
-
-            return search.Execute();
-        }
-
-        /// <summary>
-        ///     Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured through the configurator parameter and returns the result of the search.
-        /// </summary>
-        /// <param name="configurator"> An action to configure the search </param>
-        /// <returns> The search results </returns>
-        /// <example>
-        ///     The following code searches for all pages saved as draft by the current user: <code>var results = project.SearchForPagesExtended( search => search.AddPredicate(new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)));</code>
-        /// </example>
-        public List<ResultGroup> SearchForPagesExtended(Action<ExtendedPageSearch> configurator = null)
-        {
-            var search = new ExtendedPageSearch(this);
-            if (configurator != null)
-            {
-                configurator(search);
-            }
-
-            return search.Execute();
-        }
-
-        #endregion
-
-        #endregion
-
         #region RetrievalFunctions
 
         private List<ContentClassFolder> GetContentClassFolders()
@@ -566,7 +454,7 @@ namespace erminas.SmartAPI.CMS.Project
             var infos = xmlDoc.GetElementsByTagName("INFOELEMENTS")[0] as XmlElement;
             if (infos == null)
             {
-                throw new Exception("could not load info elements");
+                throw new SmartAPIException(Session.ServerLogin, "Could not load info elements");
             }
             return
                 (from XmlElement info in infos.GetElementsByTagName("PAGEINFO") select new InfoAttribute(info)).Union(
@@ -622,19 +510,6 @@ namespace erminas.SmartAPI.CMS.Project
             return languageVariants;
         }
 
-        private List<Page> GetPages()
-        {
-            const string LIST_PAGES = @"<PROJECT><PAGES action=""list""/></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PAGES);
-            return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
-                    select
-                        new Page(this, curPage.GetGuid(), CurrentLanguageVariant)
-                            {
-                                Headline = curPage.GetAttributeValue("headline"),
-                                Id = curPage.GetIntAttributeValue("id").GetValueOrDefault()
-                            }).ToList();
-        }
-
         private List<ProjectVariant> GetProjectVariants()
         {
             const string LIST_PROJECT_VARIANTS = @"<PROJECT><PROJECTVARIANTS action=""list""/></PROJECT>";
@@ -642,7 +517,8 @@ namespace erminas.SmartAPI.CMS.Project
             var variants = xmlDoc.GetElementsByTagName("PROJECTVARIANTS")[0] as XmlElement;
             if (variants == null)
             {
-                throw new Exception("could not load project variants");
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not load project variants of project {0}", this));
             }
             return
                 (from XmlElement variant in variants.GetElementsByTagName("PROJECTVARIANT")
@@ -656,7 +532,8 @@ namespace erminas.SmartAPI.CMS.Project
             XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLICATION_FOLDERS);
             if (xmlDoc.GetElementsByTagName("EXPORTFOLDERS").Count != 1)
             {
-                throw new Exception("Could not retrieve publication folders");
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not retrieve publication folders of project {0}", this));
             }
             return (from XmlElement curFolder in xmlDoc.GetElementsByTagName("EXPORTFOLDER")
                     select new PublicationFolder(this, curFolder.GetGuid())).ToList();
@@ -698,7 +575,8 @@ namespace erminas.SmartAPI.CMS.Project
                 return (from XmlElement node in xmlNodes select new User(Session, node)).ToList();
             } catch (Exception e)
             {
-                throw new Exception("Could not load users of Project: " + Guid.ToRQLString(), e);
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not load users of project {0} ", this), e);
             }
         }
 
@@ -732,6 +610,11 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         [ScriptIgnore]
         public IRDList<PublicationTarget> PublicationTargets { get; private set; }
+
+        public Pages.Pages Pages
+        {
+            get { return _pages; }
+        }
 
         #endregion
     }

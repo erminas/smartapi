@@ -58,10 +58,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string Description
         {
             get { return GetAttributeValue<string>("eltrddescription"); }
-            set
-            {
-                SetAttributeValue("eltrddescription", value);
-            }
+            set { SetAttributeValue("eltrddescription", value); }
         }
 
         public string Entries
@@ -91,10 +88,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public string SampleText
         {
             get { return GetAttributeValue<string>("eltrdexample"); }
-            set
-            {
-                SetAttributeValue("eltrdexample", value);
-            }
+            set { SetAttributeValue("eltrdexample", value); }
         }
 
         public SortMode SortMode

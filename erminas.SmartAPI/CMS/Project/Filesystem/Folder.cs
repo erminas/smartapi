@@ -281,7 +281,8 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             XmlNodeList folders = xmlDoc.GetElementsByTagName("FOLDER");
             if (folders.Count != 1)
             {
-                throw new SmartAPIException(Session.ServerLogin, String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
+                throw new SmartAPIException(Session.ServerLogin,
+                                            String.Format("No folder with guid {0} found.", Guid.ToRQLString()));
             }
             return (XmlElement) folders[0];
         }

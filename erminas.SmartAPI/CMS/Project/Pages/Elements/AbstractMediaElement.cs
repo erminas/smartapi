@@ -16,7 +16,6 @@
 using System;
 using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.Filesystem;
 using erminas.SmartAPI.Utils;
 

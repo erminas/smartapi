@@ -113,6 +113,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             ContentClass = contentClass;
             LoadXml();
+            if (IsOnlyPartiallyInitialized(xmlElement))
+            {
+                IsInitialized = false;
+            }
+        }
+
+        private static bool IsOnlyPartiallyInitialized(XmlElement xmlElement)
+        {
+            return xmlElement.GetAttributeNode("pdforientation") == null;
         }
 
         /// <summary>
@@ -169,7 +178,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlNodeList errorElements = xmlDoc.GetElementsByTagName("ERROR");
             if (errorElements.Count > 0)
             {
-                throw new SmartAPIException(Session.ServerLogin, errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
+                throw new SmartAPIException(Session.ServerLogin,
+                                            errorMsg + string.Format(" Reason: {0}.", errorElements[0].FirstChild.Value));
             }
             throw new SmartAPIException(Session.ServerLogin, errorMsg);
         }

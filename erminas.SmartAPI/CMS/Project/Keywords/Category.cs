@@ -76,8 +76,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             if (category == null)
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not delete category {0}", this));
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete category {0}", this));
             }
 
             if (IsCategoryStillUsed(category))
@@ -107,8 +106,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             //TODO execute page builder command
             if (category == null)
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not delete keyword {0}", this));
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete keyword {0}", this));
             }
 
             Project.Categories.InvalidateCache();

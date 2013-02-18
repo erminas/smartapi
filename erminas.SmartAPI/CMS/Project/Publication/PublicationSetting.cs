@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
@@ -27,7 +27,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         private readonly NameIndexedRDList<PublicationFolderSetting> _exportFolderSettings;
         private List<PublicationTarget> _publishingTargets;
 
-        internal PublicationSetting(PublicationPackage package, XmlElement xmlElement) : base(package.Project, xmlElement)
+        internal PublicationSetting(PublicationPackage package, XmlElement xmlElement)
+            : base(package.Project, xmlElement)
         {
             _exportFolderSettings = new NameIndexedRDList<PublicationFolderSetting>(LoadExportFolderSettings,
                                                                                     Caching.Enabled);
@@ -73,7 +74,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
             if (!xmlDoc.InnerXml.Contains("ok"))
             {
-                throw new Exception("Could not set publishing targets for " + Guid.ToRQLString());
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not set publishing targets for {0}", this));
             }
             _exportFolderSettings.InvalidateCache();
         }
@@ -104,7 +106,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                 PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
             XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
-                (from XmlElement curTarget in exportTargets select new PublicationTarget(Project, curTarget.GetGuid())).ToList();
+                (from XmlElement curTarget in exportTargets select new PublicationTarget(Project, curTarget.GetGuid()))
+                    .ToList();
         }
     }
 }

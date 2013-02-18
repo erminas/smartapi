@@ -24,6 +24,7 @@ namespace erminas.SmartAPI.CMS.Administration
     public class DatabaseServer : PartialRedDotObject, ISessionObject
     {
         #region DbTypeId enum
+
         // ReSharper disable InconsistentNaming
         public enum DbTypeId
         {
@@ -34,7 +35,9 @@ namespace erminas.SmartAPI.CMS.Administration
             ODBC = 5,
             Oracle_OLEDB = 8
         }
+
         // ReSharper restore InconsistentNaming
+
         #endregion
 
         private DbTypeId _dBType;
@@ -42,8 +45,7 @@ namespace erminas.SmartAPI.CMS.Administration
         private bool _isCreateAllowed;
         private Guid _productGuid;
 
-        public DatabaseServer(Session session, Guid guid)
-            : base(session, guid)
+        public DatabaseServer(Session session, Guid guid) : base(session, guid)
         {
         }
 

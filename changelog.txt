@@ -1,7 +1,18 @@
 SmartAPI Changelog
 
+Features:
+- Support for RedDot version 7.5
+- Access to archiving/versioning information for projects
+- Access to RedDot Live Server/Delivery Server Constraint elements
+- Projects can be deleted
+
 Bugfixes:
 - Multiple content classes with the same name in one project work again
+- Template variant now text gets (lazy) loaded, if it is accessed through ContentClass.TemplateVariants
+
+Other:
+- Namespace reorganization in preparation of the API finalization in version 1.0
+- Improved Doxygen style for better readability of generated API documentation
 
 2013-01-22: Version 0.9.3.0
 ---------------------------
