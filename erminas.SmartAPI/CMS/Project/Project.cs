@@ -92,9 +92,11 @@ namespace erminas.SmartAPI.CMS.Project
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
         private readonly Pages.Pages _pages;
+        private readonly ContentClasses.ContentClasses _contentClasses;
 
         internal Project(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
+            _contentClasses = new ContentClasses.ContentClasses(this);
             _pages = new Pages.Pages(this);
             LoadXml();
             Init();
@@ -102,12 +104,26 @@ namespace erminas.SmartAPI.CMS.Project
 
         public Project(Session session, Guid guid) : base(session, guid)
         {
+            _contentClasses = new ContentClasses.ContentClasses(this);
             _pages = new Pages.Pages(this);
             Init();
         }
+        private List<ContentClassFolder> GetContentClassFolders()
+        {
+            const string LIST_CC_FOLDERS_OF_PROJECT = @"<TEMPLATEGROUPS action=""load"" />";
+            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_FOLDERS_OF_PROJECT, Guid);
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
 
+            return (from XmlElement curNode in xmlNodes select new ContentClassFolder(this, curNode)).ToList();
+        }
         /// <summary>
-        ///     All folders used for the asset manager (i.e. where folder.IsAssertManagerFolder == true)
+        /// All folders used for the asset manager (i.e. where folder.IsAssertManagerFolder == true).
+        /// Same as
+        /// <code>
+        /// <pre>
+        /// Folders.Where(x => x.IsAssetManagerFolder).ToList()
+        /// </pre>
+        /// </code>
         /// </summary>
         [ScriptIgnore]
         public IEnumerable<Folder> AssetManagerFolders
@@ -123,11 +139,6 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<ContentClassFolder> ContentClassFolders { get; private set; }
-
-        /// <summary>
-        ///     A list of all content classes, indexed by name. The list is cached by default.
-        /// </summary>
-        public RDList<ContentClass> ContentClasses { get; private set; }
 
         /// <summary>
         ///     Get/Set the current active language variant. This information is cached.
@@ -379,15 +390,7 @@ namespace erminas.SmartAPI.CMS.Project
             return Session.Projects.First(x => x.Guid.Equals(Guid)).XmlElement;
         }
 
-        private List<ContentClass> GetContentClasses()
-        {
-            const string LIST_CC_OF_PROJECT = @"<TEMPLATES action=""list""/>";
-            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_OF_PROJECT, Guid);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
-
-            return (from XmlElement curNode in xmlNodes
-                    select new ContentClass(this, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")}).ToList();
-        }
+        
 
         private void Init()
         {
@@ -396,8 +399,7 @@ namespace erminas.SmartAPI.CMS.Project
             PublicationFolders = new RDList<PublicationFolder>(GetPublicationFolders, Caching.Enabled);
             PublicationPackages = new RDList<PublicationPackage>(GetPublicationPackages, Caching.Enabled);
             InfoAttributes = new IndexedCachedList<int, InfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
-
-            ContentClasses = new RDList<ContentClass>(GetContentClasses, Caching.Enabled);
+            
             ContentClassFolders = new NameIndexedRDList<ContentClassFolder>(GetContentClassFolders, Caching.Enabled);
             Folders = new NameIndexedRDList<Folder>(GetFolders, Caching.Enabled);
             ProjectVariants = new NameIndexedRDList<ProjectVariant>(GetProjectVariants, Caching.Enabled);
@@ -419,15 +421,6 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         #region RetrievalFunctions
-
-        private List<ContentClassFolder> GetContentClassFolders()
-        {
-            const string LIST_CC_FOLDERS_OF_PROJECT = @"<TEMPLATEGROUPS action=""load"" />";
-            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_FOLDERS_OF_PROJECT, Guid);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
-
-            return (from XmlElement curNode in xmlNodes select new ContentClassFolder(this, curNode)).ToList();
-        }
 
         private List<DatabaseConnection> GetDatabaseConnections()
         {
@@ -596,24 +589,26 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     All publication folders
         /// </summary>
-        [ScriptIgnore]
         public IRDList<PublicationFolder> PublicationFolders { get; private set; }
 
         /// <summary>
         ///     All publication packages
         /// </summary>
-        [ScriptIgnore]
         public IRDList<PublicationPackage> PublicationPackages { get; private set; }
 
         /// <summary>
         ///     All publication targets
         /// </summary>
-        [ScriptIgnore]
         public IRDList<PublicationTarget> PublicationTargets { get; private set; }
 
         public Pages.Pages Pages
         {
             get { return _pages; }
+        }
+
+        public ContentClasses.ContentClasses ContentClasses
+        {
+            get { return _contentClasses; }
         }
 
         #endregion

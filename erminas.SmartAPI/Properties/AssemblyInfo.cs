@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("erminas SmartAPI Library")]
-[assembly: AssemblyDescription("Library for programatical access to RedDot Servers")]
+[assembly: AssemblyDescription("Library for programmatic access to RedDot servers")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("erminas")]
 [assembly: AssemblyProduct("erminas SmartAPI")]

@@ -39,7 +39,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>tmp_sign.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>tmp_key2.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CMS\ISessionObject.cs" />
+    <Compile Include="CMS\Project\ContentClasses\ContentClasses.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\AbstractWorkflowPreassignable.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\DeliveryServerConstraint.cs" />
     <Compile Include="CMS\Project\IProjectObject.cs" />
@@ -278,6 +279,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RedDotCmsXmlServer\RDCMSXMLServer.wsdl" />
+    <None Include="tmp_key2.pfx" />
     <None Include="tmp_sign.snk" />
   </ItemGroup>
   <ItemGroup>

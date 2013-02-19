@@ -238,7 +238,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     return new List(contentClass, xmlElement);
                 case ElementType.ProjectContent:
                     return new ProjectContent(contentClass, xmlElement);
-                case ElementType.ConditionRedDotLiveServer:
+                case ElementType.ConditionRedDotLiveOrDeliveryServer:
                     return new DeliveryServerConstraint(contentClass, xmlElement);
                 default:
                     throw new ArgumentException("unknown element type: " + type);

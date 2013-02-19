@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Media = 38,
         OptionList = 8,
         ProjectContent = 10,
-        ConditionRedDotLiveServer = 1004,
+        ConditionRedDotLiveOrDeliveryServer = 1004,
         StandardFieldText = 1,
         StandardFieldDate = 5,
         StandardFieldTime = 39,
