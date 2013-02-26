@@ -67,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         private void InitFileValue(Folder folder)
         {
-            var fileName = XmlElement.GetAttributeValue("value");
+            var fileName = XmlElement.GetAttributeValue("eltsrc");
 
             var files = folder.GetFilesByNamePattern(fileName);
             _file = files.Find(file => file.Name == fileName);
