@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         private readonly Project _project;
 
-        public File(Project project, XmlElement xmlElement)
+        internal File(Project project, XmlElement xmlElement)
         {
             _project = project;
 
