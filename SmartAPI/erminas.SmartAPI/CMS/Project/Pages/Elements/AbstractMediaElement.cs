@@ -56,6 +56,31 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         protected override sealed void LoadWholePageElement()
         {
+            var folder = GetFolder();
+            if (folder == null)
+            {
+                return;
+            }
+            InitFileValue(folder);
+        }
+
+        private void InitFileValue(Folder folder)
+        {
+            var fileName = XmlElement.GetAttributeValue("value");
+
+            var files = folder.GetFilesByNamePattern(fileName);
+            _file = files.Find(file => file.Name == fileName);
+        }
+
+        private Folder GetFolder()
+        {
+            Guid folderGuid;
+            if (!XmlElement.TryGetGuid("subdirguid", out folderGuid))
+            {
+                _file = null;
+                return null;
+            }
+            return Project.Folders.GetByGuid(folderGuid);
         }
     }
 }
