@@ -21,6 +21,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.ServiceModel;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
@@ -174,11 +175,11 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <summary>
         ///     Create an session object for an already existing session on the server, e.g. when opening a plugin from within a running session.
         /// </summary>
-        public Session(ServerLogin login, Guid loginGuid, Guid sessionKey, Guid projectGuid) : this()
+        public Session(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid) : this()
         {
             ServerLogin = login;
             _loginGuidStr = loginGuid.ToRQLString();
-            _sessionKeyStr = sessionKey.ToRQLString();
+            _sessionKeyStr = sessionKey;
 
             InitConnection();
             SelectProject(projectGuid);
@@ -429,7 +430,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("SERVER");
             if (xmlNodes.Count > 0)
             {
-                SessionKey = ((XmlElement) xmlNodes[0]).GetGuid("key");
+                SessionKey = ((XmlElement) xmlNodes[0]).GetAttributeValue("key");
                 SelectedProjectGuid = projectGuid;
                 return;
             }
@@ -477,7 +478,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         public ServerLogin ServerLogin { get; private set; }
 
-        public Guid SessionKey
+        public string SessionKey
         {
             get
             {
@@ -485,9 +486,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 {
                     throw new SmartAPIInternalException("No session key available");
                 }
-                return Guid.Parse(_sessionKeyStr);
+                return _sessionKeyStr;
             }
-            private set { _sessionKeyStr = value.ToRQLString(); }
+            private set { _sessionKeyStr = value; }
         }
 
         /// <summary>
@@ -892,7 +893,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
                 try
                 {
-                    var client = new XmlServerSoapPortClient(binding, add);
+                    var client = new RqlWebServiceClient(binding, add);
                     string result = client.Execute(rqlQuery, ref error, ref resultInfo);
                     string errorStr = (error ?? "").ToString();
                     if (!string.IsNullOrEmpty(errorStr))
@@ -903,7 +904,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     return result;
                 } catch (Exception e)
                 {
-                    LOG.Error(e.Message);
+                    var msg = ExtractMessagesWithInnerExceptions(e);
+                    LOG.Error(msg);
                     LOG.Debug(e.StackTrace);
                     throw;
                 }
@@ -914,6 +916,23 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                                                     string.Format(@"Server ""{0}"" not found", CmsServerConnectionUrl),
                                                     e);
             }
+        }
+
+        private static string ExtractMessagesWithInnerExceptions(Exception e)
+        {
+            var curException = e;
+            var builder = new StringBuilder();
+            var linePrefix = "";
+            while (curException != null)
+            {
+                builder.Append(linePrefix);
+                builder.Append(curException.Message);
+                builder.Append("\n");
+                curException = curException.InnerException;
+                linePrefix += "* ";
+            }
+
+            return builder.ToString();
         }
     }
 

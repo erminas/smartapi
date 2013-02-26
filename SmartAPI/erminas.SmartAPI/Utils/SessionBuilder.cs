@@ -26,9 +26,9 @@ namespace erminas.SmartAPI.Utils
         private readonly ServerLogin _login;
         private readonly Guid _loginGuid;
         private readonly Guid _projectGuid;
-        private readonly Guid _sessionKey;
+        private readonly string _sessionKey;
 
-        public SessionBuilder(ServerLogin login, Guid loginGuid, Guid sessionKey, Guid projectGuid)
+        public SessionBuilder(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid)
         {
             _login = login;
             _loginGuid = loginGuid;

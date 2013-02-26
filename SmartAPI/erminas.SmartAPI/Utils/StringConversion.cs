@@ -63,7 +63,7 @@ namespace erminas.SmartAPI.Utils
             var session = o as Session;
             if (session != null)
             {
-                return session.SessionKey.ToRQLString();
+                return session.SessionKey;
             }
 
             var languageVariant = o as LanguageVariant;
