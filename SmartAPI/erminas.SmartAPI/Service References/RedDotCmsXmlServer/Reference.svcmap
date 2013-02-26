@@ -18,10 +18,12 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://10.1.1.110:2009/cms/WebService/RDCMSXMLServer.WSDL" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://10.1.1.32:80/cms/WebService/RQLWebService.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="RDCMSXMLServer.wsdl" MetadataType="Wsdl" ID="a1f46291-26a5-486e-aff2-263995acfc77" SourceId="1" SourceUrl="http://10.1.1.110:2009/cms/WebService/RDCMSXMLServer.WSDL" />
+    <MetadataFile FileName="RqlWebService.disco" MetadataType="Disco" ID="814a633f-3582-4d3f-8f35-33f8e30faeb2" SourceId="1" SourceUrl="http://10.1.1.32/CMS/WebService/RqlWebService.svc?disco" />
+    <MetadataFile FileName="RqlWebService.wsdl" MetadataType="Wsdl" ID="d6440503-b88f-438f-85e7-e2429805a8f7" SourceId="1" SourceUrl="http://10.1.1.32/CMS/WebService/RqlWebService.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="RqlWebService1.wsdl" MetadataType="Wsdl" ID="c34075e2-e9f6-44f6-ad4e-b6d313021431" SourceId="1" SourceUrl="http://10.1.1.32/CMS/WebService/RqlWebService.svc?wsdl" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

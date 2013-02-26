@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/RDCMSXMLServer/webservice/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tempuri.org/RDCMSXMLServer/webservice/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/RDCMSXMLServer/webservice/Imports">
+      <xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ExecuteRequest">
+    <wsdl:part name="sParamA" type="xsd:string" />
+    <wsdl:part name="sErrorA" type="xsd:anyType" />
+    <wsdl:part name="sResultInfoA" type="xsd:anyType" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteResponse">
+    <wsdl:part name="Result" type="xsd:string" />
+    <wsdl:part name="sErrorA" type="xsd:anyType" />
+    <wsdl:part name="sResultInfoA" type="xsd:anyType" />
+  </wsdl:message>
+  <wsdl:portType name="IRqlWebService">
+    <wsdl:operation name="Execute">
+      <wsdl:input wsaw:Action="http://tempuri.org/RDCMSXMLServer/action/XmlServer.Execute" name="ExecuteRequest" message="tns:ExecuteRequest" />
+      <wsdl:output wsaw:Action="http://tempuri.org/RDCMSXMLServer/webservice/IRqlWebService/ExecuteResponse" name="ExecuteResponse" message="tns:ExecuteResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

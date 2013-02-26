@@ -156,15 +156,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             const string ADD_TEMPLATE_VARIANT = @"<TEMPLATE action=""assign"" guid=""{0}"">
                     <TEMPLATEVARIANTS action=""addnew"">
-                        <TEMPLATEVARIANT name=""{1}"" description=""{2}"" code=""{3}"" fileextension=""{4}"" insertstylesheetinpage=""{5}"" nostartendmarkers=""{6}"" containerpagereference=""{7}""  pdforientation=""{8}"">
-                        {3}
-                        </TEMPLATEVARIANT>
-                    </TEMPLATEVARIANTS>
-                </TEMPLATE>";
+                        <TEMPLATEVARIANT name=""{1}"" description=""{2}"" code=""{3}"" fileextension=""{4}"" insertstylesheetinpage=""{5}"" nostartendmarkers=""{6}"" containerpagereference=""{7}""  pdforientation=""{8}"">{3}</TEMPLATEVARIANT></TEMPLATEVARIANTS></TEMPLATE>";
             XmlDocument xmlDoc =
                 target.Project.ExecuteRQL(
                     string.Format(ADD_TEMPLATE_VARIANT, target.Guid.ToRQLString(), HttpUtility.HtmlEncode(Name),
-                                  HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
+                    HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
                                   HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
                                   ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
                                   PdfOrientation), Project.RqlType.SessionKeyInProject);
