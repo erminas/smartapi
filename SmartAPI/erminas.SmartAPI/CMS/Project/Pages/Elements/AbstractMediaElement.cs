@@ -76,12 +76,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private Folder GetFolder()
         {
             Guid folderGuid;
-            if (!XmlElement.TryGetGuid("subdirguid", out folderGuid))
+            if (!XmlElement.TryGetGuid("folderguid", out folderGuid))
             {
                 _file = null;
                 return null;
             }
-            return Project.Folders.GetByGuid(folderGuid);
+
+            Guid subFolderGuid;
+            return XmlElement.TryGetGuid("subdirguid", out subFolderGuid)
+                       ? Project.Folders.GetByGuid(subFolderGuid)
+                       : Project.Folders.GetByGuid(folderGuid);
         }
     }
 }
