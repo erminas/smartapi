@@ -32,6 +32,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         protected AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
+            LoadWholePageElement();
         }
 
         public void Commit()

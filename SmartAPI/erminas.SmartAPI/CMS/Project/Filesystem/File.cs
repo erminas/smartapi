@@ -105,5 +105,31 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         {
             get { return _name; }
         }
+
+        protected bool Equals(File other)
+        {
+            return Equals(_folder, other._folder) && string.Equals(_name, other._name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            return obj.GetType() == GetType() && Equals((File) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((_folder != null ? _folder.GetHashCode() : 0)*397) ^ (_name != null ? _name.GetHashCode() : 0);
+            }
+        }
     }
 }
