@@ -49,13 +49,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         }
 
         #endregion
-
-        /// <summary>
-        ///     RQL for listing files for the folder with guid {0}. No parameters
-        /// </summary>
-        private const string LIST_FILE_ATTRIBUTES =
-            @"<MEDIA><FOLDER guid=""{0}""><FILE sourcename=""{1}""><FILEATTRIBUTES action=""list""/></FILE></FOLDER></MEDIA>";
-
+        
         /// <summary>
         ///     RQL for listing files for the folder with guid {0}. No parameters
         /// </summary>
@@ -177,13 +171,6 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             {
                 throw new ArgumentException("Could not delete Files.");
             }
-        }
-
-        public FileAttribute FileInfos(String fileName)
-        {
-            XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LIST_FILE_ATTRIBUTES, Guid.ToRQLString(), fileName));
-            var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
-            return new FileAttribute(this, node);
         }
 
         /// <summary>

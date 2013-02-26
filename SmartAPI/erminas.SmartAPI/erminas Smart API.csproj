@@ -188,7 +188,7 @@
     <Compile Include="CMS\Project\Publication\PublicationFolderSetting.cs" />
     <Compile Include="CMS\Project\Publication\PublicationSetting.cs" />
     <Compile Include="CMS\Project\Pages\ExtendedPageSearch.cs" />
-    <Compile Include="CMS\Project\Filesystem\FileAttribute.cs" />
+    <Compile Include="CMS\Project\Filesystem\FileAttributes.cs" />
     <Compile Include="CMS\IRedDotObject.cs" />
     <Compile Include="CMS\Project\Workflows\Note.cs" />
     <Compile Include="CMS\Project\Pages\Elements\PageElement.cs" />

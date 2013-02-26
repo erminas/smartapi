@@ -20,20 +20,16 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
     public class File : IProjectObject
     {
-        /// <summary>
-        ///     Date/Time of file creation as CMS locale specific string
-        /// </summary>
-        public readonly string CreationDate;
 
         /// <summary>
         ///     Folder the file is stored in
         /// </summary>
-        public readonly Folder Folder;
+        private readonly Folder _folder;
 
         /// <summary>
         ///     Name of the file
         /// </summary>
-        public readonly string Name;
+        private readonly string _name;
 
         private readonly Project _project;
 
@@ -41,9 +37,29 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         {
             _project = project;
 
-            Name = xmlElement.GetAttributeValue("name");
-            CreationDate = xmlElement.GetAttributeValue("data");
-            Folder = new Folder(project, xmlElement.GetGuid("folderguid"));
+            _name = xmlElement.GetAttributeValue("name");
+            _folder = new Folder(project, xmlElement.GetGuid("folderguid"));
+        }
+
+        public File(Folder folder, string fileName)
+        {
+            _project = folder.Project;
+            _folder = folder;
+            _name = fileName;
+        }
+
+        public FileAttributes Attributes
+        {
+            get
+            {
+                const string LIST_FILE_ATTRIBUTES =
+                    @"<MEDIA><FOLDER guid=""{0}""><FILE sourcename=""{1}""><FILEATTRIBUTES action=""list""/></FILE></FOLDER></MEDIA>";
+
+                XmlDocument xmlDoc = Project.ExecuteRQL(LIST_FILE_ATTRIBUTES.RQLFormat(_folder, _name));
+                
+                var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
+                return new FileAttributes(_folder, node);
+            }
         }
 
         public void Delete()
@@ -52,7 +68,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             const string DELETE_FILE =
                 "<MEDIA><FOLDER guid=\"{0}\" ><FILES action=\"deletefiles\"><FILE sourcename=\"{1}\" languagevariantid=\"ENG\" checkfolder=\"1\"/></FILES></FOLDER></MEDIA>";
 
-            _project.ExecuteRQL(string.Format(DELETE_FILE, Folder.Guid.ToRQLString(), Name));
+            _project.ExecuteRQL(string.Format(DELETE_FILE, _folder.Guid.ToRQLString(), _name));
         }
 
         public Project Project
@@ -65,13 +81,29 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             const string GET_REFERENCES =
                 "<PROJECT><TRANSFER action=\"checkimage\" getreferences=\"1\" sync=\"1\" folderguid=\"{0}\" filename=\"{1}\" /></PROJECT>";
 
-            XmlDocument xmlDoc = _project.ExecuteRQL(string.Format(GET_REFERENCES, Folder.Guid.ToRQLString(), Name));
+            XmlDocument xmlDoc = _project.ExecuteRQL(string.Format(GET_REFERENCES, _folder.Guid.ToRQLString(), _name));
             return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
 
         public Session Session
         {
             get { return Project.Session; }
+        }
+
+        /// <summary>
+        ///     Folder the file is stored in
+        /// </summary>
+        public Folder Folder
+        {
+            get { return _folder; }
+        }
+
+        /// <summary>
+        ///     Name of the file
+        /// </summary>
+        public string Name
+        {
+            get { return _name; }
         }
     }
 }
