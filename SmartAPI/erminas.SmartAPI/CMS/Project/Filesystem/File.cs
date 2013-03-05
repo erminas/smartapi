@@ -131,5 +131,10 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                 return ((_folder != null ? _folder.GetHashCode() : 0)*397) ^ (_name != null ? _name.GetHashCode() : 0);
             }
         }
+
+        public override string ToString()
+        {
+            return _folder != null ? _folder.Name + "/" + Name : "";
+        }
     }
 }

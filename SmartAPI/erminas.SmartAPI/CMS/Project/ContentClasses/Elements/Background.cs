@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal Background(ContentClass cc, XmlElement xmlElement) : base(cc, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "elthideinform", "eltinvisibleinclient",
-                             "eltdragdrop", "eltsrcsubdirguid", "eltsrc");
+                             "eltdragdrop", "eltsrcsubdirguid", "eltsrc", "eltfolderguid");
         }
 
         public override ContentClassCategory Category

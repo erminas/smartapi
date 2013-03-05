@@ -76,7 +76,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                              "eltsuffixes", "eltdonotremove", "eltconvert", "eltmaxsize", "eltcompression",
                              "elttargetformat", "eltonlynonwebsources", "eltmaxpicwidth", "eltmaxpicheight",
                              "eltpicwidth", "eltpicheight", "eltpicdepth", "eltfilename", "eltdragdrop", "eltrdexample",
-                             "eltrdexamplesubdirguid", "eltsrc", "eltsrcsubdirguid");
+                             "eltrdexamplesubdirguid", "eltsrc", "eltfolderguid", "eltsrcsubdirguid");
 // ReSharper disable ObjectCreationAsStatement
             new StringEnumXmlNodeAttribute<MediaConversionMode>(this, "eltconvertmode",
                                                                 MediaConversionModeUtils.ToRQLString,
@@ -237,7 +237,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get
             {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
+                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltfolderguid");
                 string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
@@ -251,7 +251,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value != null ? value.Name : "";
                 if (value != null)
                 {
-                    ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value.Folder;
+                    ((FolderXmlNodeAttribute)GetAttribute("eltfolderguid")).Value = value.Folder;
                 }
             }
         }

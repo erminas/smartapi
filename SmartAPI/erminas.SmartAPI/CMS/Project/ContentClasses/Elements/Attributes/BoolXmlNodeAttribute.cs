@@ -69,7 +69,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey)
             {
                 _value = false;
                 return;

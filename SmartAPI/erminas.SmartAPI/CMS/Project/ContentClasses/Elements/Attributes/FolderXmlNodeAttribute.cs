@@ -14,7 +14,9 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
@@ -22,7 +24,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
     {
         private readonly ContentClass _contentClass;
 
-        public FolderXmlNodeAttribute(ContentClassElement parent, string name) : this(parent, parent.ContentClass, name)
+        public FolderXmlNodeAttribute(IContentClassElement parent, string name) : this(parent, parent.ContentClass, name)
         {
         }
 
@@ -39,12 +41,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override Folder RetrieveByGuid(Guid guid)
         {
-            return _contentClass.Project.Folders.GetByGuid(guid);
+            return new Folder(_contentClass.Project, guid);
         }
 
         protected override Folder RetrieveByName(string name)
         {
-            return _contentClass.Project.Folders[name];
+            var folders = _contentClass.Project.Folders;
+            Folder folder;
+            if (folders.TryGetByName(name, out folder))
+            {
+                return folder;
+            }
+
+            folder = folders.SelectMany(folder1 => folder1.Subfolders).FirstOrDefault(subfolder => subfolder.Name == name);
+            if (folder == null)
+            {
+                throw new SmartAPIException(_contentClass.Session.ServerLogin, string.Format("Could not find a folder with name {0} in project {1}", name, _contentClass.Project));
+            }
+            return folder;
         }
     }
 }

@@ -21,13 +21,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltistargetcontainer", "eltisdynamic");
+            CreateAttributes("eltistargetcontainer", "eltisdynamic", "eltextendedlist");
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
         public override ContentClassCategory Category
         {
             get { return ContentClassCategory.Structural; }
+        }
+
+        public bool IsTransferingContentOfFollowingPages
+        {
+            get { return GetAttributeValue<bool>("eltextendedlist"); }
+            set{ SetAttributeValue("eltextendedlist", value); }
         }
 
         public bool IsDynamic

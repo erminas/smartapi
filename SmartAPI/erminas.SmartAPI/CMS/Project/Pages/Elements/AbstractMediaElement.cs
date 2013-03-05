@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public class AbstractMediaElement : PageElement
+    public abstract class AbstractMediaElement : PageElement
     {
         private File _file;
 
@@ -38,13 +38,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         public void Commit()
         {
             const string COMMIT =
-                @"<ELT action=""save"" reddotcacheguid="""" guid=""{0}"" value=""{1}"" subdirguid=""{2}"" extendedinfo=""""></ELT>";
+                @"<ELT action=""save"" reddotcacheguid="""" guid=""{0}"" value=""{1}"" {2} extendedinfo=""""></ELT>";
 
             string rqlStr = Value == null
                                 ? string.Format(COMMIT, Guid.ToRQLString(), Session.SESSIONKEY_PLACEHOLDER,
                                                 Session.SESSIONKEY_PLACEHOLDER)
                                 : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
-                                                Value.Folder.Guid.ToRQLString());
+                                                IsFileInSubFolder ? "subdirguid=\"{0}\"".RQLFormat(Value.Folder) : "");
 
             Project.ExecuteRQL(rqlStr);
         }
@@ -65,14 +65,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             InitFileValue(folder);
         }
 
-        private void InitFileValue(Folder folder)
-        {
-            var fileName = XmlElement.GetAttributeValue("eltsrc");
-
-            var files = folder.GetFilesByNamePattern(fileName);
-            _file = files.Find(file => file.Name == fileName);
-        }
-
         private Folder GetFolder()
         {
             Guid folderGuid;
@@ -86,6 +78,32 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             return XmlElement.TryGetGuid("subdirguid", out subFolderGuid)
                        ? Project.Folders.GetByGuid(subFolderGuid)
                        : Project.Folders.GetByGuid(folderGuid);
+        }
+
+        private void InitFileValue(Folder folder)
+        {
+            var fileName = XmlElement.GetAttributeValue("value");
+            if (string.IsNullOrEmpty(fileName))
+            {
+                _file = null;
+            }
+
+            var files = folder.GetFilesByNamePattern(fileName);
+            _file = files.Find(file => file.Name == fileName);
+        }
+
+        private bool IsFileInSubFolder
+        {
+            get
+            {
+                EnsureInitialization();
+                if (Value == null)
+                {
+                    return false;
+                }
+                var folderGuid = XmlElement.GetGuid("folderguid");
+                return folderGuid != Value.Folder.Guid;
+            }
         }
     }
 }

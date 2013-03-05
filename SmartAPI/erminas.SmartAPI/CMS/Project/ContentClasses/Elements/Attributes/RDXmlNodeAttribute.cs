@@ -200,7 +200,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             if (initValue)
             {
                 string attr = parent.XmlElement.GetAttributeValue(name);
-                if (attr != null && attr != Session.SESSIONKEY_PLACEHOLDER)
+                if (attr != null && attr != Session.SESSIONKEY_PLACEHOLDER && attr != ("#"+Parent.Session.SessionKey))
                 {
                     UpdateValue(attr);
                 }

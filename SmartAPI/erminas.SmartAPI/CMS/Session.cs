@@ -79,6 +79,18 @@ namespace erminas.SmartAPI.CMS
 
         #endregion
 
+        public enum ProjectType
+        {
+            TestProject = 1,
+            LiveProject = 0
+        }
+
+        public enum UseVersioning
+        {
+            Yes = -1,
+            No = 0
+        }
+
         public const string SESSIONKEY_PLACEHOLDER = "#__SESSION_KEY__#";
 
         private const string RQL_IODATA = "<IODATA>{0}</IODATA>";
@@ -89,7 +101,8 @@ namespace erminas.SmartAPI.CMS
         private const string RQL_IODATA_PROJECT_SESSIONKEY =
             @"<IODATA loginguid=""{0}""><PROJECT sessionkey=""{1}"">{2}</PROJECT></IODATA>";
 
-        private const string RQL_LOGIN = @"<ADMINISTRATION action=""login"" name=""{0}"" password=""{1}""></ADMINISTRATION>";
+        private const string RQL_LOGIN =
+            @"<ADMINISTRATION action=""login"" name=""{0}"" password=""{1}""></ADMINISTRATION>";
 
         private const string RQL_LOGIN_FORCE =
             @"<ADMINISTRATION action=""login"" name=""{0}"" password=""{1}"" loginguid=""{2}""/>";
@@ -116,6 +129,7 @@ namespace erminas.SmartAPI.CMS
         public readonly NameIndexedRDList<Project.Project> Projects;
 
         public readonly NameIndexedRDList<User> Users;
+        private Project.Project _currentNonAdminUserProject;
         private User _currentUser;
 
         private string _loginGuidStr;
@@ -130,36 +144,8 @@ namespace erminas.SmartAPI.CMS
             ApplicationServers = new RDList<ApplicationServer>(GetApplicationServers, Caching.Enabled);
             Locales = new IndexedCachedList<int, Locale>(GetLocales, x => x.LCID, Caching.Enabled);
             DialogLocales = new IndexedCachedList<string, Locale>(GetDialogLocales, x => x.Id, Caching.Enabled);
-        }
-        public enum UseVersioning
-        {
-            Yes = -1,
-            No = 0
-        }
-        public enum ProjectType
-        {
-            TestProject = 1,
-            LiveProject = 0
-        }
-        //todo extrahieren und creation type machen mit default values, oberklasse fuer dingens
-        public Project.Project CreateProjectMsSql(string projectName, ApplicationServer appServer, DatabaseServer dbServer, string databaseName, Locale language, ProjectType type, UseVersioning useVersioning, User user)
-        {
-            const string CREATE_PROJECT =
-                @"<ADMINISTRATION><PROJECT action=""addnew"" projectname=""{0}"" databaseserverguid=""{1}"" editorialserverguid=""{2}"" databasename=""{3}""
-versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{7}"" name=""{8}"" /></LANGUAGEVARIANTS><USERS><USER action=""assign"" guid=""{6}""/></USERS></PROJECT></ADMINISTRATION>";
-
-            var result = ParseRQLResult(ExecuteRql(CREATE_PROJECT.RQLFormat(projectName, dbServer, appServer, databaseName, (int) useVersioning,
-                                                (int) type, user, language.Id, language.Language), IODataFormat.SessionKeyAndLogonGuid));
-
-            var guidStr = result.InnerText;
-            Guid projectGuid;
-            if (!Guid.TryParse(guidStr, out projectGuid))
-            {
-                throw new SmartAPIException(ServerLogin, string.Format("Could not create project {0}", projectName));
-            }
-
-            Projects.InvalidateCache();
-            return new Project.Project(this, projectGuid);
+            ProjectsForCurrentUser = new NameIndexedRDList<Project.Project>(() => GetProjectsForUser(CurrentUser.Guid),
+                                                                            Caching.Enabled);
         }
 
         /// <summary>
@@ -195,6 +181,32 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         #endregion
 
         public IRDList<ApplicationServer> ApplicationServers { get; private set; }
+
+        public Project.Project CreateProjectMsSql(string projectName, ApplicationServer appServer,
+                                                  DatabaseServer dbServer, string databaseName, Locale language,
+                                                  ProjectType type, UseVersioning useVersioning, User user)
+        {
+            const string CREATE_PROJECT =
+                @"<ADMINISTRATION><PROJECT action=""addnew"" projectname=""{0}"" databaseserverguid=""{1}"" editorialserverguid=""{2}"" databasename=""{3}""
+versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{7}"" name=""{8}"" /></LANGUAGEVARIANTS><USERS><USER action=""assign"" guid=""{6}""/></USERS></PROJECT></ADMINISTRATION>";
+
+            var result =
+                ParseRQLResult(
+                    ExecuteRql(
+                        CREATE_PROJECT.RQLFormat(projectName, dbServer, appServer, databaseName, (int) useVersioning,
+                                                 (int) type, user, language.Id, language.Language),
+                        IODataFormat.SessionKeyAndLogonGuid));
+
+            var guidStr = result.InnerText;
+            Guid projectGuid;
+            if (!Guid.TryParse(guidStr, out projectGuid))
+            {
+                throw new SmartAPIException(ServerLogin, string.Format("Could not create project {0}", projectName));
+            }
+
+            Projects.InvalidateCache();
+            return new Project.Project(this, projectGuid);
+        }
 
         /// <summary>
         ///     The currently connected user.
@@ -403,6 +415,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         public IndexedRDList<ModuleType, Module> Modules { get; private set; }
 
+        public NameIndexedRDList<Project.Project> ProjectsForCurrentUser { get; private set; }
+
         /// <summary>
         ///     Select a project. Subsequent queries will be executed in the context of this project.
         /// </summary>
@@ -454,7 +468,12 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         public Project.Project SelectedProject
         {
-            get { return Projects.FirstOrDefault(x => x.Guid == SelectedProjectGuid); }
+            get
+            {
+                return CurrentUser.ModuleAssignment.IsServerManager
+                           ? Projects.FirstOrDefault(x => x.Guid == SelectedProjectGuid)
+                           : ProjectsForCurrentUser.GetByGuid(SelectedProjectGuid);
+            }
             set { SelectProject(value); }
         }
 
@@ -523,7 +542,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         }
 
         public Version Version { get; private set; }
-        private string CmsServerConnectionUrl { get; set; }
 
         internal void EnsureVersion()
         {
@@ -582,6 +600,25 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
                                                     "Could not login.");
             }
+        }
+
+        private string CmsServerConnectionUrl { get; set; }
+
+        private static string ExtractMessagesWithInnerExceptions(Exception e)
+        {
+            var curException = e;
+            var builder = new StringBuilder();
+            var linePrefix = "";
+            while (curException != null)
+            {
+                builder.Append(linePrefix);
+                builder.Append(curException.Message);
+                builder.Append("\n");
+                curException = curException.InnerException;
+                linePrefix += "* ";
+            }
+
+            return builder.ToString();
         }
 
         private List<ApplicationServer> GetApplicationServers()
@@ -664,10 +701,14 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         private XmlDocument GetLoginResponse()
         {
             PasswordAuthentication authData = ServerLogin.AuthData;
-            string rql = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username), HttpUtility.HtmlEncode(authData.Password)));
+            string rql = string.Format(RQL_IODATA,
+                                       string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username),
+                                                     HttpUtility.HtmlEncode(authData.Password)));
 
             //hide password in log messages
-            string debugOutputRQL = string.Format(RQL_IODATA, string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username), "*****"));
+            string debugOutputRQL = string.Format(RQL_IODATA,
+                                                  string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username),
+                                                                "*****"));
             var xmlDoc = new XmlDocument();
             try
             {
@@ -886,8 +927,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 binding.ReaderQuotas.MaxStringContentLength = 2097152*10; //20MB
                 binding.ReaderQuotas.MaxArrayLength = 2097152*10; //20mb
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
-                binding.ReceiveTimeout = TimeSpan.FromMinutes(3);
-                binding.SendTimeout = TimeSpan.FromMinutes(3);
+                binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                binding.SendTimeout = TimeSpan.FromMinutes(10);
 
                 var add = new EndpointAddress(CmsServerConnectionUrl);
 
@@ -916,23 +957,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                                                     string.Format(@"Server ""{0}"" not found", CmsServerConnectionUrl),
                                                     e);
             }
-        }
-
-        private static string ExtractMessagesWithInnerExceptions(Exception e)
-        {
-            var curException = e;
-            var builder = new StringBuilder();
-            var linePrefix = "";
-            while (curException != null)
-            {
-                builder.Append(linePrefix);
-                builder.Append(curException.Message);
-                builder.Append("\n");
-                curException = curException.InnerException;
-                linePrefix += "* ";
-            }
-
-            return builder.ToString();
         }
     }
 

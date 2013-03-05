@@ -433,7 +433,7 @@ namespace erminas.SmartAPI.CMS.Project
 
         private List<Folder> GetFolders()
         {
-            const string LIST_FILE_FOLDERS = @"<PROJECT><FOLDERS action=""list"" foldertype=""0""/></PROJECT>";
+            const string LIST_FILE_FOLDERS = @"<PROJECT><FOLDERS action=""list"" foldertype=""0"" withsubfolders=""1""/></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_FILE_FOLDERS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FOLDER");
 

@@ -78,10 +78,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         protected Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltdonotremove", "eltxhtmlcompliant",
-                             "eltdonothtmlencode", "eltlanguageindependent", "eltlanguagevariantguid",
-                             "eltprojectvariantguid", "eltcrlftobr", "eltonlyhrefvalue", "eltrequired",
-                             "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid", "eltrddescription", "elttarget");
+            CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltextendedlist", "eltdonotremove",
+                             "eltxhtmlcompliant", "eltdonothtmlencode", "eltlanguageindependent",
+                             "eltlanguagevariantguid", "eltprojectvariantguid", "eltcrlftobr", "eltonlyhrefvalue",
+                             "eltrequired", "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid",
+                             "eltrddescription", "elttarget");
 // ReSharper disable ObjectCreationAsStatement
             new StringXmlNodeAttribute(this, "eltvalue");
 // ReSharper restore ObjectCreationAsStatement
@@ -170,6 +171,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
             set { SetAttributeValue("eltxhtmlcompliant", value); }
+        }
+
+        public bool IsTransferingContentOfFollowingPages
+        {
+            get { return GetAttributeValue<bool>("eltextendedlist"); }
+            set { SetAttributeValue("eltextendedlist", value); }
         }
 
         public LanguageVariant LanguageVariantToSwitchTo

@@ -86,7 +86,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {
                     return _value;
                 }
-                UpdateValue(GetXmlNodeValue());
+                string xmlNodeValue = GetXmlNodeValue();
+                UpdateValue(xmlNodeValue);
                 return _value;
             }
 
@@ -111,7 +112,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         /// <param name="value"> accepts a guid or a name of an existing reddotobject </param>
         protected override void UpdateValue(string value)
         {
-            if (String.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER)
+            if (String.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER || value == "#"+Parent.Session.SessionKey)
             {
                 _value = null;
                 return;

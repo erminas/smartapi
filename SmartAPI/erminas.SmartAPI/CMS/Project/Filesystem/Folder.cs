@@ -49,7 +49,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         }
 
         #endregion
-        
+
         /// <summary>
         ///     RQL for listing files for the folder with guid {0}. No parameters
         /// </summary>
@@ -123,17 +123,30 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         private const string FORCE_FILE_TO_BE_DELETED = @"<FILE deletereal=""1"" sourcename=""{0}""/>";
 
         private bool _isAssetManagerFolder;
+        private bool? _isSubFolder;
         private Folder _linkedFolder;
+        private Folder _parentFolder;
+        private List<Folder> _subfolders;
 
         internal Folder(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            LoadXml();
+            var subfolders = XmlElement.GetElementsByTagName("SUBFOLDER");
+            _isSubFolder = false;
+            _subfolders = (from XmlElement curFolder in subfolders select new Folder(Project, this, curFolder)).ToList();
+
             Init();
         }
 
         public Folder(Project project, Guid guid) : base(project, guid)
         {
             Init();
+        }
+
+        private Folder(Project project, Folder parentFolder, XmlElement element) : base(project, element)
+        {
+            LoadXml();
+            Init();
+            _parentFolder = parentFolder;
         }
 
         public ICachedList<File> AllFiles { get; private set; }
@@ -219,9 +232,55 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             get { return LazyLoad(ref _isAssetManagerFolder); }
         }
 
+        public bool IsSubFolder
+        {
+            get { 
+                EnsureSubFolderInitialization();
+                return _isSubFolder.GetValueOrDefault();
+            }
+        }
+
+        private void EnsureSubFolderInitialization()
+        {
+            if (_isSubFolder.HasValue)
+            {
+                return;
+            }
+
+            Folder folder;
+            if (Project.Folders.TryGetByGuid(Guid, out folder))
+            {
+                _subfolders = folder._subfolders;
+                _isSubFolder = false;
+            }
+            else
+            {
+                foreach (var curFolder in Project.Folders)
+                {
+                    var subfolder = curFolder.Subfolders.FirstOrDefault(folder1 => folder1.Guid == Guid);
+                    if (subfolder != null)
+                    {
+                        _parentFolder = curFolder;
+                        _subfolders = new List<Folder>();
+                        _isSubFolder = true;
+                        return;
+                    }
+                }
+            }
+            throw new Exception(string.Format("Could not find folder with Guid {0} in project {1}", Guid.ToRQLString(), Project));
+        }
+
         public Folder LinkedFolder
         {
             get { return LazyLoad(ref _linkedFolder); }
+        }
+
+        public Folder ParentFolder
+        {
+            get {
+                EnsureSubFolderInitialization();
+                return _parentFolder;
+            }
         }
 
         public void SaveFiles(IEnumerable<FileSource> sources)
@@ -237,6 +296,15 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             if (xmlNodes.Count == 0)
             {
                 throw new SmartAPIException(Session.ServerLogin, "Could not save Files.");
+            }
+        }
+
+        public ICollection<Folder> Subfolders
+        {
+            get
+            {
+               EnsureSubFolderInitialization();
+                return _subfolders;
             }
         }
 

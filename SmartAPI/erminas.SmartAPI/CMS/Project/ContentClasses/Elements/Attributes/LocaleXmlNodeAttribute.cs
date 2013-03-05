@@ -179,7 +179,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            _lcid = value == null ? (int?) null : int.Parse(value);
+            _lcid = value == null || value == "#" + Parent.Session.SessionKey ? (int?)null : int.Parse(value);
         }
     }
 }

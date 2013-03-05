@@ -55,7 +55,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            _id = string.IsNullOrEmpty(value) ? (int?) null : int.Parse(value);
+            _id = string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey ? (int?)null : int.Parse(value);
         }
     }
 }
