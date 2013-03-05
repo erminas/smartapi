@@ -1,4 +1,30 @@
 SmartAPI Changelog
+
+2013-03-04: Version 0.9.4.0
+---------------------------
+Features:
+- Support for RedDot version 7.5
+- Access to archiving/versioning information for projects
+- Access to RedDot Live Server/Delivery Server Constraint elements
+- Projects can be deleted
+- Projects with MS SQL Server backing can be created
+- Access to subfolders of file system asset manager folders
+
+Optimization:
+- Access to page ids of pages in Project.Pages no longer trigger a page load
+
+Bugfixes:
+- Login with user without "Server Administrator" right now works
+- Multiple content classes with the same name in one project work again
+- Template variant text now gets (lazy) loaded, if it is accessed through ContentClass.TemplateVariants
+- Copying of template variants no longer creates additional whitespaces in the target
+- Fixed loading of files in media/image/background page elements
+- ContentClass element attributes which reference files in subfolders (e.g. for sample pictures) no longer trigger an exception
+
+Other:
+- Namespace reorganization in preparation of the API finalization in version 1.0
+- Improved Doxygen style for better readability of generated API documentation
+
 2013-01-22: Version 0.9.3.0
 ---------------------------
 Features:
@@ -7,7 +33,6 @@ Features:
 - Preassigned workflows for structural elements
 - Preassigned target container for structural elements
 - Deletion/Creation of Workflows
-- 
 
 Bugfixes:
 - Session construction for an existing RedDot session works again

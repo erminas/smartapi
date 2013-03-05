@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="04274bb2-dd90-40b0-8cc9-a58128d8e53f" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://10.1.1.32:80/cms/WebService/RQLWebService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="RqlWebService.disco" MetadataType="Disco" ID="814a633f-3582-4d3f-8f35-33f8e30faeb2" SourceId="1" SourceUrl="http://10.1.1.32/CMS/WebService/RqlWebService.svc?disco" />
+    <MetadataFile FileName="RqlWebService.wsdl" MetadataType="Wsdl" ID="d6440503-b88f-438f-85e7-e2429805a8f7" SourceId="1" SourceUrl="http://10.1.1.32/CMS/WebService/RqlWebService.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="RqlWebService1.wsdl" MetadataType="Wsdl" ID="c34075e2-e9f6-44f6-ad4e-b6d313021431" SourceId="1" SourceUrl="http://10.1.1.32/CMS/WebService/RqlWebService.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

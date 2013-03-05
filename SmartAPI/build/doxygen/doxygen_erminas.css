@@ -1,0 +1,28 @@
+.inherit_header {
+	font-weight: normal;
+}
+
+a.el {
+	font-weight: normal;
+}
+
+div.dynheader {
+	color: grey;
+}
+
+#projectname {
+	font: 220% "Tahoma", "Arial", sans-serif;
+	color: #ED712F;
+}
+
+#projectbrief {
+	color: #515050;
+}
+
+.tabs2 {
+	font-size: 12px;
+}
+
+.mdescLeft, .mdescRight, .memItemLeft, .memItemRight, .memTemplItemLeft, .memTemplItemRight, .memTemplParams { 
+	background-color: white;
+}
