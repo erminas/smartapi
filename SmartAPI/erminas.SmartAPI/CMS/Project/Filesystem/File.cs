@@ -20,7 +20,6 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
     public class File : IProjectObject
     {
-
         /// <summary>
         ///     Folder the file is stored in
         /// </summary>
@@ -56,7 +55,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                     @"<MEDIA><FOLDER guid=""{0}""><FILE sourcename=""{1}""><FILEATTRIBUTES action=""list""/></FILE></FOLDER></MEDIA>";
 
                 XmlDocument xmlDoc = Project.ExecuteRQL(LIST_FILE_ATTRIBUTES.RQLFormat(_folder, _name));
-                
+
                 var node = (XmlElement) xmlDoc.GetElementsByTagName("EXTERNALATTRIBUTES")[0];
                 return new FileAttributes(_folder, node);
             }
@@ -69,6 +68,43 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                 "<MEDIA><FOLDER guid=\"{0}\" ><FILES action=\"deletefiles\"><FILE sourcename=\"{1}\" languagevariantid=\"ENG\" checkfolder=\"1\"/></FILES></FOLDER></MEDIA>";
 
             _project.ExecuteRQL(string.Format(DELETE_FILE, _folder.Guid.ToRQLString(), _name));
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            return obj.GetType() == GetType() && Equals((File) obj);
+        }
+
+        /// <summary>
+        ///     Folder the file is stored in
+        /// </summary>
+        public Folder Folder
+        {
+            get { return _folder; }
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((_folder != null ? _folder.GetHashCode() : 0)*397) ^ (_name != null ? _name.GetHashCode() : 0);
+            }
+        }
+
+        /// <summary>
+        ///     Name of the file
+        /// </summary>
+        public string Name
+        {
+            get { return _name; }
         }
 
         public Project Project
@@ -90,51 +126,14 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             get { return Project.Session; }
         }
 
-        /// <summary>
-        ///     Folder the file is stored in
-        /// </summary>
-        public Folder Folder
+        public override string ToString()
         {
-            get { return _folder; }
-        }
-
-        /// <summary>
-        ///     Name of the file
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
+            return _folder != null ? _folder.Name + "/" + Name : "";
         }
 
         protected bool Equals(File other)
         {
             return Equals(_folder, other._folder) && string.Equals(_name, other._name);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            return obj.GetType() == GetType() && Equals((File) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((_folder != null ? _folder.GetHashCode() : 0)*397) ^ (_name != null ? _name.GetHashCode() : 0);
-            }
-        }
-
-        public override string ToString()
-        {
-            return _folder != null ? _folder.Name + "/" + Name : "";
         }
     }
 }

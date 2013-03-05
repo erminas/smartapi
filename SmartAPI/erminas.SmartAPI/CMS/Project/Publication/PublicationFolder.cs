@@ -198,6 +198,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             get { return Guid == PUBLISHED_PAGES_GUID; }
         }
 
+        public Project Project { get; private set; }
+
         public string RealName
         {
             get { return LazyLoad(ref _realName); }
@@ -362,7 +364,5 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             }
             return optionalParameters;
         }
-
-        public Project Project { get; private set; }
     }
 }

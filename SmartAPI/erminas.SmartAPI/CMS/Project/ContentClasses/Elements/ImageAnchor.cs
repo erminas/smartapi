@@ -25,8 +25,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal ImageAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace", "eltusermap",
-                             "eltautoheight", "eltautowidth", "eltfolderguid", "eltautoborder", "eltsrcsubdirguid", "eltimagesupplement",
-                             "eltsrc", "eltalt");
+                             "eltautoheight", "eltautowidth", "eltfolderguid", "eltautoborder", "eltsrcsubdirguid",
+                             "eltimagesupplement", "eltsrc", "eltalt");
 // ReSharper disable ObjectCreationAsStatement
             new BoolXmlNodeAttribute(this, "eltpresetalt");
             new StringEnumXmlNodeAttribute<ImageAlignment>(this, "eltalign", ImageAlignmentUtils.ToRQLString,

@@ -127,7 +127,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            _guid = string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey ? new Guid() : new Guid(value);
+            _guid = string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey
+                        ? new Guid()
+                        : new Guid(value);
         }
     }
 }

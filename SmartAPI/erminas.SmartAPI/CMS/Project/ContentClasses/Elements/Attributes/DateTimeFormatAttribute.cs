@@ -77,7 +77,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            _type = string.IsNullOrEmpty(value) || value == "#"+Parent.Session.SessionKey ? (int?) null : int.Parse(value);
+            _type = string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey
+                        ? (int?) null
+                        : int.Parse(value);
         }
 
         private DateTimeFormat GetDateTimeFormat()

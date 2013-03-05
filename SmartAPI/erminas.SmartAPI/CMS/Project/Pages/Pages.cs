@@ -1,8 +1,22 @@
+// Smart API - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.Exceptions;
@@ -13,45 +27,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 {
     public class Pages
     {
-        private readonly Project _project;
-
         private readonly Dictionary<string, IndexedRDList<int, Page>> _pagesByLanguage =
             new Dictionary<string, IndexedRDList<int, Page>>();
+
+        private readonly Project _project;
 
         public Pages(Project project)
         {
             _project = project;
-        }
-
-        /// <summary>
-        ///     All pages of the current language variant, indexed by page id. The list is cached by default.
-        /// </summary>
-        public IndexedRDList<int, Page> OfCurrentLanguage
-        {
-            get { return GetPagesForLanguageVariant(_project.CurrentLanguageVariant.Language); }
-        }
-
-        /// <summary>
-        ///     Create a new page in the current language variant and link it.
-        /// </summary>
-        /// <param name="cc"> Content class of the page </param>
-        /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
-        /// <param name="headline"> The headline, or null (default) for the default headline </param>
-        /// <returns> The newly created (and linked) page </returns>
-        public Page CreateAndConnect(ContentClass cc, Guid linkGuid, string headline = null)
-        {
-            const string CREATE_AND_LINK_PAGE = @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
-            XmlDocument xmlDoc = _project.ExecuteRQL(string.Format(CREATE_AND_LINK_PAGE, linkGuid.ToRQLString(), PageCreationString(cc, headline)));
-            return CreatePageFromCreationReply(xmlDoc);
-        }
-
-        /// <summary>
-        ///     Create an extended page search on this project.
-        /// </summary>
-        /// <see cref="CreateSearch" />
-        public ExtendedPageSearch CreateExtendedSearch()
-        {
-            return new ExtendedPageSearch(_project);
         }
 
         /// <summary>
@@ -64,6 +47,31 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             XmlDocument xmlDoc = _project.ExecuteRQL(PageCreationString(cc, headline));
             return CreatePageFromCreationReply(xmlDoc);
+        }
+
+        /// <summary>
+        ///     Create a new page in the current language variant and link it.
+        /// </summary>
+        /// <param name="cc"> Content class of the page </param>
+        /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
+        /// <param name="headline"> The headline, or null (default) for the default headline </param>
+        /// <returns> The newly created (and linked) page </returns>
+        public Page CreateAndConnect(ContentClass cc, Guid linkGuid, string headline = null)
+        {
+            const string CREATE_AND_LINK_PAGE = @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
+            XmlDocument xmlDoc =
+                _project.ExecuteRQL(string.Format(CREATE_AND_LINK_PAGE, linkGuid.ToRQLString(),
+                                                  PageCreationString(cc, headline)));
+            return CreatePageFromCreationReply(xmlDoc);
+        }
+
+        /// <summary>
+        ///     Create an extended page search on this project.
+        /// </summary>
+        /// <see cref="CreateSearch" />
+        public ExtendedPageSearch CreateExtendedSearch()
+        {
+            return new ExtendedPageSearch(_project);
         }
 
         /// <summary>
@@ -83,19 +91,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return GetPagesForLanguageVariant(language); }
         }
 
-        private IndexedRDList<int, Page> GetPagesForLanguageVariant(string language)
+        /// <summary>
+        ///     All pages of the current language variant, indexed by page id. The list is cached by default.
+        /// </summary>
+        public IndexedRDList<int, Page> OfCurrentLanguage
         {
-            LanguageVariant languageVariant = _project.LanguageVariants[language];
-            using (new LanguageContext(languageVariant))
-            {
-                return _pagesByLanguage.GetOrAdd(language, () => new IndexedRDList<int, Page>(() =>
-                    {
-                        using (new LanguageContext(languageVariant))
-                        {
-                            return GetPages();
-                        }
-                    }, x => x.Id, Caching.Enabled));
-            }
+            get { return GetPagesForLanguageVariant(_project.CurrentLanguageVariant.Language); }
         }
 
         /// <summary>
@@ -126,11 +127,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     The following code searches for all pages saved as draft by the current user:
         ///     <code>
         /// <pre>
-        /// var results = project.SearchForPagesExtended( 
+        ///     var results = project.SearchForPagesExtended(
         ///     search => search.AddPredicate(
-        ///          new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)
+        ///     new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)
         ///     )
-        /// );
+        ///     );
         /// </pre>
         ///      </code>
         /// </example>
@@ -157,16 +158,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-        private static string PageCreationString(ContentClass cc, string headline = null)
-        {
-            const string PAGE_CREATION_STRING = @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
-
-            string headlineString = headline == null
-                                        ? ""
-                                        : string.Format(@"headline=""{0}""", HttpUtility.HtmlEncode(headline));
-            return string.Format(PAGE_CREATION_STRING, cc.Guid.ToRQLString(), headlineString);
-        }
-
         private List<Page> GetPages()
         {
             const string LIST_PAGES = @"<PROJECT><PAGES action=""list""/></PROJECT>";
@@ -178,6 +169,31 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault()
                             }).ToList();
+        }
+
+        private IndexedRDList<int, Page> GetPagesForLanguageVariant(string language)
+        {
+            LanguageVariant languageVariant = _project.LanguageVariants[language];
+            using (new LanguageContext(languageVariant))
+            {
+                return _pagesByLanguage.GetOrAdd(language, () => new IndexedRDList<int, Page>(() =>
+                    {
+                        using (new LanguageContext(languageVariant))
+                        {
+                            return GetPages();
+                        }
+                    }, x => x.Id, Caching.Enabled));
+            }
+        }
+
+        private static string PageCreationString(ContentClass cc, string headline = null)
+        {
+            const string PAGE_CREATION_STRING = @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
+
+            string headlineString = headline == null
+                                        ? ""
+                                        : string.Format(@"headline=""{0}""", HttpUtility.HtmlEncode(headline));
+            return string.Format(PAGE_CREATION_STRING, cc.Guid.ToRQLString(), headlineString);
         }
     }
 }

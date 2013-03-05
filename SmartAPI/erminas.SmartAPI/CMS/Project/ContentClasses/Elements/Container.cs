@@ -30,12 +30,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Structural; }
         }
 
-        public bool IsTransferingContentOfFollowingPages
-        {
-            get { return GetAttributeValue<bool>("eltextendedlist"); }
-            set{ SetAttributeValue("eltextendedlist", value); }
-        }
-
         public bool IsDynamic
         {
             get { return GetAttributeValue<bool>("eltisdynamic"); }
@@ -46,6 +40,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return GetAttributeValue<bool>("eltistargetcontainer"); }
             set { SetAttributeValue("eltistargetcontainer", value); }
+        }
+
+        public bool IsTransferingContentOfFollowingPages
+        {
+            get { return GetAttributeValue<bool>("eltextendedlist"); }
+            set { SetAttributeValue("eltextendedlist", value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }

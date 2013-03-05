@@ -234,40 +234,11 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         public bool IsSubFolder
         {
-            get { 
+            get
+            {
                 EnsureSubFolderInitialization();
                 return _isSubFolder.GetValueOrDefault();
             }
-        }
-
-        private void EnsureSubFolderInitialization()
-        {
-            if (_isSubFolder.HasValue)
-            {
-                return;
-            }
-
-            Folder folder;
-            if (Project.Folders.TryGetByGuid(Guid, out folder))
-            {
-                _subfolders = folder._subfolders;
-                _isSubFolder = false;
-            }
-            else
-            {
-                foreach (var curFolder in Project.Folders)
-                {
-                    var subfolder = curFolder.Subfolders.FirstOrDefault(folder1 => folder1.Guid == Guid);
-                    if (subfolder != null)
-                    {
-                        _parentFolder = curFolder;
-                        _subfolders = new List<Folder>();
-                        _isSubFolder = true;
-                        return;
-                    }
-                }
-            }
-            throw new Exception(string.Format("Could not find folder with Guid {0} in project {1}", Guid.ToRQLString(), Project));
         }
 
         public Folder LinkedFolder
@@ -277,7 +248,8 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         public Folder ParentFolder
         {
-            get {
+            get
+            {
                 EnsureSubFolderInitialization();
                 return _parentFolder;
             }
@@ -303,7 +275,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         {
             get
             {
-               EnsureSubFolderInitialization();
+                EnsureSubFolderInitialization();
                 return _subfolders;
             }
         }
@@ -359,6 +331,37 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                 default:
                     throw new ArgumentException(string.Format("Unknown comparison operator: {0}", @operator));
             }
+        }
+
+        private void EnsureSubFolderInitialization()
+        {
+            if (_isSubFolder.HasValue)
+            {
+                return;
+            }
+
+            Folder folder;
+            if (Project.Folders.TryGetByGuid(Guid, out folder))
+            {
+                _subfolders = folder._subfolders;
+                _isSubFolder = false;
+            }
+            else
+            {
+                foreach (var curFolder in Project.Folders)
+                {
+                    var subfolder = curFolder.Subfolders.FirstOrDefault(folder1 => folder1.Guid == Guid);
+                    if (subfolder != null)
+                    {
+                        _parentFolder = curFolder;
+                        _subfolders = new List<Folder>();
+                        _isSubFolder = true;
+                        return;
+                    }
+                }
+            }
+            throw new Exception(string.Format("Could not find folder with Guid {0} in project {1}", Guid.ToRQLString(),
+                                              Project));
         }
 
         // New Version to delete Files

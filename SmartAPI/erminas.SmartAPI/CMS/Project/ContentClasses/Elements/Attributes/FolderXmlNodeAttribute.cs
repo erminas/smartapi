@@ -24,7 +24,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
     {
         private readonly ContentClass _contentClass;
 
-        public FolderXmlNodeAttribute(IContentClassElement parent, string name) : this(parent, parent.ContentClass, name)
+        public FolderXmlNodeAttribute(IContentClassElement parent, string name)
+            : this(parent, parent.ContentClass, name)
         {
         }
 
@@ -53,10 +54,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 return folder;
             }
 
-            folder = folders.SelectMany(folder1 => folder1.Subfolders).FirstOrDefault(subfolder => subfolder.Name == name);
+            folder =
+                folders.SelectMany(folder1 => folder1.Subfolders).FirstOrDefault(subfolder => subfolder.Name == name);
             if (folder == null)
             {
-                throw new SmartAPIException(_contentClass.Session.ServerLogin, string.Format("Could not find a folder with name {0} in project {1}", name, _contentClass.Project));
+                throw new SmartAPIException(_contentClass.Session.ServerLogin,
+                                            string.Format("Could not find a folder with name {0} in project {1}", name,
+                                                          _contentClass.Project));
             }
             return folder;
         }

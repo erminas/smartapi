@@ -26,16 +26,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 {
     /// <summary>
     ///     An extended page search more powerful than the normale <see cref="PageSearch" /> that can be refined by adding filters to it (e.g. on the page status).
-    /// <example>
-    /// <code>
+    ///     <example>
+    ///         <code>
     /// <pre>
-    /// Project project = ...;
-    /// var search = project.CreateExtendedPageSearch();
-    /// search.Filters.Add(new HeadlineFilter(HeadlineFilter.OperatorType.IsLike, "sometext"));
-    /// var results = search.Execute();
+    ///     Project project = ...;
+    ///     var search = project.CreateExtendedPageSearch();
+    ///     search.Filters.Add(new HeadlineFilter(HeadlineFilter.OperatorType.IsLike, "sometext"));
+    ///     var results = search.Execute();
     /// </pre>
     /// </code>
-    /// </example>
+    ///     </example>
     /// </summary>
     public class ExtendedPageSearch : IProjectObject
     {

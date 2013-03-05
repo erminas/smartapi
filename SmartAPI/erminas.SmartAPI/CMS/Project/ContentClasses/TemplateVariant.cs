@@ -119,11 +119,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        private static bool IsOnlyPartiallyInitialized(XmlElement xmlElement)
-        {
-            return xmlElement.GetAttributeNode("pdforientation") == null;
-        }
-
         /// <summary>
         ///     Assign this template to a specific project variant
         /// </summary>
@@ -160,7 +155,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlDocument xmlDoc =
                 target.Project.ExecuteRQL(
                     string.Format(ADD_TEMPLATE_VARIANT, target.Guid.ToRQLString(), HttpUtility.HtmlEncode(Name),
-                    HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
+                                  HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
                                   HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
                                   ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
                                   PdfOrientation), Project.RqlType.SessionKeyInProject);
@@ -301,6 +296,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlDocument xmlDoc = ContentClass.Project.ExecuteRQL(string.Format(LOAD_TEMPLATEVARIANT, Guid.ToRQLString()));
 
             return (XmlElement) xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")[0];
+        }
+
+        private static bool IsOnlyPartiallyInitialized(XmlElement xmlElement)
+        {
+            return xmlElement.GetAttributeNode("pdforientation") == null;
         }
 
         private void LoadXml()

@@ -237,7 +237,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get
             {
-                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltfolderguid");
+                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltfolderguid");
                 string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
                 if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
                 {
@@ -251,7 +251,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value != null ? value.Name : "";
                 if (value != null)
                 {
-                    ((FolderXmlNodeAttribute)GetAttribute("eltfolderguid")).Value = value.Folder;
+                    ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value.Folder;
                 }
             }
         }
