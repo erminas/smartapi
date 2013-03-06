@@ -39,7 +39,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>tmp_key2.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -241,6 +242,11 @@
     <Compile Include="Exceptions\SmartAPIException.cs" />
     <Compile Include="Exceptions\SmartAPIInternalException.cs" />
     <Compile Include="CMS\Administration\EMail.cs" />
+    <Compile Include="Service References\OldService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Utils\CachedCollections\CachingContext.cs" />
     <Compile Include="Utils\DictionaryExtension.cs" />
     <Compile Include="Utils\CachedCollections\ICaching.cs" />
@@ -271,16 +277,18 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CodeSigningCertificat_Comodo_2013-02-28.pfx" />
     <None Include="mainpage.dox" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\OldService\RQLService.wsdl" />
     <None Include="Service References\RedDotCmsXmlServer\RqlWebService.wsdl" />
     <None Include="Service References\RedDotCmsXmlServer\RqlWebService1.wsdl" />
     <None Include="tmp_key2.pfx" />
-    <None Include="tmp_sign.snk" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\OldService\" />
     <WCFMetadataStorage Include="Service References\RedDotCmsXmlServer\" />
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +309,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\RedDotCmsXmlServer\RqlWebService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OldService\RQLService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OldService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OldService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OldService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

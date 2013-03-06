@@ -21,6 +21,7 @@ namespace erminas.SmartAPI.CMS.Project
     {
         private bool _isCurrentLanguageVariant;
         private string _language;
+        private bool _isMainLanguage;
 
         internal LanguageVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -30,7 +31,7 @@ namespace erminas.SmartAPI.CMS.Project
         public bool IsCurrentLanguageVariant
         {
             get { return _isCurrentLanguageVariant; }
-            set { _isCurrentLanguageVariant = value; }
+            internal set { _isCurrentLanguageVariant = value; }
         }
 
         public string Language
@@ -43,10 +44,16 @@ namespace erminas.SmartAPI.CMS.Project
             Project.SelectLanguageVariant(this);
         }
 
+        public bool IsMainLanguage
+        {
+            get { return _isMainLanguage; }
+        }
+
         private void LoadXml()
         {
             InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
             InitIfPresent(ref _language, "language", x => x);
+            InitIfPresent(ref _isMainLanguage, "ismainlanguage", BoolConvert);
         }
     }
 }

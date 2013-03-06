@@ -280,7 +280,7 @@ namespace erminas.SmartAPI.CMS.Project
         public RecycleBin RecycleBin { get; private set; }
 
         /// <summary>
-        ///     Refresh the currently selected language variant value. You should only need to use this, if the language variant can be changed outside of this project instance (e.g. if you have to _different_ project objects for the same project).
+        ///     Refresh the currently selected language variant value. You should only need to use this, if the language variant can be changed outside of this project instance (e.g. if you have two _different_ project objects for the same project).
         /// </summary>
         public LanguageVariant RefreshCurrentLanguageVariant()
         {
@@ -290,6 +290,11 @@ namespace erminas.SmartAPI.CMS.Project
             string languageId =
                 ((XmlElement) xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
             return _currentLanguageVariant = LanguageVariants[languageId];
+        }
+
+        public LanguageVariant MainLanguage
+        {
+            get { return LanguageVariants.First(variant => variant.IsMainLanguage); }
         }
 
         /// <summary>

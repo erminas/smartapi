@@ -40,9 +40,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         public override void Commit()
         {
-            //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
-                                             (int) ElementType));
+            using (new LanguageContext(LanguageVariant))
+            {
+                //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
+                                                 (int) ElementType));
+            }
             //TODO check guid
             //xml
         }
