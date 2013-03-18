@@ -1,5 +1,8 @@
 SmartAPI Changelog
 
+Features:
+- Access to main language variant of a project
+
 2013-03-04: Version 0.9.4.0
 ---------------------------
 Features:

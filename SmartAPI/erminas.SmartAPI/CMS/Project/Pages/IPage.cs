@@ -40,7 +40,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     All content elements of this page.
         /// </summary>
-        NameIndexedRDList<PageElement> ContentElements { get; }
+        NameIndexedRDList<IPageElement> ContentElements { get; }
 
         /// <summary>
         ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.

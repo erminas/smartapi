@@ -38,10 +38,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         public override void Commit()
         {
-            //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-            Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
-                                             _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
-                                             _value.Seconds/(24.0*60.0*60.0), (int) ElementType));
+            using (new LanguageContext(LanguageVariant))
+            {
+                //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),
+                                                 _value.Hours/24.0 + _value.Minutes/(24.0*60.0) +
+                                                 _value.Seconds/(24.0*60.0*60.0), (int) ElementType));
+            }
             //TODO check guid
             //xml
         }
