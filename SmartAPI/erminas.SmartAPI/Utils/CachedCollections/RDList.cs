@@ -76,6 +76,11 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return output != null;
         }
 
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
+        }
+
         #endregion
     }
 }

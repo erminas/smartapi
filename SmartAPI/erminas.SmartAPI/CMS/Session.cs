@@ -85,6 +85,28 @@ namespace erminas.SmartAPI.CMS
             LiveProject = 0
         }
 
+        /// <summary>
+        /// Waits for an asynchronous process to finish.
+        /// This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
+        /// </summary>
+        /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
+        /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
+        public void WaitForAsyncProcess(TimeSpan maxWait, Predicate<AsynchronousProcess> processPredicate)
+        {
+            var retryEverySecond = new TimeSpan(0, 0, 1);
+            Predicate<IRDList<AsynchronousProcess>> pred = list => list.Any(process => processPredicate(process));
+
+            //wait for the async process to spawn first and then wait until it is done
+
+            var start = DateTime.Now;
+
+            AsynchronousProcesses.WaitFor(pred, maxWait, retryEverySecond);
+
+            TimeSpan timeLeft = maxWait - (DateTime.Now - start);
+
+            AsynchronousProcesses.WaitFor(list => !pred(list), timeLeft, retryEverySecond);
+        }
+
         public enum UseVersioning
         {
             Yes = -1,
@@ -95,7 +117,7 @@ namespace erminas.SmartAPI.CMS
 
         private const string RQL_IODATA = "<IODATA>{0}</IODATA>";
         private const string RQL_IODATA_LOGONGUID = @"<IODATA loginguid=""{0}"">{1}</IODATA>";
-        private const string RQL_IODATA_SESSIONKEY = @"<IODATA loginguid=""{0}"" sessionkey=""{1}"">{2}</IODATA>";
+        private const string RQL_IODATA_SESSIONKEY = @"<IODATA sessionkey=""{1}"" loginguid=""{0}"">{2}</IODATA>";
         private const string RQL_IODATA_SESSIONKEY_ONLY = @"<IODATA sessionkey=""{0}"" loginguid="""">{1}</IODATA>";
 
         private const string RQL_IODATA_PROJECT_SESSIONKEY =
@@ -129,7 +151,6 @@ namespace erminas.SmartAPI.CMS
         public readonly NameIndexedRDList<Project.Project> Projects;
 
         public readonly NameIndexedRDList<User> Users;
-        private Project.Project _currentNonAdminUserProject;
         private User _currentUser;
 
         private string _loginGuidStr;
@@ -146,6 +167,7 @@ namespace erminas.SmartAPI.CMS
             DialogLocales = new IndexedCachedList<string, Locale>(GetDialogLocales, x => x.Id, Caching.Enabled);
             ProjectsForCurrentUser = new NameIndexedRDList<Project.Project>(() => GetProjectsForUser(CurrentUser.Guid),
                                                                             Caching.Enabled);
+            AsynchronousProcesses = new RDList<AsynchronousProcess>(GetAsynchronousProcesses, Caching.Disabled);
         }
 
         /// <summary>
@@ -181,6 +203,14 @@ namespace erminas.SmartAPI.CMS
         #endregion
 
         public IRDList<ApplicationServer> ApplicationServers { get; private set; }
+
+        /// <summary>
+        ///     The asynchronous processes running on the server. The list is _NOT_ cached by default.
+        /// </summary>
+        /// <remarks>
+        ///     Caching is disabled by default.
+        /// </remarks>
+        public IRDList<AsynchronousProcess> AsynchronousProcesses { get; private set; }
 
         public Project.Project CreateProjectMsSql(string projectName, ApplicationServer appServer,
                                                   DatabaseServer dbServer, string databaseName, Locale language,
@@ -251,6 +281,12 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         {
             SelectProject(projectGuid);
             string result = ExecuteRql(query, IODataFormat.SessionKeyAndLogonGuid);
+            return ParseRQLResult(result);
+        }
+
+        public XmlDocument ExecuteRQL(string query, IODataFormat format)
+        {
+            var result = ExecuteRql(query, format);
             return ParseRQLResult(result);
         }
 
@@ -638,6 +674,15 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             //<EDITORIALSERVER guid="ECB521367521474BA469D3A0FC98A798" name="rd75" active="0" ip="192.168.44.44" />
         }
 
+        private List<AsynchronousProcess> GetAsynchronousProcesses()
+        {
+            const string LIST_PROCESSES = @"<ADMINISTRATION><ASYNCQUEUE action=""list"" project=""""/></ADMINISTRATION>";
+            var xmlDoc = ExecuteRQL(LIST_PROCESSES);
+            return
+                (from XmlElement curProcess in xmlDoc.GetElementsByTagName("ASYNCQUEUE")
+                 select new AsynchronousProcess(this, curProcess)).ToList();
+        }
+
         private User GetCurrentUser()
         {
             const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
@@ -809,7 +854,22 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             string projectStr = lastModule.GetAttributeValue("project");
             if (!string.IsNullOrEmpty(projectStr))
             {
-                SelectProject(Guid.Parse(projectStr));
+                try
+                {
+                    SelectProject(Guid.Parse(projectStr));
+                } catch (SmartAPIException e)
+                {
+                    if (
+                        e.Message.Contains(
+                            "The project you have selected is no longer available. Please select a different project via the Main Menu."))
+                    {
+                        SelectedProjectGuid = Guid.Empty;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
         }
 

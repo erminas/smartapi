@@ -31,14 +31,12 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
         }
 
-        public new ICachedList<T> Refreshed()
+        public new IndexedRDList<TK, T> Refreshed()
         {
             Refresh();
             return this;
         }
-
-        #region IRDList<T> Members
-
+        
         public bool ContainsGuid(Guid guid)
         {
             T tmp;
@@ -77,7 +75,10 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return output != null;
         }
 
-        #endregion
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
+        }
     }
 
     /// <summary>

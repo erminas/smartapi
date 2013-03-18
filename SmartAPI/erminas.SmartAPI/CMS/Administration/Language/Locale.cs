@@ -110,7 +110,7 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             const string LOAD_TIME_FORMATS =
                 @"<TEMPLATE><ELEMENT action=""load"" ><{0}FORMATS action=""list"" lcid=""{1}""/></ELEMENT></TEMPLATE>";
             string formatTypeString = types.ToString().ToUpper();
-            XmlDocument result = _session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID));
+            XmlDocument result = _session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID), Session.IODataFormat.SessionKeyAndLogonGuid);
 
             var timeformats = result.GetElementsByTagName(formatTypeString + "FORMATS")[0] as XmlElement;
             if (timeformats == null)

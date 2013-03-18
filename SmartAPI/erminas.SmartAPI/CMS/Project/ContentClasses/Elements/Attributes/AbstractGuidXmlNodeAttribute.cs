@@ -38,7 +38,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public override object DisplayObject
         {
-            get { return _value == null ? string.Empty : _value.Name; }
+            get
+            {
+                try
+                {
+                    return _value == null ? string.Empty : _value.Name;
+                } catch (Exception e)
+                {
+                    return string.Empty;
+                }
+            }
         }
 
         public override bool Equals(object o)
@@ -67,15 +76,23 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)
         {
-            var t = (AbstractGuidXmlNodeAttribute<T>) o;
-            if (t.Value == null || RetrieveByName(t.Value.Name) != null)
+            try
             {
-                reason = string.Empty;
-                return true;
-            }
+                var t = (AbstractGuidXmlNodeAttribute<T>) o;
+                if (t.Value == null || RetrieveByName(t.Value.Name) != null)
+                {
+                    reason = string.Empty;
+                    return true;
+                }
 
-            reason = GetTypeDescription() + " named '" + t.Value.Name + "' not found in target!";
-            return false;
+                reason = GetTypeDescription() + " named '" + t.Value.Name + "' not found in target!";
+                return false;
+            } catch (Exception e)
+            {
+                reason = e.Message;
+                return false;
+            }
+            
         }
 
         public T Value

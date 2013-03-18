@@ -20,6 +20,7 @@ using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.Workflows;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
@@ -161,6 +162,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         private XmlDocument RunQuery(bool isCountOnly)
         {
+            if (Session.Version < new Version(10,0) && Filters.Any(filter => filter is WorkflowFilter))
+            {
+                throw new InvalidServerVersionException(Session.ServerLogin, "Searches for pages in workflow are not supported for RedDot servers with version < 10");
+            }
             const string XSEARCH = @"<PAGE action=""xsearch"" {0}>{1}</PAGE>";
             string arguments = "";
             if (GroupBy != GroupByType.None)

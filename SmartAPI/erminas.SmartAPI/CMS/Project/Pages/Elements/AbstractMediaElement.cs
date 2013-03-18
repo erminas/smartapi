@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.Filesystem;
@@ -75,9 +76,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
 
             Guid subFolderGuid;
+            var folderList = Project.Folders.Union(Project.Folders.SelectMany(folder => folder.Subfolders)).ToList();
             return XmlElement.TryGetGuid("subdirguid", out subFolderGuid)
-                       ? Project.Folders.GetByGuid(subFolderGuid)
-                       : Project.Folders.GetByGuid(folderGuid);
+                       ? folderList.FirstOrDefault(folder => folder.Guid == subFolderGuid)
+                       : folderList.FirstOrDefault(folder => folder.Guid == folderGuid);
         }
 
         private void InitFileValue(Folder folder)

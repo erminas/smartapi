@@ -20,8 +20,8 @@ namespace erminas.SmartAPI.CMS.Project
     public class LanguageVariant : RedDotProjectObject
     {
         private bool _isCurrentLanguageVariant;
-        private string _language;
         private bool _isMainLanguage;
+        private string _language;
 
         internal LanguageVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -34,6 +34,11 @@ namespace erminas.SmartAPI.CMS.Project
             internal set { _isCurrentLanguageVariant = value; }
         }
 
+        public bool IsMainLanguage
+        {
+            get { return _isMainLanguage; }
+        }
+
         public string Language
         {
             get { return _language; }
@@ -42,11 +47,6 @@ namespace erminas.SmartAPI.CMS.Project
         public void Select()
         {
             Project.SelectLanguageVariant(this);
-        }
-
-        public bool IsMainLanguage
-        {
-            get { return _isMainLanguage; }
         }
 
         private void LoadXml()

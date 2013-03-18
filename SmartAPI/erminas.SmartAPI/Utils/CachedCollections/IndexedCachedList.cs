@@ -38,7 +38,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             _indexFunc = indexFunc;
         }
 
-        public new ICachedList<T> Refreshed()
+        public new virtual ICachedList<T> Refreshed()
         {
             Refresh();
             return this;

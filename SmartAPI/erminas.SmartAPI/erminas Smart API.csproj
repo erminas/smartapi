@@ -25,7 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,10 +59,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMS\Administration\AsynchronousProcess.cs" />
     <Compile Include="CMS\ISessionObject.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClasses.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\AbstractWorkflowPreassignable.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\DeliveryServerConstraint.cs" />
+    <Compile Include="CMS\Project\IProjectImportJob.cs" />
+    <Compile Include="CMS\Project\IProjectJob.cs" />
     <Compile Include="CMS\Project\IProjectObject.cs" />
     <Compile Include="CMS\Project\Keywords\Categories.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\CategoryXmlNodeAttribute.cs" />
@@ -107,6 +110,8 @@
     <Compile Include="CMS\Project\Pages\Elements\Transfer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\PreassignedWorkflow.cs" />
     <Compile Include="CMS\Project\PartialRedDotProjectObject.cs" />
+    <Compile Include="CMS\Project\IProjectCopyJob.cs" />
+    <Compile Include="CMS\Project\IProjectExportJob.cs" />
     <Compile Include="CMS\Project\RecycleBin.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\TargetContainerPreassignment.cs" />
     <Compile Include="CMS\Administration\UserModuleAssignment.cs" />
@@ -271,6 +276,7 @@
     </Compile>
     <Compile Include="Utils\SessionBuilder.cs" />
     <Compile Include="Utils\TimeOutTracker.cs" />
+    <Compile Include="Utils\Wait.cs" />
     <Compile Include="Utils\XmlUtil.cs" />
   </ItemGroup>
   <ItemGroup>

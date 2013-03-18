@@ -23,6 +23,7 @@ namespace erminas.SmartAPI.CMS.Administration
     [Flags]
     public enum ExtendedUserRoles
     {
+        None = 0,
         TemplateEditor = 1,
         TranslationEditor = 2
     }

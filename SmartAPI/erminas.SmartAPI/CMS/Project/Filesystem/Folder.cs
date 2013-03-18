@@ -66,25 +66,25 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         ///     RQL for listing files for the folder with guid {0} and the filtertext {1}. No parameters
         /// </summary>
         private const string FILTER_FILES_BY_TEXT =
-            @"<MEDIA><FOLDER  guid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0""  searchtext=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+            @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0""  searchtext=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
 
         /// <summary>
         ///     RQL for listing files for the folder with guid {0} by the creator with guid {1}. No parameters
         /// </summary>
         private const string FILTER_FILES_BY_CREATOR =
-            @"<MEDIA><FOLDER  guid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" createguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+            @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" createguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
 
         /// <summary>
         ///     RQL for listing files for the folder with guid {0} changed by a user with guid {1}. No parameters
         /// </summary>
         private const string FILTER_FILES_BY_CHANGEAUTHOR =
-            @"<MEDIA><FOLDER  guid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" changeguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+            @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" changeguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
 
         /// <summary>
         ///     RQL for listing files for the folder with guid {0} which match the command {1} with the operator {2} and value {3}. No parameters
         /// </summary>
         private const string FILTER_FILES_BY_COMMAND =
-            @"<MEDIA><FOLDER  guid=""{0}"" ><FILES action=""list"" view=""thumbnail"" sectioncount=""30"" maxfilesize=""0""  command=""{1}"" op=""{2}"" value=""{3}""  startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+            @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" sectioncount=""30"" maxfilesize=""0""  command=""{1}"" op=""{2}"" value=""{3}""  startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
 
         /// <summary>
         ///     RQL for saving a file {1} in a folder {0}. IMPORTANT: For {1} Create a File by using String FILE_TO_SAVE to insert 1...n files and fill in required values No parameters
@@ -193,21 +193,23 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <param name="operator"> Opreator e.g. "le" (less equal), "ge" (greater equal), "lt"(less than), "gt" (greater than) or "eq" (equal) </param>
         /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
         /// <returns> </returns>
-        public List<File> GetFilesByAttributeComparison(ComparisonFileAttribute attribute, ComparisonOperator @operator,
+        [VersionIsLessThan(9, VersionName = "Version 9")]
+        public IEnumerable<File> GetFilesByAttributeComparison(ComparisonFileAttribute attribute, ComparisonOperator @operator,
                                                         int value)
         {
+            Session.EnsureVersion();
             string rqlString = String.Format(FILTER_FILES_BY_COMMAND, Guid.ToRQLString(), AttributeToString(attribute),
                                              ComparisonOperatorToString(@operator), value);
             return RetrieveFiles(rqlString);
         }
 
-        public List<File> GetFilesByAuthor(Guid authorGuid)
+        public IEnumerable<File> GetFilesByAuthor(Guid authorGuid)
         {
             string rqlString = String.Format(FILTER_FILES_BY_CREATOR, Guid.ToRQLString(), authorGuid.ToRQLString());
             return RetrieveFiles(rqlString);
         }
 
-        public List<File> GetFilesByLastModifier(Guid lastModifierGuid)
+        public IEnumerable<File> GetFilesByLastModifier(Guid lastModifierGuid)
         {
             string rqlString = String.Format(FILTER_FILES_BY_CHANGEAUTHOR, Guid.ToRQLString(),
                                              lastModifierGuid.ToRQLString());

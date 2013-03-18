@@ -53,10 +53,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             set
             {
                 XmlElement xmlNode = _parent.XmlElement;
-                xmlNode.SetAttributeValue("eltlanguagevariantid", value.LanguageVariant.Language);
-                xmlNode.SetAttributeValue("eltelementguid", value.Guid.ToRQLString());
-                xmlNode.SetAttributeValue("elttemplateguid", value.ContentClass.Guid.ToRQLString());
-                xmlNode.SetAttributeValue("eltprojectguid", value.ContentClass.Project.Guid.ToRQLString());
+                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.LanguageVariant.Language);
+                xmlNode.SetAttributeValue("eltelementguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.Guid.ToRQLString());
+                xmlNode.SetAttributeValue("elttemplateguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Guid.ToRQLString());
+                xmlNode.SetAttributeValue("eltprojectguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Project.Guid.ToRQLString());
             }
         }
 
@@ -67,6 +67,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             var other = (ElementReferenceAttribute) o;
 
             ContentClassElement otherContentClassElement = other.Value;
+            //TODO macht das hier sinn, ode rist es zwangsweise != null ? fehler in TestCCCopy
+            if (otherContentClassElement == null)
+            {
+                Value = null;
+                return;
+            }
             try
             {
                 Project project =

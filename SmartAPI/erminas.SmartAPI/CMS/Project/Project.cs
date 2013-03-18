@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security;
 using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
@@ -131,6 +133,11 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<ContentClassFolder> ContentClassFolders { get; private set; }
+        
+        public IProjectCopyJob CreateCopyJob(string newProjectName)
+        {
+            return new ProjectCopyJob(this, newProjectName);
+        }
 
         /// <summary>
         ///     Get/Set the current active language variant. This information is cached.
@@ -151,11 +158,11 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     Delete this project and its database on the database server
         /// </summary>
-        public void DeleteWithDatabase(string databaseUser, string databaseName)
+        public void DeleteWithDatabase(string databaseUser, string password)
         {
             const string DELETE_PROJECT =
                 @"<ADMINISTRATION><PROJECT action=""delete"" guid=""{0}"" deletedb=""{1}"" user=""{2}"" password=""{3}""/></ADMINISTRATION>";
-            Session.ExecuteRQL(DELETE_PROJECT.RQLFormat(this, true, databaseUser, databaseName));
+            Session.ExecuteRQL(DELETE_PROJECT.RQLFormat(this, true, databaseUser, password));
             //empty response on success, so errors can't be detected
         }
 
@@ -178,14 +185,9 @@ namespace erminas.SmartAPI.CMS.Project
             }
         }
 
-        /// <summary>
-        ///     Kicks off an asynchronous project export. For success / failure check emails from RedDot.
-        /// </summary>
-        public void Export()
+        public IProjectExportJob CreateExportJob(string targetPath)
         {
-            const string EXPORT = @"<ADMINISTRATION><PROJECT action=""export"" projectguid=""{0}""</ADMINISTRATION>";
-            //todo oder muss das als plain (ohne sessionkey) gesendet werden?
-            ExecuteRQL(String.Format(EXPORT, Guid.ToRQLString()));
+            return new ProjectExportJob(this, targetPath);
         }
 
         /// <summary>
@@ -240,13 +242,20 @@ namespace erminas.SmartAPI.CMS.Project
                 return XmlElement.GetIntAttributeValue("archive").GetValueOrDefault() == -1;
             }
         }
-
+        //TODO gets stored on server immediatly, commit? Save/Set?
         public bool IsVersioningActive
         {
             get
             {
                 EnsureInitialization();
                 return XmlElement.GetIntAttributeValue("versioning").GetValueOrDefault() == -1;
+            }
+
+            set
+            {
+                const string SET_VERISONING =
+                    @"<ADMINISTRATION><PROJECT action=""save"" guid=""{2}"" versioning=""{3}""/></ADMINISTRATION>";
+                Session.ExecuteRQL(SET_VERISONING.RQLFormat(Session.LogonGuid, Session.CurrentUser, this, value));
             }
         }
 
@@ -271,6 +280,11 @@ namespace erminas.SmartAPI.CMS.Project
             get { return LazyLoad(ref _locklevel); }
         }
 
+        public LanguageVariant MainLanguage
+        {
+            get { return LanguageVariants.First(variant => variant.IsMainLanguage); }
+        }
+
         /// <summary>
         ///     All project variants, indexed by name. The list is cached by default.
         /// </summary>
@@ -290,11 +304,6 @@ namespace erminas.SmartAPI.CMS.Project
             string languageId =
                 ((XmlElement) xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
             return _currentLanguageVariant = LanguageVariants[languageId];
-        }
-
-        public LanguageVariant MainLanguage
-        {
-            get { return LanguageVariants.First(variant => variant.IsMainLanguage); }
         }
 
         /// <summary>
@@ -331,6 +340,34 @@ namespace erminas.SmartAPI.CMS.Project
             }
             language.IsCurrentLanguageVariant = true;
             _currentLanguageVariant = language;
+        }
+
+        /// <summary>
+        ///     Set the project lock. 
+        ///     The info message must not be empty, if lock level is different than ProjectLockLevel.None!
+        /// </summary>
+        /// <param name="level">level to set the locking to</param>
+        /// <param name="infoMessage">info message to display to users, MUST NOT BE EMPTY if lock level is different than ProjectLockLevel.None</param>
+        public void SetLockLevel(ProjectLockLevel level, string infoMessage)
+        {
+            if (level != ProjectLockLevel.None && string.IsNullOrEmpty(infoMessage))
+            {
+                throw new SmartAPIException(Session.ServerLogin, "Info message for project locking must not be empty");
+            }
+            const string SET_LOCKLEVEL =
+                @"<ADMINISTRATION><PROJECT action=""save"" guid=""{0}"" inhibitlevel=""{1}"" lockinfo=""{2}""/></ADMINISTRATION>";
+
+            var xmlDoc =
+                Session.ExecuteRQL(SET_LOCKLEVEL.RQLFormat(this, (int) level,
+                                                           level == ProjectLockLevel.None
+                                                               ? Session.SESSIONKEY_PLACEHOLDER
+                                                               : SecurityElement.Escape(infoMessage)));
+            var project = (XmlElement) xmlDoc.SelectSingleNode("//PROJECT");
+            if (!project.GetAttributeValue("inhibitlevel").Equals(((int) level).ToString(CultureInfo.InvariantCulture)))
+            {
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not set project lock level to {0}", level));
+            }
         }
 
         /// <see cref="CMS.Session.SetTextContent" />
@@ -580,7 +617,7 @@ namespace erminas.SmartAPI.CMS.Project
 
         private List<Workflow> GetWorkflows()
         {
-            const string LIST_WORKFLOWS = @"<WORKFLOWS action=""list"" />";
+            const string LIST_WORKFLOWS = @"<WORKFLOWS action=""list"" listglobalworkflow=""1""/>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_WORKFLOWS);
             return
                 (from XmlElement curWorkflow in xmlDoc.GetElementsByTagName("WORKFLOW")
@@ -617,5 +654,11 @@ namespace erminas.SmartAPI.CMS.Project
         public IRDList<PublicationTarget> PublicationTargets { get; private set; }
 
         #endregion
+    }
+
+    public enum NewProjectType
+    {
+        NormalProject = 0,
+        TestProject = 1
     }
 }

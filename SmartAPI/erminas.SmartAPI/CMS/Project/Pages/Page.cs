@@ -249,7 +249,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// </summary>
         public static TimeSpan MaxWaitForDeletion { get; set; }
 
-        public void SetKeywords(List<Keyword> newKeywords)
+        public void SetKeywords(IEnumerable<Keyword> newKeywords)
         {
             const string SET_KEYWORDS = @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS>{1}</KEYWORDS></PAGE>";
             const string REMOVE_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" delete=""1"" changed=""1"" />";
@@ -650,7 +650,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             {
                 IPageElement result;
                 return ContentElements.TryGetByName(elementName, out result)
-                           ? (IPageElement) result
+                           ? result
                            : LinkElements.GetByName(elementName);
             }
         }

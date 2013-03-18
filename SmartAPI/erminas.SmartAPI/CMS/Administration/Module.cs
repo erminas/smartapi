@@ -23,6 +23,8 @@ namespace erminas.SmartAPI.CMS.Administration
     {
         NoModule = 0,
         Cms,
+        
+        /// only exists in version &gt; 9
         Search,
         TemplateEditor,
         Tasks,
@@ -30,7 +32,16 @@ namespace erminas.SmartAPI.CMS.Administration
         SmartEdit,
         SmartTree,
         ServerManager,
-        Assets
+        Assets,
+
+        /// only exists in version &lt; 10
+        CollaborationManager,
+        //////only exists in version &lt; 10
+        DocumentManager,
+        /// only exists in version &lt; 10
+        BusinessProcessManager,
+        /// only exists in version &lt; 10
+        Ccs
     }
 
     public static class ModuleTypeUtils
@@ -57,6 +68,14 @@ namespace erminas.SmartAPI.CMS.Administration
                     return ModuleType.SmartEdit;
                 case "smarttree":
                     return ModuleType.SmartTree;
+                case "collaboration":
+                    return ModuleType.CollaborationManager;
+                case "dms":
+                    return ModuleType.DocumentManager;
+                case "workflow":
+                    return ModuleType.BusinessProcessManager;
+                case "ccs":
+                    return ModuleType.Ccs;
                 default:
                     throw new SmartAPIInternalException(string.Format("Invalid string value for {0} conversion: {1}",
                                                                       typeof (ModuleType).Name, value));
@@ -85,6 +104,14 @@ namespace erminas.SmartAPI.CMS.Administration
                     return "smartedit";
                 case ModuleType.SmartTree:
                     return "smarttree";
+                case ModuleType.BusinessProcessManager:
+                    return "workflow";
+                case ModuleType.CollaborationManager:
+                    return "collaboration";
+                case ModuleType.DocumentManager:
+                    return "dms";
+                    case ModuleType.Ccs:
+                    return "ccs";
                 default:
                     throw new SmartAPIInternalException(string.Format("Invalid {0} for RQL string conversion: {1}",
                                                                       typeof (ModuleType).Name, type));
