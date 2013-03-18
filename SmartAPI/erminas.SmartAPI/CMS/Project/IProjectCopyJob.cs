@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project
             const string COPY_PROJECT =
                 @"<ADMINISTRATION><PROJECT userguid=""{0}"" action=""copy"" guid=""{1}"" newprojectname=""{2}"" newdatabasename=""{3}"" includearchive=""{4}"" logoutusers=""{5}"" schema="""" testproject="""" schemapassword="""" databaseserver=""{6}"" editorialserver=""{7}"" reddotserverguid="""" emailnotification=""{8}"" to=""{9}"" provider="""" subject=""{10}"" message=""{11}"" /></ADMINISTRATION>";
 
-            string query = COPY_PROJECT.RQLFormat(Session.CurrentUser, this,
+            string query = COPY_PROJECT.RQLFormat(Session.CurrentUser, Project,
                                                   SecurityElement.Escape(NewProjectName),
                                                   SecurityElement.Escape(DatabaseName),
                                                   IsCopyingArchive, IsLoggingOffActiveUsersInProject,

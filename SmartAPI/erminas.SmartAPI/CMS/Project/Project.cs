@@ -454,8 +454,19 @@ namespace erminas.SmartAPI.CMS.Project
             Workflows = new NameIndexedRDList<Workflow>(GetWorkflows, Caching.Enabled);
             Categories = new Categories(this);
             Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
+            Groups = new NameIndexedRDList<Group>(GetGroupsOfProject, Caching.Enabled);
         }
 
+        private List<Group> GetGroupsOfProject()
+        {
+            const string LIST_GROUPS = @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
+            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(this), Session.IODataFormat.LogonGuidOnly);
+            return
+                (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP") select new Group(Session, curGroup))
+                    .ToList();
+        }
+
+        public NameIndexedRDList<Group> Groups { get; private set; }
         private void LoadXml()
         {
             InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));

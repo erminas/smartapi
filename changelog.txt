@@ -1,7 +1,7 @@
 SmartAPI Changelog
 
 Features:
-- Copying of projects
+- Support for Importing/Exporting/Copying of projects
 - Access to asynchronous processes on the server
 - Access to main language variant of a project
 - Versioning for projects can be enabled/disabled

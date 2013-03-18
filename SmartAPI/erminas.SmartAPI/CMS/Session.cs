@@ -85,6 +85,8 @@ namespace erminas.SmartAPI.CMS
             LiveProject = 0
         }
 
+        public Groups Groups { get; private set; }
+
         /// <summary>
         /// Waits for an asynchronous process to finish.
         /// This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
@@ -158,6 +160,7 @@ namespace erminas.SmartAPI.CMS
 
         private Session()
         {
+            Groups = new Groups(this, Caching.Enabled);
             Projects = new NameIndexedRDList<Project.Project>(GetProjects, Caching.Enabled);
             DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers, Caching.Enabled);
             Users = new NameIndexedRDList<User>(GetUsers, Caching.Enabled);
