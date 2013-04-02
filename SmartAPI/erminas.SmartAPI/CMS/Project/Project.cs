@@ -134,9 +134,9 @@ namespace erminas.SmartAPI.CMS.Project
         [ScriptIgnore]
         public NameIndexedRDList<ContentClassFolder> ContentClassFolders { get; private set; }
         
-        public IProjectCopyJob CreateCopyJob(string newProjectName)
+        public IAsyncProjectCopyJob CreateCopyJob(string newProjectName)
         {
-            return new ProjectCopyJob(this, newProjectName);
+            return new AsyncProjectCopyJob(this, newProjectName);
         }
 
         /// <summary>

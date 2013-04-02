@@ -85,6 +85,11 @@ namespace erminas.SmartAPI.CMS
             LiveProject = 0
         }
 
+        public IProjectImportJob CreateProjectImportJob(string newProjectName, string importPath)
+        {
+            return new ProjectImportJob(this, newProjectName, importPath);
+        }
+
         public Groups Groups { get; private set; }
 
         /// <summary>
@@ -193,6 +198,8 @@ namespace erminas.SmartAPI.CMS
             _sessionKeyStr = sessionKey;
 
             InitConnection();
+            var sessionInfo = GetUserSessionInfoElement();
+            SelectedProjectGuid = sessionInfo.GetGuid("projectguid");
             SelectProject(projectGuid);
         }
 
@@ -688,20 +695,25 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
         private User GetCurrentUser()
         {
+            var userElement = GetUserSessionInfoElement();
+            
+            return new User(this, userElement.GetGuid()) {Name = userElement.GetName()};
+        }
+        
+        private XmlElement GetUserSessionInfoElement()
+        {
             const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
             string reply = ExecuteRql(SESSION_INFO.RQLFormat(_sessionKeyStr), IODataFormat.Plain);
 
             var doc = new XmlDocument();
             doc.LoadXml(reply);
-
-            var userElement = (XmlElement) doc.SelectSingleNode("/IODATA/USER");
-            return new User(this, userElement.GetGuid()) {Name = userElement.GetName()};
+            return (XmlElement)doc.SelectSingleNode("/IODATA/USER");
         }
 
         private List<DatabaseServer> GetDatabaseServers()
         {
-            const string LIST_DATABASE_SERVERS = @"<ADMINISTRATION><DATABASESERVERS action=""list""/></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS);
+            const string LIST_DATABASE_SERVERS = @"<ADMINISTRATION><DATABASESERVERS action=""list"" /></ADMINISTRATION>";
+            XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS, IODataFormat.SessionKeyAndLogonGuid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
             return (from XmlElement curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
         }

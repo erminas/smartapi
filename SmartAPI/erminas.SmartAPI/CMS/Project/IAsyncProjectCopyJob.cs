@@ -6,7 +6,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public interface IProjectCopyJob : IProjectJob
+    public interface IAsyncProjectCopyJob : IAsyncProjectJob
     {
         string DatabaseName { get; set; }
         DatabaseServer DatabaseServer { get; set; }
@@ -16,11 +16,11 @@ namespace erminas.SmartAPI.CMS.Project
         NewProjectType ProjectType { get; set; }
     }
 
-    internal sealed class ProjectCopyJob : AbstractProjectJob, IProjectCopyJob
+    internal sealed class AsyncProjectCopyJob : AbstractAsyncProjectJob, IAsyncProjectCopyJob
     {
         private readonly string _newProjectName;
 
-        internal ProjectCopyJob(Project sourceProject, string newProjectName) : base(sourceProject)
+        internal AsyncProjectCopyJob(Project sourceProject, string newProjectName) : base(sourceProject)
         {
             _newProjectName = newProjectName;
             DatabaseName = _newProjectName;

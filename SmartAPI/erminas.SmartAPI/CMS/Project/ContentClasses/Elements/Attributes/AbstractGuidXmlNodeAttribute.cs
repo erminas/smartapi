@@ -43,7 +43,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 try
                 {
                     return _value == null ? string.Empty : _value.Name;
-                } catch (Exception e)
+                } catch (Exception)
                 {
                     return string.Empty;
                 }

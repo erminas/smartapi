@@ -14,7 +14,7 @@ namespace erminas.SmartAPI.CMS.Project
         ImportAndReplaceExistingUsers = 2
     }
 
-    public interface IProjectImportJob : IProjectJob
+    public interface IProjectImportJob : IAsyncJob
     {
         NewProjectType ProjectType { get; set; }
         string ProjectName { get; }
@@ -28,11 +28,11 @@ namespace erminas.SmartAPI.CMS.Project
         bool IsImportingReleases { get; set; }
     }
 
-    internal class ProjectProjectImportJob : AbstractProjectJob,  IProjectImportJob
+    internal class ProjectImportJob : AbstractAsyncJob,  IProjectImportJob
     {
         private readonly string _newProjectName;
 
-        public ProjectProjectImportJob(Project project, string newProjectName, string importFolder) : base(project)
+        internal ProjectImportJob(Session session, string newProjectName, string importFolder) : base(session)
         {
             _newProjectName = newProjectName;
             ProjectType = NewProjectType.TestProject;
@@ -62,7 +62,7 @@ namespace erminas.SmartAPI.CMS.Project
         public override void RunSync(TimeSpan maxWait)
         {
             RunAsync();
-            Session.WaitForAsyncProcess(maxWait, process => process.Type==AsynchronousProcessType.XMLImport && Project.Equals(process.Project));
+            Session.WaitForAsyncProcess(maxWait, process => process.Type==AsynchronousProcessType.XMLImport);
         }
 
         public NewProjectType ProjectType { get; set; }
