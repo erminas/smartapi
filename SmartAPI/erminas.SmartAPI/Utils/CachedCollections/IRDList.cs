@@ -50,5 +50,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         /// Provided for convenience.
         /// </summary>
         void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod);
+
+        new IRDList<T> Refreshed();
     }
 }

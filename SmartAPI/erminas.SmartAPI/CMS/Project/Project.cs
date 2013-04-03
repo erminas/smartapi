@@ -78,6 +78,12 @@ namespace erminas.SmartAPI.CMS.Project
 
         #region UserAccessLevel enum
 
+        public Project Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         public enum UserAccessLevel
         {
             None = 0,
@@ -94,6 +100,7 @@ namespace erminas.SmartAPI.CMS.Project
         private readonly Pages.Pages _pages;
         private LanguageVariant _currentLanguageVariant;
         private ProjectLockLevel _locklevel;
+        private bool _isLockedBySystem;
 
         internal Project(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
@@ -125,6 +132,12 @@ namespace erminas.SmartAPI.CMS.Project
             get { return Folders.Where(x => x.IsAssetManagerFolder).ToList(); }
         }
 
+
+        public bool IsLockedBySystem
+        {
+            get { return LazyLoad(ref _isLockedBySystem); }
+        }
+
         [ScriptIgnore]
         public Categories Categories { get; private set; }
 
@@ -134,9 +147,9 @@ namespace erminas.SmartAPI.CMS.Project
         [ScriptIgnore]
         public NameIndexedRDList<ContentClassFolder> ContentClassFolders { get; private set; }
         
-        public IAsyncProjectCopyJob CreateCopyJob(string newProjectName)
+        public IProjectCopyJob CreateCopyJob(string newProjectName)
         {
-            return new AsyncProjectCopyJob(this, newProjectName);
+            return new ProjectCopyJob(this, newProjectName);
         }
 
         /// <summary>
@@ -470,6 +483,7 @@ namespace erminas.SmartAPI.CMS.Project
         private void LoadXml()
         {
             InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));
+            InitIfPresent(ref _isLockedBySystem, "lockedbysystem", BoolConvert);
         }
 
         #region RetrievalFunctions

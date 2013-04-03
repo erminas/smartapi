@@ -56,7 +56,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return List.First(x => x.Name == name);
         }
 
-        public new RDList<T> Refreshed()
+        public new IRDList<T> Refreshed()
         {
             Refresh();
             return this;

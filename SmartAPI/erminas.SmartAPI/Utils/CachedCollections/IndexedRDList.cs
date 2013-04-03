@@ -20,7 +20,11 @@ using erminas.SmartAPI.CMS;
 
 namespace erminas.SmartAPI.Utils.CachedCollections
 {
-    public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
+    public interface IIndexedRDList<in TK, T> : IIndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
+    {
+    }
+
+    public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IIndexedRDList<TK, T> where T : class, IRedDotObject
     {
         public IndexedRDList(Func<List<T>> retrieveFunc, Func<T, TK> indexFunc, Caching caching)
             : base(retrieveFunc, indexFunc, caching)
@@ -32,6 +36,12 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         }
 
         public new IndexedRDList<TK, T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
+        IRDList<T> IRDList<T>.Refreshed()
         {
             Refresh();
             return this;

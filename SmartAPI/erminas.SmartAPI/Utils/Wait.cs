@@ -29,7 +29,11 @@ namespace erminas.SmartAPI.Utils
             var lastTry = DateTime.Now;
             while (!(isSuccess = pred()) && !tt.HasTimedOut)
             {
-                Thread.Sleep(retry - (DateTime.Now - lastTry));
+                TimeSpan timeSpan = retry - (DateTime.Now - lastTry);
+                if (retry.TotalMilliseconds > 0)
+                {
+                    Thread.Sleep(timeSpan);
+                }
                 lastTry = DateTime.Now;
             }
             if (!isSuccess)

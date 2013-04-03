@@ -55,7 +55,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value = value; }
         }
 
-        public Locale Locale
+        public ISystemLocale Locale
         {
             get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
             set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }

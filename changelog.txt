@@ -6,12 +6,15 @@ Features:
 - Access to main language variant of a project
 - Access to groups and project/group assignments
 - Versioning for projects can be enabled/disabled
+- Support for changing most of the properties of users
+- Support for deleting users
 
 Bugfixes:
 - Login with someone who was last logged in to a no longer existing project no longer throws an exception
 - Page elements referencing files in subfolders no longer throw an exception on access to the file
 - Creating a Session object for an existing session on server versions before 10.0 no longer creates a new session key, 
   if the project isn't switched
+- The standard language gets determined correctly
 
 2013-03-04: Version 0.9.4.0
 ---------------------------

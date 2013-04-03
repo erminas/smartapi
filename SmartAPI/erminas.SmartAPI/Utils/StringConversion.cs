@@ -16,13 +16,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.CMS.Administration.Language;
 using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.Utils
 {
     public static class StringConversion
     {
+        public static T ToEnum<T>(this string value) where T : struct, IConvertible
+        {
+            return (T)Enum.Parse(typeof (T), value);
+        }
+
+        public static string SecureRQLFormat(this string value, params object[] args)
+        {
+            IEnumerable<object> newArgs = from x in args select SecureConvertRQL(x);
+            return string.Format(value, newArgs.ToArray());
+        }
+
+        private static object SecureConvertRQL(object o)
+        {
+            var s = o as string;
+            return s != null ? SecurityElement.Escape(s) : ConvertRQL(o);
+        }
+
         public static string RQLFormat(this string value, params object[] args)
         {
             IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
@@ -70,6 +89,12 @@ namespace erminas.SmartAPI.Utils
             if (languageVariant != null)
             {
                 return languageVariant.Language;
+            }
+
+            var locale = o as Locale;
+            if (locale != null)
+            {
+                return locale.LCID;
             }
 
             var variants = o as IEnumerable<LanguageVariant>;

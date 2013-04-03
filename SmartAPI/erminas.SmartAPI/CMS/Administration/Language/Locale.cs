@@ -22,32 +22,88 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Administration.Language
 {
-    public class Locale : ISessionObject
+    public interface ISystemLocale : ISessionObject
     {
-        public readonly string Country;
-        public readonly string Id;
-        public readonly bool IsStandardLanguage;
-        public readonly int LCID;
-        public readonly string Language;
-        public readonly string RFCLanguageId;
-        private readonly Session _session;
-
-        public Locale(Session session, XmlElement xmlElement)
-        {
-            _session = session;
-            Id = xmlElement.GetAttributeValue("id");
-            Country = xmlElement.GetAttributeValue("country");
-            Language = xmlElement.GetAttributeValue("language");
-            IsStandardLanguage = xmlElement.GetAttributeValue("id") == "1";
-            LCID = int.Parse(xmlElement.GetAttributeValue("lcid"));
-            RFCLanguageId = xmlElement.GetAttributeValue("rfclanguageid");
-            DateTimeFormats = new IndexedCachedList<int, DateTimeFormat>(GetFormats, x => x.TypeId, Caching.Enabled);
-        }
+        string Country { get; }
 
         /// <summary>
         ///     All Date/Time/DateTime formats of this locale, indexed by their format type id. This list is cached by default.
         /// </summary>
-        public IndexedCachedList<int, DateTimeFormat> DateTimeFormats { get; private set; }
+        IIndexedCachedList<int, DateTimeFormat> DateTimeFormats { get; }
+
+        bool Equals(ISystemLocale other);
+        bool IsStandardLanguage { get; }
+        int LCID { get; }
+        string Language { get; }
+        string LanguageAbbreviation { get; }
+        string RFCLanguageId { get; }
+    }
+
+    public interface IDialogLocale : ISessionObject
+    {
+        string Country { get; }
+
+        /// <summary>
+        ///     All Date/Time/DateTime formats of this locale, indexed by their format type id. This list is cached by default.
+        /// </summary>
+        IIndexedCachedList<int, DateTimeFormat> DateTimeFormats { get; }
+
+        bool Equals(IDialogLocale other);
+
+        bool IsStandardLanguage { get; }
+        int LCID { get; }
+        string Language { get; }
+        string LanguageAbbreviation { get; }
+        string RFCLanguageId { get; }
+    }
+
+    internal class SystemLocale : Locale, ISystemLocale
+    {
+        internal SystemLocale(Session session, XmlElement xmlElement) : base(session, xmlElement)
+        {
+        }
+
+        public bool Equals(ISystemLocale other)
+        {
+            return other.LCID == LCID;
+        }
+    }
+
+    internal class DialogLocale : Locale, IDialogLocale
+    {
+        internal DialogLocale(Session session, XmlElement xmlElement)
+            : base(session, xmlElement)
+        {
+        }
+
+        public bool Equals(IDialogLocale other)
+        {
+            return other.LCID == LCID;
+        }
+    }
+
+    internal abstract class Locale
+    {
+        private readonly Session _session;
+
+        protected Locale(Session session, XmlElement xmlElement)
+        {
+            _session = session;
+            LanguageAbbreviation = xmlElement.GetAttributeValue("id");
+            Country = xmlElement.GetAttributeValue("country");
+            Language = xmlElement.GetAttributeValue("language");
+            IsStandardLanguage = xmlElement.GetBoolAttributeValue("standardlanguage").GetValueOrDefault();
+            LCID = xmlElement.GetIntAttributeValue("lcid").GetValueOrDefault();
+            RFCLanguageId = xmlElement.GetAttributeValue("rfclanguageid");
+            DateTimeFormats = new IndexedCachedList<int, DateTimeFormat>(GetFormats, x => x.TypeId, Caching.Enabled);
+        }
+
+        public string Country { get; private set; }
+
+        /// <summary>
+        ///     All Date/Time/DateTime formats of this locale, indexed by their format type id. This list is cached by default.
+        /// </summary>
+        public IIndexedCachedList<int, DateTimeFormat> DateTimeFormats { get; private set; }
 
         public override bool Equals(object obj)
         {
@@ -66,10 +122,21 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             return Equals((Locale) obj);
         }
 
+        public bool Equals(Locale other)
+        {
+            return string.Equals(LCID, other.LCID);
+        }
+
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
+            return LanguageAbbreviation.GetHashCode();
         }
+
+        public bool IsStandardLanguage { get; private set; }
+        public int LCID { get; private set; }
+        public string Language { get; private set; }
+        public string LanguageAbbreviation { get; private set; }
+        public string RFCLanguageId { get; private set; }
 
         public Session Session
         {
@@ -79,11 +146,6 @@ namespace erminas.SmartAPI.CMS.Administration.Language
         public override string ToString()
         {
             return Country + " (" + Language + ")";
-        }
-
-        private bool Equals(Locale other)
-        {
-            return string.Equals(Id, other.Id);
         }
 
         private List<DateTimeFormat> GetFormats()
@@ -110,7 +172,8 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             const string LOAD_TIME_FORMATS =
                 @"<TEMPLATE><ELEMENT action=""load"" ><{0}FORMATS action=""list"" lcid=""{1}""/></ELEMENT></TEMPLATE>";
             string formatTypeString = types.ToString().ToUpper();
-            XmlDocument result = _session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID), Session.IODataFormat.SessionKeyAndLogonGuid);
+            XmlDocument result = _session.ExecuteRQL(string.Format(LOAD_TIME_FORMATS, formatTypeString, LCID),
+                                                     Session.IODataFormat.SessionKeyAndLogonGuid);
 
             var timeformats = result.GetElementsByTagName(formatTypeString + "FORMATS")[0] as XmlElement;
             if (timeformats == null)

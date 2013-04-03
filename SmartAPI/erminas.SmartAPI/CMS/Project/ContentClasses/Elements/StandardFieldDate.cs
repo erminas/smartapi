@@ -50,7 +50,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value == null; }
         }
 
-        public Locale Locale
+        public ISystemLocale Locale
         {
             get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
             set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }

@@ -166,7 +166,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return o is LocaleXmlNodeAttribute;
         }
 
-        public Locale Value
+        public ISystemLocale Value
         {
             get
             {

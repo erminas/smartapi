@@ -6,7 +6,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public interface IAsyncProjectCopyJob : IAsyncProjectJob
+    public interface IProjectCopyJob : IAsyncProjectJob
     {
         string DatabaseName { get; set; }
         DatabaseServer DatabaseServer { get; set; }
@@ -16,11 +16,11 @@ namespace erminas.SmartAPI.CMS.Project
         NewProjectType ProjectType { get; set; }
     }
 
-    internal sealed class AsyncProjectCopyJob : AbstractAsyncProjectJob, IAsyncProjectCopyJob
+    internal sealed class ProjectCopyJob : AbstractAsyncProjectJob, IProjectCopyJob
     {
         private readonly string _newProjectName;
 
-        internal AsyncProjectCopyJob(Project sourceProject, string newProjectName) : base(sourceProject)
+        internal ProjectCopyJob(Project sourceProject, string newProjectName) : base(sourceProject)
         {
             _newProjectName = newProjectName;
             DatabaseName = _newProjectName;
@@ -67,7 +67,13 @@ namespace erminas.SmartAPI.CMS.Project
         public override void RunSync(TimeSpan maxWait)
         {
             RunAsync();
-            Session.WaitForAsyncProcess(maxWait, p => p.Type == AsynchronousProcessType.CopyProject && Project.Equals(p.Project));
+            var retryEverySecond = new TimeSpan(0,0,1);
+            Session.Projects.WaitFor(list =>
+                {
+                    Project project;
+                    return list.Refreshed().TryGetByName(NewProjectName, out project) &&
+                           !project.Refreshed().IsLockedBySystem;
+                }, maxWait, retryEverySecond);
         }
     }
 }

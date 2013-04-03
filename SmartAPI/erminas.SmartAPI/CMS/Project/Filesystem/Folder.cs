@@ -171,10 +171,11 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         public void DeleteFiles(IEnumerable<string> filenames, bool forceDelete)
         {
             // Add 1..n file update Strings in UPDATE_FILES_IN_FOLDER string and execute RQL-Query
+            string fileDeletionTemplate = forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED;
             List<string> filesToDelete =
                 filenames.Select(
                     filename =>
-                    string.Format(forceDelete ? FORCE_FILE_TO_BE_DELETED : FILE_TO_DELETE_IF_UNUSED, filename)).ToList();
+                    string.Format(fileDeletionTemplate, filename)).ToList();
 
             XmlDocument xmlDoc =
                 Project.ExecuteRQL(string.Format(DELETE_FILES, Guid.ToRQLString(),
@@ -193,7 +194,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <param name="operator"> Opreator e.g. "le" (less equal), "ge" (greater equal), "lt"(less than), "gt" (greater than) or "eq" (equal) </param>
         /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
         /// <returns> </returns>
-        [VersionIsLessThan(9, VersionName = "Version 9")]
+        [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
         public IEnumerable<File> GetFilesByAttributeComparison(ComparisonFileAttribute attribute, ComparisonOperator @operator,
                                                         int value)
         {

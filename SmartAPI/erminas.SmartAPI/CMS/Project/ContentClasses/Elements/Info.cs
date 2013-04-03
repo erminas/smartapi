@@ -78,7 +78,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue("eltuserfc3066", value); }
         }
 
-        public Locale Locale
+        public ISystemLocale Locale
         {
             get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
             set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }

@@ -60,6 +60,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CMS\Administration\AsynchronousProcess.cs" />
+    <Compile Include="CMS\Administration\ServerManagementContext.cs" />
+    <Compile Include="CMS\Administration\IUsers.cs" />
     <Compile Include="CMS\Groups.cs" />
     <Compile Include="CMS\ISessionObject.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClasses.cs" />
@@ -111,7 +113,7 @@
     <Compile Include="CMS\Project\Pages\Elements\Transfer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\PreassignedWorkflow.cs" />
     <Compile Include="CMS\Project\PartialRedDotProjectObject.cs" />
-    <Compile Include="CMS\Project\IAsyncProjectCopyJob.cs" />
+    <Compile Include="CMS\Project\IProjectCopyJob.cs" />
     <Compile Include="CMS\Project\IProjectExportJob.cs" />
     <Compile Include="CMS\Project\RecycleBin.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\TargetContainerPreassignment.cs" />
@@ -242,7 +244,7 @@
     <Compile Include="CMS\Project\ContentClasses\ContentClass.cs" />
     <Compile Include="CMS\Project\Filesystem\ContentClassFolder.cs" />
     <Compile Include="CMS\Project\ContentClasses\TemplateVariant.cs" />
-    <Compile Include="CMS\Administration\User.cs" />
+    <Compile Include="CMS\Administration\IUser.cs" />
     <Compile Include="CMS\Project\Workflows\Workflow.cs" />
     <Compile Include="CMS\Project\Workflows\WorkflowAction.cs" />
     <Compile Include="Exceptions\SmartAPIException.cs" />
