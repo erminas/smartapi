@@ -23,13 +23,23 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class PreassignedWorkflow : IWorkflow
+    public interface IPreassignedWorkflow : IWorkflow
     {
-        public readonly IContentClassElement ElementPreassignedTo;
-        private readonly Workflow _workflow;
-        private ReadOnlyCollection<LanguageVariant> _languageVariants;
+        IWorkflowAssignable ElementPreassignedTo { get; }
+        IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo { get; }
+        void DisconnectFromLinkCompletely();
+        void DisconnectFromLinkForLanguages(IEnumerable<ILanguageVariant> languageVariants);
+        void DisconnectFromLinkForLanguages(params string[] languageVariants);
+        void EnsureInitialization();
+    }
 
-        internal PreassignedWorkflow(IContentClassElement elementPreassignedTo, Workflow workflow)
+    internal class PreassignedWorkflow : IPreassignedWorkflow
+    {
+        public IWorkflowAssignable ElementPreassignedTo { get; private set; }
+        private readonly Workflow _workflow;
+        private ReadOnlyCollection<ILanguageVariant> _languageVariants;
+
+        internal PreassignedWorkflow(IWorkflowAssignable elementPreassignedTo, Workflow workflow)
         {
             ElementPreassignedTo = elementPreassignedTo;
             _workflow = workflow;
@@ -45,17 +55,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _workflow.CanBeInherited; }
         }
 
-        public void DisconnectWorkflowFromLinkCompletely()
+        public void DisconnectFromLinkCompletely()
         {
-            DisconnectWorkflowFromLinkForLanguages(LanguageVariants);
+            DisconnectFromLinkForLanguages(LanguageVariantsPreassignedTo);
         }
 
-        public void DisconnectWorkflowFromLinkForLanguages(IEnumerable<LanguageVariant> languageVariants)
+        public void DisconnectFromLinkForLanguages(IEnumerable<ILanguageVariant> languageVariants)
         {
             const string UNLINK_WORKFLOW =
                 @"<WORKFLOW sessionkey=""{0}""><LINK action=""unlink"" guid=""{1}""><WORKFLOW guid=""{2}""><LANGUAGEVARIANTS>{3}</LANGUAGEVARIANTS></WORKFLOW></LINK></WORKFLOW>";
 
-            Session session = ElementPreassignedTo.ContentClass.Project.Session;
+            Session session = ElementPreassignedTo.Session;
 
             string query = UNLINK_WORKFLOW.RQLFormat(session.SessionKey, ElementPreassignedTo, _workflow,
                                                      languageVariants);
@@ -64,13 +74,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             session.ExecuteRql(query, Session.IODataFormat.LogonGuidOnly);
         }
 
-        public void DisconnectWorkflowFromLinkForLanguages(params string[] languageVariants)
+        public void DisconnectFromLinkForLanguages(params string[] languageVariants)
         {
-            Project project = ElementPreassignedTo.ContentClass.Project;
+            Project project = ElementPreassignedTo.Project;
 
-            IEnumerable<LanguageVariant> languages =
+            IEnumerable<ILanguageVariant> languages =
                 languageVariants.Select(language => project.LanguageVariants[language]);
-            DisconnectWorkflowFromLinkForLanguages(languages);
+            DisconnectFromLinkForLanguages(languages);
         }
 
         public void EnsureInitialization()
@@ -89,6 +99,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             return _workflow.GetHashCode();
         }
 
+        public void Delete()
+        {
+            _workflow.Delete();
+        }
+
         public Guid Guid
         {
             get { return _workflow.Guid; }
@@ -105,7 +120,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _workflow.IsStructureWorkflow; }
         }
 
-        public ReadOnlyCollection<LanguageVariant> LanguageVariants
+        public IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo
         {
             get
             {
@@ -146,12 +161,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _workflow.XmlElement = value; }
         }
 
-        private ReadOnlyCollection<LanguageVariant> GetPreAssignmentLanguageVariants()
+        private ReadOnlyCollection<ILanguageVariant> GetPreAssignmentLanguageVariants()
         {
             const string LOAD_LANGUAGES =
                 @"<WORKFLOW guid=""{0}""><LANGUAGEVARIANTS action=""workflowexisting"" linkguid=""{1}""/></WORKFLOW>";
 
-            Project project = ElementPreassignedTo.ContentClass.Project;
+            Project project = ElementPreassignedTo.Project;
 
             var xmlDoc = project.ExecuteRQL(LOAD_LANGUAGES.RQLFormat(_workflow, ElementPreassignedTo));
             var languageVariants = xmlDoc.GetElementsByTagName("LANGUAGEVARIANT");

@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Browse)]
     public class Browse : AbstractLinkElement
     {
-        public Browse(Project project, Guid guid, LanguageVariant languageVariant)
+        public Browse(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

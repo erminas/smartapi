@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.AnchorAsImage)]
     public class AnchorAsImage : AbstractLinkElement
     {
-        public AnchorAsImage(Project project, Guid guid, LanguageVariant languageVariant)
+        public AnchorAsImage(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

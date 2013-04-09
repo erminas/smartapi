@@ -23,7 +23,36 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
-    public class Folder : PartialRedDotProjectObject
+    public interface IFolder : IPartialRedDotObject, IProjectObject
+    {
+        ICachedList<File> AllFiles { get; }
+        bool IsAssetManagerFolder { get; }
+        bool IsSubFolder { get; }
+        IFolder LinkedFolder { get; }
+        IFolder ParentFolder { get; }
+        IEnumerable<IFolder> Subfolders { get; }
+        void DeleteFiles(IEnumerable<string> filenames, bool forceDelete);
+
+        /// <summary>
+        ///     Returns List of files that match a predicate on an attribute
+        /// </summary>
+        /// <param name="attribute"> Attribute which values get checked in the predicate </param>
+        /// <param name="operator"> Opreator e.g. "le" (less equal), "ge" (greater equal), "lt"(less than), "gt" (greater than) or "eq" (equal) </param>
+        /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
+        /// <returns> </returns>
+        [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
+        IEnumerable<File> GetFilesByAttributeComparison(Folder.ComparisonFileAttribute attribute, Folder.ComparisonOperator @operator,
+                                                                        int value);
+
+        IEnumerable<File> GetFilesByAuthor(Guid authorGuid);
+        IEnumerable<File> GetFilesByLastModifier(Guid lastModifierGuid);
+        List<File> GetFilesByNamePattern(string searchText);
+        List<File> GetSubListOfFiles(int startCount, int fileCount);
+        void SaveFiles(IEnumerable<Folder.FileSource> sources);
+        void UpdateFiles(IEnumerable<Folder.FileSource> files);
+    }
+
+    public class Folder : PartialRedDotProjectObject, IFolder
     {
         #region ComparisonFileAttribute enum
 
@@ -125,14 +154,14 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         private bool _isAssetManagerFolder;
         private bool? _isSubFolder;
         private Folder _linkedFolder;
-        private Folder _parentFolder;
-        private List<Folder> _subfolders;
+        private IFolder _parentFolder;
+        private List<IFolder> _subfolders;
 
         internal Folder(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             var subfolders = XmlElement.GetElementsByTagName("SUBFOLDER");
             _isSubFolder = false;
-            _subfolders = (from XmlElement curFolder in subfolders select new Folder(Project, this, curFolder)).ToList();
+            _subfolders = (from XmlElement curFolder in subfolders select (IFolder)new Folder(Project, this, curFolder)).ToList();
 
             Init();
         }
@@ -244,12 +273,12 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             }
         }
 
-        public Folder LinkedFolder
+        public IFolder LinkedFolder
         {
             get { return LazyLoad(ref _linkedFolder); }
         }
 
-        public Folder ParentFolder
+        public IFolder ParentFolder
         {
             get
             {
@@ -274,7 +303,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             }
         }
 
-        public ICollection<Folder> Subfolders
+        public IEnumerable<IFolder> Subfolders
         {
             get
             {
@@ -343,10 +372,10 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                 return;
             }
 
-            Folder folder;
+            IFolder folder;
             if (Project.Folders.TryGetByGuid(Guid, out folder))
             {
-                _subfolders = folder._subfolders;
+                _subfolders = folder.Subfolders.ToList();
                 _isSubFolder = false;
             }
             else
@@ -357,7 +386,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                     if (subfolder != null)
                     {
                         _parentFolder = curFolder;
-                        _subfolders = new List<Folder>();
+                        _subfolders = new List<IFolder>();
                         _isSubFolder = true;
                         return;
                     }

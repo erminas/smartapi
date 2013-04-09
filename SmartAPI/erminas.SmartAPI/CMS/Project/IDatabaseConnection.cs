@@ -20,16 +20,34 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
+    public interface IDatabaseConnection : IPartialRedDotObject, IProjectObject
+    {
+        /// <summary>
+        ///     Name of the database used in the connection
+        /// </summary>
+        string DatabaseName { get; }
+
+        /// <summary>
+        ///     Database server used in the connection.
+        /// </summary>
+        DatabaseServer DatabaseServer { get; }
+
+        /// <summary>
+        ///     Description of the database connection
+        /// </summary>
+        string Description { get; }
+    }
+
     /// <summary>
     ///     A database connection entry in the RedDot server.
     /// </summary>
-    public class DatabaseConnection : PartialRedDotProjectObject
+    internal class DatabaseConnection : PartialRedDotProjectObject, IDatabaseConnection
     {
         private string _databaseName;
         private DatabaseServer _databaseServer;
         private string _description;
 
-        public DatabaseConnection(Project project, Guid guid) : base(project, guid)
+        internal DatabaseConnection(Project project, Guid guid) : base(project, guid)
         {
         }
 

@@ -49,16 +49,16 @@ namespace erminas.SmartAPI.CMS.Project
             get { return !Pages().Any(); }
         }
 
-        public IEnumerable<Page> Pages()
+        public IEnumerable<IPage> Pages()
         {
             List<ResultGroup> searchForPagesExtended = CreatePageSearchForRecycleBin().Execute();
             return searchForPagesExtended[0].Results.Select(pageResult => pageResult.Page);
         }
 
-        public IEnumerable<Page> PagesOfLanguageVariant(string language)
+        public IEnumerable<IPage> PagesOfLanguageVariant(string language)
         {
             ExtendedPageSearch search = CreatePageSearchForRecycleBin();
-            search.LanguageVariant = _project.LanguageVariants[language];
+            search.ILanguageVariant = _project.LanguageVariants[language];
 
             IEnumerable<Result> results = search.Execute()[0].Results;
             return results.Select(pageResult => pageResult.Page);

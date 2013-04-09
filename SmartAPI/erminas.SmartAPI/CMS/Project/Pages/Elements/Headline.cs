@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Headline)]
     public class Headline : AbstractValueElement<string>
     {
-        public Headline(Project project, Guid guid, LanguageVariant languageVariant)
+        public Headline(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

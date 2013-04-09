@@ -30,9 +30,9 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
         #endregion
 
-        public readonly Workflow Workflow;
+        public readonly IWorkflow Workflow;
 
-        internal Note(Workflow workflow, XmlElement xmlElement) : base(workflow.Project, xmlElement)
+        internal Note(IWorkflow workflow, XmlElement xmlElement) : base(workflow.Project, xmlElement)
         {
             Workflow = workflow;
             LoadXml();

@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             set
             {
                 XmlElement xmlNode = _parent.XmlElement;
-                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.LanguageVariant.Language);
+                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ILanguageVariant.Abbreviation);
                 xmlNode.SetAttributeValue("eltelementguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.Guid.ToRQLString());
                 xmlNode.SetAttributeValue("elttemplateguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Guid.ToRQLString());
                 xmlNode.SetAttributeValue("eltprojectguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Project.Guid.ToRQLString());
@@ -79,7 +79,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                     _parent.ContentClass.Project.Session.Projects[otherContentClassElement.ContentClass.Project.Name];
                 ContentClass cc = project.ContentClasses.GetByName(otherContentClassElement.ContentClass.Name);
                 Value =
-                    cc.Elements[otherContentClassElement.LanguageVariant.Language].GetByName(
+                    cc.Elements[otherContentClassElement.ILanguageVariant.Abbreviation].GetByName(
                         otherContentClassElement.Name);
             } catch (Exception e)
             {

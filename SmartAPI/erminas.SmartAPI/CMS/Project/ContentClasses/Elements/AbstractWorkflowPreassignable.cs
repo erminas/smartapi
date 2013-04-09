@@ -19,69 +19,71 @@ using erminas.SmartAPI.CMS.Project.Workflows;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public abstract class AbstractWorkflowPreassignable : ContentClassElement
+    public abstract class AbstractWorkflowAssignments : ContentClassElement, IWorkflowAssignments
     {
-        private readonly WorkflowPreassignable _workflowPreassignable;
-
-        protected AbstractWorkflowPreassignable(ContentClass contentClass, XmlElement xmlElement)
-            : base(contentClass, xmlElement)
+        private readonly WorkflowAssignments _workflowAssignments;
+        public void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants)
         {
-            _workflowPreassignable = new WorkflowPreassignable(this);
+            _workflowAssignments.CreateAndConnectContentWorkflow(workflowName, languageVariants);
         }
 
-        public void CreateAndPreassignContentWorkflow(string workflowName, IEnumerable<LanguageVariant> languageVariants)
+        public void CreateAndConnectContentWorkflow(string workflowName, IEnumerable<ILanguageVariant> languageVariants)
         {
-            _workflowPreassignable.CreateAndPreassignContentWorkflow(workflowName, languageVariants);
+            _workflowAssignments.CreateAndConnectContentWorkflow(workflowName, languageVariants);
         }
 
-        public void CreateAndPreassignContentWorkflow(string workflowName, params string[] languageVariants)
+        public void CreateAndConnectStructuralworkflow(string workflowName)
         {
-            _workflowPreassignable.CreateAndPreassignContentWorkflow(workflowName, languageVariants);
-        }
-
-        public void CreateAndPreassignStructuralworkflow(string workflowName)
-        {
-            _workflowPreassignable.CreateAndPreassignStructuralworkflow(workflowName);
+            _workflowAssignments.CreateAndConnectStructuralworkflow(workflowName);
         }
 
         public void DisconnectAllWorkflows()
         {
-            _workflowPreassignable.DisconnectAllWorkflows();
+            _workflowAssignments.DisconnectAllWorkflows();
         }
 
-        public PreassignedWorkflow GetPreassignedContentWorkflowFor(string languageVariantId)
+        public IPreassignedWorkflow GetContentWorkflowFor(string languageVariantId)
         {
-            return _workflowPreassignable.GetPreassignedContentWorkflowFor(languageVariantId);
+            return _workflowAssignments.GetContentWorkflowFor(languageVariantId);
         }
 
-        public PreassignedWorkflow GetPreassignedContentWorkflowFor(LanguageVariant languageVariant)
+        public IPreassignedWorkflow GetContentWorkflowFor(ILanguageVariant languageVariant)
         {
-            return _workflowPreassignable.GetPreassignedContentWorkflowFor(languageVariant);
+            return _workflowAssignments.GetContentWorkflowFor(languageVariant);
         }
 
-        public PreassignedWorkflow GetPreassignedContentWorkflowForCurrentLanguageVariant()
+        public IPreassignedWorkflow GetContentWorkflowForCurrentLanguageVariant()
         {
-            return _workflowPreassignable.GetPreassignedContentWorkflowForCurrentLanguageVariant();
+            return _workflowAssignments.GetContentWorkflowForCurrentLanguageVariant();
         }
 
-        public void PreassignContentWorkflow(Workflow workflow, IEnumerable<LanguageVariant> languageVariants)
+        public void InvalidateCache()
         {
-            _workflowPreassignable.PreassignContentWorkflow(workflow, languageVariants);
+            _workflowAssignments.InvalidateCache();
         }
 
-        public void PreassignContentWorkflow(Workflow workflow, params string[] languageVariantIds)
+        public void SetContentWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants)
         {
-            _workflowPreassignable.PreassignContentWorkflow(workflow, languageVariantIds);
+            _workflowAssignments.SetContentWorkflow(workflow, languageVariants);
         }
 
-        public void PreassignStructuralWorkflow(Workflow workflow)
+        public void SetContentWorkflow(IWorkflow workflow, params string[] languageVariantIds)
         {
-            _workflowPreassignable.PreassignStructuralWorkflow(workflow);
+            _workflowAssignments.SetContentWorkflow(workflow, languageVariantIds);
         }
 
-        public PreassignedWorkflow PreassignedStructuralWorkflow
+        public IPreassignedWorkflow StructuralWorkflow
         {
-            get { return _workflowPreassignable.PreassignedStructuralWorkflow; }
+            get { return _workflowAssignments.StructuralWorkflow; }
+            set { _workflowAssignments.StructuralWorkflow = value; }
         }
+
+        protected AbstractWorkflowAssignments(ContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
+        {
+            _workflowAssignments = new WorkflowAssignments(this);
+        }
+
+        
     }
 }

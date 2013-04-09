@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     {
         private string _description;
 
-        protected Text(Project project, Guid guid, LanguageVariant languageVariant)
+        protected Text(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
@@ -62,7 +62,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             LoadXml();
 
-            using (new LanguageContext(LanguageVariant))
+            using (new LanguageContext(ILanguageVariant))
             {
                 const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
                 string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this),

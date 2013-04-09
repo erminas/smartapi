@@ -17,11 +17,19 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public class LanguageVariant : RedDotProjectObject
+    public interface ILanguageVariant : IRedDotObject, IProjectObject
+    {
+        bool IsCurrentLanguageVariant { get; }
+        bool IsMainLanguage { get; }
+        string Abbreviation { get; }
+        void Select();
+    }
+
+    internal class LanguageVariant : RedDotProjectObject, ILanguageVariant
     {
         private bool _isCurrentLanguageVariant;
         private bool _isMainLanguage;
-        private string _language;
+        private string _abbreviation;
 
         internal LanguageVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -39,20 +47,20 @@ namespace erminas.SmartAPI.CMS.Project
             get { return _isMainLanguage; }
         }
 
-        public string Language
+        public string Abbreviation
         {
-            get { return _language; }
+            get { return _abbreviation; }
         }
 
         public void Select()
         {
-            Project.SelectLanguageVariant(this);
+            Project.LanguageVariants.Current = this;
         }
 
         private void LoadXml()
         {
             InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
-            InitIfPresent(ref _language, "language", x => x);
+            InitIfPresent(ref _abbreviation, "language", x => x);
             InitIfPresent(ref _isMainLanguage, "ismainlanguage", BoolConvert);
         }
     }

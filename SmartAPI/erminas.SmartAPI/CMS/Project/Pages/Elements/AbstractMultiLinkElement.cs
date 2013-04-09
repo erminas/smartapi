@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     public abstract class AbstractMultiLinkElement : AbstractLinkElement, IMultiLinkElement
     {
-        protected AbstractMultiLinkElement(Project project, Guid guid, LanguageVariant languageVariant)
+        protected AbstractMultiLinkElement(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

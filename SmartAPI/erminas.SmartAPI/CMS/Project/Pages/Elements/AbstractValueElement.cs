@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         protected T _value;
 
-        protected AbstractValueElement(Project project, Guid guid, LanguageVariant languageVariant)
+        protected AbstractValueElement(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
@@ -66,7 +66,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         protected void ExecuteCommit(string valueToSave)
         {
-            using (new LanguageContext(LanguageVariant))
+            using (new LanguageContext(ILanguageVariant))
             {
                 XmlDocument xmlDoc =
                     Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));

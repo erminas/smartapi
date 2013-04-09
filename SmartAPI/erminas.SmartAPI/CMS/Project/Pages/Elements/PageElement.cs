@@ -40,8 +40,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private static readonly Dictionary<ElementType, Type> TYPES = new Dictionary<ElementType, Type>();
 
         protected ElementType Type;
-        private LanguageVariant _languageVariant;
-        private Page _page;
+        private ILanguageVariant _languageVariant;
+        private IPage _page;
 
         static PageElement()
         {
@@ -62,9 +62,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
         }
 
-        protected PageElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid)
+        protected PageElement(Project project, Guid guid, ILanguageVariant languageVariant) : base(project, guid)
         {
-            LanguageVariant = languageVariant;
+            ILanguageVariant = languageVariant;
         }
 
         protected PageElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
@@ -99,7 +99,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         /// <param name="elementGuid"> Guid of the element </param>
         /// <param name="languageVariant">The language variant of the page element</param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static PageElement CreateElement(Project project, Guid elementGuid, LanguageVariant languageVariant)
+        public static PageElement CreateElement(Project project, Guid elementGuid, ILanguageVariant languageVariant)
         {
             using (new LanguageContext(languageVariant))
             {
@@ -128,13 +128,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             set { Type = value; }
         }
 
-        public LanguageVariant LanguageVariant
+        public ILanguageVariant ILanguageVariant
         {
             get { return _languageVariant; }
             private set { _languageVariant = value; }
         }
 
-        public Page Page
+        public IPage Page
         {
             get { return LazyLoad(ref _page); }
         }
@@ -165,7 +165,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         protected override XmlElement RetrieveWholeObject()
         {
-            using (new LanguageContext(LanguageVariant))
+            using (new LanguageContext(ILanguageVariant))
             {
                 return
                     (XmlElement)
@@ -178,7 +178,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             //language variant must be loaded before the page referenced by pageguid, because it is used in its c'tor
             EnsuredInit(ref _languageVariant, "languagevariantid", Project.LanguageVariants.Get);
-            EnsuredInit(ref _page, "pageguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
+            EnsuredInit(ref _page, "pageguid", x => new Page(Project, GuidConvert(x), ILanguageVariant));
         }
     }
 }

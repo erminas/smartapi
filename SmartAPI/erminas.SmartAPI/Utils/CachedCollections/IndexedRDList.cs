@@ -61,26 +61,26 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public T GetByGuid(Guid guid)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.First(x => x.Guid == guid);
         }
 
         public virtual T GetByName(string name)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.First(x => x.Name == name);
         }
 
         public bool TryGetByGuid(Guid guid, out T output)
         {
-            CheckList();
+            EnsureListIsLoaded();
             output = List.FirstOrDefault(x => x.Guid == guid);
             return output != null;
         }
 
         public virtual bool TryGetByName(string name, out T output)
         {
-            CheckList();
+            EnsureListIsLoaded();
             output = List.FirstOrDefault(x => x.Name == name);
             return output != null;
         }

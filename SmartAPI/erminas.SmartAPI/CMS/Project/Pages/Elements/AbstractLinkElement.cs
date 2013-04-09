@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     {
         private LinkType _linkType;
 
-        protected AbstractLinkElement(Project project, Guid guid, LanguageVariant languageVariant)
+        protected AbstractLinkElement(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
             ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
@@ -133,7 +133,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
                     let page =
                         (IPage)
-                        new Page(Project, curPage.GetGuid(), LanguageVariant)
+                        new Page(Project, curPage.GetGuid(), ILanguageVariant)
                             {
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault(),
                                 Headline = curPage.GetAttributeValue("headline")
@@ -149,7 +149,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             //theoretically through an anchor the language variant of the target could be changed, but this is also not considered in the SmartTree,
             //so we ignore it, to be consistent with the SmartTree.
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList();
+                    select (ILinkElement) CreateElement(Project, curLink.GetGuid(), ILanguageVariant)).ToList();
         }
 
         private void LoadXml()

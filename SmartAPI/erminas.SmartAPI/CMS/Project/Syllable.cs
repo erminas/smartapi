@@ -18,16 +18,22 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project
 {
+
     /// <summary>
     ///     Represents a prefix or a postfix.
     /// </summary>
-    public class Syllable : PartialRedDotProjectObject
+    public interface ISyllable : IPartialRedDotObject, IProjectObject
+    {
+    }
+
+    internal class Syllable : PartialRedDotProjectObject, ISyllable
     {
         internal Syllable(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        public Syllable(Project project, Guid guid) : base(project, guid)
+        internal Syllable(Project project, Guid guid)
+            : base(project, guid)
         {
         }
 
@@ -37,7 +43,7 @@ namespace erminas.SmartAPI.CMS.Project
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return Project.Syllables.GetByGuid(Guid).XmlElement;
+            return ((Syllable)Project.Syllables.GetByGuid(Guid)).XmlElement;
         }
     }
 }

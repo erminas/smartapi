@@ -21,20 +21,49 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
-    public class Keyword : PartialRedDotProjectObject
+    public interface IKeyword : IPartialRedDotObject, IProjectObject
     {
-        private Category _category;
+        ICategory Category { get; }
+        void Commit();
+
+        /// <summary>
+        ///     Delete the keyword. The operation will fail, if it is still actively used in connecting pages to containers/lists.
+        /// </summary>
+        /// <exception cref="SmartAPIException">Thrown, if the keyword couldn't be deleted</exception>
+        void Delete();
+
+        /// <summary>
+        ///     Delete the keyword, even if it is actively used in connecting pages to containers/lists.
+        ///     This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
+        /// </summary>
+        /// <exception cref="SmartAPIException">Thrown, if the keyword could not be deleted</exception>
+        void DeleteForcibly();
+
+        void Rename(string newKeywordName);
+    }
+
+    public static class KeywordFactory
+    {
+        public static IKeyword CreateFromGuid(Project project, Guid guid)
+        {
+            return new Keyword(project, guid);
+        }
+    }
+
+    internal class Keyword : PartialRedDotProjectObject, IKeyword
+    {
+        private ICategory _category;
 
         internal Keyword(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        public Keyword(Project project, Guid guid) : base(project, guid)
+        internal Keyword(Project project, Guid guid) : base(project, guid)
         {
         }
 
-        public Category Category
+        public ICategory Category
         {
             get { return LazyLoad(ref _category); }
             internal set { _category = value; }
@@ -57,10 +86,6 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             }
         }
 
-        /// <summary>
-        ///     Delete the keyword. The operation will fail, if it is still actively used in connecting pages to containers/lists.
-        /// </summary>
-        /// <exception cref="SmartAPIException">Thrown, if the keyword couldn't be deleted</exception>
         public void Delete()
         {
             const string DELETE_KEYWORD = @"<KEYWORD action=""delete"" guid=""{0}"" force=""0""/>";
@@ -84,11 +109,6 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             Category.Keywords.InvalidateCache();
         }
 
-        /// <summary>
-        ///     Delete the keyword, even if it is actively used in connecting pages to containers/lists.
-        ///     This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
-        /// </summary>
-        /// <exception cref="SmartAPIException">Thrown, if the keyword could not be deleted</exception>
         public void DeleteForcibly()
         {
             const string DELETE_KEYWORD = @"<KEYWORD action=""delete"" guid=""{0}"" force=""1"" password=""{1}"" />";

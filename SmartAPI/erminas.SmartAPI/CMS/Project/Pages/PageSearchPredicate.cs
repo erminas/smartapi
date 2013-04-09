@@ -101,9 +101,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     public class WorkflowFilter : AbstractPageSearchFilter
     {
         public readonly EqualityOperatorType Operator;
-        public readonly Workflow Workflow;
+        public readonly IWorkflow Workflow;
 
-        public WorkflowFilter(EqualityOperatorType @operator, Workflow workflow)
+        public WorkflowFilter(EqualityOperatorType @operator, IWorkflow workflow)
         {
             Operator = @operator;
             Workflow = workflow;

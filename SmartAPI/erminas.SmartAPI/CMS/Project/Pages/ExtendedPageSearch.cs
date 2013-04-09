@@ -99,7 +99,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public SortDirection GroupSortDirection { get; set; }
 
-        public LanguageVariant LanguageVariant { get; set; }
+        public ILanguageVariant ILanguageVariant { get; set; }
 
         public int MaxHits { get; set; }
 
@@ -117,7 +117,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return Project.Session; }
         }
 
-        public User User { get; set; }
+        public IUser User { get; set; }
 
         private static string GroupByTypeToString(GroupByType type)
         {
@@ -136,9 +136,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-        private LanguageVariant LanguageVariantOfSearchResults
+        private ILanguageVariant LanguageVariantOfSearchResults
         {
-            get { return LanguageVariant ?? _project.CurrentLanguageVariant; }
+            get { return ILanguageVariant ?? _project.LanguageVariants.Current; }
         }
 
         private static string OrderByTypeToString(OrderByType order)
@@ -174,9 +174,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 arguments += "groupdirection=\"" + SortDirectionToString(GroupSortDirection) + "\" ";
             }
 
-            if (LanguageVariant != null)
+            if (ILanguageVariant != null)
             {
-                arguments += "languagevariantid=\"" + LanguageVariant.Language + "\" ";
+                arguments += "languagevariantid=\"" + ILanguageVariant.Abbreviation + "\" ";
             }
 
             if (isCountOnly)
@@ -255,7 +255,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                         new Page(_project, curPage.GetGuid(), LanguageVariantOfSearchResults)
                             {
                                 Headline = curPage.GetAttributeValue("headline"),
-                                Status = ((Page.PageState) int.Parse(curPage.GetAttributeValue("status")))
+                                Status = ((PageState) int.Parse(curPage.GetAttributeValue("status")))
                             },
                         // ReSharper disable PossibleInvalidOperationException
                         creation.GetOADate().Value,

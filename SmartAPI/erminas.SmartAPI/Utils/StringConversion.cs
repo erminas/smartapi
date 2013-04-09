@@ -85,10 +85,10 @@ namespace erminas.SmartAPI.Utils
                 return session.SessionKey;
             }
 
-            var languageVariant = o as LanguageVariant;
+            var languageVariant = o as ILanguageVariant;
             if (languageVariant != null)
             {
-                return languageVariant.Language;
+                return languageVariant.Abbreviation;
             }
 
             var locale = o as Locale;
@@ -97,12 +97,12 @@ namespace erminas.SmartAPI.Utils
                 return locale.LCID;
             }
 
-            var variants = o as IEnumerable<LanguageVariant>;
+            var variants = o as IEnumerable<ILanguageVariant>;
             if (variants != null)
             {
                 const string SINGLE_LANGUAGE = @"<LANGUAGEVARIANT language=""{0}""/>";
                 string languages = variants.Aggregate("",
-                                                      (s, variant) => s + SINGLE_LANGUAGE.RQLFormat(variant.Language));
+                                                      (s, variant) => s + SINGLE_LANGUAGE.RQLFormat(variant.Abbreviation));
                 return languages;
             }
 

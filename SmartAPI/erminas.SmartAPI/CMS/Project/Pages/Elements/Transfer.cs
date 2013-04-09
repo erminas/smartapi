@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Transfer)]
     public class Transfer : PageElement
     {
-        public Transfer(Project project, Guid guid, LanguageVariant languageVariant)
+        public Transfer(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

@@ -64,7 +64,7 @@ namespace erminas.SmartAPI.CMS.Administration
             get { return _type; }
         }
 
-        public User User { get; private set; }
+        public IUser User { get; private set; }
 
         public Project.Project Project { get; private set; }
 

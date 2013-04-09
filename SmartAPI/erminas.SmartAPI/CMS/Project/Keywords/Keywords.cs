@@ -23,13 +23,20 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
+    public interface IKeywords : IRDList<IKeyword>, IProjectObject
+    {
+        IKeyword CreateOrGet(string keywordName);
+        void Delete(string keywordName);
+        void DeleteForcibly(string keywordName);
+    }
+
     /// <summary>
     ///     Encapsulates keyword management for a category.
     /// </summary>
     /// <remarks>
     ///     We don't subclass NameIndexedRDList, because renaming to existing names is allowed and could lead to duplicate keyword names.
     /// </remarks>
-    public class Keywords : RDList<Keyword>, IProjectObject
+    public class Keywords : RDList<IKeyword>, IKeywords
     {
         public readonly Category Category;
 
@@ -40,7 +47,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             RetrieveFunc = GetKeywords;
         }
 
-        public Keyword CreateOrGet(string keywordName)
+        public IKeyword CreateOrGet(string keywordName)
         {
             const string SAVE_KEYWORD = @"<CATEGORY guid=""{0}""><KEYWORD action=""save"" value=""{1}""/></CATEGORY>";
 
@@ -60,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
         public void Delete(string keywordName)
         {
-            Keyword keyword;
+            IKeyword keyword;
             if (!TryGetByName(keywordName, out keyword))
             {
                 return;
@@ -72,7 +79,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
         public void DeleteForcibly(string keywordName)
         {
-            Keyword keyword;
+            IKeyword keyword;
             if (!TryGetByName(keywordName, out keyword))
             {
                 return;
@@ -89,7 +96,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             get { return Project.Session; }
         }
 
-        private List<Keyword> GetKeywords()
+        private List<IKeyword> GetKeywords()
         {
             const string LIST_KEYWORDS =
                 @"<PROJECT><CATEGORY guid=""{0}""><KEYWORDS action=""load"" /></CATEGORY></PROJECT>";
@@ -101,7 +108,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
                     new Keyword(Category.Project, Category.Guid) {Name = "[category]", Category = Category}
                 };
             return
-                (from XmlElement curNode in xmlNodes select new Keyword(Category.Project, curNode) {Category = Category})
+                (from XmlElement curNode in xmlNodes select(IKeyword) new Keyword(Category.Project, curNode) {Category = Category})
                     .Union(kategoryKeyword).ToList();
         }
     }

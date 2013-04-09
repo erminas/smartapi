@@ -84,7 +84,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
         }
 
-        public ProjectVariant ProjectVariant
+        public IProjectVariant ProjectVariant
         {
             get { return ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value; }
             set { ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value = value; }

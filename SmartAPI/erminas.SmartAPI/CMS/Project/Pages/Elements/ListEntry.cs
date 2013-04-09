@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.ListEntry)]
     public class ListEntry : PageElement
     {
-        public ListEntry(Project project, Guid guid, LanguageVariant languageVariant)
+        public ListEntry(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

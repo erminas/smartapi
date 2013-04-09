@@ -23,18 +23,20 @@ namespace erminas.SmartAPI.Utils
     /// </summary>
     public class SessionBuilder
     {
-        private readonly ServerLogin _login;
-        private readonly Guid _loginGuid;
-        private readonly Guid _projectGuid;
-        private readonly string _sessionKey;
+        public ServerLogin Login { get; set; }
+        public Guid LoginGuid { get; set; }
+        public string SessionKey { get;set; }
+        public Guid ProjectGuid { get; set; }
 
         public SessionBuilder(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid)
         {
-            _login = login;
-            _loginGuid = loginGuid;
-            _sessionKey = sessionKey;
-            _projectGuid = projectGuid;
+            Login = login;
+            LoginGuid = loginGuid;
+            SessionKey = sessionKey;
+            ProjectGuid = projectGuid;
         }
+
+        public SessionBuilder() {}
 
         /// <summary>
         ///     Create a new session initialized with the login guid, session key and project guid of this SessionBuilder.
@@ -42,7 +44,7 @@ namespace erminas.SmartAPI.Utils
         /// <returns> </returns>
         public Session CreateSession()
         {
-            return new Session(_login, _loginGuid, _sessionKey, _projectGuid);
+            return new Session(Login, LoginGuid, SessionKey, ProjectGuid);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 return;
             }
             var parent = ((ContentClassElement) Parent);
-            LanguageVariant lang = parent.LanguageVariant;
+            ILanguageVariant lang = parent.ILanguageVariant;
 
             if (string.IsNullOrEmpty(_text))
             {
@@ -109,7 +109,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 if (_text == null)
                 {
                     var parent = ((ContentClassElement) Parent);
-                    LanguageVariant lang = parent.LanguageVariant;
+                    ILanguageVariant lang = parent.ILanguageVariant;
                     _text = _guid == Guid.Empty
                                 ? string.Empty
                                 : parent.ContentClass.Project.GetTextContent(_guid, lang,

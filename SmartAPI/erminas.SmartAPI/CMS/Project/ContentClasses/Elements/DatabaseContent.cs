@@ -143,7 +143,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue("eltcolumniotype", value); }
         }
 
-        public DatabaseConnection DatabaseConnection
+        public IDatabaseConnection DatabaseConnection
         {
             get { return ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value; }
             set { ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value = value; }
@@ -176,7 +176,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             }
         }
 
-        public Folder PublicationFolder
+        public IFolder PublicationFolder
         {
             get { return GetAttributeValue<Folder>("eltrelatedfolderguid"); }
             set { SetAttributeValue("eltrelatedfolderguid", value); }

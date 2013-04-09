@@ -15,7 +15,7 @@
 
 namespace erminas.SmartAPI.Utils.CachedCollections
 {
-    public interface ICaching
+    public interface ICached
     {
         /// <summary>
         ///     Clear the cache and refresh it on the next access.

@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
     public class FileAttributes
     {
-        internal FileAttributes(Folder folder, XmlElement xmlElement)
+        internal FileAttributes(IFolder folder, XmlElement xmlElement)
         {
             Folder = folder;
             LoadXml(xmlElement);
@@ -41,7 +41,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         public string DocTitle { get; private set; }
         public DateTime EntryDate { get; private set; }
         public string Filesize { get; private set; }
-        public Folder Folder { get; private set; }
+        public IFolder Folder { get; private set; }
         public string Genre { get; private set; }
         public string Height { get; private set; }
         public string Keywords { get; private set; }

@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class List : AbstractWorkflowPreassignable, IContentClassPreassignable
+    public class List : AbstractWorkflowAssignments, IContentClassPreassignable
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 

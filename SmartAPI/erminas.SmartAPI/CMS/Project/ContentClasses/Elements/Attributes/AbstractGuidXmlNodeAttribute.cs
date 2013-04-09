@@ -19,7 +19,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public abstract class AbstractGuidXmlNodeAttribute<T> : RDXmlNodeAttribute where T : RedDotObject
+    public abstract class AbstractGuidXmlNodeAttribute<T> : RDXmlNodeAttribute where T : class, IRedDotObject
     {
         private readonly Session _session;
         private T _value;

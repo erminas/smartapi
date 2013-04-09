@@ -24,6 +24,7 @@ using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Filesystem;
 using erminas.SmartAPI.CMS.Project.Keywords;
+using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.CMS.Project.Publication;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Exceptions;
@@ -56,7 +57,6 @@ namespace erminas.SmartAPI.CMS.Project
     /// </summary>
     public class Project : PartialRedDotObject
     {
-        #region RqlType enum
 
         /// <summary>
         ///     Indicate where the session key should be placed in the RQL query.
@@ -74,9 +74,6 @@ namespace erminas.SmartAPI.CMS.Project
             SessionKeyInIodata
         };
 
-        #endregion
-
-        #region UserAccessLevel enum
 
         public Project Refreshed()
         {
@@ -84,23 +81,10 @@ namespace erminas.SmartAPI.CMS.Project
             return this;
         }
 
-        public enum UserAccessLevel
-        {
-            None = 0,
-            Visitor = 5,
-            Author = 4,
-            Editor = 3,
-            SiteBuilder = 2,
-            Admin = 1
-        };
-
-        #endregion
-
         private readonly ContentClasses.ContentClasses _contentClasses;
-        private readonly Pages.Pages _pages;
-        private LanguageVariant _currentLanguageVariant;
-        private ProjectLockLevel _locklevel;
+        private readonly IPages _pages;
         private bool _isLockedBySystem;
+        private ProjectLockLevel _locklevel;
 
         internal Project(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {
@@ -117,28 +101,6 @@ namespace erminas.SmartAPI.CMS.Project
             Init();
         }
 
-        /// <summary>
-        ///     All folders used for the asset manager (i.e. where folder.IsAssertManagerFolder == true).
-        ///     Same as
-        ///     <code>
-        /// <pre>
-        ///     Folders.Where(x => x.IsAssetManagerFolder).ToList()
-        /// </pre>
-        /// </code>
-        /// </summary>
-        [ScriptIgnore]
-        public IEnumerable<Folder> AssetManagerFolders
-        {
-            get { return Folders.Where(x => x.IsAssetManagerFolder).ToList(); }
-        }
-
-
-        public bool IsLockedBySystem
-        {
-            get { return LazyLoad(ref _isLockedBySystem); }
-        }
-
-        [ScriptIgnore]
         public Categories Categories { get; private set; }
 
         /// <summary>
@@ -146,27 +108,23 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         [ScriptIgnore]
         public NameIndexedRDList<ContentClassFolder> ContentClassFolders { get; private set; }
-        
+
         public IProjectCopyJob CreateCopyJob(string newProjectName)
         {
             return new ProjectCopyJob(this, newProjectName);
         }
 
-        /// <summary>
-        ///     Get/Set the current active language variant. This information is cached.
-        /// </summary>
-        [ScriptIgnore]
-        public LanguageVariant CurrentLanguageVariant
+        public IProjectExportJob CreateExportJob(string targetPath)
         {
-            get { return _currentLanguageVariant ?? (RefreshCurrentLanguageVariant()); }
-            set { SelectLanguageVariant(value); }
+            return new ProjectExportJob(this, targetPath);
         }
 
+       
         /// <summary>
         ///     All database connections, indexed by name. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
-        public NameIndexedRDList<DatabaseConnection> DatabaseConnections { get; private set; }
+        public IDatabaseConnections DatabaseConnections { get; private set; }
 
         /// <summary>
         ///     Delete this project and its database on the database server
@@ -198,48 +156,18 @@ namespace erminas.SmartAPI.CMS.Project
             }
         }
 
-        public IProjectExportJob CreateExportJob(string targetPath)
-        {
-            return new ProjectExportJob(this, targetPath);
-        }
-
         /// <summary>
         ///     All folders, indexed by name. The list is cached by default.
         /// </summary>
-        [ScriptIgnore]
-        public NameIndexedRDList<Folder> Folders { get; private set; }
-
-        /// <summary>
-        ///     Returns the user level set for this project.
-        /// </summary>
-        public UserAccessLevel GetAccessLevelForUser(User user)
-        {
-            const string LOAD_ACCESS_LEVEL =
-                @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load""/></USER></ADMINISTRATION>";
-            XmlDocument xmlDoc =
-                ExecuteRQL(string.Format(LOAD_ACCESS_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString()));
-            var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("PROJECT")[0];
-            if (!string.IsNullOrEmpty(xmlNode.GetAttributeValue("guid")))
-            {
-                return (UserAccessLevel) xmlNode.GetIntAttributeValue("userlevel").Value;
-            }
-
-            return UserAccessLevel.None;
-        }
-
-        /// <summary>
-        ///     Get the project variant used as display format (preview).
-        /// </summary>
-        public ProjectVariant GetDisplayFormatProjectVariant()
-        {
-            return ProjectVariants.FirstOrDefault(x => x.IsUsedAsDisplayFormat);
-        }
-
+        public IFolders Folders { get; private set; }
+        
         /// <see cref="CMS.Session.GetTextContent" />
-        public string GetTextContent(Guid textElementGuid, LanguageVariant lang, string typeString)
+        internal string GetTextContent(Guid textElementGuid, ILanguageVariant lang, string typeString)
         {
             return Session.GetTextContent(Guid, lang, textElementGuid, typeString);
         }
+
+        public IProjectGroups AssignedGroups { get; private set; }
 
         /// <summary>
         ///     All info attributes in the project, indexed by id. The list is cached by default.
@@ -255,6 +183,12 @@ namespace erminas.SmartAPI.CMS.Project
                 return XmlElement.GetIntAttributeValue("archive").GetValueOrDefault() == -1;
             }
         }
+
+        public bool IsLockedBySystem
+        {
+            get { return LazyLoad(ref _isLockedBySystem); }
+        }
+
         //TODO gets stored on server immediatly, commit? Save/Set?
         public bool IsVersioningActive
         {
@@ -273,16 +207,15 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         /// <summary>
-        ///     All keywords, indexed by name. The list is cached by default.
+        ///     All keywords. The list is cached by default.
         /// </summary>
         [ScriptIgnore]
-        public RDList<Keyword> Keywords { get; private set; }
+        public IRDList<IKeyword> Keywords { get; private set; }
 
         /// <summary>
         ///     All language variants, indexed by Language. The list is cached by default.
         /// </summary>
-        [ScriptIgnore]
-        public IndexedRDList<String, LanguageVariant> LanguageVariants { get; private set; }
+        public ILanguageVariants LanguageVariants { get; private set; }
 
         /// <summary>
         ///     The project lock level.
@@ -293,31 +226,12 @@ namespace erminas.SmartAPI.CMS.Project
             get { return LazyLoad(ref _locklevel); }
         }
 
-        public LanguageVariant MainLanguage
-        {
-            get { return LanguageVariants.First(variant => variant.IsMainLanguage); }
-        }
-
         /// <summary>
         ///     All project variants, indexed by name. The list is cached by default.
         /// </summary>
-        [ScriptIgnore]
-        public NameIndexedRDList<ProjectVariant> ProjectVariants { get; private set; }
+        public IProjectVariants ProjectVariants { get; private set; }
 
         public RecycleBin RecycleBin { get; private set; }
-
-        /// <summary>
-        ///     Refresh the currently selected language variant value. You should only need to use this, if the language variant can be changed outside of this project instance (e.g. if you have two _different_ project objects for the same project).
-        /// </summary>
-        public LanguageVariant RefreshCurrentLanguageVariant()
-        {
-            const string LOAD_SESSION_INFO = @"<USER action=""sessioninfo""/>";
-
-            XmlDocument xmlDoc = ExecuteRQL(LOAD_SESSION_INFO, RqlType.SessionKeyInProject);
-            string languageId =
-                ((XmlElement) xmlDoc.GetElementsByTagName("USER")[0]).GetAttributeValue("languagevariantid");
-            return _currentLanguageVariant = LanguageVariants[languageId];
-        }
 
         /// <summary>
         ///     Select this project as active project in the current session.
@@ -327,36 +241,10 @@ namespace erminas.SmartAPI.CMS.Project
             Session.SelectProject(this);
         }
 
-        /// <summary>
-        ///     Selects the active language variant. Has the same effect as setting <see cref="CurrentLanguageVariant" />
-        /// </summary>
-        /// <param name="language"> Language to make active </param>
-        /// <exception cref="Exception">Thrown, if language variant could not be made active</exception>
-        public void SelectLanguageVariant(LanguageVariant language)
-        {
-            if (_currentLanguageVariant == language)
-            {
-                return;
-            }
-            const string SELECT_LANGUAGE = @"<LANGUAGEVARIANT action=""setactive"" guid=""{0}""/>";
-            XmlDocument xmlDoc = ExecuteRQL(String.Format(SELECT_LANGUAGE, language.Guid.ToRQLString()),
-                                            RqlType.SessionKeyInProject);
-            if (!xmlDoc.InnerText.Contains("ok"))
-            {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not load language variant '{0}' for project {1}",
-                                                          language.Language, this));
-            }
-            if (_currentLanguageVariant != null)
-            {
-                _currentLanguageVariant.IsCurrentLanguageVariant = false;
-            }
-            language.IsCurrentLanguageVariant = true;
-            _currentLanguageVariant = language;
-        }
+     
 
         /// <summary>
-        ///     Set the project lock. 
+        ///     Set the project lock.
         ///     The info message must not be empty, if lock level is different than ProjectLockLevel.None!
         /// </summary>
         /// <param name="level">level to set the locking to</param>
@@ -384,47 +272,23 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         /// <see cref="CMS.Session.SetTextContent" />
-        public Guid SetTextContent(Guid textElementGuid, LanguageVariant languageVariant, string typeString,
+        internal Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString,
                                    string content)
         {
             return Session.SetTextContent(Guid, languageVariant, textElementGuid, typeString, content);
         }
 
         /// <summary>
-        ///     Changes the user access level for this project.
-        /// </summary>
-        public void SetUserLevel(User user, UserAccessLevel accessLevel)
-        {
-            const string SET_USER_LEVEL = @"<ADMINISTRATION>
-                                                <USER guid=""{0}"" action=""save"">
-                                                    <PROJECTS>
-                                                        <PROJECT guid=""{1}"" checked=""{2}"" userlevel=""{3}"" />
-                                                    </PROJECTS>
-                                                </USER>
-                                            </ADMINISTRATION>";
-
-            //todo oder muss das als plain (ohne sessionkey) gesendet werden?
-            //todo return value checken
-            ExecuteRQL(string.Format(SET_USER_LEVEL, user.Guid.ToRQLString(), Guid.ToRQLString(), "1", (int) accessLevel));
-        }
-
-        /// <summary>
         ///     All Syllables, indexed by guid. The list is cached by default.
         /// </summary>
-        [ScriptIgnore]
-        public NameIndexedRDList<Syllable> Syllables { get; private set; }
+        public ISyllables Syllables { get; private set; }
 
         /// <summary>
-        ///     All users of the project, indexed by name. The list is cached by default.
+        ///     All users of the project and their access levels, indexed by user name. The list is cached by default.
         /// </summary>
-        [ScriptIgnore]
-        public NameIndexedRDList<User> UsersOfProject { get; private set; }
+        public IProjectUsers Users { get; private set; }
 
-        /// <summary>
-        ///     All (non global) workflows.
-        /// </summary>
-        [ScriptIgnore]
-        public NameIndexedRDList<Workflow> Workflows { get; private set; }
+        public IProjectWorkflows Workflows { get; private set; }
 
         protected override void LoadWholeObject()
         {
@@ -455,56 +319,24 @@ namespace erminas.SmartAPI.CMS.Project
             InfoAttributes = new IndexedCachedList<int, InfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
 
             ContentClassFolders = new NameIndexedRDList<ContentClassFolder>(GetContentClassFolders, Caching.Enabled);
-            Folders = new NameIndexedRDList<Folder>(GetFolders, Caching.Enabled);
-            ProjectVariants = new NameIndexedRDList<ProjectVariant>(GetProjectVariants, Caching.Enabled);
-            LanguageVariants = new IndexedRDList<string, LanguageVariant>(GetLanguageVariants, x => x.Language,
-                                                                          Caching.Enabled);
+            Folders = new Folders(this, Caching.Enabled);
+            ProjectVariants = new ProjectVariants(this, Caching.Enabled);
+            LanguageVariants = new LanguageVariants(this, Caching.Enabled);
 
-            DatabaseConnections = new NameIndexedRDList<DatabaseConnection>(GetDatabaseConnections, Caching.Enabled);
-            Syllables = new NameIndexedRDList<Syllable>(GetSyllables, Caching.Enabled);
-            UsersOfProject = new NameIndexedRDList<User>(GetUsersOfProject, Caching.Enabled);
+            DatabaseConnections = new DatabaseConnections(this, Caching.Enabled);
+            Syllables = new Syllables(this, Caching.Enabled);
+            Users = new ProjectUsers(this, Caching.Enabled);
 
-            Workflows = new NameIndexedRDList<Workflow>(GetWorkflows, Caching.Enabled);
+            Workflows = new ProjectWorkflow(this, Caching.Enabled);
             Categories = new Categories(this);
-            Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
-            Groups = new NameIndexedRDList<Group>(GetGroupsOfProject, Caching.Enabled);
+            Keywords = new RDList<IKeyword>(GetKeywords, Caching.Enabled);
+            AssignedGroups = new ProjectGroups(this, Caching.Enabled);
         }
 
-        private List<Group> GetGroupsOfProject()
-        {
-            const string LIST_GROUPS = @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(this), Session.IODataFormat.LogonGuidOnly);
-            return
-                (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP") select new Group(Session, curGroup))
-                    .ToList();
-        }
-
-        public NameIndexedRDList<Group> Groups { get; private set; }
         private void LoadXml()
         {
             InitIfPresent(ref _locklevel, "inhibitlevel", x => (ProjectLockLevel) int.Parse(x));
             InitIfPresent(ref _isLockedBySystem, "lockedbysystem", BoolConvert);
-        }
-
-        #region RetrievalFunctions
-
-        private List<DatabaseConnection> GetDatabaseConnections()
-        {
-            const string LIST_DATABASE_CONNECTION = @"<DATABASES action=""list""/>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_CONNECTION, RqlType.SessionKeyInProject);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
-
-            return (from XmlElement curNode in xmlNodes select new DatabaseConnection(this, curNode)).ToList();
-        }
-
-        private List<Folder> GetFolders()
-        {
-            const string LIST_FILE_FOLDERS =
-                @"<PROJECT><FOLDERS action=""list"" foldertype=""0"" withsubfolders=""1""/></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_FILE_FOLDERS);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FOLDER");
-
-            return (from XmlElement curNode in xmlNodes select new Folder(this, curNode)).ToList();
         }
 
         private List<InfoAttribute> GetInfoAttributes()
@@ -533,7 +365,7 @@ namespace erminas.SmartAPI.CMS.Project
                                                                                                                .ToList();
         }
 
-        private List<Keyword> GetKeywords()
+        private List<IKeyword> GetKeywords()
         {
             const string LIST_KEYWORDS = "<PROJECT><CATEGORY><KEYWORDS action=\"list\" /></CATEGORY></PROJECT>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_KEYWORDS);
@@ -546,44 +378,13 @@ namespace erminas.SmartAPI.CMS.Project
                                                                 Category = curCategory
                                                             };
             return
-                (from XmlElement curNode in xmlNodes select new Keyword(this, curNode)).Union(categoryKeywords).ToList();
+                (from XmlElement curNode in xmlNodes select (IKeyword) new Keyword(this, curNode)).Union(
+                    categoryKeywords).ToList();
         }
 
-        private List<LanguageVariant> GetLanguageVariants()
-        {
-            const string LIST_LANGUAGE_VARIANTS =
-                @"<PROJECT projectguid=""{0}""><LANGUAGEVARIANTS action=""list""/></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(String.Format(LIST_LANGUAGE_VARIANTS, Guid.ToRQLString()));
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LANGUAGEVARIANT");
-            var languageVariants = new List<LanguageVariant>();
+        
 
-            foreach (XmlElement curNode in xmlNodes)
-            {
-                var variant = new LanguageVariant(this, curNode);
-                languageVariants.Add(variant);
-                if (variant.IsCurrentLanguageVariant)
-                {
-                    _currentLanguageVariant = variant;
-                }
-            }
-
-            return languageVariants;
-        }
-
-        private List<ProjectVariant> GetProjectVariants()
-        {
-            const string LIST_PROJECT_VARIANTS = @"<PROJECT><PROJECTVARIANTS action=""list""/></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PROJECT_VARIANTS);
-            var variants = xmlDoc.GetElementsByTagName("PROJECTVARIANTS")[0] as XmlElement;
-            if (variants == null)
-            {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not load project variants of project {0}", this));
-            }
-            return
-                (from XmlElement variant in variants.GetElementsByTagName("PROJECTVARIANT")
-                 select new ProjectVariant(this, variant)).ToList();
-        }
+      
 
         private List<PublicationFolder> GetPublicationFolders()
         {
@@ -617,48 +418,18 @@ namespace erminas.SmartAPI.CMS.Project
                  select new PublicationTarget(this, curElement)).ToList();
         }
 
-        private List<Syllable> GetSyllables()
-        {
-            XmlDocument xmlDoc = ExecuteRQL(@"<SYLLABLES action=""list""/>", RqlType.SessionKeyInProject);
-            XmlNodeList syllablelist = xmlDoc.GetElementsByTagName("SYLLABLE");
-            return (from XmlElement curNode in syllablelist select new Syllable(this, curNode)).ToList();
-        }
+        
 
-        private List<User> GetUsersOfProject()
-        {
-            try
-            {
-                const string GET_USERS = @"<PROJECT guid=""{0}""><USERS action=""list""/></PROJECT>";
-                XmlDocument xmlDoc = Session.ExecuteRQL(string.Format(GET_USERS, Guid.ToRQLString()), Guid);
-                XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("USER");
+        
 
-                return (from XmlElement node in xmlNodes select new User(Session, node)).ToList();
-            } catch (Exception e)
-            {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not load users of project {0} ", this), e);
-            }
-        }
-
-        private List<Workflow> GetWorkflows()
-        {
-            const string LIST_WORKFLOWS = @"<WORKFLOWS action=""list"" listglobalworkflow=""1""/>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_WORKFLOWS);
-            return
-                (from XmlElement curWorkflow in xmlDoc.GetElementsByTagName("WORKFLOW")
-                 select new Workflow(this, curWorkflow)).ToList();
-        }
-
-        #endregion
-
-        #region Publication
+        
 
         public ContentClasses.ContentClasses ContentClasses
         {
             get { return _contentClasses; }
         }
 
-        public Pages.Pages Pages
+        public IPages Pages
         {
             get { return _pages; }
         }
@@ -678,7 +449,6 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         public IRDList<PublicationTarget> PublicationTargets { get; private set; }
 
-        #endregion
     }
 
     public enum NewProjectType

@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Container : AbstractWorkflowPreassignable, IContentClassPreassignable
+    public class Container : AbstractWorkflowAssignments, IContentClassPreassignable
     {
         internal Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {

@@ -72,7 +72,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
     }
 
-    public class Anchor : AbstractWorkflowPreassignable, ICanBeRequiredForEditing, IContentClassPreassignable
+    public class Anchor : AbstractWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 
@@ -179,7 +179,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue("eltextendedlist", value); }
         }
 
-        public LanguageVariant LanguageVariantToSwitchTo
+        public ILanguageVariant LanguageVariantToSwitchTo
         {
             get { return ((LanguageVariantAttribute) GetAttribute("eltlanguagevariantguid")).Value; }
             set { ((LanguageVariantAttribute) GetAttribute("eltlanguagevariantguid")).Value = value; }
@@ -193,7 +193,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _targetContainerPreassignment.TargetContainer = value; }
         }
 
-        public ProjectVariant ProjectVariantToSwitchTo
+        public IProjectVariant ProjectVariantToSwitchTo
         {
             get { return ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value; }
             set { ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value = value; }

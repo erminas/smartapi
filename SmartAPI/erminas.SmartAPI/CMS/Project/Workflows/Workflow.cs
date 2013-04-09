@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    public interface IWorkflow : IPartialRedDotObject, IProjectObject
+    public interface IWorkflow : IPartialRedDotObject, IProjectObject, IDeletable
     {
         IEnumerable<WorkFlowAction> Actions();
         bool CanBeInherited { get; }

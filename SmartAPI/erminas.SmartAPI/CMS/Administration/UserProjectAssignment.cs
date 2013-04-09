@@ -17,6 +17,7 @@ using System;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
+using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Administration
 {
@@ -30,6 +31,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
     public enum UserRole
     {
+        None = 0,
         Administrator = 1,
         SiteBuilder = 2,
         Editor = 3,
@@ -37,19 +39,42 @@ namespace erminas.SmartAPI.CMS.Administration
         Visitor = 5
     }
 
-    public class UserProjectAssignment : ISessionObject
+    public interface IUserProjectAssignment : ISessionObject, IDeletable, ICached
+    {
+        void Commit();
+        bool IsTemplateEditor { get; set; }
+        bool IsTranslationEditor { get; set; }
+        Project.Project Project { get; }
+        IUser User { get; }
+        UserRole UserRole { get; set; }
+        IUserProjectAssignment Refreshed();
+    }
+
+    internal class UserProjectAssignment : IUserProjectAssignment
     {
         private readonly Session _session;
-        private readonly User _user;
+        private readonly IUser _user;
+        private bool _isInitialized;
+        private bool? _isTemplateEditor;
+        private bool? _isTranslationEditor;
+        private UserRole? _userRole;
 
-        internal UserProjectAssignment(User user, XmlElement projectAssignment)
+        internal UserProjectAssignment(IUser user, Project.Project project)
+        {
+            Project = project;
+            _user = user;
+            _session = _user.Session;
+        }
+
+        internal UserProjectAssignment(IUser user, XmlElement projectAssignment)
         {
             _user = user;
             _session = _user.Session;
             LoadXml(projectAssignment);
+            _isInitialized = true;
         }
 
-        private UserProjectAssignment(User user, Project.Project project, UserRole role,
+        private UserProjectAssignment(IUser user, Project.Project project, UserRole role,
                                       ExtendedUserRoles extendedUserRoles)
         {
             Project = project;
@@ -58,10 +83,12 @@ namespace erminas.SmartAPI.CMS.Administration
             UserRole = role;
             IsTemplateEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TemplateEditor);
             IsTranslationEditor = extendedUserRoles.HasFlag(ExtendedUserRoles.TranslationEditor);
+            _isInitialized = true;
         }
 
         public void Commit()
         {
+            EnsureInitialization();
             //TODO check results
             const string SAVE_USER_RIGHTS =
                 @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""1"" lm=""{2}"" te=""{3}"" userlevel=""{4}""/></PROJECTS></USER></ADMINISTRATION>";
@@ -70,14 +97,48 @@ namespace erminas.SmartAPI.CMS.Administration
                                                                (int) UserRole));
         }
 
-        public void Delete()
+        public bool IsTemplateEditor
         {
-            User.UnassignProject(Project);
+            get
+            {
+                EnsureInitialization();
+// ReSharper disable PossibleInvalidOperationException
+                return _isTemplateEditor.Value;
+// ReSharper restore PossibleInvalidOperationException
+            }
+            set { _isTemplateEditor = value; }
         }
 
-        public bool IsTemplateEditor { get; set; }
+        public bool IsTranslationEditor
+        {
+            get
+            {
+                EnsureInitialization();
+// ReSharper disable PossibleInvalidOperationException
+                return _isTranslationEditor.Value;
+// ReSharper restore PossibleInvalidOperationException
+            }
+            set { _isTranslationEditor = value; }
+        }
 
-        public bool IsTranslationEditor { get; set; }
+        private void EnsureInitialization()
+        {
+            if (!_isInitialized)
+            {
+                var xml = RetrieveObjectElement();
+                LoadXml(xml);
+                _isInitialized = true;
+            }
+        }
+
+        private XmlElement RetrieveObjectElement()
+        {
+            const string LOAD_ACCESS_LEVEL =
+               @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load"" extendedinfo=""1""/></USER></ADMINISTRATION>";
+            var xmlDoc = Project.ExecuteRQL(LOAD_ACCESS_LEVEL.RQLFormat(User, Project));
+            return xmlDoc.GetSingleElement("PROJECT");
+        }
+
         public Project.Project Project { get; private set; }
 
         public Session Session
@@ -85,12 +146,44 @@ namespace erminas.SmartAPI.CMS.Administration
             get { return _session; }
         }
 
-        public User User
+        public IUser User
         {
             get { return _user; }
         }
 
-        public UserRole UserRole { get; set; }
+        public UserRole UserRole
+        {
+              get
+            {
+                EnsureInitialization();
+// ReSharper disable PossibleInvalidOperationException
+                return _userRole.Value;
+// ReSharper restore PossibleInvalidOperationException
+            }
+            set { _userRole = value; }
+        }
+
+        public IUserProjectAssignment Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
+        public void Delete()
+        {
+            Delete(Project, User);
+        }
+
+        internal static void Delete(Project.Project project, IUser user)
+        {
+            const string UNASSING_PROJECT =
+              @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
+
+            project.Session.ExecuteRQL(UNASSING_PROJECT.RQLFormat(user, project));
+
+            project.Users.InvalidateCache();
+            user.Projects.InvalidateCache();
+        }
 
         /// <summary>
         ///     TODO warum ist das nicht oeffentlich?
@@ -100,11 +193,15 @@ namespace erminas.SmartAPI.CMS.Administration
         /// <param name="role"></param>
         /// <param name="extendedUserRoles"></param>
         /// <returns></returns>
-        internal static UserProjectAssignment Create(User user, Project.Project project, UserRole role,
+        internal static UserProjectAssignment Create(IUser user, Project.Project project, UserRole role,
                                                      ExtendedUserRoles extendedUserRoles)
         {
             var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
             assignment.Commit();
+
+
+            user.Projects.InvalidateCache();
+            project.Users.InvalidateCache();
 
             return assignment;
         }
@@ -124,14 +221,41 @@ namespace erminas.SmartAPI.CMS.Administration
 
         private void LoadXml(XmlElement projectAssignment)
         {
-            Project = new Project.Project(_user.Session, projectAssignment.GetGuid())
-                {
-                    Name = projectAssignment.GetName()
-                };
+            if (Project == null)
+            {
+                Project = new Project.Project(_user.Session, projectAssignment.GetGuid())
+                    {
+                        Name = projectAssignment.GetName()
+                    };
+            }
+            // we check for null, because a properties could have been set by the user, before the element was initialized
+            // and those values should not get lost on loading of the other values
+            if (_userRole == null)
+            {
+                _userRole = (UserRole) projectAssignment.GetIntAttributeValue("userlevel").GetValueOrDefault();
+            }
+            if (_isTemplateEditor == null)
+            {
+                _isTemplateEditor = HasRight(projectAssignment, "templateeditorright");
+            }
+            if (_isTranslationEditor == null)
+            {
+                _isTranslationEditor= HasRight(projectAssignment, "languagemanagerright");
+            }
+        }
 
-            UserRole = (UserRole) projectAssignment.GetIntAttributeValue("userlevel").GetValueOrDefault();
-            IsTemplateEditor = HasRight(projectAssignment, "templateeditorright");
-            IsTranslationEditor = HasRight(projectAssignment, "languagemanagerright");
+        public void InvalidateCache()
+        {
+            _userRole = null;
+            _isTemplateEditor = null;
+            _isTranslationEditor = null;
+            _isInitialized = false;
+        }
+
+        public void Refresh()
+        {
+            InvalidateCache();
+            EnsureInitialization();
         }
     }
 }

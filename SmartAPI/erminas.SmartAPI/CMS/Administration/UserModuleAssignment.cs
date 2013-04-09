@@ -49,7 +49,7 @@ namespace erminas.SmartAPI.CMS.Administration
     ///         cref="IsModuleAssigned" />
     ///     method. New modules can be assigned to the user with the <see cref="SetIsModuleAssigned" /> method. The assigned modules are cached and the cache can be invalidated/refreshed through the ICaching interface methods. The cache only needs to get invalidated/refreshed for possible external changes. All changes to the module assignment through an instance of UserModuleAssignment get reflected in the assigned modules without a need for a cache update.
     /// </summary>
-    public class UserModuleAssignment : IEnumerable<Module>, ICaching, ISessionObject
+    public class UserModuleAssignment : IEnumerable<Module>, ICached, ISessionObject
     {
         private readonly IndexedRDList<ModuleType, Module> _assignedModules;
 

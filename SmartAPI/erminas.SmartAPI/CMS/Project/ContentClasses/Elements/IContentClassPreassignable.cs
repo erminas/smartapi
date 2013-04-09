@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; }
     }
 
-    public class PreassignedContentClassesAndPageDefinitions : ICaching
+    public class PreassignedContentClassesAndPageDefinitions : ICached
     {
         public readonly IContentClassPreassignable Element;
 

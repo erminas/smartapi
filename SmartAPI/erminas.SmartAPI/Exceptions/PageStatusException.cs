@@ -22,28 +22,28 @@ namespace erminas.SmartAPI.Exceptions
     [Serializable]
     public class PageStatusException : SmartAPIException
     {
-        internal PageStatusException(Page page) : base(page.Project.Session.ServerLogin)
+        internal PageStatusException(IPage page) : base(page.Project.Session.ServerLogin)
         {
             Page = page;
         }
 
-        internal PageStatusException(Page page, string message) : base(page.Project.Session.ServerLogin, message)
+        internal PageStatusException(IPage page, string message) : base(page.Project.Session.ServerLogin, message)
         {
             Page = page;
         }
 
-        internal PageStatusException(Page page, string message, Exception innerException)
+        internal PageStatusException(IPage page, string message, Exception innerException)
             : base(page.Project.Session.ServerLogin, message, innerException)
         {
             Page = page;
         }
 
-        internal PageStatusException(Page page, SerializationInfo info, StreamingContext context)
+        internal PageStatusException(IPage page, SerializationInfo info, StreamingContext context)
             : base(page.Project.Session.ServerLogin, info, context)
         {
             Page = page;
         }
 
-        public Page Page { get; private set; }
+        public IPage Page { get; private set; }
     }
 }

@@ -119,7 +119,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     #endregion
 
-    public class Frame : AbstractWorkflowPreassignable, IContentClassPreassignable
+    public class Frame : AbstractWorkflowAssignments, IContentClassPreassignable
     {
         internal Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {

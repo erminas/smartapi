@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.Exceptions
     [Serializable]
     public class MissingKeywordsException : PageStatusException
     {
-        public MissingKeywordsException(Page page, IEnumerable<string> keywordMessages)
+        public MissingKeywordsException(IPage page, IEnumerable<string> keywordMessages)
             : base(page, BuildMessage(keywordMessages))
         {
         }

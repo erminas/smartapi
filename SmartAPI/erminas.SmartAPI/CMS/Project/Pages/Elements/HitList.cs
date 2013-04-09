@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.HitList)]
     public class HitList : AbstractMultiLinkElement
     {
-        public HitList(Project project, Guid guid, LanguageVariant languageVariant)
+        public HitList(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

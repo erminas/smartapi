@@ -19,7 +19,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class CategoryXmlNodeAttribute : AbstractGuidXmlNodeAttribute<Category>
+    public class CategoryXmlNodeAttribute : AbstractGuidXmlNodeAttribute<ICategory>
     {
         public CategoryXmlNodeAttribute(ContentClass parent, string name) : base(parent.Project.Session, parent, name)
         {
@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         public override void Assign(IRDAttribute o)
         {
             var categoryXmlNodeAttribute = ((CategoryXmlNodeAttribute) o);
-            Category value = categoryXmlNodeAttribute.Value;
+            ICategory value = categoryXmlNodeAttribute.Value;
 
             if (categoryXmlNodeAttribute.IsArbitraryCategory)
             {
@@ -50,16 +50,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "category";
         }
 
-        protected override Category RetrieveByGuid(Guid guid)
+        protected override ICategory RetrieveByGuid(Guid guid)
         {
             //after a deletion of a category, references to it can still be present in the system and
             //thus we can't throw an exception but have to handle it like no category is assigned (RedDot seems to handle it that way).
-            Category category;
+            ICategory category;
             ((ContentClass) Parent).Project.Categories.TryGetByGuid(guid, out category);
             return category;
         }
 
-        protected override Category RetrieveByName(string name)
+        protected override ICategory RetrieveByName(string name)
         {
             return ((ContentClass) Parent).Project.Categories.GetByName(name);
         }

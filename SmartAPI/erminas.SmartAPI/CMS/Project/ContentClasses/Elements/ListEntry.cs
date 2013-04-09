@@ -37,9 +37,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue("eltendmark", value); }
         }
 
-        public Folder Folder
+        public IFolder Folder
         {
-            get { return GetAttributeValue<Folder>("eltfolderguid"); }
+            get { return GetAttributeValue<IFolder>("eltfolderguid"); }
             set { SetAttributeValue("eltfolderguid", value); }
         }
 

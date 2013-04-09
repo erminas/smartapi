@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.List)]
     public class List : AbstractKeywordAssignableMultiLinkElement
     {
-        public List(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
+        public List(Project project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 

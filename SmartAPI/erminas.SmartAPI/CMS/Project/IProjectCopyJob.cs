@@ -67,13 +67,13 @@ namespace erminas.SmartAPI.CMS.Project
         public override void RunSync(TimeSpan maxWait)
         {
             RunAsync();
-            var retryEverySecond = new TimeSpan(0,0,1);
-            Session.Projects.WaitFor(list =>
-                {
-                    Project project;
-                    return list.Refreshed().TryGetByName(NewProjectName, out project) &&
-                           !project.Refreshed().IsLockedBySystem;
-                }, maxWait, retryEverySecond);
+            Session.WaitForAsyncProcess(maxWait, process => process.Type == AsynchronousProcessType.CopyProject && Project.Equals(process.Project));
+            //Session.Projects.WaitFor(list =>
+            //    {
+            //        Project project;
+            //        return list.Refreshed().TryGetByName(NewProjectName, out project) &&
+            //               !project.Refreshed().IsLockedBySystem;
+            //    }, maxWait, retryEverySecond);
         }
     }
 }

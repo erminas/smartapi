@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project
     public interface IAsyncJob : ISessionObject
     {
         string EmailMessage { get; set; }
-        User EmailReceipient { get; set; }
+        IUser EmailReceipient { get; set; }
         string EmailSubject { get; set; }
         bool IsSendingEmailOnCompletion { get; set; }
 
@@ -33,7 +33,7 @@ namespace erminas.SmartAPI.CMS.Project
         void RunAsync();
 
         /// <summary>
-        ///     Run this job and wait until the IT is finished. Jobs can take some time, so make sure you have a large enough maxWait for your server to finish.
+        ///     Run this job and wait until it is finished. Jobs can take some time, so make sure you have a large enough maxWait for your server to finish.
         /// </summary>
         /// <exception cref="TimeoutException">Thrown, if the copy job wasn't finished in time</exception>
         void RunSync(TimeSpan maxWait);
@@ -56,7 +56,7 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         public string EmailMessage { get; set; }
-        public User EmailReceipient { get; set; }
+        public IUser EmailReceipient { get; set; }
         public string EmailSubject { get; set; }
         public bool IsSendingEmailOnCompletion { get; set; }
 

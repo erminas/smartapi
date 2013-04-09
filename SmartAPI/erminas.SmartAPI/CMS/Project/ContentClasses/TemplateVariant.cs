@@ -122,7 +122,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Assign this template to a specific project variant
         /// </summary>
-        public void AssignToProjectVariant(ProjectVariant variant, bool doNotPublish, bool doNotUseTidy)
+        public void AssignToProjectVariant(IProjectVariant variant, bool doNotPublish, bool doNotUseTidy)
         {
             const string ASSIGN_PROJECT_VARIANT =
                 @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS> <TEMPLATEVARIANT guid=""{1}"">
@@ -188,7 +188,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     User who created the template
         /// </summary>
-        public User CreationUser
+        public IUser CreationUser
         {
             get { return LazyLoad(ref _createUser); }
         }
@@ -265,7 +265,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     User who last changed the template
         /// </summary>
-        public User LastChangeUser
+        public IUser LastChangeUser
         {
             get { return LazyLoad(ref _changeUser); }
         }

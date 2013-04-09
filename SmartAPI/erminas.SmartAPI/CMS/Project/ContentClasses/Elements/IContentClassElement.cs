@@ -15,7 +15,7 @@
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IContentClassElement : IRedDotObject, IAttributeContainer, IProjectObject
+    public interface IContentClassElement : IWorkflowAssignable, IAttributeContainer
     {
         /// <summary>
         ///     Element category of the lement
@@ -32,7 +32,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// <summary>
         ///     Language variant of the element.
         /// </summary>
-        LanguageVariant LanguageVariant { get; }
+        ILanguageVariant ILanguageVariant { get; }
 
         /// <summary>
         ///     TypeId of the element.

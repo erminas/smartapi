@@ -17,7 +17,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class DatabaseConnectionXmlNodeAttribute : AbstractGuidXmlNodeAttribute<DatabaseConnection>
+    public class DatabaseConnectionXmlNodeAttribute : AbstractGuidXmlNodeAttribute<IDatabaseConnection>
     {
         public DatabaseConnectionXmlNodeAttribute(ContentClassElement parent, string name)
             : base(parent.ContentClass.Project.Session, parent, name)
@@ -29,12 +29,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "database connection";
         }
 
-        protected override DatabaseConnection RetrieveByGuid(Guid guid)
+        protected override IDatabaseConnection RetrieveByGuid(Guid guid)
         {
             return ((ContentClassElement) Parent).ContentClass.Project.DatabaseConnections.GetByGuid(guid);
         }
 
-        protected override DatabaseConnection RetrieveByName(string name)
+        protected override IDatabaseConnection RetrieveByName(string name)
         {
             return ((ContentClassElement) Parent).ContentClass.Project.DatabaseConnections.GetByName(name);
         }

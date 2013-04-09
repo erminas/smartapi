@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.ProjectContent)]
     public class ProjectContent : PageElement
     {
-        public ProjectContent(Project project, Guid guid, LanguageVariant languageVariant)
+        public ProjectContent(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

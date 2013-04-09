@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.TextAscii)]
     public class TextAscii : Text
     {
-        public TextAscii(Project project, Guid guid, LanguageVariant languageVariant)
+        public TextAscii(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

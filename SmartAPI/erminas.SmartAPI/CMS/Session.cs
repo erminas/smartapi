@@ -129,14 +129,21 @@ namespace erminas.SmartAPI.CMS
         public readonly NameIndexedRDList<Project.Project> Projects;
 
         public IUsers Users { get; private set; }
-        private User _currentUser;
+        private IUser _currentUser;
 
         private string _loginGuidStr;
         private string _sessionKeyStr;
-
+        private List<IGroup> GetGroups()
+        {
+            const string LIST_GROUPS = @"<ADMINISTRATION><GROUPS action=""list""/></ADMINISTRATION>";
+            var xmlDoc = ExecuteRQL(LIST_GROUPS, IODataFormat.LogonGuidOnly);
+            return
+                (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP") select (IGroup)new Group(this, curGroup))
+                    .ToList();
+        }
         private Session()
         {
-            Groups = new Groups(this, Caching.Enabled);
+            Groups = new NameIndexedRDList<IGroup>(GetGroups, Caching.Enabled);
             Projects = new NameIndexedRDList<Project.Project>(GetProjects, Caching.Enabled);
             DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers, Caching.Enabled);
             Users = new Users(this, Caching.Enabled);
@@ -200,7 +207,7 @@ namespace erminas.SmartAPI.CMS
 
         public Project.Project CreateProjectMsSql(string projectName, ApplicationServer appServer,
                                                   DatabaseServer dbServer, string databaseName, ISystemLocale language,
-                                                  ProjectType type, UseVersioning useVersioning, User user)
+                                                  ProjectType type, UseVersioning useVersioning, IUser user)
         {
             const string CREATE_PROJECT =
                 @"<ADMINISTRATION><PROJECT action=""addnew"" projectname=""{0}"" databaseserverguid=""{1}"" editorialserverguid=""{2}"" databasename=""{3}""
@@ -227,7 +234,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <summary>
         ///     The currently connected user.
         /// </summary>
-        public User CurrentUser
+        public IUser CurrentUser
         {
             get { return _currentUser ?? (_currentUser = GetCurrentUser()); }
             private set { _currentUser = value; }
@@ -393,7 +400,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <param name="elementGuid"> Guid of the text element </param>
         /// <param name="typeString"> texttype value </param>
         /// <returns> text content of the element </returns>
-        public string GetTextContent(Guid projectGuid, LanguageVariant lang, Guid elementGuid, string typeString)
+        public string GetTextContent(Guid projectGuid, ILanguageVariant lang, Guid elementGuid, string typeString)
         {
             const string LOAD_TEXT_CONTENT =
                 @"<IODATA loginguid=""{0}"" format=""1"" sessionkey=""{1}""><PROJECT><TEXT action=""load"" guid=""{2}"" texttype=""{3}""/></PROJECT></IODATA>";
@@ -409,7 +416,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         /// <param name="guid"> Guid of the user </param>
         /// <exception cref="Exception">Thrown, if no user with Guid==guid could be found</exception>
-        public User GetUser(Guid guid)
+        public IUser GetUser(Guid guid)
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(string.Format(LOAD_USER, guid.ToRQLString()));
@@ -421,7 +428,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return new User(this, Guid.Parse(userElement.GetAttributeValue("guid")));
         }
 
-        public Groups Groups { get; private set; }
+        public IIndexedRDList<string, IGroup> Groups { get; private set; }
 
         /// <summary>
         ///     All locales, indexed by LCID. The list is cached by default.
@@ -452,6 +459,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 return;
             }
             string result;
+            RQLException exception = null;
             try
             {
                 result =
@@ -460,6 +468,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                         IODataFormat.LogonGuidOnly);
             } catch (RQLException e)
             {
+                exception = e;
                 result = e.Response;
             }
 
@@ -474,7 +483,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             }
 
             throw new SmartAPIException(ServerLogin,
-                                        String.Format("Couldn't select project {0}", projectGuid.ToRQLString()));
+                                        String.Format("Couldn't select project {0}", projectGuid.ToRQLString()), exception);
         }
 
         /// <summary>
@@ -543,7 +552,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <param name="typeString"> texttype value </param>
         /// <param name="content"> new value </param>
         /// <returns> Guid of the text element </returns>
-        public Guid SetTextContent(Guid projectGuid, LanguageVariant languageVariant, Guid textElementGuid,
+        public Guid SetTextContent(Guid projectGuid, ILanguageVariant languageVariant, Guid textElementGuid,
                                    string typeString, string content)
         {
             const string SAVE_TEXT_CONTENT =
@@ -593,19 +602,18 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         public void WaitForAsyncProcess(TimeSpan maxWait, TimeSpan retry,
                                         Predicate<AsynchronousProcess> processPredicate)
         {
-            var retryEverySecond = new TimeSpan(0, 0, 1);
             Predicate<IRDList<AsynchronousProcess>> pred = list => list.Any(process => processPredicate(process));
 
             //wait for the async process to spawn first and then wait until it is done
 
             var start = DateTime.Now;
-
-            AsynchronousProcesses.WaitFor(pred, maxWait, retryEverySecond);
+            var retryEvery50ms = new TimeSpan(0, 0, 0, 0, 50);
+            AsynchronousProcesses.WaitFor(pred, maxWait, retryEvery50ms);
 
             TimeSpan timeLeft = maxWait - (DateTime.Now - start);
             timeLeft = timeLeft.TotalMilliseconds > 0 ? timeLeft : new TimeSpan(0, 0, 0);
 
-            AsynchronousProcesses.WaitFor(list => !pred(list), timeLeft, retryEverySecond);
+            AsynchronousProcesses.WaitFor(list => !pred(list), timeLeft, retry);
         }
 
         internal void EnsureVersion()
@@ -724,7 +732,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                  select new AsynchronousProcess(this, curProcess)).ToList();
         }
 
-        private User GetCurrentUser()
+        private IUser GetCurrentUser()
         {
             var userElement = GetUserSessionInfoElement();
 
@@ -900,8 +908,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     SelectProject(Guid.Parse(projectStr));
                 } catch (SmartAPIException e)
                 {
-                    if (
-                        e.Message.Contains(
+                    if (e.InnerException != null && e.InnerException.Message.Contains(
                             "The project you have selected is no longer available. Please select a different project via the Main Menu."))
                     {
                         SelectedProjectGuid = Guid.Empty;

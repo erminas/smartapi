@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Container)]
     public class Container : AbstractKeywordAssignableMultiLinkElement
     {
-        public Container(Project project, Guid guid, LanguageVariant languageVariant)
+        public Container(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

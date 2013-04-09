@@ -17,7 +17,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class LanguageVariantAttribute : AbstractGuidXmlNodeAttribute<LanguageVariant>
+    public class LanguageVariantAttribute : AbstractGuidXmlNodeAttribute<ILanguageVariant>
     {
         public LanguageVariantAttribute(ContentClassElement parent, string name)
             : base(parent.ContentClass.Project.Session, parent, name)
@@ -26,8 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public override void Assign(IRDAttribute o)
         {
-            LanguageVariant value = ((LanguageVariantAttribute) o).Value;
-            SetValue(value == null ? null : value.Language);
+            ILanguageVariant value = ((LanguageVariantAttribute) o).Value;
+            SetValue(value == null ? null : value.Abbreviation);
         }
 
         public override bool Equals(object o)
@@ -36,7 +36,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return xmlNodeAttribute != null && Name == xmlNodeAttribute.Name &&
                    (Value == null
                         ? xmlNodeAttribute.Value == null
-                        : Equals(Value.Language, xmlNodeAttribute.Value.Language));
+                        : Equals(Value.Abbreviation, xmlNodeAttribute.Value.Abbreviation));
         }
 
         public override int GetHashCode()
@@ -49,12 +49,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "language variant";
         }
 
-        protected override LanguageVariant RetrieveByGuid(Guid guid)
+        protected override ILanguageVariant RetrieveByGuid(Guid guid)
         {
             return ((ContentClassElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
         }
 
-        protected override LanguageVariant RetrieveByName(string name)
+        protected override ILanguageVariant RetrieveByName(string name)
         {
             return ((ContentClassElement) Parent).ContentClass.Project.LanguageVariants[name];
         }

@@ -23,39 +23,59 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    internal class WorkflowPreassignable
-    {
-        private readonly IContentClassElement _element;
+    public interface IWorkflowAssignable: IRedDotObject, IProjectObject {}
 
-        private readonly Dictionary<LanguageVariant, PreassignedWorkflow> _preassignedContentWorkflows =
-            new Dictionary<LanguageVariant, PreassignedWorkflow>();
+    public interface IWorkflowAssignments
+    {
+        void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants);
+        void DisconnectAllWorkflows();
+
+        void CreateAndConnectContentWorkflow(string workflowName,
+                                                               IEnumerable<ILanguageVariant> languageVariants);
+
+        void CreateAndConnectStructuralworkflow(string workflowName);
+        IPreassignedWorkflow GetContentWorkflowFor(string languageVariantId);
+        IPreassignedWorkflow GetContentWorkflowFor(ILanguageVariant languageVariant);
+        IPreassignedWorkflow GetContentWorkflowForCurrentLanguageVariant();
+        void SetContentWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants);
+        void SetContentWorkflow(IWorkflow workflow, params string[] languageVariantIds);
+        IPreassignedWorkflow StructuralWorkflow { get; set; }
+        void InvalidateCache();
+    }
+
+    internal class WorkflowAssignments : IWorkflowAssignments
+    {
+        private readonly IWorkflowAssignable _element;
+
+        private readonly Dictionary<ILanguageVariant, IPreassignedWorkflow> _preassignedContentWorkflows =
+            new Dictionary<ILanguageVariant, IPreassignedWorkflow>();
 
         private bool _isStructuralWorkflowLoaded;
         private PreassignedWorkflow _preassignedStructuralWorkflow;
 
-        internal WorkflowPreassignable(IContentClassElement element)
+        internal WorkflowAssignments(IWorkflowAssignable element)
         {
             _element = element;
         }
 
-        public void CreateAndPreassignContentWorkflow(string workflowName, params string[] languageVariants)
+        public void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants)
         {
-            CreateAndPreassignContentWorkflow(workflowName,
+            CreateAndConnectContentWorkflow(workflowName,
                                               languageVariants.Select(
                                                   curVariant =>
-                                                  _element.ContentClass.Project.LanguageVariants[curVariant]));
+                                                  _element.Project.LanguageVariants[curVariant]));
         }
 
         public void DisconnectAllWorkflows()
         {
-            if (PreassignedStructuralWorkflow != null)
+            if (StructuralWorkflow != null)
             {
-                PreassignedStructuralWorkflow.DisconnectWorkflowFromLinkCompletely();
+                StructuralWorkflow.DisconnectFromLinkCompletely();
             }
             var workflows = new HashSet<Guid>();
-            foreach (var curLang in _element.ContentClass.Project.LanguageVariants)
+            foreach (var curLang in _element.Project.LanguageVariants)
             {
-                var workflow = GetPreassignedContentWorkflowFor(curLang);
+                var workflow = GetContentWorkflowFor(curLang);
                 if (workflow == null)
                 {
                     continue;
@@ -64,35 +84,35 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     continue;
                 }
-                workflow.DisconnectWorkflowFromLinkCompletely();
+                workflow.DisconnectFromLinkCompletely();
                 workflows.Add(workflow.Guid);
             }
             InvalidateCache();
         }
 
-        internal void CreateAndPreassignContentWorkflow(string workflowName,
-                                                        IEnumerable<LanguageVariant> languageVariants)
+        public void CreateAndConnectContentWorkflow(string workflowName,
+                                                        IEnumerable<ILanguageVariant> languageVariants)
         {
             const bool IS_STRUCTURAL_WORKFLOW = false;
             ExecuteCreateAndPreassignWorkflow(workflowName, languageVariants, IS_STRUCTURAL_WORKFLOW);
         }
 
-        internal void CreateAndPreassignStructuralworkflow(string workflowName)
+        public void CreateAndConnectStructuralworkflow(string workflowName)
         {
             const bool IS_STRUCTURAL_WORKFLOW = true;
-            ExecuteCreateAndPreassignWorkflow(workflowName, new[] {_element.ContentClass.Project.CurrentLanguageVariant},
+            ExecuteCreateAndPreassignWorkflow(workflowName, new[] {_element.Project.LanguageVariants.Current},
                                               IS_STRUCTURAL_WORKFLOW);
         }
 
-        internal PreassignedWorkflow GetPreassignedContentWorkflowFor(string languageVariantId)
+        public IPreassignedWorkflow GetContentWorkflowFor(string languageVariantId)
         {
-            LanguageVariant languageVariant = _element.ContentClass.Project.LanguageVariants[languageVariantId];
-            return GetPreassignedContentWorkflowFor(languageVariant);
+            ILanguageVariant languageVariant = _element.Project.LanguageVariants[languageVariantId];
+            return GetContentWorkflowFor(languageVariant);
         }
 
-        internal PreassignedWorkflow GetPreassignedContentWorkflowFor(LanguageVariant languageVariant)
+        public IPreassignedWorkflow GetContentWorkflowFor(ILanguageVariant languageVariant)
         {
-            PreassignedWorkflow workflow;
+            IPreassignedWorkflow workflow;
             if (!_preassignedContentWorkflows.TryGetValue(languageVariant, out workflow))
             {
                 workflow = GetPreassignedContentWorkflow(languageVariant);
@@ -103,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     return null;
                 }
 
-                foreach (var curLanguage in workflow.LanguageVariants)
+                foreach (var curLanguage in workflow.LanguageVariantsPreassignedTo)
                 {
                     _preassignedContentWorkflows[curLanguage] = workflow;
                 }
@@ -111,19 +131,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             return workflow;
         }
 
-        internal PreassignedWorkflow GetPreassignedContentWorkflowForCurrentLanguageVariant()
+        public IPreassignedWorkflow GetContentWorkflowForCurrentLanguageVariant()
         {
-            return GetPreassignedContentWorkflowFor(_element.ContentClass.Project.CurrentLanguageVariant);
+            return GetContentWorkflowFor(_element.Project.LanguageVariants.Current);
         }
 
-        internal void InvalidateCache()
+        public void InvalidateCache()
         {
             _preassignedStructuralWorkflow = null;
             _isStructuralWorkflowLoaded = false;
             _preassignedContentWorkflows.Clear();
         }
 
-        internal void PreassignContentWorkflow(Workflow workflow, IEnumerable<LanguageVariant> languageVariants)
+        public void SetContentWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants)
         {
             if (workflow.IsStructureWorkflow)
             {
@@ -134,26 +154,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             ExecutePreassignWorkflow(workflow, languageVariants);
         }
 
-        internal void PreassignContentWorkflow(Workflow workflow, params string[] languageVariantIds)
+        public void SetContentWorkflow(IWorkflow workflow, params string[] languageVariantIds)
         {
             var languageVariants =
                 languageVariantIds.Select(
-                    curLanguageVariantId => _element.ContentClass.Project.LanguageVariants[curLanguageVariantId]);
-            PreassignContentWorkflow(workflow, languageVariants);
+                    curLanguageVariantId => _element.Project.LanguageVariants[curLanguageVariantId]);
+            SetContentWorkflow(workflow, languageVariants);
         }
 
-        internal void PreassignStructuralWorkflow(Workflow workflow)
-        {
-            if (!workflow.IsStructureWorkflow)
-            {
-                throw new SmartAPIException(_element.Session.ServerLogin,
-                                            "Workflow for preassignment is not a structural workflow");
-            }
 
-            ExecutePreassignWorkflow(workflow, null);
-        }
-
-        internal PreassignedWorkflow PreassignedStructuralWorkflow
+        public IPreassignedWorkflow StructuralWorkflow
         {
             get
             {
@@ -164,14 +174,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 }
                 return _preassignedStructuralWorkflow;
             }
+            set
+            {
+                if (!value.IsStructureWorkflow)
+                {
+                    throw new SmartAPIException(_element.Session.ServerLogin,
+                                                "Workflow for preassignment is not a structural workflow");
+                }
+
+                ExecutePreassignWorkflow(value, null);
+            }
         }
 
         private void ExecuteCreateAndPreassignWorkflow(string workflowName,
-                                                       IEnumerable<LanguageVariant> languageVariants, bool isStructural)
+                                                       IEnumerable<ILanguageVariant> languageVariants, bool isStructural)
         {
             const string CREATE_AND_ASSIGN_WORKFLOW =
                 @"<WORKFLOW sessionkey=""{0}""><LINK guid=""{1}"" action=""assign""><WORKFLOW action=""addnew"" structureworkflow=""{2}"" guid="""" name=""{3}""><LANGUAGEVARIANTS>{4}</LANGUAGEVARIANTS></WORKFLOW></LINK></WORKFLOW>";
-            var session = _element.ContentClass.Project.Session;
+            var session = _element.Project.Session;
             string query = CREATE_AND_ASSIGN_WORKFLOW.RQLFormat(session.SessionKey, _element, isStructural, workflowName,
                                                                 languageVariants);
             session.ExecuteRql(query, Session.IODataFormat.LogonGuidOnly);
@@ -179,7 +199,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         private PreassignedWorkflow ExecuteLoadWorkflow(string LOAD_WORKFLOW)
         {
-            Project project = _element.ContentClass.Project;
+            Project project = _element.Project;
             var xmlDoc = project.ExecuteRQL(LOAD_WORKFLOW.RQLFormat(project.Session.SessionKey, _element));
             var workflowElement = (XmlElement) xmlDoc.SelectSingleNode("//WORKFLOW[@guid!='']");
 
@@ -188,12 +208,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                        : null;
         }
 
-        private void ExecutePreassignWorkflow(Workflow workflow, IEnumerable<LanguageVariant> languageVariants)
+        private void ExecutePreassignWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants)
         {
             const string PREASSIGN_WORKFLOW =
                 @"<WORKFLOW sessionkey=""{0}""><LINK guid=""{1}"" action=""assign""><WORKFLOW action=""addnew"" structureworkflow=""{2}"" guid=""{3}"" name=""{4}""><LANGUAGEVARIANTS>{5}</LANGUAGEVARIANTS></WORKFLOW></LINK></WORKFLOW>";
 
-            var session = _element.ContentClass.Project.Session;
+            var session = _element.Project.Session;
             session.ExecuteRql(
                 PREASSIGN_WORKFLOW.RQLFormat(session.SessionKey, _element, workflow.IsStructureWorkflow, workflow,
                                              workflow.Name, languageVariants), Session.IODataFormat.LogonGuidOnly);
@@ -201,7 +221,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             InvalidateCache();
         }
 
-        private PreassignedWorkflow GetPreassignedContentWorkflow(LanguageVariant languageVariant)
+        private PreassignedWorkflow GetPreassignedContentWorkflow(ILanguageVariant languageVariant)
         {
             using (new LanguageContext(languageVariant))
             {

@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public DateTime CreatedTo { get; set; }
 
-        public IEnumerable<Page> Execute()
+        public IEnumerable<IPage> Execute()
         {
             var rqlXml = new XmlDocument();
             XmlElement pageElement = rqlXml.CreateElement("PAGE");
@@ -108,7 +108,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public int PageIdFrom { get; set; }
 
         public int PageIdTo { get; set; }
-        public Page.PageType PageType { get; set; }
+        public PageType PageType { get; set; }
 
         public Project Project
         {
@@ -122,7 +122,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public void SetDefaults()
         {
-            PageType = Page.PageType.All;
+            PageType = PageType.All;
             Text = null;
             TextExact = true;
             Category = null;
@@ -144,7 +144,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         private XmlElement AddLanguageVariantId(XmlElement curNode)
         {
-            curNode.SetAttributeValue("languagevariantid", _project.CurrentLanguageVariant.Language);
+            curNode.SetAttributeValue("languagevariantid", _project.LanguageVariants.Current.Abbreviation);
 
             return curNode;
         }
@@ -167,11 +167,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public readonly ContentClass ContentClass;
         public readonly DateTime CreationDate;
         public readonly DateTime DateOfLastChange;
-        public readonly User LastEditor;
-        public readonly User OriginalAuthor;
-        public readonly Page Page;
+        public readonly IUser LastEditor;
+        public readonly IUser OriginalAuthor;
+        public readonly IPage Page;
 
-        public Result(Page page, DateTime creationDate, User originalAuthor, DateTime dateOfLastChange, User lastEditor,
+        public Result(IPage page, DateTime creationDate, IUser originalAuthor, DateTime dateOfLastChange, IUser lastEditor,
                       ContentClass contentClass)
         {
             Page = page;
@@ -231,10 +231,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public readonly Rejection RejectionType;
         public readonly string ReleaseName;
         public readonly IEnumerable<ReleaseInfo> Releases;
-        public readonly Workflow Workflow;
+        public readonly IWorkflow Workflow;
         public readonly ReleaseType WorkflowReactionTypeResponsibleForRejection;
 
-        public WorkflowInfo(Workflow workflow, IEnumerable<ReleaseInfo> releases, string releaseName,
+        public WorkflowInfo(IWorkflow workflow, IEnumerable<ReleaseInfo> releases, string releaseName,
                             Rejection rejectionType, ReleaseType workflowReactionTypeResponsibleForRejection,
                             RejectionSkippableType rejectionSkippability, int escalationTimeoutInHours,
                             IEnumerable<Note> notes)
@@ -284,7 +284,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             public readonly bool HasUserReleasedPage;
             public readonly DateTime PageReleaseDate;
-            public readonly User User;
+            public readonly IUser User;
 
             public UserInfo(Project project, XmlElement user)
             {

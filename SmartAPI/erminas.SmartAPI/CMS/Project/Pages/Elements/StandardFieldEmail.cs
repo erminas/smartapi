@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             LoadXml();
         }
 
-        public StandardFieldEmail(Project project, Guid guid, LanguageVariant languageVariant)
+        public StandardFieldEmail(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

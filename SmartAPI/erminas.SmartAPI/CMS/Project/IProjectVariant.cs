@@ -19,9 +19,23 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public class ProjectVariant : PartialRedDotProjectObject
+    public interface IProjectVariant : IPartialRedDotObject, IProjectObject
     {
-        public ProjectVariant(Project project, Guid guid) : base(project, guid)
+        bool IsUsedAsDisplayFormat { get; }
+        bool IsUserDisplayVariant { get; }
+    }
+
+    public static class ProjectVariantFactory
+    {
+        public  static IProjectVariant CreateFromGuid(Project project, Guid guid)
+        {
+            return new ProjectVariant(project, guid);
+        }
+    }
+
+    internal class ProjectVariant : PartialRedDotProjectObject, IProjectVariant
+    {
+        internal ProjectVariant(Project project, Guid guid) : base(project, guid)
         {
         }
 

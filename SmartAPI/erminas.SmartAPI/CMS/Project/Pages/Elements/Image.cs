@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Image)]
     public class Image : AbstractMediaElement
     {
-        public Image(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
+        public Image(Project project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 

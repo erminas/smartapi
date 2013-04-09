@@ -32,7 +32,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public abstract class ContentClassElement : RedDotProjectObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
-        private LanguageVariant _languageVariant;
+        private ILanguageVariant _languageVariant;
 
         protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
@@ -56,7 +56,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             //One parameter: xml representation of the element, containing an attribute "action" with value "save"
             const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
             var node = (XmlElement) XmlElement.Clone();
-            using (new LanguageContext(LanguageVariant))
+            using (new LanguageContext(ILanguageVariant))
             {
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
@@ -85,7 +85,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// <summary>
         ///     Language variant of the element (a separate instance exists for every language variant on the server).
         /// </summary>
-        public LanguageVariant LanguageVariant
+        public ILanguageVariant ILanguageVariant
         {
             get
             {
@@ -94,8 +94,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                         ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
             }
         }
-
-        public override string Name { get; set; }
+       
+        //public new string Name { get { return base.Name; } set { base.Name = value; } }
 
         /// <summary>
         ///     TypeId of the element.
@@ -267,7 +267,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         private void LoadXml()
         {
-            Name = XmlElement.GetAttributeValue("eltname");
+            _name = XmlElement.GetAttributeValue("eltname");
             Type = (ElementType) XmlElement.GetIntAttributeValue("elttype").GetValueOrDefault();
         }
     }

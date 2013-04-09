@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS
 {
     public interface IPartialRedDotObject : IRedDotObject
     {
-        void EnsureInitialization();
+        //void EnsureInitialization();
         void Refresh();
     }
 
@@ -132,6 +132,10 @@ namespace erminas.SmartAPI.CMS
         public override sealed string Name
         {
             get { return LazyLoad(ref _name); }
+            internal set { base.Name = value; }
+        //    internal set { EnsureInitialization();
+        //        _name = value;
+        //    }
         }
 
         public virtual void Refresh()

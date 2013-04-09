@@ -21,17 +21,58 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
+    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable
+    {
+        /// <summary>
+        ///     Use after setting Name to rename category on the server.
+        /// </summary>
+        void Commit();
+
+        /// <summary>
+        ///     Delete the category. The operation will fail, if a keyword is still assigned to a page
+        /// </summary>
+        /// <exception cref="SmartAPIException">Thrown, if the category couldn't be deleted</exception>
+        new void Delete();
+
+        /// <summary>
+        ///     Delete the category, even if its keywords are actively used in connecting pages to containers/lists.
+        ///     This requires the session to contain your login password (it does, if you created the session object with valid ServerLogin.AuthData).
+        /// </summary>
+        /// <exception cref="SmartAPIException">Thrown, if the category could not be deleted</exception>
+        void DeleteForcibly();
+
+        /// <summary>
+        ///     The current language variant.
+        /// </summary>
+        ILanguageVariant ILanguageVariant { get; }
+
+        /// <summary>
+        ///     Renames the category directly on the server.
+        ///     Thus it is the same as:
+        ///     <example>
+        ///         <code>
+        /// string newCategoryName = ...; <br />
+        /// category.Name = newCategoryName;<br /> 
+        /// category.Commit();
+        /// </code>
+        ///     </example>
+        /// </summary>
+        void Rename(string newCategoryName);
+
+        Keywords Keywords { get; }
+    }
+
     /// <summary>
     ///     A category entry of a project in the RedDot server.
     /// </summary>
-    public class Category : PartialRedDotProjectObject
+    public class Category : PartialRedDotProjectObject, ICategory
     {
         /// <summary>
         ///     All keywords belonging to this category, indexed by name. This list is cached by default.
         /// </summary>
-        public readonly Keywords Keywords;
+        public Keywords Keywords { get; private set; }
 
-        private LanguageVariant _languageVariant;
+        private ILanguageVariant _languageVariant;
 
         internal Category(Project project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -115,7 +156,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         /// <summary>
         ///     The current language variant.
         /// </summary>
-        public LanguageVariant LanguageVariant
+        public ILanguageVariant ILanguageVariant
         {
             get { return LazyLoad(ref _languageVariant); }
         }

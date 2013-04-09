@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.OptionList)]
     public class OptionList : PageElement
     {
-        public OptionList(Project project, Guid guid, LanguageVariant languageVariant)
+        public OptionList(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

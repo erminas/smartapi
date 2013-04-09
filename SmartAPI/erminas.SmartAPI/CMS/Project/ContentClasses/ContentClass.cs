@@ -34,11 +34,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     /// <summary>
     ///     Represents a content class in RedDot.
     /// </summary>
-    public class ContentClass : PartialRedDotProjectObject
+    public class ContentClass : PartialRedDotProjectObject, IDeletable
     {
         private CCEditableAreaSettings _editableAreaSettings;
         private Dictionary<string, ContentClassElementList> _elements;
-        //private LanguageVariant _languageVariant;
+        //private ILanguageVariant _languageVariant;
         private Syllable _prefix;
         private Syllable _suffix;
 
@@ -77,7 +77,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             set { SetAttributeValue("ignoreglobalworkflow", value); }
         }
 
-        //public LanguageVariant LanguageVariant
+        //public ILanguageVariant ILanguageVariant
         //{
         //    get { return LazyLoad(ref _languageVariant); }
         //}
@@ -87,7 +87,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Default prefix for pages.
         /// </summary>
-        public Syllable Prefix
+        public ISyllable Prefix
         {
             get { return LazyLoad(ref _prefix); }
         }
@@ -96,7 +96,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Default suffix for pages.
         /// </summary>
         [ScriptIgnore]
-        public Syllable Suffix
+        public ISyllable Suffix
         {
             get { return LazyLoad(ref _suffix); }
         }
@@ -119,7 +119,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Assign project variants to template variants
         /// </summary>
-        public void AssignProjectVariants(Dictionary<TemplateVariant, ProjectVariant> assignments)
+        public void AssignProjectVariants(Dictionary<TemplateVariant, IProjectVariant> assignments)
         {
             const string ASSIGN_PROJECT_VARIANT =
                 @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
@@ -171,15 +171,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             var createdElements = new Dictionary<string, ContentClassElement>();
             using (new LanguageContext(Project))
             {
-                foreach (LanguageVariant languageVariant in Project.LanguageVariants)
+                foreach (ILanguageVariant languageVariant in Project.LanguageVariants)
                 {
-                    LanguageVariant targetLanguageVariant = targetCC.Project.LanguageVariants[languageVariant.Language];
+                    ILanguageVariant targetLanguageVariant = targetCC.Project.LanguageVariants[languageVariant.Abbreviation];
                     foreach (string curElementName in elementNames)
                     {
                         ContentClassElement curTargetContentClassElement;
                         languageVariant.Select();
                         ContentClassElement curSourceContentClassElement =
-                            this[languageVariant.Language, curElementName];
+                            this[languageVariant.Abbreviation, curElementName];
                         if (createdElements.TryGetValue(curElementName, out curTargetContentClassElement))
                         {
                             ContentClassElement tmpTargetContentClassElement =
@@ -306,7 +306,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     _elements = new Dictionary<string, ContentClassElementList>();
                     using (new LanguageContext(Project))
                     {
-                        foreach (LanguageVariant curLanguage in Project.LanguageVariants)
+                        foreach (ILanguageVariant curLanguage in Project.LanguageVariants)
                         {
                             curLanguage.Select();
                             const string LOAD_CC_ELEMENTS =
@@ -314,7 +314,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_CC_ELEMENTS, Guid.ToRQLString()));
                             var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELEMENTS")[0];
                             var curElements = new ContentClassElementList(this, xmlNode);
-                            _elements.Add(curLanguage.Language, curElements);
+                            _elements.Add(curLanguage.Abbreviation, curElements);
                         }
                     }
                 }
@@ -325,7 +325,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Get all assignments of templates to project variants of this content class.
         /// </summary>
-        public ILookup<ProjectVariant, TemplateVariant> GetProjectVariantAssignments()
+        public ILookup<IProjectVariant, TemplateVariant> GetProjectVariantAssignments()
         {
             const string PROJECT_VARIANT_ASSIGNMENT =
                 @"<TEMPLATE guid=""{0}"" ><TEMPLATEVARIANTS withstylesheets=""1"" action=""projectvariantslist"" /></TEMPLATE>";
@@ -398,7 +398,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     List of the preassigned keywords of this content class, indexed by name. This list is cached by default.
         /// </summary>
-        public NameIndexedRDList<Keyword> PreassignedKeywords { get; private set; }
+        public NameIndexedRDList<IKeyword> PreassignedKeywords { get; private set; }
 
         public override void Refresh()
         {
@@ -426,7 +426,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        public Category RequiredKeywordCategory
+        public ICategory RequiredKeywordCategory
         {
             get
             {
@@ -459,16 +459,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     PreassignedKeywords contain the updated keywords afterwards.
         ///     Set to an empty IEnumerable or null, to remove all preassigned keywords.
         /// </summary>
-        public void SetPreassignedKeywords(IEnumerable<Keyword> keywords)
+        public void SetPreassignedKeywords(IEnumerable<IKeyword> keywords)
         {
             if (keywords == null)
             {
                 keywords = new List<Keyword>();
             }
-            using (new CachingContext<Keyword>(PreassignedKeywords, Caching.Enabled))
+            else
             {
-                List<Keyword> keywordsToAdd = keywords.Except(PreassignedKeywords).ToList();
-                List<Keyword> keywordsToRemove = PreassignedKeywords.Except(keywords).ToList();
+                keywords = keywords.ToList();
+            }
+            using (new CachingContext<IKeyword>(PreassignedKeywords, Caching.Enabled))
+            {
+                List<IKeyword> keywordsToAdd = keywords.Except(PreassignedKeywords).ToList();
+                List<IKeyword> keywordsToRemove = PreassignedKeywords.Except(keywords).ToList();
 
                 if (!keywordsToRemove.Any() && !keywordsToAdd.Any())
                 {
@@ -518,10 +522,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             XmlElement projectVariants = template.AddElement("PROJECTVARIANTS");
             projectVariants.AddAttribute("action", "assign");
-            foreach (ProjectVariant curVariant in Project.ProjectVariants)
+            foreach (IProjectVariant curVariant in Project.ProjectVariants)
             {
                 XmlElement projectVariant = projectVariants.AddElement("PROJECTVARIANT");
-                ProjectVariant otherVariant;
+                IProjectVariant otherVariant;
                 if (!project.ProjectVariants.TryGetByName(curVariant.Name, out otherVariant))
                 {
                     throw new SmartAPIException(Session.ServerLogin,
@@ -535,10 +539,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private void AddTemplateDescriptions(Project project, XmlElement template)
         {
             XmlElement templateDescriptions = template.AddElement("TEMPLATEDESCRIPTIONS");
-            foreach (LanguageVariant languageVariant in project.LanguageVariants)
+            foreach (ILanguageVariant languageVariant in project.LanguageVariants)
             {
                 XmlElement templateDescription = templateDescriptions.AddElement("TEMPLATEDESCRIPTION");
-                templateDescription.AddAttribute("dialoglanguageid", languageVariant.Language);
+                templateDescription.AddAttribute("dialoglanguageid", languageVariant.Abbreviation);
                 templateDescription.AddAttribute("name", Name);
                 if (!string.IsNullOrEmpty(Description))
                 {
@@ -563,7 +567,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        private void AssignKeywords(IEnumerable<Keyword> keywordsToAdd)
+        private void AssignKeywords(IEnumerable<IKeyword> keywordsToAdd)
         {
             foreach (Keyword curKeyword in keywordsToAdd)
             {
@@ -624,7 +628,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             try
             {
-                List<Keyword> keywordsToAssign =
+                List<IKeyword> keywordsToAssign =
                     PreassignedKeywords.Select(
                         x => targetCC.Project.Categories.GetByName(x.Category.Name).Keywords.GetByName(x.Name)).ToList();
                 targetCC.SetPreassignedKeywords(keywordsToAssign);
@@ -701,17 +705,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     .Cast<IPageDefinition>().ToList();
         }
 
-        private List<Keyword> GetPreassignedKeywords()
+        private List<IKeyword> GetPreassignedKeywords()
         {
             const string LOAD_PREASSIGNED_KEYWORDS = @"<TEMPLATE guid=""{0}""><KEYWORDS action=""load""/></TEMPLATE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PREASSIGNED_KEYWORDS, Guid.ToRQLString()),
                                                     Project.RqlType.SessionKeyInProject);
 
-            IEnumerable<Keyword> keywords = new List<Keyword>();
+            IEnumerable<IKeyword> keywords = new List<Keyword>();
             foreach (XmlElement node in xmlDoc.GetElementsByTagName("CATEGORY"))
             {
                 var curCategory = new Category(Project, node.GetGuid()) {Name = node.GetAttributeValue("value")};
-                IEnumerable<Keyword> newKeywords =
+                var newKeywords =
                     from XmlElement curKeywordNode in xmlDoc.GetElementsByTagName("KEYWORD")
                     select
                         new Keyword(Project, curKeywordNode.GetGuid())
@@ -749,7 +753,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private void Init()
         {
             Versions = new RDList<CCVersion>(GetVersions, Caching.Enabled);
-            PreassignedKeywords = new NameIndexedRDList<Keyword>(GetPreassignedKeywords, Caching.Enabled);
+            PreassignedKeywords = new NameIndexedRDList<IKeyword>(GetPreassignedKeywords, Caching.Enabled);
             PageDefinitions = new RDList<IPageDefinition>(GetPageDefinitions, Caching.Enabled);
             TemplateVariants = new NameIndexedRDList<TemplateVariant>(GetTemplateVariants, Caching.Enabled);
         }
@@ -788,7 +792,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        private void UnlinkKeywords(IEnumerable<Keyword> keywordsToRemove)
+        private void UnlinkKeywords(IEnumerable<IKeyword> keywordsToRemove)
         {
             foreach (Keyword curKeyword in keywordsToRemove)
             {
@@ -908,7 +912,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
             private DateTime? _date;
             private Folder _folder;
-            private User _user;
+            private IUser _user;
 
             internal CCVersion(ContentClass parent, XmlElement xmlElement) : base(parent.Project, xmlElement)
             {
@@ -948,7 +952,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 }
             }
 
-            public User User
+            public IUser User
             {
                 get
                 {

@@ -26,15 +26,15 @@ namespace erminas.SmartAPI.Utils
     /// </example>
     public sealed class LanguageContext : IDisposable
     {
-        private readonly LanguageVariant _origLang;
+        private readonly ILanguageVariant _origLang;
 
         /// <summary>
         ///     Selects a language variant and restores the previously selected language variant on dispose.
         /// </summary>
         /// <param name="lang"> </param>
-        public LanguageContext(LanguageVariant lang)
+        public LanguageContext(ILanguageVariant lang)
         {
-            _origLang = lang.Project.CurrentLanguageVariant;
+            _origLang = lang.Project.LanguageVariants.Current;
 
             lang.Select();
         }
@@ -44,7 +44,7 @@ namespace erminas.SmartAPI.Utils
         /// </summary>
         public LanguageContext(Project project)
         {
-            _origLang = project.CurrentLanguageVariant;
+            _origLang = project.LanguageVariants.Current;
         }
 
         #region IDisposable Members

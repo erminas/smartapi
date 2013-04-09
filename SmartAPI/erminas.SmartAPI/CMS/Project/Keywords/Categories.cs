@@ -22,6 +22,13 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
+
+    public interface  ICategories : IRDList<ICategory>, IProjectObject
+    {
+        ICategory CreateOrGet(string categoryName);
+        void Delete(string categoryName);
+    }
+
     /// <summary>
     ///     Encapsulates category management for a project.
     ///     Allows enumeration, creation and deletion of categories from a project.
@@ -29,7 +36,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// <remarks>
     ///     We don't subclass NameIndexedRDList, because renaming to existing category names is allowed (albeit senseless) and could lead to duplicate category names
     /// </remarks>
-    public class Categories : RDList<Category>, IProjectObject
+    public class Categories : RDList<ICategory>, ICategories
     {
         private readonly Project _project;
 
@@ -39,7 +46,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             _project = project;
         }
 
-        public Category CreateOrGet(string categoryName)
+        public ICategory CreateOrGet(string categoryName)
         {
             const string ADD_CATEGORY = @"<PROJECT><CATEGORY action=""addnew"" value=""{0}""/></PROJECT>";
             var xmlDoc = _project.ExecuteRQL(ADD_CATEGORY.RQLFormat(categoryName));
@@ -58,7 +65,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
         public void Delete(string categoryName)
         {
-            Category category;
+            ICategory category;
             if (TryGetByName(categoryName, out category))
             {
                 category.Delete();
@@ -75,12 +82,12 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             get { return _project.Session; }
         }
 
-        private List<Category> GetCategories()
+        private List<ICategory> GetCategories()
         {
             const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
             XmlDocument xmlDoc = _project.ExecuteRQL(LIST_CATEGORIES);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
-            return (from XmlElement curNode in xmlNodes select new Category(_project, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select (ICategory)new Category(_project, curNode)).ToList();
         }
     }
 }

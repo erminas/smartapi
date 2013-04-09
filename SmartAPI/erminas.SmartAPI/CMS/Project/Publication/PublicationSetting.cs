@@ -41,8 +41,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             get { return _exportFolderSettings; }
         }
 
-        public LanguageVariant LanguageVariant { get; private set; }
-        public ProjectVariant ProjectVariant { get; private set; }
+        public ILanguageVariant ILanguageVariant { get; private set; }
+        public IProjectVariant ProjectVariant { get; private set; }
 
         public PublicationPackage PublicationPackage { get; set; }
 
@@ -98,11 +98,11 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
         private void LoadXml()
         {
-            ProjectVariant = new ProjectVariant(PublicationPackage.Project, XmlElement.GetGuid("projectvariantguid"));
+            ProjectVariant = ProjectVariantFactory.CreateFromGuid(PublicationPackage.Project, XmlElement.GetGuid("projectvariantguid"));
 
-            Name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
+            _name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
                    XmlElement.GetAttributeValue("languagevariantname");
-            LanguageVariant =
+            ILanguageVariant =
                 PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
             XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =

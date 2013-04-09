@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.SiteMap)]
     public class SiteMap : AbstractLinkElement
     {
-        public SiteMap(Project project, Guid guid, LanguageVariant languageVariant)
+        public SiteMap(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

@@ -34,7 +34,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
             var parentCcElement = (ContentClassElement) Parent;
             return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].FirstOrDefault(
+                parentCcElement.ContentClass.Elements[parentCcElement.ILanguageVariant.Abbreviation].FirstOrDefault(
                     x => x.Guid.Equals(elementGuid));
         }
 
@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
             var parentCcElement = (ContentClassElement) Parent;
             return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].FirstOrDefault(
+                parentCcElement.ContentClass.Elements[parentCcElement.ILanguageVariant.Abbreviation].FirstOrDefault(
                     x => x.Name == name);
         }
     }

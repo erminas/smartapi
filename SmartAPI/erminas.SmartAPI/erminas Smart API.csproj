@@ -39,8 +39,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>tmp_key2.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -62,14 +61,25 @@
     <Compile Include="CMS\Administration\AsynchronousProcess.cs" />
     <Compile Include="CMS\Administration\ServerManagementContext.cs" />
     <Compile Include="CMS\Administration\IUsers.cs" />
-    <Compile Include="CMS\Groups.cs" />
+    <Compile Include="CMS\IDeletable.cs" />
+    <Compile Include="CMS\IGroup.cs" />
     <Compile Include="CMS\ISessionObject.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClasses.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\AbstractWorkflowPreassignable.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\DeliveryServerConstraint.cs" />
+    <Compile Include="CMS\Project\ILanguageVariants.cs" />
+    <Compile Include="CMS\Project\IProjectGroups.cs" />
+    <Compile Include="CMS\Project\IDatabaseConnections.cs" />
+    <Compile Include="CMS\Project\IFolders.cs" />
     <Compile Include="CMS\Project\IProjectImportJob.cs" />
     <Compile Include="CMS\Project\IAsyncProjectJob.cs" />
     <Compile Include="CMS\Project\IProjectObject.cs" />
+    <Compile Include="CMS\Project\IProjectUsers.cs" />
+    <Compile Include="CMS\Project\IProjectVariants.cs" />
+    <Compile Include="CMS\Project\IGlobalWorkflows.cs" />
+    <Compile Include="CMS\Project\IProjectWorkflows.cs" />
+    <Compile Include="CMS\Project\ISyllables.cs" />
+    <Compile Include="CMS\Project\IUserProjects.cs" />
     <Compile Include="CMS\Project\Keywords\Categories.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\CategoryXmlNodeAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\ElementReferenceAttribute.cs" />
@@ -84,6 +94,7 @@
     <Compile Include="CMS\Project\ContentClasses\Elements\TargetFormat.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContentClassElement.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContentClassPreassignable.cs" />
+    <Compile Include="CMS\Project\Pages\IAssignedKeywords.cs" />
     <Compile Include="CMS\Project\Pages\Pages.cs" />
     <Compile Include="CMS\Project\Pages\ILinkTarget.cs" />
     <Compile Include="CMS\Project\Pages\IPage.cs" />
@@ -236,7 +247,7 @@
     <Compile Include="CMS\Project\Pages\Page.cs" />
     <Compile Include="CMS\Project\Pages\PageSearch.cs" />
     <Compile Include="CMS\Project\Project.cs" />
-    <Compile Include="CMS\Project\ProjectVariant.cs" />
+    <Compile Include="CMS\Project\IProjectVariant.cs" />
     <Compile Include="CMS\Project\Publication\PublicationPackage.cs" />
     <Compile Include="CMS\Project\Publication\PublicationTarget.cs" />
     <Compile Include="CMS\RedDotObject.cs" />
@@ -256,8 +267,9 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Utils\CachedCollections\CachingContext.cs" />
-    <Compile Include="Utils\DictionaryExtension.cs" />
-    <Compile Include="Utils\CachedCollections\ICaching.cs" />
+    <Compile Include="Utils\CachedCollections\RDListExtensions.cs" />
+    <Compile Include="Utils\CollectionExtensions.cs" />
+    <Compile Include="Utils\CachedCollections\ICached.cs" />
     <Compile Include="Utils\INameEqualityComparer.cs" />
     <Compile Include="Utils\CachedCollections\IRDList.cs" />
     <Compile Include="Utils\CachedCollections\IndexedRDList.cs" />

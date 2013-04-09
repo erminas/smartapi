@@ -31,14 +31,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
         }
 
-        public StandardFieldTime(Project project, Guid guid, LanguageVariant languageVariant)
+        public StandardFieldTime(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
         public override void Commit()
         {
-            using (new LanguageContext(LanguageVariant))
+            using (new LanguageContext(ILanguageVariant))
             {
                 //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
                 Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),

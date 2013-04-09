@@ -17,7 +17,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class ProjectVariantAttribute : AbstractGuidXmlNodeAttribute<ProjectVariant>
+    public class ProjectVariantAttribute : AbstractGuidXmlNodeAttribute<IProjectVariant>
     {
         public ProjectVariantAttribute(ContentClassElement parent, string name)
             : base(parent.ContentClass.Project.Session, parent, name)
@@ -29,12 +29,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "project variant";
         }
 
-        protected override ProjectVariant RetrieveByGuid(Guid guid)
+        protected override IProjectVariant RetrieveByGuid(Guid guid)
         {
             return ((ContentClassElement) Parent).ContentClass.Project.ProjectVariants.GetByGuid(guid);
         }
 
-        protected override ProjectVariant RetrieveByName(string name)
+        protected override IProjectVariant RetrieveByName(string name)
         {
             return ((ContentClassElement) Parent).ContentClass.Project.ProjectVariants[name];
         }

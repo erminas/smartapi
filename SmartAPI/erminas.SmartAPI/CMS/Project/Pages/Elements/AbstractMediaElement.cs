@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     {
         private File _file;
 
-        protected AbstractMediaElement(Project project, Guid guid, LanguageVariant languageVariant)
+        protected AbstractMediaElement(Project project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
@@ -66,7 +66,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             InitFileValue(folder);
         }
 
-        private Folder GetFolder()
+        private IFolder GetFolder()
         {
             Guid folderGuid;
             if (!XmlElement.TryGetGuid("folderguid", out folderGuid))
@@ -82,7 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                        : folderList.FirstOrDefault(folder => folder.Guid == folderGuid);
         }
 
-        private void InitFileValue(Folder folder)
+        private void InitFileValue(IFolder folder)
         {
             var fileName = XmlElement.GetAttributeValue("value");
             if (string.IsNullOrEmpty(fileName))

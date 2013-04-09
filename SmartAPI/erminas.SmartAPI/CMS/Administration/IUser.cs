@@ -14,11 +14,9 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -44,15 +42,15 @@ namespace erminas.SmartAPI.CMS.Administration
         MouseButtonOnly = 1
     }
 
-    public interface IUser : IPartialRedDotObject, ISessionObject
+    public interface IUser : IPartialRedDotObject, ISessionObject, IDeletable
     {
         Guid AccountSystemGuid { get; }
+        void Commit();
         string Description { get; set; }
         DirectEditActivation DirectEditActivationType { get; set; }
         string EMail { get; set; }
         string FullName { get; set; }
         int Id { get; }
-        new string Name { get; set; }
         bool IsAlwaysScrollingOpenTreeSegmentsInTheVisibleArea { get; set; }
         bool IsPasswordwordChangeableByCurrentUser { get; }
         IDialogLocale LanguageOfUserInterface { get; set; }
@@ -61,23 +59,14 @@ namespace erminas.SmartAPI.CMS.Administration
         int MaxLevel { get; }
         int MaximumNumberOfSessions { get; set; }
         UserModuleAssignment ModuleAssignment { get; }
+        new string Name { get; set; }
         string NavigationType { get; }
         string Password { set; }
         int PreferredEditor { get; }
 
-        /// <summary>
-        ///     List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
-        /// </summary>
-        IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; }
+        IUserProjects Projects { get; }
 
         UserPofileChangeRestrictions UserPofileChangeRestrictions { get; set; }
-
-        UserProjectAssignment AssignProject(Project.Project project, UserRole role,
-                                                            ExtendedUserRoles extendedRoles);
-
-        void Commit();
-        void Delete();
-        void UnassignProject(Project.Project project);
     }
 
     /// <summary>
@@ -122,18 +111,9 @@ namespace erminas.SmartAPI.CMS.Administration
             LoadXml();
         }
 
-        public new string Name { get { return base.Name; } set { _name = value; } }
-
         public Guid AccountSystemGuid
         {
             get { return LazyLoad(ref _accountSystemGuid); }
-        }
-
-        public UserProjectAssignment AssignProject(Project.Project project, UserRole role,
-                                                   ExtendedUserRoles extendedRoles)
-        {
-            //TODO check result ...
-            return UserProjectAssignment.Create(this, project, role, extendedRoles);
         }
 
         public void Commit()
@@ -142,12 +122,24 @@ namespace erminas.SmartAPI.CMS.Administration
                 @"<ADMINISTRATION><USER action=""save"" guid=""{0}"" name=""{1}"" fullname=""{2}"" description=""{3}"" email=""{4}"" userlanguage=""{5}"" maxlogin=""{6}"" invertdirectedit=""{7}"" treeautoscroll=""{8}"" preferrededitor=""{9}"" navigationtype=""{10}"" lcid=""{11}"" userlimits=""{12}"" {13}/></ADMINISTRATION>";
 
             var passwordAttribute = _password != null ? "password=\"" + _password + '"' : "";
-            var query = SAVE_USER.SecureRQLFormat(this, Name, FullName, Description, EMail, LanguageOfUserInterface.LanguageAbbreviation,
-                                                  MaximumNumberOfSessions, (int) DirectEditActivationType,
+            var query = SAVE_USER.SecureRQLFormat(this, Name, FullName, Description, EMail,
+                                                  LanguageOfUserInterface.LanguageAbbreviation, MaximumNumberOfSessions,
+                                                  (int) DirectEditActivationType,
                                                   IsAlwaysScrollingOpenTreeSegmentsInTheVisibleArea, PreferredEditor,
                                                   NavigationType, Locale, (int) UserPofileChangeRestrictions,
                                                   passwordAttribute);
             Session.ExecuteRQL(query, Session.IODataFormat.LogonGuidOnly);
+        }
+
+        public void Delete()
+        {
+            const string DELETE_USER = @"<ADMINISTRATION><USER action=""delete"" guid=""{0}"" /></ADMINISTRATION>";
+            var xmlDoc = Session.ExecuteRQL(DELETE_USER.RQLFormat(this), Session.IODataFormat.LogonGuidOnly);
+            if (!xmlDoc.InnerText.Contains("ok"))
+            {
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete user {0}", this));
+            }
+            Session.Users.InvalidateCache();
         }
 
         public string Description
@@ -184,17 +176,6 @@ namespace erminas.SmartAPI.CMS.Administration
                 EnsureInitialization();
                 _fullname = value;
             }
-        }
-
-        public void Delete()
-        {
-            const string DELETE_USER = @"<ADMINISTRATION><USER action=""delete"" guid=""{0}"" /></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(DELETE_USER.RQLFormat(this), Session.IODataFormat.LogonGuidOnly);
-            if (!xmlDoc.InnerText.Contains("ok"))
-            {
-                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete user {0}", this));
-            }
-            Session.Users.InvalidateCache();
         }
 
         public int Id
@@ -259,6 +240,12 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public UserModuleAssignment ModuleAssignment { get; private set; }
 
+        public new string Name
+        {
+            get { return base.Name; }
+            set { _name = value; }
+        }
+
         public string NavigationType
         {
             get { return LazyLoad(ref _navigationType); }
@@ -274,20 +261,7 @@ namespace erminas.SmartAPI.CMS.Administration
             get { return LazyLoad(ref _preferredEditor); }
         }
 
-        /// <summary>
-        ///     List of UserProjectAssignments for every project this user is assigned to. The UserProjectAssignment objects also contain this users role in the assigned project. The list is cached by default.
-        /// </summary>
-        public IIndexedCachedList<string, UserProjectAssignment> ProjectAssignments { get; private set; }
-
-        public void UnassignProject(Project.Project project)
-        {
-            const string UNASSING_PROJECT =
-                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
-
-            //TODO check result ...
-            Session.ExecuteRQL(UNASSING_PROJECT.RQLFormat(this, project));
-            ProjectAssignments.InvalidateCache();
-        }
+        public IUserProjects Projects { get; private set; }
 
         public UserPofileChangeRestrictions UserPofileChangeRestrictions
         {
@@ -315,22 +289,9 @@ namespace erminas.SmartAPI.CMS.Administration
             return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
         }
 
-        private List<UserProjectAssignment> GetProjectAssignments()
-        {
-            const string LIST_USER_PROJECTS =
-                @"<ADMINISTRATION><USER guid=""{0}""><PROJECTS action=""list"" extendedinfo=""1""/></USER></ADMINISTRATION>";
-
-            var xmlDoc = Session.ExecuteRQL(LIST_USER_PROJECTS.RQLFormat(this));
-            return (from XmlElement assignmentElement in xmlDoc.GetElementsByTagName("PROJECT")
-                    select new UserProjectAssignment(this, assignmentElement)).ToList();
-        }
-
         private void Init()
         {
-            ProjectAssignments = new IndexedCachedList<string, UserProjectAssignment>(GetProjectAssignments,
-                                                                                      assignment =>
-                                                                                      assignment.Project.Name,
-                                                                                      Caching.Enabled);
+            Projects = new UserProjects(this, Caching.Enabled);
             ModuleAssignment = new UserModuleAssignment(this);
         }
 

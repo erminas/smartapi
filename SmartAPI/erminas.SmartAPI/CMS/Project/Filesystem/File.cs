@@ -18,12 +18,12 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
-    public class File : IProjectObject
+    public class File : IProjectObject,IDeletable
     {
         /// <summary>
         ///     Folder the file is stored in
         /// </summary>
-        private readonly Folder _folder;
+        private readonly IFolder _folder;
 
         /// <summary>
         ///     Name of the file
@@ -40,7 +40,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             _folder = new Folder(project, xmlElement.GetGuid("folderguid"));
         }
 
-        public File(Folder folder, string fileName)
+        public File(IFolder folder, string fileName)
         {
             _project = folder.Project;
             _folder = folder;
@@ -86,7 +86,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <summary>
         ///     Folder the file is stored in
         /// </summary>
-        public Folder Folder
+        public IFolder Folder
         {
             get { return _folder; }
         }
