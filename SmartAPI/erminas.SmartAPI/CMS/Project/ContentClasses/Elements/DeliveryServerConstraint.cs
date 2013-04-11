@@ -17,9 +17,18 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class DeliveryServerConstraint : ContentClassElement
+    public interface IDeliveryServerConstraint : IContentClassElement
     {
-        internal DeliveryServerConstraint(ContentClass contentClass, XmlElement xmlElement)
+        bool IsEditingMandatory { get; set; }
+        bool IsHiddenInProjectStructure { get; set; }
+        bool IsLanguageIndependent { get; set; }
+        bool IsNotRelevantForWorklow { get; set; }
+        bool IsNotUsedInForm { get; set; }
+    }
+
+    internal class DeliveryServerConstraint : ContentClassElement, IDeliveryServerConstraint
+    {
+        internal DeliveryServerConstraint(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "eltinvisibleinclient",

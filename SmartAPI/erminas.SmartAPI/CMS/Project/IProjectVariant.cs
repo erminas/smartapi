@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Project
 
     public static class ProjectVariantFactory
     {
-        public  static IProjectVariant CreateFromGuid(Project project, Guid guid)
+        public  static IProjectVariant CreateFromGuid(IProject project, Guid guid)
         {
             return new ProjectVariant(project, guid);
         }
@@ -35,11 +35,11 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal class ProjectVariant : PartialRedDotProjectObject, IProjectVariant
     {
-        internal ProjectVariant(Project project, Guid guid) : base(project, guid)
+        internal ProjectVariant(IProject project, Guid guid) : base(project, guid)
         {
         }
 
-        internal ProjectVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal ProjectVariant(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

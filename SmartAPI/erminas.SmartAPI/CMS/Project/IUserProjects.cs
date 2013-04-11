@@ -12,18 +12,18 @@ namespace erminas.SmartAPI.CMS.Project
     {
         IUser User { get; }
 
-        IUserProjectAssignment AddOrSet(Project project, UserRole role, ExtendedUserRoles extendedRoles);
-        void Remove(Project project);
+        IUserProjectAssignment AddOrSet(IProject project, UserRole role, ExtendedUserRoles extendedRoles);
+        void Remove(IProject project);
         IUserProjectAssignment GetByProjectName(string projectName);
         IUserProjectAssignment GetByProjectGuid(Guid projectGuid);
-        IUserProjectAssignment GetByProject(Project project);
-        IUserProjectAssignment this[Project project] { get; }
+        IUserProjectAssignment GetByProject(IProject project);
+        IUserProjectAssignment this[IProject project] { get; }
         bool TryGetByProjectName(string projectName, out IUserProjectAssignment assignment);
         bool TryGetByProjectGuid(Guid projectGuid, out IUserProjectAssignment assignment);
-        bool TryGetByProject(Project project, out IUserProjectAssignment assignment);
+        bool TryGetByProject(IProject project, out IUserProjectAssignment assignment);
         bool ContainsProjectName(string projectName);
         bool ContainsProjectGuid(Guid projectGuid);
-        bool ContainsProject(Project project);
+        bool ContainsProject(IProject project);
     }
 
     internal class UserProjects : IndexedCachedList<string, IUserProjectAssignment>, IUserProjects
@@ -38,12 +38,12 @@ namespace erminas.SmartAPI.CMS.Project
 
         public IUser User { get { return _user; } }
 
-        public IUserProjectAssignment AddOrSet(Project project, UserRole role, ExtendedUserRoles extendedRoles)
+        public IUserProjectAssignment AddOrSet(IProject project, UserRole role, ExtendedUserRoles extendedRoles)
         {
             return UserProjectAssignment.Create(_user, project, role, extendedRoles);
         }
 
-        public void Remove(Project project)
+        public void Remove(IProject project)
         {
             UserProjectAssignment.Delete(project, User);
         }
@@ -58,12 +58,12 @@ namespace erminas.SmartAPI.CMS.Project
             return this.First(assignment => assignment.Project.Guid == projectGuid);
         }
 
-        public IUserProjectAssignment GetByProject(Project project)
+        public IUserProjectAssignment GetByProject(IProject project)
         {
             return this[project];
         }
 
-        public IUserProjectAssignment this[Project project]
+        public IUserProjectAssignment this[IProject project]
         {
             get { return GetByProjectGuid(project.Guid); }
         }
@@ -79,7 +79,7 @@ namespace erminas.SmartAPI.CMS.Project
             return assignment != null;
         }
 
-        public bool TryGetByProject(Project project, out IUserProjectAssignment assignment)
+        public bool TryGetByProject(IProject project, out IUserProjectAssignment assignment)
         {
             return TryGetByProjectName(project.Name, out assignment);
         }
@@ -94,7 +94,7 @@ namespace erminas.SmartAPI.CMS.Project
             return this.Any(assignment => assignment.Project.Guid == projectGuid);
         }
 
-        public bool ContainsProject(Project project)
+        public bool ContainsProject(IProject project)
         {
             return ContainsProjectGuid(project.Guid);
         }

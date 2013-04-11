@@ -20,7 +20,7 @@ using Attribute = System.Attribute;
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class PageElementType : Attribute
+    internal sealed class PageElementType : Attribute
     {
         public PageElementType(ElementType type)
         {

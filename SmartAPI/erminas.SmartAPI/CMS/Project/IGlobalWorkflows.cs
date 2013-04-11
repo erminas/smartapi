@@ -13,9 +13,9 @@ namespace erminas.SmartAPI.CMS.Project
     {
         private class ProjectWrapper : IWorkflowAssignable
         {
-            private readonly Project _project;
+            private readonly IProject _project;
 
-            internal ProjectWrapper(Project project)
+            internal ProjectWrapper(IProject project)
             {
                 _project = project;
             }
@@ -23,10 +23,10 @@ namespace erminas.SmartAPI.CMS.Project
             public Guid Guid { get { return Project.Guid; } }
             public string Name { get { return Project.Name; } }
             public Session Session { get { return Project.Session; } }
-            public Project Project { get { return _project; } }
+            public IProject Project { get { return _project; } }
         }
 
-        private readonly Project _project;
+        private readonly IProject _project;
         private readonly WorkflowAssignments _workflowAssignments;
         public void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants)
         {
@@ -84,13 +84,13 @@ namespace erminas.SmartAPI.CMS.Project
             set { _workflowAssignments.StructuralWorkflow = value; }
         }
 
-        internal GlobalWorkflows(Project project)
+        internal GlobalWorkflows(IProject project)
         {
             _project = project;
             _workflowAssignments = new WorkflowAssignments(new ProjectWrapper(project));
         }
 
         public Session Session { get { return _project.Session; } }
-        public Project Project { get { return _project; } }
+        public IProject Project { get { return _project; } }
     }
 }

@@ -19,14 +19,18 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.Image)]
-    public class Image : AbstractMediaElement
+    public interface IImage : IMediaElementBase
     {
-        public Image(Project project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
+    }
+
+    [PageElementType(ElementType.Image)]
+    class Image : AbstractMediaElement, IImage
+    {
+        public Image(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 
-        internal Image(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Image(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

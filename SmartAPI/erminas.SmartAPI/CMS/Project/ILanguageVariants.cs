@@ -30,10 +30,10 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal class LanguageVariants : IndexedRDList<string, ILanguageVariant>, ILanguageVariants
     {
-        private readonly Project _project;
+        private readonly IProject _project;
         private ILanguageVariant _currentLanguageVariant;
 
-        internal LanguageVariants(Project project, Caching caching) : base(variant => variant.Abbreviation, caching)
+        internal LanguageVariants(IProject project, Caching caching) : base(variant => variant.Abbreviation, caching)
         {
             _project = project;
             RetrieveFunc = GetLanguageVariants;
@@ -62,7 +62,7 @@ namespace erminas.SmartAPI.CMS.Project
                 }
                 const string SELECT_LANGUAGE = @"<LANGUAGEVARIANT action=""setactive"" guid=""{0}""/>";
                 XmlDocument xmlDoc = _project.ExecuteRQL(SELECT_LANGUAGE.RQLFormat(value.Guid.ToRQLString()),
-                                                         Project.RqlType.SessionKeyInProject);
+                                                         RqlType.SessionKeyInProject);
                 if (!xmlDoc.InnerText.Contains("ok"))
                 {
                     throw new SmartAPIException(Session.ServerLogin,
@@ -78,7 +78,7 @@ namespace erminas.SmartAPI.CMS.Project
             }
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

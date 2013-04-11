@@ -19,34 +19,27 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationTarget : PartialRedDotProjectObject
+    public interface IPublicationTarget : IPartialRedDotObject, IProjectObject
     {
-        #region TargetType enum
+        PublicationTargetType Type { get; }
+        string UrlPrefix { get; }
+    }
 
-        public enum TargetType
-        {
-            None = 0,
-            Ftp = 6205,
-            Directory = 6206,
-            LiveServer = 6207,
-            Sftp = 6208
-        };
-
-        #endregion
-
-        private TargetType _type;
+    internal class PublicationTarget : PartialRedDotProjectObject, IPublicationTarget
+    {
+        private PublicationTargetType _type;
         private string _urlPrefix;
 
-        internal PublicationTarget(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal PublicationTarget(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        public PublicationTarget(Project project, Guid guid) : base(project, guid)
+        public PublicationTarget(IProject project, Guid guid) : base(project, guid)
         {
         }
 
-        public TargetType Type
+        public PublicationTargetType Type
         {
             get { return LazyLoad(ref _type); }
         }
@@ -66,14 +59,23 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             const string LOAD_PUBLISHING_TARGET = @"<EXPORT guid=""{0}"" action=""load""/>";
 
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLISHING_TARGET, Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
+                                                    RqlType.SessionKeyInProject);
             return (XmlElement) xmlDoc.GetElementsByTagName("EXPORT")[0];
         }
 
         private void LoadXml()
         {
             InitIfPresent(ref _urlPrefix, "urlprefix", x => x);
-            EnsuredInit(ref _type, "type", x => (TargetType) int.Parse(x));
+            EnsuredInit(ref _type, "type", x => (PublicationTargetType) int.Parse(x));
         }
     }
+
+    public enum PublicationTargetType
+    {
+        None = 0,
+        Ftp = 6205,
+        Directory = 6206,
+        LiveServer = 6207,
+        Sftp = 6208
+    };
 }

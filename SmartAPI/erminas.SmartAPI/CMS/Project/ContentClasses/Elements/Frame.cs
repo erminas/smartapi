@@ -119,9 +119,22 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     #endregion
 
-    public class Frame : AbstractWorkflowAssignments, IContentClassPreassignable
+    public interface IFrame : IWorkflowAssignments, IContentClassPreassignable
     {
-        internal Frame(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        string FrameName { get; set; }
+        Frameborder Frameborder { get; set; }
+        bool IsNotResizing { get; set; }
+        bool IsSyntaxConformingToXHtml { get; set; }
+        string MarginHeight { get; set; }
+        string MarginWidth { get; set; }
+        Scrolling Scrolling { get; set; }
+        string Src { get; set; }
+        string Supplement { get; set; }
+    }
+
+    internal class Frame : AbstractWorkflowAssignments, IFrame
+    {
+        internal Frame(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltframename", "eltmarginwidth", "eltmarginheight", "eltscrolling",
                              "eltsrc", "eltsupplement", "eltframeborder", "eltnoresize");

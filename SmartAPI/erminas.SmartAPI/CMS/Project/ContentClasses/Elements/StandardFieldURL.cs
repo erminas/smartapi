@@ -17,9 +17,13 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class StandardFieldURL : StandardFieldNonDate
+    public interface IStandardFieldURL : IStandardFieldNonDate
     {
-        internal StandardFieldURL(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+    }
+
+    internal class StandardFieldURL : StandardFieldNonDate, IStandardFieldURL
+    {
+        internal StandardFieldURL(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
     }

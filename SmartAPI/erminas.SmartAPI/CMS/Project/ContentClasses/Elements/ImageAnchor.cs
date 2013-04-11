@@ -20,9 +20,24 @@ using erminas.SmartAPI.CMS.Project.Filesystem;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class ImageAnchor : Anchor
+    public interface IImageAnchor : IAnchor
     {
-        internal ImageAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        ImageAlignment Align { get; set; }
+        string AltText { get; set; }
+        string HSpace { get; set; }
+        string ImageLinkSupplement { get; set; }
+        bool IsAltPreassignedAutomatically { get; set; }
+        bool IsBorderAutomaticallyInsertedIntoPage { get; set; }
+        bool IsHeightAutomaticallyInsertedIntoPage { get; set; }
+        bool IsWidthAutomaticallyInsertedIntoPage { get; set; }
+        File SrcFile { get; set; }
+        string Usemap { get; set; }
+        string VSpace { get; set; }
+    }
+
+    internal class ImageAnchor : Anchor, IImageAnchor
+    {
+        internal ImageAnchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace", "eltusermap",
                              "eltautoheight", "eltautowidth", "eltfolderguid", "eltautoborder", "eltsrcsubdirguid",

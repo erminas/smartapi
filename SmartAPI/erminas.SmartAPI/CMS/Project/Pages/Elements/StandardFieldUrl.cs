@@ -19,14 +19,18 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.StandardFieldUrl)]
-    public class StandardFieldUrl : StandardField<Uri>
+    public interface IStandardFieldUrl : IStandardField<Uri>
     {
-        internal StandardFieldUrl(Project project, XmlElement xmlElement) : base(project, xmlElement)
+    }
+
+    [PageElementType(ElementType.StandardFieldUrl)]
+    internal class StandardFieldUrl : StandardField<Uri>, IStandardFieldUrl
+    {
+        internal StandardFieldUrl(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        public StandardFieldUrl(Project project, Guid guid, ILanguageVariant languageVariant)
+        public StandardFieldUrl(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

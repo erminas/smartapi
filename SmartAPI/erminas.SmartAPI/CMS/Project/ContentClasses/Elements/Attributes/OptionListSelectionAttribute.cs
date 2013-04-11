@@ -24,15 +24,15 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class OptionListSelectionAttribute : IRDAttribute
+    internal class OptionListSelectionAttribute : IRDAttribute
     {
         private const string IDENTIFIER = "identifier";
         private const string SELECTION = "SELECTION";
 
-        private readonly OptionList _parent;
+        private readonly IOptionList _parent;
         private string _value;
 
-        public OptionListSelectionAttribute(OptionList parent, string name, XmlElement xmlElement)
+        public OptionListSelectionAttribute(IOptionList parent, string name, XmlElement xmlElement)
         {
             _parent = parent;
             Name = name;
@@ -65,7 +65,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                     XmlDocument xmlDoc =
                         _parent.ContentClass.Project.ExecuteRQL(
                             String.Format(LOAD_OPTION_LIST_DATA, _parent.Guid.ToRQLString()),
-                            Project.RqlType.SessionKeyInProject);
+                            RqlType.SessionKeyInProject);
                     XmlNode selectionsNode = xmlDoc.GetElementsByTagName("SELECTIONS")[0];
                     if (selectionsNode == null)
                     {

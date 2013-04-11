@@ -31,7 +31,7 @@ namespace erminas.SmartAPI.CMS.Project
         private bool _isMainLanguage;
         private string _abbreviation;
 
-        internal LanguageVariant(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal LanguageVariant(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }

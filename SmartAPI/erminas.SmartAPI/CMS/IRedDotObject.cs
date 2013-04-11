@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS
     ///         cref="PartialRedDotObject" />
     ///     as base class instead.
     /// </remarks>
-    public abstract class RedDotObject : AbstractAttributeContainer, IRedDotObject
+    internal abstract class RedDotObject : AbstractAttributeContainer, IRedDotObject
     {
         [ScriptIgnore] protected static XmlDocument XMLDoc = new XmlDocument();
 

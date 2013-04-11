@@ -28,16 +28,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     public class PageSearch : IProjectObject
     {
         private const int DEFAULT_MAX_RECORDS = 20000;
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal PageSearch(Project project)
+        internal PageSearch(IProject project)
         {
             _project = project;
             SetDefaults();
         }
 
         public string Category { get; set; }
-        public ContentClass ContentClass { get; set; }
+        public IContentClass ContentClass { get; set; }
         public DateTime CreatedFrom { get; set; }
 
         public DateTime CreatedTo { get; set; }
@@ -110,7 +110,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public int PageIdTo { get; set; }
         public PageType PageType { get; set; }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }
@@ -164,7 +164,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
     public class Result
     {
-        public readonly ContentClass ContentClass;
+        public readonly IContentClass ContentClass;
         public readonly DateTime CreationDate;
         public readonly DateTime DateOfLastChange;
         public readonly IUser LastEditor;
@@ -172,7 +172,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public readonly IPage Page;
 
         public Result(IPage page, DateTime creationDate, IUser originalAuthor, DateTime dateOfLastChange, IUser lastEditor,
-                      ContentClass contentClass)
+                      IContentClass contentClass)
         {
             Page = page;
             CreationDate = creationDate;
@@ -226,7 +226,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public readonly int EscalationTimeoutInHours;
         public readonly bool IsEscalationProcedureSet;
         public readonly bool? IsRejectionSkippable;
-        public readonly IEnumerable<Note> Notes;
+        public readonly IEnumerable<INote> Notes;
         public readonly RejectionSkippableType RejectionSkippability;
         public readonly Rejection RejectionType;
         public readonly string ReleaseName;
@@ -237,7 +237,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public WorkflowInfo(IWorkflow workflow, IEnumerable<ReleaseInfo> releases, string releaseName,
                             Rejection rejectionType, ReleaseType workflowReactionTypeResponsibleForRejection,
                             RejectionSkippableType rejectionSkippability, int escalationTimeoutInHours,
-                            IEnumerable<Note> notes)
+                            IEnumerable<INote> notes)
         {
             Releases = releases;
             ReleaseName = releaseName;
@@ -269,31 +269,34 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     {
         public readonly int AssentCount;
         public readonly int RequiredAssentCount;
-        public readonly IEnumerable<UserInfo> Users;
+        public readonly IEnumerable<IIUserInfo> Users;
 
-        public ReleaseInfo(int assentCount, int requiredAssentCount, IEnumerable<UserInfo> users)
+        public ReleaseInfo(int assentCount, int requiredAssentCount, IEnumerable<IIUserInfo> users)
         {
             AssentCount = assentCount;
             RequiredAssentCount = requiredAssentCount;
             Users = users;
         }
 
-        #region Nested type: UserInfo
-
-        public class UserInfo
+        public interface IIUserInfo
         {
-            public readonly bool HasUserReleasedPage;
-            public readonly DateTime PageReleaseDate;
-            public readonly IUser User;
+            bool HasUserReleasedPage { get; }
+            DateTime PageReleaseDate { get; }
+            IUser User { get; }
+        }
 
-            public UserInfo(Project project, XmlElement user)
+        internal class UserInfo : IIUserInfo
+        {
+            public bool HasUserReleasedPage { get; private set; }
+            public DateTime PageReleaseDate{ get; private set; }
+            public IUser User{ get; private set; }
+
+            public UserInfo(IProject project, XmlElement user)
             {
                 User = new User(project.Session, user.GetGuid()) {Name = user.GetName()};
                 HasUserReleasedPage = user.GetIntAttributeValue("released").GetValueOrDefault() == 1;
                 PageReleaseDate = user.GetOADate().GetValueOrDefault();
             }
         }
-
-        #endregion
     }
 }

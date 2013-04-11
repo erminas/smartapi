@@ -17,9 +17,15 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Transfer : ContentClassElement
+    public interface ITransfer : IContentClassElement
     {
-        internal Transfer(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        bool IsNotConvertingCharactersToHtml { get; set; }
+        bool IsNotUsedInForm { get; set; }
+    }
+
+    internal class Transfer : ContentClassElement, ITransfer
+    {
+        internal Transfer(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltdonothtmlencode", "elthideinform");
         }

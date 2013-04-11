@@ -27,16 +27,38 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// </summary>
         void Commit();
 
-        ContentClass ContentClass { get; set; }
+        IContentClass ContentClass { get; set; }
 
         /// <summary>
         ///     Language variant of the element.
         /// </summary>
-        ILanguageVariant ILanguageVariant { get; }
+        ILanguageVariant LanguageVariant { get; }
 
         /// <summary>
         ///     TypeId of the element.
         /// </summary>
         ElementType Type { get; }
+
+        /// <summary>
+        ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
+        ///     Make sure to set the language variant in the target project into which the element should be copied, first.
+        /// </summary>
+        /// <param name="contentClass"> target content class, into which the element should be copied </param>
+        /// <returns> the created copy </returns>
+        /// <remarks>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>Override this method, if you need to set other values than the direct attributes of the element (e.g. setting text values of TextHtml elements)</description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The target content class is only modified on the server, thus the content class object does not contain the newly created element.
+        ///                 If you need an updated version of the content class, you have to retrieve it again with
+        ///                 <code>new ContentClass(Project, Guid);</code>
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        /// </remarks>
+        IContentClassElement CopyToContentClass(IContentClass contentClass);
     }
 }

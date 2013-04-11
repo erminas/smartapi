@@ -20,11 +20,16 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class StandardFieldUserDefined : StandardFieldNonDate
+    public interface IStandardFieldUserDefined : IStandardFieldNonDate
+    {
+        Regex RegularExpression { get; set; }
+    }
+
+    internal class StandardFieldUserDefined : StandardFieldNonDate, IStandardFieldUserDefined
     {
         private readonly StringXmlNodeAttribute _regexAttribute;
 
-        internal StandardFieldUserDefined(ContentClass contentClass, XmlElement xmlElement)
+        internal StandardFieldUserDefined(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             _regexAttribute = new StringXmlNodeAttribute(this, "eltverifytermregexp");

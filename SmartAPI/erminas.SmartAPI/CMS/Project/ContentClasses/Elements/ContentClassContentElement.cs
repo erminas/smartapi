@@ -17,9 +17,20 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public abstract class ContentClassContentElement : ContentClassElement, ICanBeRequiredForEditing
+    public interface IContentClassContentElement : IContentClassElement, ICanBeRequiredForEditing
     {
-        protected ContentClassContentElement(ContentClass contentClass, XmlElement xmlElement)
+        bool IsHiddenInProjectStructure { get; set; }
+        bool IsLanguageIndependent { get; set; }
+        bool IsNotConvertingCharactersToHtml { get; set; }
+        bool IsNotRelevantForWorklow { get; set; }
+        bool IsNotUsedInForm { get; set; }
+        bool IsNotVisibleOnPublishedPage { get; set; }
+        new void Commit();
+    }
+
+    internal abstract class ContentClassContentElement : ContentClassElement, IContentClassContentElement
+    {
+        protected ContentClassContentElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "eltinvisibleinclient",

@@ -22,18 +22,17 @@ namespace erminas.SmartAPI.CMS.Project
     /// <summary>
     ///     Represents a prefix or a postfix.
     /// </summary>
-    public interface ISyllable : IPartialRedDotObject, IProjectObject
+    public interface ISyllable : IPartialRedDotObject, IProjectObject, IAttributeContainer
     {
     }
 
     internal class Syllable : PartialRedDotProjectObject, ISyllable
     {
-        internal Syllable(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Syllable(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        internal Syllable(Project project, Guid guid)
-            : base(project, guid)
+        internal Syllable(IProject project, Guid guid) : base(project, guid)
         {
         }
 

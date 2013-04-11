@@ -25,26 +25,66 @@ using log4net;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
+    public interface IContentClassElementList : IRedDotObject, IProjectObject, IEnumerable<IContentClassElement>
+    {
+        /// <summary>
+        ///     The content class this element list belongs to
+        /// </summary>
+        IContentClass ContentClass { get; set; }
+
+        /// <summary>
+        ///     Number of content class elements contained in this list.
+        /// </summary>
+        /// <returns> </returns>
+        int Count();
+
+        /// <summary>
+        ///     Get an element on the list by guid.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">thrown, if no element with .Guid == guid could be found</exception>
+        IContentClassElement GetByGuid(Guid guid);
+
+        /// <summary>
+        ///     Get an element of the list by name.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">thrown, if no element with .Name == name could be found</exception>
+        IContentClassElement GetByName(string name);
+
+        /// <summary>
+        ///     Get an element of the list by name. Returns null, if no such element could be found.
+        /// </summary>
+        /// <param name="name"> Name of the element to get </param>
+        IContentClassElement this[string name] { get; }
+
+        /// <summary>
+        ///     Get an element of the list by its position in the list
+        /// </summary>
+        IContentClassElement this[int index] { get; }
+
+        bool TryGetByGuid(Guid guid, out IContentClassElement element);
+        bool TryGetByName(string name, out IContentClassElement element);
+    }
+
     /// <summary>
-    ///     A list of content class elements.
+    ///     A list of content class elements. TODO umformen in cachedlist
     /// </summary>
-    public class ContentClassElementList : RedDotProjectObject, IEnumerable<ContentClassElement>
+    internal class ContentClassElementList : RedDotProjectObject, IContentClassElementList
     {
         private static readonly ILog LOGGER = LogManager.GetLogger(typeof (ContentClassElementList));
-        private readonly List<ContentClassElement> _elements;
+        private readonly List<IContentClassElement> _elements;
 
-        internal ContentClassElementList(ContentClass contentClass, XmlElement xmlElement)
+        internal ContentClassElementList(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
         {
             ContentClass = contentClass;
-            _elements = new List<ContentClassElement>();
+            _elements = new List<IContentClassElement>();
             LoadXml();
         }
 
         /// <summary>
         ///     The content class this element list belongs to
         /// </summary>
-        public ContentClass ContentClass { get; set; }
+        public IContentClass ContentClass { get; set; }
 
         /// <summary>
         ///     Number of content class elements contained in this list.
@@ -59,9 +99,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Get an element on the list by guid.
         /// </summary>
         /// <exception cref="KeyNotFoundException">thrown, if no element with .Guid == guid could be found</exception>
-        public ContentClassElement GetByGuid(Guid guid)
+        public IContentClassElement GetByGuid(Guid guid)
         {
-            ContentClassElement element = _elements.Find(x => x.Guid == guid);
+            IContentClassElement element = _elements.Find(x => x.Guid == guid);
             if (element == null)
             {
                 throw new KeyNotFoundException(string.Format("No element with guid {0} available", guid.ToRQLString()));
@@ -73,9 +113,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Get an element of the list by name.
         /// </summary>
         /// <exception cref="KeyNotFoundException">thrown, if no element with .Name == name could be found</exception>
-        public ContentClassElement GetByName(string name)
+        public IContentClassElement GetByName(string name)
         {
-            ContentClassElement element = this[name];
+            IContentClassElement element = this[name];
             if (element == null)
             {
                 throw new KeyNotFoundException(string.Format("No element with name {0} available", name));
@@ -83,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             return element;
         }
 
-        public IEnumerator<ContentClassElement> GetEnumerator()
+        public IEnumerator<IContentClassElement> GetEnumerator()
         {
             return _elements.GetEnumerator();
         }
@@ -92,7 +132,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Get an element of the list by name. Returns null, if no such element could be found.
         /// </summary>
         /// <param name="name"> Name of the element to get </param>
-        public ContentClassElement this[string name]
+        public IContentClassElement this[string name]
         {
             get { return _elements.Find(x => x.Name == name); }
         }
@@ -100,18 +140,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Get an element of the list by its position in the list
         /// </summary>
-        public ContentClassElement this[int index]
+        public IContentClassElement this[int index]
         {
             get { return _elements[index]; }
         }
 
-        public bool TryGetByGuid(Guid guid, out ContentClassElement element)
+        public bool TryGetByGuid(Guid guid, out IContentClassElement element)
         {
             element = _elements.Find(x => x.Guid == guid);
             return element != null;
         }
 
-        public bool TryGetByName(string name, out ContentClassElement element)
+        public bool TryGetByName(string name, out IContentClassElement element)
         {
             element = this[name];
             return element != null;

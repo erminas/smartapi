@@ -19,53 +19,22 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    //todo implement correctly
-    public class WorkFlowAction : RedDotProjectObject
+    public interface IWorkFlowAction : IRedDotObject, IProjectObject
     {
-        #region ActionType enum
+        string Path { get; }
+        WorkflowActionType Type { get; set; }
+    }
 
-        public enum ActionType
-        {
-            None = 0,
-            ContentWorkflow = 1115,
-            StructureWorkflow = 1116,
-            PageCreated_Action = 1120,
-            PageChanged_Action = 1125,
-            PageDeleted_Action = 1130,
-            PageConnectedToLink_Action = 1140,
-            PageDisconnectedFromLink_Action = 1145,
-            ReleasePage_Reaction = 1155,
-            ReleaseByWebComplianceManager_Reaction = 1156,
-            ReleaseOfAStructure_Reaction = 1157,
-            EmailNotification_Reaction = 1170,
-            PageForwarding_Reaction = 1175,
-            PageEscalated_Action = 1177,
-            StartPublication_Reaction = 1178,
-            PageReleased_Action = 1185,
-            PageRejected_Action = 1190,
-            PageTransferredToOtherLanguageVariants_Reaction = 1200,
-            AutomaticResubmission_Reaction = 1205,
-            PageTranslated_Action = 1210,
-            AssignKeywordToPage_Reaction = 1310,
-            AssignKeywordToStructureElement_Reaction = 1315,
-            PageAttachedToStructure_Reaction = 1340,
-            PageDisconnectedFromStructure_Reaction = 1345,
-            WriteWorkflowXmlFile = 1225
-        };
+    //todo implement correctly
+    internal class WorkFlowAction : RedDotProjectObject, IWorkFlowAction
+    {
+        private WorkflowActionType _type;
 
-        #endregion
-
-        // ReSharper disable InconsistentNaming
-
-        // ReSharper restore InconsistentNaming
-
-        private ActionType _type;
-
-        internal WorkFlowAction(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal WorkFlowAction(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        internal WorkFlowAction(Project project, Guid guid) : base(project, guid)
+        internal WorkFlowAction(IProject project, Guid guid) : base(project, guid)
         {
         }
 
@@ -74,7 +43,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             get
             {
                 string path = null;
-                if (_type == ActionType.WriteWorkflowXmlFile)
+                if (_type == WorkflowActionType.WriteWorkflowXmlFile)
                 {
                     path = XmlElement.GetAttributeValue("path");
                 }
@@ -82,10 +51,39 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             }
         }
 
-        public ActionType Type
+        public WorkflowActionType Type
         {
             get { return _type; }
             set { _type = value; }
         }
     }
+
+    public enum WorkflowActionType
+    {
+        None = 0,
+        ContentWorkflow = 1115,
+        StructureWorkflow = 1116,
+        PageCreated_Action = 1120,
+        PageChanged_Action = 1125,
+        PageDeleted_Action = 1130,
+        PageConnectedToLink_Action = 1140,
+        PageDisconnectedFromLink_Action = 1145,
+        ReleasePage_Reaction = 1155,
+        ReleaseByWebComplianceManager_Reaction = 1156,
+        ReleaseOfAStructure_Reaction = 1157,
+        EmailNotification_Reaction = 1170,
+        PageForwarding_Reaction = 1175,
+        PageEscalated_Action = 1177,
+        StartPublication_Reaction = 1178,
+        PageReleased_Action = 1185,
+        PageRejected_Action = 1190,
+        PageTransferredToOtherLanguageVariants_Reaction = 1200,
+        AutomaticResubmission_Reaction = 1205,
+        PageTranslated_Action = 1210,
+        AssignKeywordToPage_Reaction = 1310,
+        AssignKeywordToStructureElement_Reaction = 1315,
+        PageAttachedToStructure_Reaction = 1340,
+        PageDisconnectedFromStructure_Reaction = 1345,
+        WriteWorkflowXmlFile = 1225
+    };
 }

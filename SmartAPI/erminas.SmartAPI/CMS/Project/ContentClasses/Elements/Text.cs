@@ -20,13 +20,25 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public abstract class Text : ExtendedContentClassContentElement
+    public interface IText : IExtendedContentClassContentElement
+    {
+        string DefaultText { get; set; }
+        string ExampleText { get; set; }
+        bool IsCrlfConvertedToBr { get; set; }
+        bool IsDirectEditActivated { get; set; }
+        bool IsDragAndDropActivated { get; set; }
+        bool IsTextFilterDeactivated { get; set; }
+        bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
+        int? MaxCharacterCount { get; set; }
+    }
+
+    internal abstract class Text : ExtendedContentClassContentElement, IText
     {
         private readonly TextContentAttribute _defaultText;
         private readonly TextContentAttribute _exampleText;
         private readonly StringXmlNodeAttribute _maxSizeAttribute;
 
-        protected Text(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        protected Text(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltcrlftobr", "eltdeactivatetextfilter", "eltmaxsize", "eltwholetext", "eltdirectedit",
                              "eltdragdrop");

@@ -19,17 +19,22 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+    public interface IStandardFieldText
+    {
+        int MaxSize { get; }
+    }
+
     [PageElementType(ElementType.StandardFieldText)]
-    public sealed class StandardFieldText : StandardField<string>
+    internal sealed class StandardFieldText : StandardField<string>, IStandardFieldText
     {
         private int _maxSize;
 
-        internal StandardFieldText(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldText(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        public StandardFieldText(Project project, Guid guid, ILanguageVariant languageVariant)
+        public StandardFieldText(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

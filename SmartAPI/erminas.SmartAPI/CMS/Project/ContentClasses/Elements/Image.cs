@@ -20,9 +20,45 @@ using erminas.SmartAPI.CMS.Project.Filesystem;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Image : ExtendedContentClassContentElement
+    public interface IImage : IExtendedContentClassContentElement
     {
-        internal Image(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        ImageAlignment Align { get; set; }
+        AltType AltRequierement { get; set; }
+        string AltText { get; set; }
+        int? AutomaticMaximumScalingHeight { get; set; }
+        int? AutomaticMaximumScalingWidth { get; set; }
+        string Border { get; set; }
+        int? ColorDepthInBit { get; set; }
+
+        /// <summary>
+        ///     All eligible suffixes separated by ";"
+        /// </summary>
+// todo use list<string> instead
+        string EligibleSuffixes { get; set; }
+
+        string HSpace { get; set; }
+        string HtmlHeight { get; set; }
+        string HtmlWidth { get; set; }
+        bool IsBorderAutomaticallyInsertedIntoPage { get; set; }
+        bool IsHeightAutomaticallyInsertedIntoPage { get; set; }
+        bool IsOnlyPathAndFilenameInserted { get; set; }
+        bool IsScaledOrConverted { get; set; }
+        bool IsWidthAutomaticallyInsertedIntoPage { get; set; }
+        int? MaxFileSizeInKB { get; set; }
+        string Quality { get; set; }
+        string RequiredNamePattern { get; set; }
+        int? RequiredPictureHeight { get; set; }
+        int? RequiredPictureWidth { get; set; }
+        File SrcFile { get; set; }
+        string Supplement { get; set; }
+        TargetFormat TargetFormat { get; set; }
+        string Usemap { get; set; }
+        string VSpace { get; set; }
+    }
+
+    internal class Image : ExtendedContentClassContentElement, IImage
+    {
+        internal Image(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltonlyhrefvalue", "eltmaxsize", "eltconvert", "elttargetformat", "eltmaxpicwidth",
                              "eltmaxpicheight", "eltpicwidth", "eltpicheight", "eltpicdepth", "eltfilename",

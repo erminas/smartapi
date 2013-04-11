@@ -18,9 +18,19 @@ using erminas.SmartAPI.CMS.Project.Filesystem;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class ListEntry : ContentClassElement
+    public interface IListEntry : IContentClassElement
     {
-        internal ListEntry(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        string EndTagForAutomaticProcessing { get; set; }
+        IFolder Folder { get; set; }
+        bool IsNotUsedInForm { get; set; }
+        bool IsNotVisibleOnPublishedPage { get; set; }
+        bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
+        string StartTagForAutomaticProcessing { get; set; }
+    }
+
+    internal class ListEntry : ContentClassElement, IListEntry
+    {
+        internal ListEntry(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("elthideinform", "eltinvisibleinpage", "eltbeginmark", "eltendmark", "eltwholetext",
                              "eltfolderguid");

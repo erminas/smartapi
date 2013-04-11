@@ -22,16 +22,22 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class AbstractMediaElement : PageElement
+    public interface IMediaElementBase : IPageElement
+    {
+        void Commit();
+        File Value { get; set; }
+    }
+
+    internal abstract class AbstractMediaElement : PageElement, IMediaElementBase
     {
         private File _file;
 
-        protected AbstractMediaElement(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected AbstractMediaElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        protected AbstractMediaElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractMediaElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadWholePageElement();
         }

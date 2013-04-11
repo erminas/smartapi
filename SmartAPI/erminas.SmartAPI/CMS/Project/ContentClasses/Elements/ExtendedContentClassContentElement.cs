@@ -17,9 +17,16 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public abstract class ExtendedContentClassContentElement : ContentClassContentElement
+    public interface IExtendedContentClassContentElement : IContentClassContentElement
     {
-        protected ExtendedContentClassContentElement(ContentClass contentClass, XmlElement xmlElement)
+        string Description { get; set; }
+        string EndTagForAutomaticProcessing { get; set; }
+        string StartTagForAutomaticProcessing { get; set; }
+    }
+
+    internal abstract class ExtendedContentClassContentElement : ContentClassContentElement, IExtendedContentClassContentElement
+    {
+        protected ExtendedContentClassContentElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             CreateAttributes("eltbeginmark", "eltendmark", "eltrddescription");

@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     internal class TargetContainerPreassignment
     {
         private readonly IContentClassElement _element;
-        private Pages.Elements.Container _cachedTargetContainer;
+        private Pages.Elements.IContainer _cachedTargetContainer;
 
         internal TargetContainerPreassignment(IContentClassElement element)
         {
@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _element.XmlElement.SetAttributeValue("usepagemainlinktargetcontainer", value.ToRQLString()); }
         }
 
-        internal Pages.Elements.Container TargetContainer
+        internal Pages.Elements.IContainer TargetContainer
         {
             get
             {
@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 return
                     _cachedTargetContainer =
                     (Pages.Elements.Container)
-                    PageElement.CreateElement(_element.ContentClass.Project, guid, _element.ILanguageVariant);
+                    PageElement.CreateElement(_element.ContentClass.Project, guid, _element.LanguageVariant);
             }
             set
             {

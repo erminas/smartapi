@@ -18,18 +18,14 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    public class Note : RedDotProjectObject
+    public interface INote : IRedDotObject, IProjectObject
     {
-        #region NoteType enum
+        NoteType Type { get; }
+        string Value { get; }
+    }
 
-        public enum NoteType
-        {
-            Line = 1,
-            TextField = 2
-        }
-
-        #endregion
-
+    internal class Note : RedDotProjectObject, INote
+    {
         public readonly IWorkflow Workflow;
 
         internal Note(IWorkflow workflow, XmlElement xmlElement) : base(workflow.Project, xmlElement)
@@ -46,5 +42,11 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             Value = XmlElement.GetAttributeValue("value");
             Type = (NoteType) XmlElement.GetIntAttributeValue("type").GetValueOrDefault();
         }
+    }
+
+    public enum NoteType
+    {
+        Line = 1,
+        TextField = 2
     }
 }

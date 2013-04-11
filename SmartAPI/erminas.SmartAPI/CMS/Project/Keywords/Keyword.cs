@@ -44,7 +44,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
     public static class KeywordFactory
     {
-        public static IKeyword CreateFromGuid(Project project, Guid guid)
+        public static IKeyword CreateFromGuid(IProject project, Guid guid)
         {
             return new Keyword(project, guid);
         }
@@ -54,12 +54,12 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     {
         private ICategory _category;
 
-        internal Keyword(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Keyword(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        internal Keyword(Project project, Guid guid) : base(project, guid)
+        internal Keyword(IProject project, Guid guid) : base(project, guid)
         {
         }
 
@@ -90,7 +90,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         {
             const string DELETE_KEYWORD = @"<KEYWORD action=""delete"" guid=""{0}"" force=""0""/>";
 
-            var xmlDoc = Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+            var xmlDoc = Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this), RqlType.SessionKeyInProject);
             var keyword = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
 
             if (keyword == null)
@@ -115,7 +115,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             var xmlDoc =
                 Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this, Project.Session.ServerLogin.AuthData.Password),
-                                   Project.RqlType.SessionKeyInProject);
+                                   RqlType.SessionKeyInProject);
             var keyword = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
             //TODO execute page builder command
             if (keyword == null)

@@ -18,11 +18,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class ProjectContent : ContentClassElement
+    public interface IProjectContent : IContentClassElement
+    {
+        bool IsHitList { get; set; }
+        bool IsNotVisibleOnPublishedPage { get; set; }
+        bool IsReferenceField { get; set; }
+        IContentClassElement ReferencedElement { get; set; }
+    }
+
+    internal class ProjectContent : ContentClassElement, IProjectContent
     {
         private readonly ElementReferenceAttribute _elementReference;
 
-        internal ProjectContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal ProjectContent(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltislistentry", "eltinvisibleinpage", "eltisreffield");
             _elementReference = new ElementReferenceAttribute(this);
@@ -51,7 +59,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue("eltisreffield", value); }
         }
 
-        public ContentClassElement ReferencedElement
+        public IContentClassElement ReferencedElement
         {
             get { return _elementReference.Value; }
             set { _elementReference.Value = value; }

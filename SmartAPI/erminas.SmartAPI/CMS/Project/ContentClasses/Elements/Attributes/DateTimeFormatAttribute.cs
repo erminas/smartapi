@@ -19,11 +19,11 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class DateTimeFormatAttribute : RDXmlNodeAttribute
+    internal class DateTimeFormatAttribute : RDXmlNodeAttribute
     {
         private int? _type;
 
-        public DateTimeFormatAttribute(ContentClassElement parent, string name) : base(parent, name, true)
+        public DateTimeFormatAttribute(IContentClassElement parent, string name) : base(parent, name, true)
         {
         }
 
@@ -92,7 +92,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             }
 
             return
-                ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
+                ((IContentClassElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
         }
     }
 }

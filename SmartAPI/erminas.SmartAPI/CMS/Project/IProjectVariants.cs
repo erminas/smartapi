@@ -15,9 +15,9 @@ namespace erminas.SmartAPI.CMS.Project
     }
 
     internal class ProjectVariants : NameIndexedRDList<IProjectVariant>, IProjectVariants{
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal ProjectVariants(Project project, Caching caching) : base(caching)
+        internal ProjectVariants(IProject project, Caching caching) : base(caching)
         {
             _project = project;
             RetrieveFunc = GetProjectVariants;
@@ -43,6 +43,6 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         public Session Session { get { return _project.Session; } }
-        public Project Project { get { return _project; } }
+        public IProject Project { get { return _project; } }
     }
 }

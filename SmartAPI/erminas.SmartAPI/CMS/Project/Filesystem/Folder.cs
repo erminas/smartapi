@@ -41,41 +41,24 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
         /// <returns> </returns>
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
-        IEnumerable<File> GetFilesByAttributeComparison(Folder.ComparisonFileAttribute attribute, Folder.ComparisonOperator @operator,
+        IEnumerable<File> GetFilesByAttributeComparison(FileComparisonAttribute attribute, FileComparisonOperator @operator,
                                                                         int value);
 
         IEnumerable<File> GetFilesByAuthor(Guid authorGuid);
         IEnumerable<File> GetFilesByLastModifier(Guid lastModifierGuid);
         List<File> GetFilesByNamePattern(string searchText);
         List<File> GetSubListOfFiles(int startCount, int fileCount);
-        void SaveFiles(IEnumerable<Folder.FileSource> sources);
-        void UpdateFiles(IEnumerable<Folder.FileSource> files);
+        void SaveFiles(IEnumerable<FileSource> sources);
+        void UpdateFiles(IEnumerable<FileSource> files);
     }
 
-    public class Folder : PartialRedDotProjectObject, IFolder
+    internal class Folder : PartialRedDotProjectObject, IFolder
     {
         #region ComparisonFileAttribute enum
-
-        public enum ComparisonFileAttribute
-        {
-            Width,
-            Heigth,
-            Depth,
-            Size
-        }
 
         #endregion
 
         #region ComparisonOperator enum
-
-        public enum ComparisonOperator
-        {
-            Equal,
-            Less,
-            Greater,
-            LessEqual,
-            GreaterEqual
-        }
 
         #endregion
 
@@ -153,25 +136,24 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         private bool _isAssetManagerFolder;
         private bool? _isSubFolder;
-        private Folder _linkedFolder;
+        private IFolder _linkedFolder;
         private IFolder _parentFolder;
         private List<IFolder> _subfolders;
 
-        internal Folder(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Folder(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             var subfolders = XmlElement.GetElementsByTagName("SUBFOLDER");
             _isSubFolder = false;
             _subfolders = (from XmlElement curFolder in subfolders select (IFolder)new Folder(Project, this, curFolder)).ToList();
-
             Init();
         }
 
-        public Folder(Project project, Guid guid) : base(project, guid)
+        public Folder(IProject project, Guid guid) : base(project, guid)
         {
             Init();
         }
 
-        private Folder(Project project, Folder parentFolder, XmlElement element) : base(project, element)
+        private Folder(IProject project, IFolder parentFolder, XmlElement element) : base(project, element)
         {
             LoadXml();
             Init();
@@ -180,17 +162,17 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         public ICachedList<File> AllFiles { get; private set; }
 
-        public static string AttributeToString(ComparisonFileAttribute attribute)
+        public static string AttributeToString(FileComparisonAttribute attribute)
         {
             switch (attribute)
             {
-                case ComparisonFileAttribute.Width:
+                case FileComparisonAttribute.Width:
                     return "width";
-                case ComparisonFileAttribute.Heigth:
+                case FileComparisonAttribute.Heigth:
                     return "height";
-                case ComparisonFileAttribute.Size:
+                case FileComparisonAttribute.Size:
                     return "size";
-                case ComparisonFileAttribute.Depth:
+                case FileComparisonAttribute.Depth:
                     return "depth";
                 default:
                     throw new ArgumentException(string.Format("Unknown file attribute: {0}", attribute));
@@ -224,7 +206,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
         /// <returns> </returns>
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
-        public IEnumerable<File> GetFilesByAttributeComparison(ComparisonFileAttribute attribute, ComparisonOperator @operator,
+        public IEnumerable<File> GetFilesByAttributeComparison(FileComparisonAttribute attribute, FileComparisonOperator @operator,
                                                         int value)
         {
             Session.EnsureVersion();
@@ -346,19 +328,19 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             return (XmlElement) folders[0];
         }
 
-        private static string ComparisonOperatorToString(ComparisonOperator @operator)
+        private static string ComparisonOperatorToString(FileComparisonOperator @operator)
         {
             switch (@operator)
             {
-                case ComparisonOperator.Greater:
+                case FileComparisonOperator.Greater:
                     return "gt";
-                case ComparisonOperator.Less:
+                case FileComparisonOperator.Less:
                     return "lt";
-                case ComparisonOperator.LessEqual:
+                case FileComparisonOperator.LessEqual:
                     return "le";
-                case ComparisonOperator.GreaterEqual:
+                case FileComparisonOperator.GreaterEqual:
                     return "ge";
-                case ComparisonOperator.Equal:
+                case FileComparisonOperator.Equal:
                     return "eq";
                 default:
                     throw new ArgumentException(string.Format("Unknown comparison operator: {0}", @operator));
@@ -432,18 +414,35 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         #region Nested type: FileSource
 
-        public class FileSource
-        {
-            public string Sourcename;
-            public string Sourcepath;
-
-            public FileSource(string sourcename, string sourcepath)
-            {
-                Sourcename = sourcename;
-                Sourcepath = sourcepath;
-            }
-        }
-
         #endregion
+    }
+
+    public enum FileComparisonOperator
+    {
+        Equal,
+        Less,
+        Greater,
+        LessEqual,
+        GreaterEqual
+    }
+
+    public enum FileComparisonAttribute
+    {
+        Width,
+        Heigth,
+        Depth,
+        Size
+    }
+
+    public class FileSource
+    {
+        public readonly string Sourcename;
+        public readonly string Sourcepath;
+
+        public FileSource(string sourcename, string sourcepath)
+        {
+            Sourcename = sourcename;
+            Sourcepath = sourcepath;
+        }
     }
 }

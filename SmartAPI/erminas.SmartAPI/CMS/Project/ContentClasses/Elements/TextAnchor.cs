@@ -17,9 +17,18 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class TextAnchor : Anchor
+    public interface ITextAnchor : IAnchor
     {
-        internal TextAnchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        string FontClass { get; set; }
+        string FontColor { get; set; }
+        string FontFace { get; set; }
+        string FontSize { get; set; }
+        bool IsFontBold { get; set; }
+    }
+
+    internal class TextAnchor : Anchor, ITextAnchor
+    {
+        internal TextAnchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltfontclass", "eltfontsize", "eltfontbold", "eltfontface", "eltfontcolor");
         }

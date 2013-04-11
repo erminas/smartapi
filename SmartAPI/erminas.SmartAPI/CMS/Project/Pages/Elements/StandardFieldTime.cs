@@ -20,25 +20,29 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
-{
+{ 
+    public interface IStandardFieldTime : IStandardField<TimeSpan>
+    {
+    }
+
     /// <summary>
     ///     Standard field for time. Takes input for SetValueFromString in the format "H:mm".
     /// </summary>
     [PageElementType(ElementType.StandardFieldTime)]
-    public sealed class StandardFieldTime : StandardField<TimeSpan>
+    internal sealed class StandardFieldTime : StandardField<TimeSpan>, IStandardFieldTime
     {
-        internal StandardFieldTime(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldTime(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        public StandardFieldTime(Project project, Guid guid, ILanguageVariant languageVariant)
+        public StandardFieldTime(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
         public override void Commit()
         {
-            using (new LanguageContext(ILanguageVariant))
+            using (new LanguageContext(LanguageVariant))
             {
                 //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
                 Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(),

@@ -38,9 +38,9 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// </remarks>
     public class Categories : RDList<ICategory>, ICategories
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal Categories(Project project) : base(Caching.Enabled)
+        internal Categories(IProject project) : base(Caching.Enabled)
         {
             RetrieveFunc = GetCategories;
             _project = project;
@@ -72,7 +72,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             }
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

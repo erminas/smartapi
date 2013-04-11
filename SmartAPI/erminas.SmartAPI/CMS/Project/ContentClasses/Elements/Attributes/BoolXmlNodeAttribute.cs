@@ -17,7 +17,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class BoolXmlNodeAttribute : RDXmlNodeAttribute
+    internal class BoolXmlNodeAttribute : RDXmlNodeAttribute
     {
         private bool _value;
 

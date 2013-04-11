@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.SiteMap)]
-    public class SiteMap : AbstractLinkElement
+    public interface ISiteMap : ILinkElement
     {
-        public SiteMap(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.SiteMap)]
+    class SiteMap : AbstractLinkElement, ISiteMap
+    {
+        public SiteMap(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal SiteMap(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal SiteMap(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

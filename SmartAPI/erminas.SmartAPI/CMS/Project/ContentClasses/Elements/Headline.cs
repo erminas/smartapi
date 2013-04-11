@@ -17,9 +17,26 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Headline : ContentClassElement
+    public interface IHeadline : IContentClassElement
     {
-        internal Headline(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        string Description { get; set; }
+        bool IsDirectEditActivated { get; set; }
+        bool IsDragAndDropActivated { get; set; }
+
+        [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        bool IsLanguageIndependent { get; set; }
+
+        bool IsNotConvertingCharactersToHtml { get; set; }
+
+        [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        bool IsNotRelevantForWorklow { get; set; }
+
+        bool IsNotUsedInForm { get; set; }
+    }
+
+    internal class Headline : ContentClassElement, IHeadline
+    {
+        internal Headline(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode", "elthideinform",
                              "eltrddescription", "eltdirectedit", "eltdragdrop");

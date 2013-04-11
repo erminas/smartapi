@@ -19,14 +19,18 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.List)]
-    public class List : AbstractKeywordAssignableMultiLinkElement
+    public interface IList : IKeywordAssignable, IMultiLinkElement
     {
-        public List(Project project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
+    }
+
+    [PageElementType(ElementType.List)]
+    internal class List : AbstractKeywordAssignableMultiLinkElement, IList
+    {
+        public List(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 
-        internal List(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal List(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

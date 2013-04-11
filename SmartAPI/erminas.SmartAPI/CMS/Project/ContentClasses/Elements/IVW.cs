@@ -17,9 +17,16 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class IVW : ContentClassElement
+    public interface IIVW
     {
-        internal IVW(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        string Height { get; set; }
+        string Src { get; set; }
+        string Width { get; set; }
+    }
+
+    internal class IVW : ContentClassElement, IIVW
+    {
+        internal IVW(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltheight", "eltwidth", "eltsrc");
         }

@@ -20,17 +20,13 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class TextContentAttribute : RDXmlNodeAttribute
+    internal class TextContentAttribute : RDXmlNodeAttribute
     {
-        #region TextType enum
-
         public enum TextType
         {
             Default = 3,
             Sample = 10
         }
-
-        #endregion
 
         private readonly TextType _type;
 
@@ -38,7 +34,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         private bool _hasChanged;
         private string _text;
 
-        public TextContentAttribute(ContentClassElement parent, TextType type, string name) : base(parent, name)
+        public TextContentAttribute(IContentClassElement parent, TextType type, string name) : base(parent, name)
         {
             _type = type;
         }
@@ -56,7 +52,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 return;
             }
             var parent = ((ContentClassElement) Parent);
-            ILanguageVariant lang = parent.ILanguageVariant;
+            ILanguageVariant lang = parent.LanguageVariant;
 
             if (string.IsNullOrEmpty(_text))
             {
@@ -109,7 +105,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 if (_text == null)
                 {
                     var parent = ((ContentClassElement) Parent);
-                    ILanguageVariant lang = parent.ILanguageVariant;
+                    ILanguageVariant lang = parent.LanguageVariant;
                     _text = _guid == Guid.Empty
                                 ? string.Empty
                                 : parent.ContentClass.Project.GetTextContent(_guid, lang,

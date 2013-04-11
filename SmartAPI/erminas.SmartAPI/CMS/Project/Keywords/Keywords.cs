@@ -28,6 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         IKeyword CreateOrGet(string keywordName);
         void Delete(string keywordName);
         void DeleteForcibly(string keywordName);
+        ICategory Category { get; }
     }
 
     /// <summary>
@@ -38,9 +39,9 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// </remarks>
     public class Keywords : RDList<IKeyword>, IKeywords
     {
-        public readonly Category Category;
+        public ICategory Category { get; private set; }
 
-        internal Keywords(Category category) : base(Caching.Enabled)
+        internal Keywords(ICategory category) : base(Caching.Enabled)
         {
             Project = category.Project;
             Category = category;
@@ -53,7 +54,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             var xmlDoc =
                 Category.Project.ExecuteRQL(SAVE_KEYWORD.RQLFormat(Category, HttpUtility.HtmlEncode(keywordName)),
-                                            Project.RqlType.SessionKeyInProject);
+                                            RqlType.SessionKeyInProject);
             var keyword = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/KEYWORD");
             if (keyword == null)
             {
@@ -89,7 +90,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             InvalidateCache();
         }
 
-        public Project Project { get; private set; }
+        public IProject Project { get; private set; }
 
         public Session Session
         {

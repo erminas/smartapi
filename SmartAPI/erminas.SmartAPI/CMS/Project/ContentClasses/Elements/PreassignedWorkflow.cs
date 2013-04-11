@@ -45,7 +45,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             _workflow = workflow;
         }
 
-        public IEnumerable<WorkFlowAction> Actions()
+        public IEnumerable<IWorkFlowAction> Actions()
         {
             return _workflow.Actions();
         }
@@ -76,7 +76,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public void DisconnectFromLinkForLanguages(params string[] languageVariants)
         {
-            Project project = ElementPreassignedTo.Project;
+            IProject project = ElementPreassignedTo.Project;
 
             IEnumerable<ILanguageVariant> languages =
                 languageVariants.Select(language => project.LanguageVariants[language]);
@@ -139,7 +139,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _workflow.Name = value; }
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _workflow.Project; }
         }
@@ -166,7 +166,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             const string LOAD_LANGUAGES =
                 @"<WORKFLOW guid=""{0}""><LANGUAGEVARIANTS action=""workflowexisting"" linkguid=""{1}""/></WORKFLOW>";
 
-            Project project = ElementPreassignedTo.Project;
+            IProject project = ElementPreassignedTo.Project;
 
             var xmlDoc = project.ExecuteRQL(LOAD_LANGUAGES.RQLFormat(_workflow, ElementPreassignedTo));
             var languageVariants = xmlDoc.GetElementsByTagName("LANGUAGEVARIANT");

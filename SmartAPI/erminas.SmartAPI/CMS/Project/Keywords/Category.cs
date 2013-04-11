@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
-    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable
+    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
     {
         /// <summary>
         ///     Use after setting Name to rename category on the server.
@@ -44,7 +44,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         /// <summary>
         ///     The current language variant.
         /// </summary>
-        ILanguageVariant ILanguageVariant { get; }
+        ILanguageVariant LanguageVariant { get; }
 
         /// <summary>
         ///     Renames the category directly on the server.
@@ -65,7 +65,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// <summary>
     ///     A category entry of a project in the RedDot server.
     /// </summary>
-    public class Category : PartialRedDotProjectObject, ICategory
+    internal class Category : PartialRedDotProjectObject, ICategory
     {
         /// <summary>
         ///     All keywords belonging to this category, indexed by name. This list is cached by default.
@@ -74,13 +74,13 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
         private ILanguageVariant _languageVariant;
 
-        internal Category(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Category(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             Keywords = new Keywords(this);
             LoadXml();
         }
 
-        public Category(Project project, Guid guid) : base(project, guid)
+        public Category(IProject project, Guid guid) : base(project, guid)
         {
             Keywords = new Keywords(this);
         }
@@ -112,7 +112,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         {
             const string DELETE_CATEGORY = @"<CATEGORY action=""delete"" guid=""{0}"" force=""0""/>";
 
-            var xmlDoc = Project.ExecuteRQL(DELETE_CATEGORY.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+            var xmlDoc = Project.ExecuteRQL(DELETE_CATEGORY.RQLFormat(this), RqlType.SessionKeyInProject);
             var category = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/CATEGORY");
 
             if (category == null)
@@ -142,7 +142,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             var xmlDoc =
                 Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(this, Project.Session.ServerLogin.AuthData.Password),
-                                   Project.RqlType.SessionKeyInProject);
+                                   RqlType.SessionKeyInProject);
             var category = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/CATEGORY");
             //TODO execute page builder command
             if (category == null)
@@ -156,7 +156,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         /// <summary>
         ///     The current language variant.
         /// </summary>
-        public ILanguageVariant ILanguageVariant
+        public ILanguageVariant LanguageVariant
         {
             get { return LazyLoad(ref _languageVariant); }
         }

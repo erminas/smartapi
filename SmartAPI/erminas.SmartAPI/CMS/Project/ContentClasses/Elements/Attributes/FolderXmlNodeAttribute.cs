@@ -20,16 +20,16 @@ using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class FolderXmlNodeAttribute : AbstractGuidXmlNodeAttribute<IFolder>
+    internal class FolderXmlNodeAttribute : AbstractGuidXmlNodeAttribute<IFolder>
     {
-        private readonly ContentClass _contentClass;
+        private readonly IContentClass _contentClass;
 
         public FolderXmlNodeAttribute(IContentClassElement parent, string name)
             : this(parent, parent.ContentClass, name)
         {
         }
 
-        private FolderXmlNodeAttribute(IAttributeContainer parent, ContentClass cc, string name)
+        private FolderXmlNodeAttribute(IAttributeContainer parent, IContentClass cc, string name)
             : base(cc.Project.Session, (RedDotObject) parent, name)
         {
             _contentClass = cc;

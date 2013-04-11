@@ -9,7 +9,7 @@ namespace erminas.SmartAPI.CMS.Project
     public interface IProjectCopyJob : IAsyncProjectJob
     {
         string DatabaseName { get; set; }
-        DatabaseServer DatabaseServer { get; set; }
+        IDatabaseServer DatabaseServer { get; set; }
         bool IsCopyingArchive { get; set; }
         bool IsLoggingOffActiveUsersInProject { get; set; }
         string NewProjectName { get; }
@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS.Project
     {
         private readonly string _newProjectName;
 
-        internal ProjectCopyJob(Project sourceProject, string newProjectName) : base(sourceProject)
+        internal ProjectCopyJob(IProject sourceProject, string newProjectName) : base(sourceProject)
         {
             _newProjectName = newProjectName;
             DatabaseName = _newProjectName;
@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.Project
             ProjectType = NewProjectType.TestProject;
             EmailSubject = String.Format("Finished copying project ({0})", sourceProject.Name);
             EmailMessage = String.Format("Finished copying project. ({0})", sourceProject.Name);
-            DatabaseServer dbServer;
+            IDatabaseServer dbServer;
             if (!Session.DatabaseServers.TryGetByName("localhost", out dbServer))
             {
                 dbServer = Session.DatabaseServers.First(server => server.IsCreateAllowed);
@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         public string DatabaseName { get; set; }
-        public DatabaseServer DatabaseServer { get; set; }
+        public IDatabaseServer DatabaseServer { get; set; }
         public bool IsCopyingArchive { get; set; }
         public bool IsLoggingOffActiveUsersInProject { get; set; }
             

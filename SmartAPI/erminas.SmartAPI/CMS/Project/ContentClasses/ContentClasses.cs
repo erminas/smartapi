@@ -21,17 +21,21 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    public class ContentClasses : RDList<ContentClass>, IProjectObject
+    public interface IContentClasses : IRDList<IContentClass>, IProjectObject
     {
-        private readonly Project _project;
+    }
 
-        public ContentClasses(Project project) : base(Caching.Enabled)
+    internal class ContentClasses : RDList<IContentClass>, IContentClasses
+    {
+        private readonly IProject _project;
+
+        public ContentClasses(IProject project) : base(Caching.Enabled)
         {
             _project = project;
             RetrieveFunc = GetContentClasses;
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }
@@ -41,14 +45,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return _project.Session; }
         }
 
-        private List<ContentClass> GetContentClasses()
+        private List<IContentClass> GetContentClasses()
         {
             const string LIST_CC_OF_PROJECT = @"<TEMPLATES action=""list""/>";
             XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_OF_PROJECT, _project.Guid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
 
             return (from XmlElement curNode in xmlNodes
-                    select new ContentClass(_project, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")})
+                    select (IContentClass)new ContentClass(_project, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")})
                 .ToList();
         }
     }

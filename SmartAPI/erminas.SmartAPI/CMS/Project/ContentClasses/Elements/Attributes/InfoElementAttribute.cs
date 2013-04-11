@@ -17,11 +17,11 @@ using System.Globalization;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class InfoElementAttribute : RDXmlNodeAttribute
+    internal class InfoElementAttribute : RDXmlNodeAttribute
     {
         private int? _id;
 
-        public InfoElementAttribute(ContentClassElement parent, string name) : base(parent, name, true)
+        public InfoElementAttribute(IContentClassElement parent, string name) : base(parent, name, true)
         {
         }
 
@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             {
                 return _id == null
                            ? null
-                           : ((ContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value].Name;
+                           : ((IContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value].Name;
             }
         }
 
@@ -49,7 +49,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public InfoAttribute Value
         {
-            get { return _id == null ? null : ((ContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value]; }
+            get { return _id == null ? null : ((IContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value]; }
             set { SetValue(value == null ? null : value.Id.ToString(CultureInfo.InvariantCulture)); }
         }
 

@@ -22,14 +22,19 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationPackage : PartialRedDotProjectObject
+    public interface IPublicationPackage : IPartialRedDotObject, IProjectObject
     {
-        public PublicationPackage(Project project, Guid guid) : base(project, guid)
+        ICachedList<IPublicationSetting> ExportSettings { get; }
+    }
+
+    internal class PublicationPackage : PartialRedDotProjectObject, IPublicationPackage
+    {
+        public PublicationPackage(IProject project, Guid guid) : base(project, guid)
         {
-            ExportSettings = new CachedList<PublicationSetting>(LoadExportSettings, Caching.Enabled);
+            ExportSettings = new CachedList<IPublicationSetting>(LoadExportSettings, Caching.Enabled);
         }
 
-        public CachedList<PublicationSetting> ExportSettings { get; private set; }
+        public ICachedList<IPublicationSetting> ExportSettings { get; private set; }
 
         protected override void LoadWholeObject()
         {
@@ -42,14 +47,14 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             return (XmlElement) xmlDoc.GetElementsByTagName("EXPORTPACKET")[0];
         }
 
-        private List<PublicationSetting> LoadExportSettings()
+        private List<IPublicationSetting> LoadExportSettings()
         {
             const string LOAD_PUBLICATION_PACKAGE =
                 @"<PROJECT><EXPORTPACKET action=""loadpacket"" guid=""{0}"" /></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
 
             return (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
-                    select new PublicationSetting(this, curSetting)).ToList();
+                    select (IPublicationSetting)new PublicationSetting(this, curSetting)).ToList();
         }
     }
 }

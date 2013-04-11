@@ -19,7 +19,7 @@ using erminas.SmartAPI.CMS.Project.Workflows;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public abstract class AbstractWorkflowAssignments : ContentClassElement, IWorkflowAssignments
+    internal abstract class AbstractWorkflowAssignments : ContentClassElement, IWorkflowAssignments
     {
         private readonly WorkflowAssignments _workflowAssignments;
         public void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants)
@@ -78,7 +78,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _workflowAssignments.StructuralWorkflow = value; }
         }
 
-        protected AbstractWorkflowAssignments(ContentClass contentClass, XmlElement xmlElement)
+        protected AbstractWorkflowAssignments(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             _workflowAssignments = new WorkflowAssignments(this);

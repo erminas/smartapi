@@ -20,12 +20,12 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class StringEnumXmlNodeAttribute<T> : EnumXmlNodeAttribute<T> where T : struct, IConvertible
+    internal class StringEnumXmlNodeAttribute<T> : EnumXmlNodeAttribute<T> where T : struct, IConvertible
     {
         private readonly Func<string, T> _parseEnum;
         private readonly Func<T, string> _toStringValue;
 
-        public StringEnumXmlNodeAttribute(ContentClassElement parent, string name,
+        public StringEnumXmlNodeAttribute(IContentClassElement parent, string name,
                                           Func<T, string> toStringValueRepresentation, Func<string, T> parseEnum)
             : base(parent, name, false)
         {

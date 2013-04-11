@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.Headline)]
-    public class Headline : AbstractValueElement<string>
+    public interface IHeadline : IValueElement<string>
     {
-        public Headline(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.Headline)]
+    internal class Headline : AbstractValueElement<string>, IHeadline
+    {
+        public Headline(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal Headline(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Headline(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

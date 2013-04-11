@@ -19,18 +19,22 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+    public interface IDatabaseContent : IValueElement<string>
+    {
+    }
+
     /// <summary>
     ///     Database content element.
     /// </summary>
     [PageElementType(ElementType.DatabaseContent)]
-    public class DatabaseContent : AbstractValueElement<string>
+    internal class DatabaseContent : AbstractValueElement<string>, IDatabaseContent
     {
-        public DatabaseContent(Project project, Guid guid, ILanguageVariant languageVariant)
+        public DatabaseContent(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal DatabaseContent(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal DatabaseContent(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

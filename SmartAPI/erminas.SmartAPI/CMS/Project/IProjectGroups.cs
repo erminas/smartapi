@@ -20,10 +20,10 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal class ProjectGroups : NameIndexedRDList<IGroup>, IProjectGroups
     {
-        private readonly Project _project;
+        private readonly IProject _project;
         private const string SINGLE_GROUP = @"<GROUP guid=""{0}"" />";
 
-        internal ProjectGroups(Project project, Caching caching) : base(caching)
+        internal ProjectGroups(IProject project, Caching caching) : base(caching)
         {
             _project = project;
             RetrieveFunc = GetAssignedGroups;
@@ -41,7 +41,7 @@ namespace erminas.SmartAPI.CMS.Project
 
         public Session Session { get { return _project.Session; } }
         
-        public Project Project { get { return _project; } }
+        public IProject Project { get { return _project; } }
 
         public void Add(IGroup @group)
         {

@@ -70,25 +70,80 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     #endregion
 
     //TODO templatevariant auf attributes umstellen
+    public interface ITemplateVariant : IPartialRedDotObject, IProjectObject
+    {
+        /// <summary>
+        ///     Assign this template to a specific project variant
+        /// </summary>
+        void AssignToProjectVariant(IProjectVariant variant, bool doNotPublish, bool doNotUseTidy);
+
+        /// <summary>
+        /// </summary>
+        bool ContainsAreaMarksInPage { get; }
+
+        IContentClass ContentClass { get; }
+
+        /// <summary>
+        ///     Timestamp of the creation of the template
+        /// </summary>
+        DateTime CreationDate { get; }
+
+        /// <summary>
+        ///     User who created the template
+        /// </summary>
+        IUser CreationUser { get; }
+
+        /// <summary>
+        ///     Content data of the template (template text)
+        /// </summary>
+        string Data { get; set; }
+
+        /// <summary>
+        ///     Description of the template
+        /// </summary>
+        string Description { get; }
+
+        string FileExtension { get; }
+        IRedDotObject Handle { get; }
+        bool HasContainerPageReference { get; }
+        bool IsLocked { get; }
+
+        /// <summary>
+        ///     Denoting whether or not a stylesheet should be automatically built into the header area of a page.
+        /// </summary>
+        bool IsStylesheetIncludedInHeader { get; }
+
+        /// <summary>
+        ///     Timestamp of the last change to the template
+        /// </summary>
+        DateTime LastChangeDate { get; }
+
+        /// <summary>
+        ///     User who last changed the template
+        /// </summary>
+        IUser LastChangeUser { get; }
+
+        PdfOrientation PdfOrientation { get; set; }
+
+        /// <summary>
+        ///     Current release status of the template
+        /// </summary>
+        TemplateVariantState ReleaseStatus { get; }
+
+        /// <summary>
+        ///     Copy this template over to another content class
+        /// </summary>
+        /// <param name="target"> </param>
+        void CopyToContentClass(IContentClass target);
+
+        void EnsureInitialization();
+    }
+
     /// <summary>
     ///     Represents a single template on the RedDot server
     /// </summary>
-    public class TemplateVariant : PartialRedDotProjectObject
+    internal class TemplateVariant : PartialRedDotProjectObject, ITemplateVariant
     {
-        #region State enum
-
-        /// <summary>
-        ///     State of the template.
-        /// </summary>
-        public enum State
-        {
-            Draft,
-            WaitsForRelease,
-            Released
-        }
-
-        #endregion
-
         private DateTime _changeDate;
         private User _changeUser;
         private User _createUser;
@@ -101,14 +156,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private bool _isStylesheetIncluded;
         private bool _noStartEndMarkers;
         private PdfOrientation _pdfOrientation;
-        private State _status;
+        private TemplateVariantState _status;
 
-        public TemplateVariant(ContentClass contentClass, Guid guid) : base(contentClass.Project, guid)
+        public TemplateVariant(IContentClass contentClass, Guid guid) : base(contentClass.Project, guid)
         {
             ContentClass = contentClass;
         }
 
-        internal TemplateVariant(ContentClass contentClass, XmlElement xmlElement)
+        internal TemplateVariant(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
         {
             ContentClass = contentClass;
@@ -141,13 +196,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return !LazyLoad(ref _noStartEndMarkers); }
         }
 
-        public ContentClass ContentClass { get; private set; }
+        public IContentClass ContentClass { get; private set; }
 
         /// <summary>
         ///     Copy this template over to another content class
         /// </summary>
         /// <param name="target"> </param>
-        public void CopyToContentClass(ContentClass target)
+        public void CopyToContentClass(IContentClass target)
         {
             const string ADD_TEMPLATE_VARIANT = @"<TEMPLATE action=""assign"" guid=""{0}"">
                     <TEMPLATEVARIANTS action=""addnew"">
@@ -158,7 +213,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                   HttpUtility.HtmlEncode(Description), HttpUtility.HtmlEncode(Data),
                                   HttpUtility.HtmlEncode(FileExtension), IsStylesheetIncludedInHeader.ToRQLString(),
                                   ContainsAreaMarksInPage.ToRQLString(), HasContainerPageReference.ToRQLString(),
-                                  PdfOrientation), Project.RqlType.SessionKeyInProject);
+                                  PdfOrientation), RqlType.SessionKeyInProject);
             if (xmlDoc.DocumentElement.InnerText.Trim().Length == 0)
             {
                 return;
@@ -206,7 +261,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 XmlDocument result =
                     ContentClass.Project.ExecuteRQL(
                         String.Format(SAVE_DATA, ContentClass.Guid.ToRQLString(), Guid.ToRQLString(),
-                                      HttpUtility.HtmlEncode(value)), Project.RqlType.SessionKeyInProject);
+                                      HttpUtility.HtmlEncode(value)), RqlType.SessionKeyInProject);
                 if (!result.DocumentElement.InnerText.Contains(ContentClass.Guid.ToRQLString()))
                 {
                     var e =
@@ -231,9 +286,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return LazyLoad(ref _fileExtension); }
         }
 
-        public TemplateVariantHandle Handle
+        public IRedDotObject Handle
         {
-            get { return new TemplateVariantHandle {Name = Name, Guid = Guid}; }
+            get { return new RedDotObjectHandle(Guid, Name); }
         }
 
         public bool HasContainerPageReference
@@ -279,7 +334,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Current release status of the template
         /// </summary>
-        public State ReleaseStatus
+        public TemplateVariantState ReleaseStatus
         {
             get { return LazyLoad(ref _status); }
         }
@@ -332,24 +387,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             InitIfPresent(ref _hasContainerPageReference, "containerpagereference", BoolConvert);
             if (BoolConvert(XmlElement.GetAttributeValue("draft")))
             {
-                _status = State.Draft;
+                _status = TemplateVariantState.Draft;
             }
             else
             {
                 _status = BoolConvert(XmlElement.GetAttributeValue("waitforrelease"))
-                              ? State.WaitsForRelease
-                              : State.Released;
+                              ? TemplateVariantState.WaitsForRelease
+                              : TemplateVariantState.Released;
             }
         }
+    }
 
-        #region Nested type: TemplateVariantHandle
-
-        public struct TemplateVariantHandle
-        {
-            public Guid Guid;
-            public string Name;
-        }
-
-        #endregion
+    /// <summary>
+    ///     State of the template.
+    /// </summary>
+    public enum TemplateVariantState
+    {
+        Draft,
+        WaitsForRelease,
+        Released
     }
 }

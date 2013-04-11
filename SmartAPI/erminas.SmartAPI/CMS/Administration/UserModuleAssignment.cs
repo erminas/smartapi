@@ -49,9 +49,9 @@ namespace erminas.SmartAPI.CMS.Administration
     ///         cref="IsModuleAssigned" />
     ///     method. New modules can be assigned to the user with the <see cref="SetIsModuleAssigned" /> method. The assigned modules are cached and the cache can be invalidated/refreshed through the ICaching interface methods. The cache only needs to get invalidated/refreshed for possible external changes. All changes to the module assignment through an instance of UserModuleAssignment get reflected in the assigned modules without a need for a cache update.
     /// </summary>
-    public class UserModuleAssignment : IEnumerable<Module>, ICached, ISessionObject
+    public class UserModuleAssignment : IEnumerable<IModule>, ICached, ISessionObject
     {
-        private readonly IndexedRDList<ModuleType, Module> _assignedModules;
+        private readonly IndexedRDList<ModuleType, IModule> _assignedModules;
 
         private readonly User _user;
 
@@ -59,7 +59,7 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             _user = user;
             Session = _user.Session;
-            _assignedModules = new IndexedRDList<ModuleType, Module>(GetAssignedModules, module => module.Type,
+            _assignedModules = new IndexedRDList<ModuleType, IModule>(GetAssignedModules, module => module.Type,
                                                                      Caching.Enabled);
         }
 
@@ -118,7 +118,7 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             get
             {
-                Module serverManagerModule;
+                IModule serverManagerModule;
                 if (!_assignedModules.TryGet(ModuleType.ServerManager, out serverManagerModule))
                 {
                     return ServerManagerRights.None;
@@ -147,7 +147,7 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             var module = _user.Session.Modules[moduleType];
 
-            var modulesToAssign = new List<Module> {module};
+            var modulesToAssign = new List<IModule> {module};
             if (IsModuleDependentOnSmartEdit(moduleType))
             {
                 var smartEditModule = _user.Session.Modules[ModuleType.SmartEdit];
@@ -159,7 +159,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public void SetModuleAssignment(UserModuleAssignment otherAssignment)
         {
-            var modulesToUnassign = this.Except(otherAssignment, new NameEqualityComparer<Module>());
+            var modulesToUnassign = this.Except(otherAssignment, new NameEqualityComparer<IModule>());
 
             string unassign = CreateModuleAssignmentSubString(modulesToUnassign, false);
             string assign = CreateModuleAssignmentSubString(otherAssignment, true);
@@ -169,7 +169,7 @@ namespace erminas.SmartAPI.CMS.Administration
             ServerManagerRights = otherAssignment.ServerManagerRights;
         }
 
-        private static string CreateModuleAssignmentSubString(IEnumerable<Module> modulesToUnassign, bool value)
+        private static string CreateModuleAssignmentSubString(IEnumerable<IModule> modulesToUnassign, bool value)
         {
             return modulesToUnassign.Aggregate("",
                                                (s, module) =>
@@ -184,7 +184,7 @@ namespace erminas.SmartAPI.CMS.Administration
             _assignedModules.InvalidateCache();
         }
 
-        private List<Module> GetAssignedModules()
+        private List<IModule> GetAssignedModules()
         {
             const string LIST_ASSIGNED_MODULES =
                 @"<ADMINISTRATION><MODULES action=""list"" userguid=""{0}"" countlicense=""1""/></ADMINISTRATION>";
@@ -194,15 +194,15 @@ namespace erminas.SmartAPI.CMS.Administration
             var modules = xmlDoc.GetElementsByTagName("MODULE").Cast<XmlElement>().ToList();
 
             return
-                (from curModule in modules where IsAssignedModule(curModule) select new Module(Session, curModule))
+                (from curModule in modules where IsAssignedModule(curModule) select (IModule)new Module(Session, curModule))
                     .ToList();
         }
 
-        private static ServerManagerRights GetServerManagerRights(Module serverManagerModule)
+        private static ServerManagerRights GetServerManagerRights(IModule serverManagerModule)
         {
             return
                 (ServerManagerRights)
-                serverManagerModule.XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
+               ((Module) serverManagerModule).XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
         }
 
         private static bool IsAssignedModule(XmlElement curModule)
@@ -257,7 +257,6 @@ namespace erminas.SmartAPI.CMS.Administration
             return value;
         }
 
-        #region ICaching Members
 
         public void InvalidateCache()
         {
@@ -269,11 +268,7 @@ namespace erminas.SmartAPI.CMS.Administration
             _assignedModules.Refresh();
         }
 
-        #endregion
-
-        #region IEnumerable<Module> Members
-
-        public IEnumerator<Module> GetEnumerator()
+        public IEnumerator<IModule> GetEnumerator()
         {
             return _assignedModules.GetEnumerator();
         }
@@ -282,7 +277,5 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             return GetEnumerator();
         }
-
-        #endregion
     }
 }

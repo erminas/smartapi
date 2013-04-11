@@ -21,19 +21,19 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class AbstractValueElement<T> : PageElement, IValueElement<T>
+    internal abstract class AbstractValueElement<T> : PageElement, IValueElement<T>
     {
         protected const string SAVE_VALUE =
             @"<ELEMENTS action=""save""><ELT guid=""{0}"" value=""{1}"" type=""{2}""></ELT></ELEMENTS>";
 
         protected T _value;
 
-        protected AbstractValueElement(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected AbstractValueElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        protected AbstractValueElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractValueElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -66,7 +66,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         protected void ExecuteCommit(string valueToSave)
         {
-            using (new LanguageContext(ILanguageVariant))
+            using (new LanguageContext(LanguageVariant))
             {
                 XmlDocument xmlDoc =
                     Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), valueToSave, (int) ElementType));

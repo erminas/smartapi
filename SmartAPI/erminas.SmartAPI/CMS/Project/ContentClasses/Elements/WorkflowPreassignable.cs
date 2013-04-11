@@ -199,7 +199,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         private PreassignedWorkflow ExecuteLoadWorkflow(string LOAD_WORKFLOW)
         {
-            Project project = _element.Project;
+            IProject project = _element.Project;
             var xmlDoc = project.ExecuteRQL(LOAD_WORKFLOW.RQLFormat(project.Session.SessionKey, _element));
             var workflowElement = (XmlElement) xmlDoc.SelectSingleNode("//WORKFLOW[@guid!='']");
 

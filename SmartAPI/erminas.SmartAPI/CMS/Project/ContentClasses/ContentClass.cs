@@ -31,18 +31,140 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
+    public interface IContentClass : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
+    {
+        /// <summary>
+        ///     Description
+        /// </summary>
+        string Description { get; set; }
+
+        /// <summary>
+        ///     Folder that contains the content class.
+        /// </summary>
+        IFolder Folder { get; }
+
+        bool IsAvailableViaTheShortcutMenuInSmartEdit { get; set; }
+        bool IsNotRelevantForGlobalContentWorkflow { get; set; }
+        RDList<IPageDefinition> PageDefinitions { get; }
+
+        /// <summary>
+        ///     Default prefix for pages.
+        /// </summary>
+        ISyllable Prefix { get; }
+
+        /// <summary>
+        ///     Default suffix for pages.
+        /// </summary>
+        [ScriptIgnore]
+        ISyllable Suffix { get; }
+
+        /// <summary>
+        ///     Versioning information for the latest version of the content class.
+        /// </summary>
+        IContentClassVersion CurrentVersion { get; }
+
+        /// <summary>
+        ///     EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
+        /// </summary>
+        IContentClassEditableAreaSettings EditableAreaSettings { get; set; }
+
+        /// <summary>
+        ///     Mapping of Language Variant Id => Elements of content class. There is an extra instance of every element for every language variant. This dictionary is cached. To refresh the contents call
+        ///     <see
+        ///         cref="Refresh" />
+        ///     .
+        /// </summary>
+        /// <example>
+        ///     If there are are two language variants (ENG and GER) and two elements (Text
+        /// </example>
+        [ScriptIgnore]
+        Dictionary<string, IContentClassElementList> Elements { get; }
+
+        [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        bool IsChangingHeadlineEffectiveForAllLanguageVariants { get; set; }
+
+        bool IsKeywordRequired { get; set; }
+
+        /// <summary>
+        ///     List of the preassigned keywords of this content class, indexed by name. This list is cached by default.
+        /// </summary>
+        NameIndexedRDList<IKeyword> PreassignedKeywords { get; }
+
+        ICategory RequiredKeywordCategory { get; set; }
+        NameIndexedRDList<ITemplateVariant> TemplateVariants { get; }
+
+        /// <summary>
+        ///     Versioning information for the content class. List is cached by default.
+        /// </summary>
+        [ScriptIgnore]
+        IRDList<IContentClassVersion> Versions { get; }
+
+        /// <summary>
+        ///     Assign project variants to template variants
+        /// </summary>
+        void AssignProjectVariants(Dictionary<ITemplateVariant, IProjectVariant> assignments);
+
+        /// <summary>
+        ///     Commit changes on attributes to the server.
+        /// </summary>
+        void CommitAttributes();
+
+        /// <summary>
+        ///     Copy selected elements from this content class to another target content class.
+        /// </summary>
+        /// <param name="targetCC"> HtmlTarget content class to copy the elements to </param>
+        /// <param name="elementNames"> Names of the elements to copy </param>
+        void CopyElementsToContentClass(IContentClass targetCC, params string[] elementNames);
+
+        /// <summary>
+        ///     Copy this content class to another project
+        /// </summary>
+        /// <param name="project"> The target project to copy the content class to </param>
+        /// <param name="targetFolderGuid"> Guid of the target content class folder in the target project </param>
+        void CopyToProject(IProject project, Guid targetFolderGuid);
+
+        /// <summary>
+        ///     Delete a template from this content class
+        /// </summary>
+        /// <param name="guid"> Guid of the template variant to delete </param>
+        void DeleteTemplateVariant(Guid guid);
+
+        /// <summary>
+        ///     Get an element by language/element name
+        /// </summary>
+        /// <param name="language"> Language Id of language variant </param>
+        /// <param name="elementName"> Name of the element </param>
+        IContentClassElement this[string language, string elementName] { get; }
+
+        /// <summary>
+        ///     Remove an element from this content class
+        /// </summary>
+        /// <param name="elementName"> Name of the element to remove </param>
+        void RemoveElement(string elementName);
+
+        /// <summary>
+        ///     Set the preassigned keywords for this content class on the server.
+        ///     PreassignedKeywords contain the updated keywords afterwards.
+        ///     Set to an empty IEnumerable or null, to remove all preassigned keywords.
+        /// </summary>
+        void SetPreassignedKeywords(IEnumerable<IKeyword> keywords);
+
+        /// <summary>
+        ///     Get all assignments of templates to project variants of this content class.
+        /// </summary>
+        ILookup<IProjectVariant, ITemplateVariant> GetProjectVariantAssignments();
+    }
+
     /// <summary>
     ///     Represents a content class in RedDot.
     /// </summary>
-    public class ContentClass : PartialRedDotProjectObject, IDeletable
+    internal class ContentClass : PartialRedDotProjectObject, IContentClass
     {
-        private CCEditableAreaSettings _editableAreaSettings;
-        private Dictionary<string, ContentClassElementList> _elements;
+        private IContentClassEditableAreaSettings _editableAreaSettings;
+        private Dictionary<string, IContentClassElementList> _elements;
         //private ILanguageVariant _languageVariant;
         private Syllable _prefix;
         private Syllable _suffix;
-
-        #region Properties
 
         /// <summary>
         ///     Description
@@ -56,7 +178,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Folder that contains the content class.
         /// </summary>
-        public Folder Folder
+        public IFolder Folder
         {
             get
             {
@@ -101,16 +223,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return LazyLoad(ref _suffix); }
         }
 
-        #endregion
-
-        internal ContentClass(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal ContentClass(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             Init();
             LoadXml();
             //TODO sharedrights = 1 bei ccs von anderen projekten
         }
 
-        public ContentClass(Project project, Guid guid) : base(project, guid)
+        internal ContentClass(IProject project, Guid guid) : base(project, guid)
         {
             Init();
             //TODO sharedrights = 1 bei ccs von anderen projekten
@@ -119,7 +239,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Assign project variants to template variants
         /// </summary>
-        public void AssignProjectVariants(Dictionary<TemplateVariant, IProjectVariant> assignments)
+        public void AssignProjectVariants(Dictionary<ITemplateVariant, IProjectVariant> assignments)
         {
             const string ASSIGN_PROJECT_VARIANT =
                 @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
@@ -132,7 +252,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 builder.Append(SINGLE_ASSIGNMENT.RQLFormat(curEntry.Key, curEntry.Value));
             }
 
-            Project.ExecuteRQL(ASSIGN_PROJECT_VARIANT.RQLFormat(this, builder), Project.RqlType.SessionKeyInProject);
+            Project.ExecuteRQL(ASSIGN_PROJECT_VARIANT.RQLFormat(this, builder), RqlType.SessionKeyInProject);
         }
 
         /// <summary>
@@ -153,7 +273,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             guidAttr.Value = Guid.ToRQLString();
             templateElement.Attributes.Append(guidAttr);
 
-            Project.ExecuteRQL(GetSaveString(templateElement), Project.RqlType.SessionKeyInProject);
+            Project.ExecuteRQL(GetSaveString(templateElement), RqlType.SessionKeyInProject);
         }
 
         /// <summary>
@@ -161,14 +281,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// </summary>
         /// <param name="targetCC"> HtmlTarget content class to copy the elements to </param>
         /// <param name="elementNames"> Names of the elements to copy </param>
-        public void CopyElementsToContentClass(ContentClass targetCC, params string[] elementNames)
+        public void CopyElementsToContentClass(IContentClass targetCC, params string[] elementNames)
         {
             if (elementNames == null || elementNames.Length == 0)
             {
                 return;
             }
 
-            var createdElements = new Dictionary<string, ContentClassElement>();
+            var createdElements = new Dictionary<string, IContentClassElement>();
             using (new LanguageContext(Project))
             {
                 foreach (ILanguageVariant languageVariant in Project.LanguageVariants)
@@ -176,13 +296,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     ILanguageVariant targetLanguageVariant = targetCC.Project.LanguageVariants[languageVariant.Abbreviation];
                     foreach (string curElementName in elementNames)
                     {
-                        ContentClassElement curTargetContentClassElement;
+                        IContentClassElement curTargetContentClassElement;
                         languageVariant.Select();
-                        ContentClassElement curSourceContentClassElement =
+                        var curSourceContentClassElement =
                             this[languageVariant.Abbreviation, curElementName];
                         if (createdElements.TryGetValue(curElementName, out curTargetContentClassElement))
                         {
-                            ContentClassElement tmpTargetContentClassElement =
+                            IContentClassElement tmpTargetContentClassElement =
                                 ContentClassElement.CreateElement(targetCC, curTargetContentClassElement.XmlElement);
                             tmpTargetContentClassElement.AssignAttributes(curSourceContentClassElement.Attributes);
                             targetLanguageVariant.Select();
@@ -204,7 +324,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// </summary>
         /// <param name="project"> The target project to copy the content class to </param>
         /// <param name="targetFolderGuid"> Guid of the target content class folder in the target project </param>
-        public void CopyToProject(Project project, Guid targetFolderGuid)
+        public void CopyToProject(IProject project, Guid targetFolderGuid)
         {
             ContentClass targetCC = CreateCopyInProject(project, targetFolderGuid);
 
@@ -218,7 +338,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Versioning information for the latest version of the content class.
         /// </summary>
-        public CCVersion CurrentVersion
+        public IContentClassVersion CurrentVersion
         {
             get { return Versions.FirstOrDefault(); }
         }
@@ -255,7 +375,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             try
             {
                 Project.ExecuteRQL(string.Format(DELETE_TEMPLATE, guid.ToRQLString()),
-                                   Project.RqlType.SessionKeyInProject);
+                                   RqlType.SessionKeyInProject);
             } catch (RQLException e)
             {
                 throw new SmartAPIException(Session.ServerLogin,
@@ -266,7 +386,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
         /// </summary>
-        public CCEditableAreaSettings EditableAreaSettings
+        public IContentClassEditableAreaSettings EditableAreaSettings
         {
             get
             {
@@ -297,13 +417,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     If there are are two language variants (ENG and GER) and two elements (Text
         /// </example>
         [ScriptIgnore]
-        public Dictionary<string, ContentClassElementList> Elements
+        public Dictionary<string, IContentClassElementList> Elements
         {
             get
             {
                 if (_elements == null)
                 {
-                    _elements = new Dictionary<string, ContentClassElementList>();
+                    _elements = new Dictionary<string, IContentClassElementList>();
                     using (new LanguageContext(Project))
                     {
                         foreach (ILanguageVariant curLanguage in Project.LanguageVariants)
@@ -325,7 +445,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Get all assignments of templates to project variants of this content class.
         /// </summary>
-        public ILookup<IProjectVariant, TemplateVariant> GetProjectVariantAssignments()
+        public ILookup<IProjectVariant, ITemplateVariant> GetProjectVariantAssignments()
         {
             const string PROJECT_VARIANT_ASSIGNMENT =
                 @"<TEMPLATE guid=""{0}"" ><TEMPLATEVARIANTS withstylesheets=""1"" action=""projectvariantslist"" /></TEMPLATE>";
@@ -333,7 +453,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             try
             {
                 XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(PROJECT_VARIANT_ASSIGNMENT, Guid.ToRQLString()),
-                                                        Project.RqlType.SessionKeyInProject);
+                                                        RqlType.SessionKeyInProject);
                 Project.ProjectVariants.IsCachingEnabled = true;
                 return (from XmlElement curElement in xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")
                         select
@@ -341,7 +461,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                 {
                                     projectVariant =
                             Project.ProjectVariants.First(x => x.Guid == curElement.GetGuid("projectvariantguid")),
-                                    templateVariant = new TemplateVariant(this, curElement.GetGuid())
+                                    templateVariant = (ITemplateVariant)new TemplateVariant(this, curElement.GetGuid())
                                 }).ToLookup(
                                     key => key.projectVariant, value => value.templateVariant);
             } catch (RQLException e)
@@ -390,7 +510,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// </summary>
         /// <param name="language"> Language Id of language variant </param>
         /// <param name="elementName"> Name of the element </param>
-        public ContentClassElement this[string language, string elementName]
+        public IContentClassElement this[string language, string elementName]
         {
             get { return Elements[language][elementName]; }
         }
@@ -415,7 +535,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             foreach (ContentClassElementList curElements in Elements.Values)
             {
-                ContentClassElement contentClassElementToRemove = curElements.FirstOrDefault(x => x.Name == elementName);
+                IContentClassElement contentClassElementToRemove = curElements.FirstOrDefault(x => x.Name == elementName);
                 if (contentClassElementToRemove == null)
                 {
                     throw new ArgumentException("Element '" + elementName + "' could not be found in content class '" +
@@ -487,7 +607,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        public NameIndexedRDList<TemplateVariant> TemplateVariants { get; private set; }
+        public NameIndexedRDList<ITemplateVariant> TemplateVariants { get; private set; }
 
         public override string ToString()
         {
@@ -498,7 +618,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Versioning information for the content class. List is cached by default.
         /// </summary>
         [ScriptIgnore]
-        public IRDList<CCVersion> Versions { get; private set; }
+        public IRDList<IContentClassVersion> Versions { get; private set; }
 
         protected override void LoadWholeObject()
         {
@@ -518,7 +638,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             return (XmlElement) xmlNodes[0];
         }
 
-        private void AddProjectVariants(Project project, XmlElement template)
+        private void AddProjectVariants(IProject project, XmlElement template)
         {
             XmlElement projectVariants = template.AddElement("PROJECTVARIANTS");
             projectVariants.AddAttribute("action", "assign");
@@ -536,7 +656,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        private void AddTemplateDescriptions(Project project, XmlElement template)
+        private void AddTemplateDescriptions(IProject project, XmlElement template)
         {
             XmlElement templateDescriptions = template.AddElement("TEMPLATEDESCRIPTIONS");
             foreach (ILanguageVariant languageVariant in project.LanguageVariants)
@@ -556,7 +676,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlDocument ownerDocument = template.OwnerDocument;
 
             XmlElement templateVariants = template.AddElement("TEMPLATEVARIANTS");
-            foreach (TemplateVariant curTemplateVariant in TemplateVariants)
+            foreach (ITemplateVariant curTemplateVariant in TemplateVariants)
             {
                 XmlElement templateVariant = templateVariants.AddElement("TEMPLATEVARIANT");
                 templateVariant.AddAttribute("name", curTemplateVariant.Name);
@@ -577,7 +697,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 XmlDocument xmlDoc =
                     Project.ExecuteRQL(
                         string.Format(ASSIGN_KEYWORD, Guid.ToRQLString(), curKeyword.Category.Guid.ToRQLString(),
-                                      curKeyword.Guid.ToRQLString()), Project.RqlType.SessionKeyInProject);
+                                      curKeyword.Guid.ToRQLString()), RqlType.SessionKeyInProject);
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
@@ -612,9 +732,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             targetCC.CommitAttributes();
         }
 
-        private void CopyElementsToCC(ContentClass targetCC)
+        private void CopyElementsToCC(IContentClass targetCC)
         {
-            Dictionary<string, ContentClassElementList>.ValueCollection.Enumerator it = Elements.Values.GetEnumerator();
+            Dictionary<string, IContentClassElementList>.ValueCollection.Enumerator it = Elements.Values.GetEnumerator();
             if (!it.MoveNext())
             {
                 return;
@@ -624,7 +744,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             CopyElementsToContentClass(targetCC, elementNames);
         }
 
-        private void CopyPreassignedKeywordsToCC(ContentClass targetCC)
+        private void CopyPreassignedKeywordsToCC(IContentClass targetCC)
         {
             try
             {
@@ -647,7 +767,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                              "ignoreglobalworkflow");
         }
 
-        private ContentClass CreateContentClass(Project project, XmlElement template)
+        private ContentClass CreateContentClass(IProject project, XmlElement template)
         {
             XmlDocument creationResultNode = project.ExecuteRQL(template.NodeToString());
             XmlNode guidTextNode = creationResultNode.FirstChild;
@@ -663,9 +783,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             return targetCC;
         }
 
-        private ContentClass CreateCopyInProject(Project project, Guid targetFolderGuid)
+        private ContentClass CreateCopyInProject(IProject project, Guid targetFolderGuid)
         {
-            ContentClassFolder folder = project.ContentClassFolders.GetByGuid(targetFolderGuid);
+            IContentClassFolder folder = project.ContentClassFolders.GetByGuid(targetFolderGuid);
             if (folder == null)
             {
                 throw new ArgumentException("no such content class folder '" + targetFolderGuid.ToRQLString() +
@@ -684,7 +804,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             return CreateContentClass(project, template);
         }
 
-        private static XmlElement CreateTemplateXmlElement(XmlDocument xmlDoc, ContentClassFolder folder)
+        private static XmlElement CreateTemplateXmlElement(XmlDocument xmlDoc, IContentClassFolder folder)
         {
             XmlElement template = xmlDoc.AddElement("TEMPLATE");
             template.AddAttribute("action", "addnew");
@@ -709,7 +829,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             const string LOAD_PREASSIGNED_KEYWORDS = @"<TEMPLATE guid=""{0}""><KEYWORDS action=""load""/></TEMPLATE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PREASSIGNED_KEYWORDS, Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
+                                                    RqlType.SessionKeyInProject);
 
             IEnumerable<IKeyword> keywords = new List<Keyword>();
             foreach (XmlElement node in xmlDoc.GetElementsByTagName("CATEGORY"))
@@ -728,16 +848,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             return keywords.ToList();
         }
 
-        private List<TemplateVariant> GetTemplateVariants()
+        private List<ITemplateVariant> GetTemplateVariants()
         {
             const string LIST_CC_TEMPLATES =
                 @"<PROJECT><TEMPLATE guid=""{0}""><TEMPLATEVARIANTS action=""list"" withstylesheets=""0""/></TEMPLATE></PROJECT>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LIST_CC_TEMPLATES, Guid.ToRQLString()));
             var variants = xmlDoc.GetElementsByTagName("TEMPLATEVARIANT");
-            return (from XmlElement curVariant in variants select new TemplateVariant(this, curVariant)).ToList();
+            return (from XmlElement curVariant in variants select (ITemplateVariant)new TemplateVariant(this, curVariant)).ToList();
         }
 
-        private List<CCVersion> GetVersions()
+        private List<IContentClassVersion> GetVersions()
         {
             const string LIST_VERSIONS =
                 @"<PROJECT><TEMPLATE guid=""{0}""><ARCHIVE action=""list""/></TEMPLATE></PROJECT>";
@@ -745,17 +865,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlNodeList versionNodes = xmlDoc.GetElementsByTagName("VERSION");
             return
                 (from XmlElement curVersion in versionNodes
-                 let cc = new CCVersion(this, curVersion)
+                 let cc = (IContentClassVersion)new ContentClassVersion(this, curVersion)
                  orderby cc.Date descending
                  select cc).ToList();
         }
 
         private void Init()
         {
-            Versions = new RDList<CCVersion>(GetVersions, Caching.Enabled);
+            Versions = new RDList<IContentClassVersion>(GetVersions, Caching.Enabled);
             PreassignedKeywords = new NameIndexedRDList<IKeyword>(GetPreassignedKeywords, Caching.Enabled);
             PageDefinitions = new RDList<IPageDefinition>(GetPageDefinitions, Caching.Enabled);
-            TemplateVariants = new NameIndexedRDList<TemplateVariant>(GetTemplateVariants, Caching.Enabled);
+            TemplateVariants = new NameIndexedRDList<ITemplateVariant>(GetTemplateVariants, Caching.Enabled);
         }
 
         private void LoadXml()
@@ -779,7 +899,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             const string REMOVE_ELEMENT = @"<TEMPLATE><ELEMENT action=""delete"" guid=""{0}""/></TEMPLATE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(REMOVE_ELEMENT, guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
+                                                    RqlType.SessionKeyInProject);
             if (!xmlDoc.InnerText.Contains("ok"))
             {
                 throw new SmartAPIException(Session.ServerLogin,
@@ -788,7 +908,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
             foreach (var curList in Elements.Values)
             {
-                curList.RemoveAll(x => x.Guid.Equals(guid));
+                ((ContentClassElementList)curList).RemoveAll(x => x.Guid.Equals(guid));
             }
         }
 
@@ -802,7 +922,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 XmlDocument xmlDoc =
                     Project.ExecuteRQL(
                         string.Format(REMOVE_KEYWORD, Guid.ToRQLString(), curKeyword.Guid.ToRQLString()),
-                        Project.RqlType.SessionKeyInProject);
+                        RqlType.SessionKeyInProject);
 
                 if (!WasKeywordActionSuccessful(xmlDoc))
                 {
@@ -823,11 +943,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Represents editable area configuration of a content class.
         /// </summary>
-        public class CCEditableAreaSettings : AbstractAttributeContainer, IProjectObject
+        private class CCEditableAreaSettings : AbstractAttributeContainer, IContentClassEditableAreaSettings
         {
-            private readonly ContentClass _parent;
+            private readonly IContentClass _parent;
 
-            internal CCEditableAreaSettings(ContentClass parent, XmlElement xmlElement)
+            internal CCEditableAreaSettings(IContentClass parent, XmlElement xmlElement)
                 : base(parent.Session, xmlElement)
             {
                 Debug.Assert(xmlElement != null);
@@ -861,7 +981,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     _parent.Project.ExecuteRQL(
                         string.Format(SAVE_CC_SETTINGS, _parent.Guid.ToRQLString(),
                                       GetSaveString((XmlElement) XmlElement.Clone())),
-                        Project.RqlType.SessionKeyInProject);
+                        RqlType.SessionKeyInProject);
 
                 if (result.GetElementsByTagName("SETTINGS").Count != 1)
                 {
@@ -882,7 +1002,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 set { SetAttributeValue("showpagerange", value); }
             }
 
-            public Project Project { get; private set; }
+            public IProject Project { get; private set; }
 
             private void InitAttributes()
             {
@@ -890,40 +1010,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
-        #endregion
-
-        #region Nested type: CCVersion
-
         /// <summary>
         ///     Represents version information on a specific content class version.
         /// </summary>
-        public class CCVersion : RedDotProjectObject
+        private class ContentClassVersion : RedDotProjectObject, IContentClassVersion
         {
-            #region Type enum
-
-            public enum Type
-            {
-                AutomaticallyCreated = 1,
-                ManuallyCreate = 2,
-                Temporary = 3
-            }
-
-            #endregion
-
             private DateTime? _date;
-            private Folder _folder;
+            private IFolder _folder;
             private IUser _user;
 
-            internal CCVersion(ContentClass parent, XmlElement xmlElement) : base(parent.Project, xmlElement)
+            internal ContentClassVersion(IContentClass parent, XmlElement xmlElement) : base(parent.Project, xmlElement)
             {
                 ContentClass = parent;
             }
 
-            public ContentClass ContentClass { get; private set; }
+            public IContentClass ContentClass { get; private set; }
 
-            public Type CreationType
+            public ContentClassVersionType CreationType
             {
-                get { return (Type) Enum.Parse(typeof (Type), XmlElement.GetAttributeValue("type")); }
+                get { return XmlElement.GetAttributeValue("type").ToEnum<ContentClassVersionType>(); }
             }
 
             /// <summary>
@@ -942,7 +1047,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 get { return XmlElement.GetAttributeValue("description"); }
             }
 
-            public Folder Folder
+            public IFolder Folder
             {
                 get
                 {
@@ -974,5 +1079,43 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         }
 
         #endregion
+    }
+
+    public interface IContentClassEditableAreaSettings : IAttributeContainer, IProjectObject
+    {
+        string BorderColor { get; set; }
+        string BorderStyle { get; set; }
+        string BorderWidth { get; set; }
+        bool IsUsingBorderDefinitionFromProjectSetting { get; set; }
+        bool IsUsingBordersToHighlightPages { get; set; }
+        void Commit();
+    }
+
+    public enum ContentClassVersionType
+    {
+        AutomaticallyCreated = 1,
+        ManuallyCreate = 2,
+        Temporary = 3
+    }
+
+    public interface IContentClassVersion : IRedDotObject, IProjectObject
+    {
+          
+        IContentClass ContentClass { get; }
+        ContentClassVersionType CreationType { get; }
+
+        /// <summary>
+        ///     Time the version was created
+        /// </summary>
+        DateTime Date { get; }
+
+        /// <summary>
+        ///     Description text
+        /// </summary>
+        string Description { get; }
+
+        IFolder Folder { get; }
+        IUser User { get; }
+        string Username { get; }
     }
 }

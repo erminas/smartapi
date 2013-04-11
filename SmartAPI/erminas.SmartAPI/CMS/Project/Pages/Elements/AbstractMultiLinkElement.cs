@@ -19,18 +19,16 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class AbstractMultiLinkElement : AbstractLinkElement, IMultiLinkElement
+    internal abstract class AbstractMultiLinkElement : AbstractLinkElement, IMultiLinkElement
     {
-        protected AbstractMultiLinkElement(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected AbstractMultiLinkElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        protected AbstractMultiLinkElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractMultiLinkElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
-
-        #region IMultiLinkElement Members
 
         public void ConnectPages(IEnumerable<IPage> pages)
         {
@@ -44,7 +42,5 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             base.DisconnectPages(pages);
         }
-
-        #endregion
     }
 }

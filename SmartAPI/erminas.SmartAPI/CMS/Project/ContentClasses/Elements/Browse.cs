@@ -58,9 +58,32 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
     }
 
-    public class Browse : ContentClassElement
+    public interface IBrowse : IContentClassElement
     {
-        internal Browse(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        BrowseAlignment Align { get; set; }
+        string AltText { get; set; }
+        Appearance Appearance { get; set; }
+        string Border { get; set; }
+        string DefaultValue { get; set; }
+        string Description { get; set; }
+        Direction Direction { get; set; }
+        string HSpace { get; set; }
+        string Height { get; set; }
+        bool IsAltPreassignedAutomatically { get; set; }
+        bool IsLanguageIndependent { get; set; }
+        bool IsOnlyPathAndFilenameInserted { get; set; }
+        bool IsSyntaxConformingToXHtml { get; set; }
+        File SampleImageFile { get; set; }
+        File SrcFile { get; set; }
+        string Supplement { get; set; }
+        string Usemap { get; set; }
+        string VSpace { get; set; }
+        string Width { get; set; }
+    }
+
+    internal class Browse : ContentClassElement, IBrowse
+    {
+        internal Browse(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguageindependent", "eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace",
                              "eltusermap", "eltsupplement", "eltonlyhrefvalue", "eltxhtmlcompliant", "eltsrc", "eltalt",

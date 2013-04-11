@@ -20,9 +20,17 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class StandardFieldDate : StandardField
+    public interface IStandardFieldDate : IStandardField
     {
-        internal StandardFieldDate(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        DateTimeFormat DateFormat { get; set; }
+        bool IsUserDefinedDateFormat { get; }
+        ISystemLocale Locale { get; set; }
+        string UserDefinedDateFormat { get; set; }
+    }
+
+    internal class StandardFieldDate : StandardField, IStandardFieldDate
+    {
+        internal StandardFieldDate(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }

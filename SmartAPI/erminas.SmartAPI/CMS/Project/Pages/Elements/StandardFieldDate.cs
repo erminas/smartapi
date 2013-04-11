@@ -21,26 +21,30 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+    public interface IStandardFieldDate : IStandardField<DateTime>
+    {
+    }
+
     /// <summary>
     ///     Standard field for dates. Takes input for SetValueFromString in the format yyyy-MM-dd.
     /// </summary>
     [PageElementType(ElementType.StandardFieldDate)]
-    public class StandardFieldDate : StandardField<DateTime>
+    internal class StandardFieldDate : StandardField<DateTime>, IStandardFieldDate
     {
         private readonly DateTime BASE_DATE = new DateTime(1899, 12, 30);
 
-        internal StandardFieldDate(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldDate(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        public StandardFieldDate(Project project, Guid guid, ILanguageVariant languageVariant)
+        public StandardFieldDate(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
         public override void Commit()
         {
-            using (new LanguageContext(ILanguageVariant))
+            using (new LanguageContext(LanguageVariant))
             {
                 //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
                 Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,

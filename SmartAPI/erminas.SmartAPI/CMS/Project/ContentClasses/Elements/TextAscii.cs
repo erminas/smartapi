@@ -17,9 +17,13 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class TextAscii : Text
+    public interface ITextAscii : IText
     {
-        internal TextAscii(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+    }
+
+    internal class TextAscii : Text, ITextAscii
+    {
+        internal TextAscii(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
     }

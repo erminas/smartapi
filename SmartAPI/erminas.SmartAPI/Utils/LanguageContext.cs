@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.Utils
         /// <summary>
         ///     Just restores the language context on dispose. Does not set a specific language variant on construction.
         /// </summary>
-        public LanguageContext(Project project)
+        public LanguageContext(IProject project)
         {
             _origLang = project.LanguageVariants.Current;
         }

@@ -64,7 +64,31 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
     }
 
-    public class DatabaseContent : ContentClassElement
+    public interface IDatabaseContent : IContentClassElement
+    {
+        BasicAlignment Align { get; set; }
+
+        /// <summary>
+        ///     The alt text. While for RedDot Versions 9/10/11 the alt text doesn't get set through the smart tree (alt always remains empty), this method actually works.
+        /// </summary>
+        string AltText { get; set; }
+
+        string Border { get; set; }
+        string DataFieldForBinayData { get; set; }
+        string DataFieldName { get; set; }
+        string DataFieldType { get; set; }
+        IDatabaseConnection DatabaseConnection { get; set; }
+        string HSpace { get; set; }
+        bool IsListEntry { get; set; }
+        ListType ListType { get; set; }
+        IFolder PublicationFolder { get; set; }
+        string Supplement { get; set; }
+        string TableName { get; set; }
+        string UserDefinedFormat { get; set; }
+        string VSpace { get; set; }
+    }
+
+    internal class DatabaseContent : ContentClassElement, IDatabaseContent
     {
         #region StaticAttributeInit
 
@@ -84,7 +108,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         #endregion
 
-        internal DatabaseContent(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal DatabaseContent(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltislistentry", "eltlisttype", "eltdatabasename", "elttablename", "eltcolumnname",
                              "eltcolumniotype", "eltrelatedfolderguid", "eltformatting", "eltbincolumnname", "eltborder",

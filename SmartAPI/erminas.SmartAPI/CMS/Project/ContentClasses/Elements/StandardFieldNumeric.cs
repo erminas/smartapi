@@ -18,9 +18,14 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class StandardFieldNumeric : StandardFieldNonDate
+    public interface IStandardFieldNumeric : IStandardFieldNonDate
     {
-        internal StandardFieldNumeric(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        int? MaxCharacterCount { get; set; }
+    }
+
+    internal class StandardFieldNumeric : StandardFieldNonDate, IStandardFieldNumeric
+    {
+        internal StandardFieldNumeric(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltmaxsize");
         }

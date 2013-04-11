@@ -22,15 +22,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
     public class ElementReferenceAttribute : IRDAttribute
     {
-        private readonly ContentClassElement _parent;
+        private readonly IContentClassElement _parent;
 
-        public ElementReferenceAttribute(ContentClassElement parent)
+        public ElementReferenceAttribute(IContentClassElement parent)
         {
             _parent = parent;
             parent.RegisterAttribute(this);
         }
 
-        public ContentClassElement Value
+        public IContentClassElement Value
         {
             get
             {
@@ -45,15 +45,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
                 string langId = xmlNode.GetAttributeValue("eltlanguagevariantid");
 
-                Project project = _parent.ContentClass.Project.Session.Projects.GetByGuid(projectGuid);
-                ContentClass contentClass = project.ContentClasses.GetByGuid(ccGuid);
+                IProject project = _parent.ContentClass.Project.Session.Projects.GetByGuid(projectGuid);
+                IContentClass contentClass = project.ContentClasses.GetByGuid(ccGuid);
 
                 return contentClass.Elements[langId].GetByGuid(elementGuid);
             }
             set
             {
                 XmlElement xmlNode = _parent.XmlElement;
-                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ILanguageVariant.Abbreviation);
+                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.LanguageVariant.Abbreviation);
                 xmlNode.SetAttributeValue("eltelementguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.Guid.ToRQLString());
                 xmlNode.SetAttributeValue("elttemplateguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Guid.ToRQLString());
                 xmlNode.SetAttributeValue("eltprojectguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Project.Guid.ToRQLString());
@@ -66,7 +66,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
             var other = (ElementReferenceAttribute) o;
 
-            ContentClassElement otherContentClassElement = other.Value;
+            IContentClassElement otherContentClassElement = other.Value;
             //TODO macht das hier sinn, ode rist es zwangsweise != null ? fehler in TestCCCopy
             if (otherContentClassElement == null)
             {
@@ -75,11 +75,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             }
             try
             {
-                Project project =
+                IProject project =
                     _parent.ContentClass.Project.Session.Projects[otherContentClassElement.ContentClass.Project.Name];
-                ContentClass cc = project.ContentClasses.GetByName(otherContentClassElement.ContentClass.Name);
+                IContentClass cc = project.ContentClasses.GetByName(otherContentClassElement.ContentClass.Name);
                 Value =
-                    cc.Elements[otherContentClassElement.ILanguageVariant.Abbreviation].GetByName(
+                    cc.Elements[otherContentClassElement.LanguageVariant.Abbreviation].GetByName(
                         otherContentClassElement.Name);
             } catch (Exception e)
             {
@@ -101,7 +101,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
             get
             {
-                ContentClassElement contentClassElement = Value;
+                IContentClassElement contentClassElement = Value;
                 if (contentClassElement == null)
                 {
                     return "not set";

@@ -50,7 +50,7 @@ namespace erminas.SmartAPI.CMS
     ///         </item>
     ///     </list>
     /// </remarks>
-    public abstract class PartialRedDotObject : RedDotObject, IPartialRedDotObject
+    internal abstract class PartialRedDotObject : RedDotObject, IPartialRedDotObject
     {
         /// <summary>
         ///     Create a new PartialRedDotObject and initialize it with an XmlNode. The object is completly initialized afterwards (

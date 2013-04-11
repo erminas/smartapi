@@ -30,12 +30,11 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// </summary>
         private readonly string _name;
 
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal File(Project project, XmlElement xmlElement)
+        internal File(IProject project, XmlElement xmlElement)
         {
             _project = project;
-
             _name = xmlElement.GetAttributeValue("name");
             _folder = new Folder(project, xmlElement.GetGuid("folderguid"));
         }
@@ -107,7 +106,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             get { return _name; }
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

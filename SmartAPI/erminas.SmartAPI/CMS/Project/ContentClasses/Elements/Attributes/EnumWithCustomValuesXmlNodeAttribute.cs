@@ -18,11 +18,11 @@ using System.Collections.Generic;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class EnumWithCustomValuesXmlNodeAttribute<T> : EnumXmlNodeAttribute<T> where T : struct, IConvertible
+    internal class EnumWithCustomValuesXmlNodeAttribute<T> : EnumXmlNodeAttribute<T> where T : struct, IConvertible
     {
         private String _customValue;
 
-        public EnumWithCustomValuesXmlNodeAttribute(ContentClassElement parent, string name) : base(parent, name)
+        public EnumWithCustomValuesXmlNodeAttribute(IContentClassElement parent, string name) : base(parent, name)
         {
         }
 

@@ -18,28 +18,18 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Administration
 {
+    public interface IDatabaseServer : IPartialRedDotObject
+    {
+        DbTypeId DBType { get; }
+        bool IsCreateAllowed { get; set; }
+        Guid ProductGuid { get; }
+    }
+
     /// <summary>
     ///     A database server entry in RedDot.
     /// </summary>
-    public class DatabaseServer : PartialRedDotObject, ISessionObject
+    internal class DatabaseServer : PartialRedDotObject, IDatabaseServer
     {
-        #region DbTypeId enum
-
-        // ReSharper disable InconsistentNaming
-        public enum DbTypeId
-        {
-            Jet3 = 1,
-            Jet4 = 2,
-            MS_SQL_Server = 3,
-            MS_Oracle_OLEDB = 4,
-            ODBC = 5,
-            Oracle_OLEDB = 8
-        }
-
-        // ReSharper restore InconsistentNaming
-
-        #endregion
-
         private DbTypeId _dBType;
 
         private bool _isCreateAllowed;
@@ -77,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return Session.DatabaseServers.GetByGuid(Guid).XmlElement;
+            return ((DatabaseServer)Session.DatabaseServers.GetByGuid(Guid)).XmlElement;
         }
 
         private void LoadXml()
@@ -86,5 +76,15 @@ namespace erminas.SmartAPI.CMS.Administration
             InitIfPresent(ref _productGuid, "productguid", GuidConvert);
             InitIfPresent(ref _dBType, "dbtypeid", x => (DbTypeId) int.Parse(x));
         }
+    }
+
+    public enum DbTypeId
+    {
+        Jet3 = 1,
+        Jet4 = 2,
+        MS_SQL_Server = 3,
+        MS_Oracle_OLEDB = 4,
+        ODBC = 5,
+        Oracle_OLEDB = 8
     }
 }

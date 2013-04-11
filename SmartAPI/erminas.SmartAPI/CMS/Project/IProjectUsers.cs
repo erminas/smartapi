@@ -41,9 +41,9 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal class ProjectUsers : IndexedCachedList<string, IUserProjectAssignment>, IProjectUsers
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal ProjectUsers(Project project, Caching caching) : base(assignment => assignment.User.Name, caching)
+        internal ProjectUsers(IProject project, Caching caching) : base(assignment => assignment.User.Name, caching)
         {
             _project = project;
             RetrieveFunc = GetUsersOfProject;
@@ -84,7 +84,7 @@ namespace erminas.SmartAPI.CMS.Project
             get { return this[user.Name]; }
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

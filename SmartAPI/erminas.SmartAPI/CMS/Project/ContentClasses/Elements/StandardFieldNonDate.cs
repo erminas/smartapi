@@ -17,9 +17,15 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public abstract class StandardFieldNonDate : StandardField
+    public interface IStandardFieldNonDate : IStandardField
     {
-        protected StandardFieldNonDate(ContentClass contentClass, XmlElement xmlElement)
+        bool IsDirectEditActivated { get; set; }
+        bool IsDragAndDropActivated { get; set; }
+    }
+
+    internal abstract class StandardFieldNonDate : StandardField, IStandardFieldNonDate
+    {
+        protected StandardFieldNonDate(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
             CreateAttributes("eltdirectedit", "eltdragdrop");

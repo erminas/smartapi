@@ -56,9 +56,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         SpellChecking = 1073741824
     }
 
-    public class TextHtml : Text
+    public interface ITextHtml : IText
     {
-        internal TextHtml(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        EditorSettings TextEditorSettings { get; set; }
+    }
+
+    internal class TextHtml : Text, ITextHtml
+    {
+        internal TextHtml(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             //TODO checken, ob die werte in editoroptions nicht invertiert enthalten sind
 // ReSharper disable ObjectCreationAsStatement

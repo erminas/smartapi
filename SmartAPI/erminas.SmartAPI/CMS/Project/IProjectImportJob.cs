@@ -34,9 +34,9 @@ namespace erminas.SmartAPI.CMS.Project
     public interface IProjectImportJob : IAsyncJob
     {
         string DatabaseName { get; set; }
-        DatabaseServer DatabaseServer { get; set; }
+        IDatabaseServer DatabaseServer { get; set; }
         string ImportFolder { get; set; }
-        ApplicationServer ImportServer { get; set; }
+        IApplicationServer ImportServer { get; set; }
         bool IsImportingArchive { get; set; }
         bool IsImportingReleases { get; set; }
         bool IsIncludingAdministratorSettings { get; set; }
@@ -62,9 +62,9 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         public string DatabaseName { get; set; }
-        public DatabaseServer DatabaseServer { get; set; }
+        public IDatabaseServer DatabaseServer { get; set; }
         public string ImportFolder { get; set; }
-        public ApplicationServer ImportServer { get; set; }
+        public IApplicationServer ImportServer { get; set; }
         public bool IsImportingArchive { get; set; }
         public bool IsImportingReleases { get; set; }
         public bool IsIncludingAdministratorSettings { get; set; }
@@ -86,7 +86,7 @@ namespace erminas.SmartAPI.CMS.Project
         {
             RunAsync();
             var retryEverySecond = new TimeSpan(0, 0, 1);
-            Predicate<IRDList<AsynchronousProcess>> hasImportProcess =
+            Predicate<IRDList<IAsynchronousProcess>> hasImportProcess =
                 list => list.Any(process => process.Type == AsynchronousProcessType.XMLImport);
 
             //wait for the async process to spawn first and then wait until it is done

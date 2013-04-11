@@ -119,7 +119,12 @@ namespace erminas.SmartAPI.CMS.Administration
         }
     }
 
-    public class Module : RedDotObject
+    public interface IModule : IRedDotObject
+    {
+        ModuleType Type { get; }
+    }
+
+    internal class Module : RedDotObject, IModule
     {
         internal Module(Session session, XmlElement xmlElement) : base(session, xmlElement)
         {

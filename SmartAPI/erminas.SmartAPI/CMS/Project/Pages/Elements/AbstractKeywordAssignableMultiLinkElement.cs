@@ -84,7 +84,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             const string SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" changed=""1"" />";
 
             var keywordsStr = keywords.Aggregate("", (s, keyword) => s + SINGLE_KEYWORD.RQLFormat(keyword));
-            _parent.Project.ExecuteRQL(ASSING_KEYWORD.RQLFormat(_parent, keywordsStr), Project.RqlType.SessionKeyInProject);
+            _parent.Project.ExecuteRQL(ASSING_KEYWORD.RQLFormat(_parent, keywordsStr), RqlType.SessionKeyInProject);
         }
 
         private void ExecutePagebuilderLinkCleanup()
@@ -103,13 +103,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
             var keywordsStr = keywords.Aggregate("", (s, keyword) => s + SINGLE_KEYWORD.RQLFormat(keyword));
 
-            _parent.Project.ExecuteRQL(UNASSIGN_KEYWORD.RQLFormat(_parent, keywordsStr), Project.RqlType.SessionKeyInProject);
+            _parent.Project.ExecuteRQL(UNASSIGN_KEYWORD.RQLFormat(_parent, keywordsStr), RqlType.SessionKeyInProject);
         }
 
         private List<IKeyword> GetAssignedKeywords()
         {
             const string LOAD_KEYWORDS = @"<LINK guid=""{0}""><KEYWORDS action=""load""/></LINK>";
-            var xmlDoc = _parent.Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(_parent), Project.RqlType.SessionKeyInProject);
+            var xmlDoc = _parent.Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(_parent), RqlType.SessionKeyInProject);
 
             var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
             return keywords == null
@@ -118,15 +118,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         }
     }
 
-    public abstract class AbstractKeywordAssignableMultiLinkElement : AbstractMultiLinkElement, IKeywordAssignable
+    internal abstract class AbstractKeywordAssignableMultiLinkElement : AbstractMultiLinkElement, IKeywordAssignable
     {
-        protected AbstractKeywordAssignableMultiLinkElement(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected AbstractKeywordAssignableMultiLinkElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
             Init();
         }
 
-        protected AbstractKeywordAssignableMultiLinkElement(Project project, XmlElement xmlElement)
+        protected AbstractKeywordAssignableMultiLinkElement(IProject project, XmlElement xmlElement)
             : base(project, xmlElement)
         {
             Init();

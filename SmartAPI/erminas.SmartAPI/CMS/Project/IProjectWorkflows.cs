@@ -28,9 +28,9 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal class ProjectWorkflow : NameIndexedRDList<IWorkflow>, IProjectWorkflows
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal ProjectWorkflow(Project project, Caching caching) : base(caching)
+        internal ProjectWorkflow(IProject project, Caching caching) : base(caching)
         {
             _project = project;
             Global = new GlobalWorkflows(project);

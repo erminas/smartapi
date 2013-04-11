@@ -20,8 +20,13 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+    public interface IStandardFieldUserDefined : IStandardField<string>
+    {
+        Regex Regex { get; }
+    }
+
     [PageElementType(ElementType.StandardFieldUserDefined)]
-    public sealed class StandardFieldUserDefined : StandardField<string>
+    internal sealed class StandardFieldUserDefined : StandardField<string>, IStandardFieldUserDefined
     {
         public static readonly Regex NUMERIC_CHECK_REGEX =
             new Regex("^(-)?((\\d+((\\.|\\,)\\d*)?)|((\\.|\\,)\\d+))([eE](-)?\\d+)?$");
@@ -29,14 +34,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private int _maxSize;
         private Regex _regex;
 
-        internal StandardFieldUserDefined(Project project, XmlElement xmlElement, Regex regex)
+        internal StandardFieldUserDefined(IProject project, XmlElement xmlElement, Regex regex)
             : base(project, xmlElement)
         {
             LoadXml();
             _regex = regex;
         }
 
-        internal StandardFieldUserDefined(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldUserDefined(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }

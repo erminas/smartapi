@@ -17,9 +17,16 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Container : AbstractWorkflowAssignments, IContentClassPreassignable
+    public interface IContainer : IWorkflowAssignments, IContentClassPreassignable
     {
-        internal Container(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        bool IsDynamic { get; set; }
+        bool IsTargetContainer { get; set; }
+        bool IsTransferingContentOfFollowingPages { get; set; }
+    }
+
+    internal class Container : AbstractWorkflowAssignments, IContainer
+    {
+        internal Container(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltistargetcontainer", "eltisdynamic", "eltextendedlist");
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);

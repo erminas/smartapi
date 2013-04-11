@@ -24,37 +24,34 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 {
     public interface IWorkflow : IPartialRedDotObject, IProjectObject, IDeletable
     {
-        IEnumerable<WorkFlowAction> Actions();
+        IEnumerable<IWorkFlowAction> Actions();
         bool CanBeInherited { get; }
         bool IsGlobal { get; }
         bool IsStructureWorkflow { get; }
     }
 
-    public class Workflow : PartialRedDotProjectObject, IWorkflow
+    internal class Workflow : PartialRedDotProjectObject, IWorkflow
     {
         private IEnumerable<WorkFlowAction> _actions;
         private bool _canBeInherited;
         private bool _isGlobal;
         private bool _isStructureWorkflow;
 
-        internal Workflow(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Workflow(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
-            //if we don't have any actions, the element might have been initialized with only partial information,
-            //so a refresh is needed to access actions.
-            //todo schoener waeren getrennte constructoren oder so
             if (!_actions.Any())
             {
                 _actions = null;
             }
         }
 
-        public Workflow(Project project, Guid guid) : base(project, guid)
+        public Workflow(IProject project, Guid guid) : base(project, guid)
         {
         }
 
         // TODO: Add a more useful action method which retains the 'flow' of the workflow!
-        public IEnumerable<WorkFlowAction> Actions()
+        public IEnumerable<IWorkFlowAction> Actions()
         {
             if (_actions != null)
             {

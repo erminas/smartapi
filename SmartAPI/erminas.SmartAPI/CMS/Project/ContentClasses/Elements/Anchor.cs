@@ -72,11 +72,33 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
     }
 
-    public class Anchor : AbstractWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable
+    public interface IAnchor : IWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable
+    {
+        string Description { get; set; }
+        string ExampleText { get; set; }
+        HtmlTarget HtmlTarget { get; set; }
+        bool IsCrlfConvertedToBr { get; set; }
+        bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+        bool IsDynamic { get; set; }
+        bool IsLanguageIndependent { get; set; }
+        bool IsLinkNotAutomaticallyRemoved { get; set; }
+        bool IsNotConvertingCharactersToHtml { get; set; }
+        bool IsNotRelevantForWorklow { get; set; }
+        bool IsOnlyPathAndFilenameInserted { get; set; }
+        bool IsSyntaxConformingToXHtml { get; set; }
+        bool IsTransferingContentOfFollowingPages { get; set; }
+        ILanguageVariant LanguageVariantToSwitchTo { get; set; }
+        Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
+        IProjectVariant ProjectVariantToSwitchTo { get; set; }
+        string Supplement { get; set; }
+        new void Commit();
+    }
+
+    internal class Anchor : AbstractWorkflowAssignments, IAnchor
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 
-        protected Anchor(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        protected Anchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltextendedlist", "eltdonotremove",
                              "eltxhtmlcompliant", "eltdonothtmlencode", "eltlanguageindependent",
@@ -187,7 +209,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
 
-        public Pages.Elements.Container PreassignedTargetContainer
+        public Pages.Elements.IContainer PreassignedTargetContainer
         {
             get { return _targetContainerPreassignment.TargetContainer; }
             set { _targetContainerPreassignment.TargetContainer = value; }

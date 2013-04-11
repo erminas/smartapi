@@ -21,50 +21,35 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationFolder : PartialRedDotObject, IProjectObject
+    public interface IPublicationFolder : IPartialRedDotObject, IProjectObject
     {
-        #region ContentType enum
+        void Commit();
+        string ContentGroup { get; set; }
+        PublicationFolderContentType ContentTypeValue { get; set; }
+        PublicationFolderContextInfoPreparationType ContextInfoPreparation { get; set; }
+        string ContextTags { get; set; }
+        bool DoCreateLog { get; set; }
+        bool DoIndexForFulltextSearch { get; set; }
+        bool DoReleaseAfterImport { get; set; }
+        bool DoReplaceExistingContent { get; set; }
+        bool DoReplaceGroupAssignment { get; set; }
+        bool IsPublishedPagesFolder { get; }
+        string RealName { get; set; }
+        string RealVirtualName { get; set; }
+        PublicationFolderType Type { get; set; }
+        string VirtualName { get; set; }
+        void CreateInProject(IProject project, Guid parentFolderGuid);
+        void DeleteOnServer();
+    }
 
-        public enum ContentType
-        {
-            HTML,
-            XML,
-            XSL,
-            SCRIPT,
-            BLOB
-        }
-
-        #endregion
-
-        #region ContextInfoPreparationType enum
-
-        public enum ContextInfoPreparationType
-        {
-            None = -1,
-            DoNotPrepare = 0,
-            BeginningOfText = 1,
-            TextForHighlighting = 2,
-            ContextTags = 3
-        }
-
-        #endregion
-
-        #region PublicationFolderType enum
-
-        public enum PublicationFolderType
-        {
-            FtpUncLocal = 0,
-            DeliveryServer = 1
-        }
-
-        #endregion
-
+    internal class PublicationFolder : PartialRedDotProjectObject, IPublicationFolder
+    {
         public static readonly Guid ROOT_LEVEL_GUID = Guid.Parse("9BBF210F7923406291BE7AE47B4CA571");
         public static readonly Guid PUBLISHED_PAGES_GUID;
         private static readonly XmlElement PUBLISHED_PAGES_NODE;
         private string _contentgroup;
-        private ContentType _contenttype;
-        private ContextInfoPreparationType _contextInfoPreparationType;
+        private PublicationFolderContentType _contenttype;
+        private PublicationFolderContextInfoPreparationType _contextInfoPreparationType;
         private string _contexttags;
         private bool _doArchivePreviousVersion;
         private bool _doCreateLog;
@@ -94,15 +79,14 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
         public PublicationFolder(string name, PublicationFolderType type) : base(null)
         {
-            _contextInfoPreparationType = ContextInfoPreparationType.None;
+            _contextInfoPreparationType = PublicationFolderContextInfoPreparationType.None;
             Name = name;
             _type = type;
         }
 
-        public PublicationFolder(Project project, Guid guid) : base(project.Session, guid)
+        public PublicationFolder(IProject project, Guid guid) : base(project, guid)
         {
-            Project = project;
-            _contextInfoPreparationType = ContextInfoPreparationType.None;
+            _contextInfoPreparationType = PublicationFolderContextInfoPreparationType.None;
         }
 
         public void Commit()
@@ -126,13 +110,13 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             set { _contentgroup = value; }
         }
 
-        public ContentType ContentTypeValue
+        public PublicationFolderContentType ContentTypeValue
         {
             get { return LazyLoad(ref _contenttype); }
             set { _contenttype = value; }
         }
 
-        public ContextInfoPreparationType ContextInfoPreparation
+        public PublicationFolderContextInfoPreparationType ContextInfoPreparation
         {
             get { return LazyLoad(ref _contextInfoPreparationType); }
             set { _contextInfoPreparationType = value; }
@@ -144,7 +128,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             set { _contexttags = value; }
         }
 
-        public void CreateInProject(Project project, Guid parentFolderGuid)
+        public void CreateInProject(IProject project, Guid parentFolderGuid)
         {
             const string CREATE_STRING =
                 @"<PROJECT><EXPORTFOLDER action=""assign"" guid=""{0}""><EXPORTFOLDER action=""addnew"" name=""{1}"" type=""{2}"" {3} /></EXPORTFOLDER></PROJECT>";
@@ -198,8 +182,6 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             get { return Guid == PUBLISHED_PAGES_GUID; }
         }
 
-        public Project Project { get; private set; }
-
         public string RealName
         {
             get { return LazyLoad(ref _realName); }
@@ -234,7 +216,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             LoadXml();
         }
 
-        protected void LoadXml()
+        private void LoadXml()
         {
             if (Guid == PUBLISHED_PAGES_GUID)
             {
@@ -248,10 +230,10 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             if (_type == PublicationFolderType.DeliveryServer)
             {
                 InitIfPresent(ref _contentgroup, "contentgroup", x => x);
-                EnsuredInit(ref _contenttype, "contenttype", x => (ContentType) Enum.Parse(typeof (ContentType), x));
+                EnsuredInit(ref _contenttype, "contenttype", x => (PublicationFolderContentType) Enum.Parse(typeof (PublicationFolderContentType), x));
                 InitIfPresent(ref _contexttags, "contexttags", x => x);
                 InitIfPresent(ref _contextInfoPreparationType, "contextinfo",
-                              x => (ContextInfoPreparationType) Enum.Parse(typeof (ContextInfoPreparationType), x));
+                              x => (PublicationFolderContextInfoPreparationType) Enum.Parse(typeof (PublicationFolderContextInfoPreparationType), x));
                 EnsuredInit(ref _doArchivePreviousVersion, "flag_archive_prev_version", BoolConvert);
                 InitIfPresent(ref _doCreateLog, "flag_create_log", BoolConvert);
                 InitIfPresent(ref _doIndexing, "flag_indexing", BoolConvert);
@@ -305,7 +287,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                     optionalParameters += "contexttags=\"" + HttpUtility.HtmlEncode(_contexttags) + "\" ";
                 }
 
-                if (_contextInfoPreparationType != ContextInfoPreparationType.None)
+                if (_contextInfoPreparationType != PublicationFolderContextInfoPreparationType.None)
                 {
                     optionalParameters += "contextinfo=\"" + HttpUtility.HtmlEncode(_contextInfoPreparationType) + "\" ";
                 }
@@ -364,5 +346,29 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             }
             return optionalParameters;
         }
+    }
+
+    public enum PublicationFolderType
+    {
+        FtpUncLocal = 0,
+        DeliveryServer = 1
+    }
+
+    public enum PublicationFolderContextInfoPreparationType
+    {
+        None = -1,
+        DoNotPrepare = 0,
+        BeginningOfText = 1,
+        TextForHighlighting = 2,
+        ContextTags = 3
+    }
+
+    public enum PublicationFolderContentType
+    {
+        HTML,
+        XML,
+        XSL,
+        SCRIPT,
+        BLOB
     }
 }

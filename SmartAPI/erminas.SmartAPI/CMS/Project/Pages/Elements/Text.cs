@@ -20,16 +20,21 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class Text : AbstractValueElement<String>
+    public interface IText : IValueElement<string>
+    {
+        string Description { get; }
+    }
+
+    internal abstract class Text : AbstractValueElement<String>, IText
     {
         private string _description;
 
-        protected Text(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected Text(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        protected Text(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected Text(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -62,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             LoadXml();
 
-            using (new LanguageContext(ILanguageVariant))
+            using (new LanguageContext(LanguageVariant))
             {
                 const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
                 string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this),

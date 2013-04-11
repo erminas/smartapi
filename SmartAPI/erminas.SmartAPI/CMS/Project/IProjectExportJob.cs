@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal sealed class ProjectExportJob : AbstractAsyncProjectJob, IProjectExportJob
     {
-        internal ProjectExportJob(Project project, string targetPath) : base(project)
+        internal ProjectExportJob(IProject project, string targetPath) : base(project)
         {
             TargetPath = targetPath;
             EmailSubject = String.Format("Project: {0}", project.Name);

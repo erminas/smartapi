@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.OptionList)]
-    public class OptionList : PageElement
+    public interface IOptionList : IPageElement
     {
-        public OptionList(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.OptionList)]
+    internal class OptionList : PageElement, IOptionList
+    {
+        public OptionList(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal OptionList(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal OptionList(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

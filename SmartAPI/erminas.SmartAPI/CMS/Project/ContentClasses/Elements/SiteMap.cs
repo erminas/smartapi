@@ -20,9 +20,25 @@ using erminas.SmartAPI.CMS.Project.Filesystem;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class SiteMap : ContentClassElement
+    public interface ISiteMap : IContentClassElement
     {
-        internal SiteMap(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        string EndOfColumn { get; set; }
+        string EndOfLine { get; set; }
+        string EndOfTable { get; set; }
+        SiteMapFormat Format { get; set; }
+        bool IsSyntaxConformingToXHtml { get; set; }
+        int? MaxErrorCount { get; set; }
+        int? MaxSearchDepth { get; set; }
+        int? NestingLevel { get; set; }
+        string StartOfColumn { get; set; }
+        string StartOfLine { get; set; }
+        string StartOfTable { get; set; }
+        File XslStyleSheet { get; set; }
+    }
+
+    internal class SiteMap : ContentClassElement, ISiteMap
+    {
+        internal SiteMap(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltdepth", "eltsearchdepth", "elttableopen", "elttableclose",
                              "eltrowopen", "eltrowclose", "eltcolopen", "eltcolclose", "eltdropouts", "eltxslfile",

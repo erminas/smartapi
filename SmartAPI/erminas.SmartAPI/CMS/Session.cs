@@ -121,12 +121,12 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///     All database servers on the server.
         /// </summary>
-        public readonly NameIndexedRDList<DatabaseServer> DatabaseServers;
+        public readonly NameIndexedRDList<IDatabaseServer> DatabaseServers;
 
         /// <summary>
         ///     All projects on the server.
         /// </summary>
-        public readonly NameIndexedRDList<Project.Project> Projects;
+        public readonly NameIndexedRDList<Project.IProject> Projects;
 
         public IUsers Users { get; private set; }
         private IUser _currentUser;
@@ -144,16 +144,16 @@ namespace erminas.SmartAPI.CMS
         private Session()
         {
             Groups = new NameIndexedRDList<IGroup>(GetGroups, Caching.Enabled);
-            Projects = new NameIndexedRDList<Project.Project>(GetProjects, Caching.Enabled);
-            DatabaseServers = new NameIndexedRDList<DatabaseServer>(GetDatabaseServers, Caching.Enabled);
+            Projects = new NameIndexedRDList<Project.IProject>(GetProjects, Caching.Enabled);
+            DatabaseServers = new NameIndexedRDList<IDatabaseServer>(GetDatabaseServers, Caching.Enabled);
             Users = new Users(this, Caching.Enabled);
-            Modules = new IndexedRDList<ModuleType, Module>(GetModules, x => x.Type, Caching.Enabled);
-            ApplicationServers = new RDList<ApplicationServer>(GetApplicationServers, Caching.Enabled);
+            Modules = new IndexedRDList<ModuleType, IModule>(GetModules, x => x.Type, Caching.Enabled);
+            ApplicationServers = new RDList<IApplicationServer>(GetApplicationServers, Caching.Enabled);
             Locales = new IndexedCachedList<int, ISystemLocale>(GetLocales, x => x.LCID, Caching.Enabled);
             DialogLocales = new IndexedCachedList<string, IDialogLocale>(GetDialogLocales, x => x.LanguageAbbreviation, Caching.Enabled);
-            ProjectsForCurrentUser = new NameIndexedRDList<Project.Project>(() => GetProjectsForUser(CurrentUser.Guid),
+            ProjectsForCurrentUser = new NameIndexedRDList<Project.IProject>(() => GetProjectsForUser(CurrentUser.Guid),
                                                                             Caching.Enabled);
-            AsynchronousProcesses = new RDList<AsynchronousProcess>(GetAsynchronousProcesses, Caching.Disabled);
+            AsynchronousProcesses = new RDList<IAsynchronousProcess>(GetAsynchronousProcesses, Caching.Disabled);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace erminas.SmartAPI.CMS
 
         #endregion
 
-        public IRDList<ApplicationServer> ApplicationServers { get; private set; }
+        public IRDList<IApplicationServer> ApplicationServers { get; private set; }
 
         /// <summary>
         ///     The asynchronous processes running on the server. The list is _NOT_ cached by default.
@@ -198,15 +198,15 @@ namespace erminas.SmartAPI.CMS
         /// <remarks>
         ///     Caching is disabled by default.
         /// </remarks>
-        public IRDList<AsynchronousProcess> AsynchronousProcesses { get; private set; }
+        public IRDList<IAsynchronousProcess> AsynchronousProcesses { get; private set; }
 
         public IProjectImportJob CreateProjectImportJob(string newProjectName, string importPath)
         {
             return new ProjectImportJob(this, newProjectName, importPath);
         }
 
-        public Project.Project CreateProjectMsSql(string projectName, ApplicationServer appServer,
-                                                  DatabaseServer dbServer, string databaseName, ISystemLocale language,
+        public Project.IProject CreateProjectMsSql(string projectName, IApplicationServer appServer,
+                                                  IDatabaseServer dbServer, string databaseName, ISystemLocale language,
                                                   ProjectType type, UseVersioning useVersioning, IUser user)
         {
             const string CREATE_PROJECT =
@@ -367,9 +367,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <param name="guid"> Guid of the project </param>
         /// <returns> Project with Guid guid </returns>
         /// <exception cref="Exception">Thrown if no project with Guid==guid could be found</exception>
-        public Project.Project GetProject(Guid guid)
+        public Project.IProject GetProject(Guid guid)
         {
-            Project.Project project = Projects.FirstOrDefault(x => x.Guid.Equals(guid));
+            Project.IProject project = Projects.FirstOrDefault(x => x.Guid.Equals(guid));
             if (project == null)
             {
                 throw new SmartAPIException(ServerLogin, "No Project with Guid {0} found.".RQLFormat(guid));
@@ -383,13 +383,13 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         /// <param name="userGuid"> Guid of the user </param>
         /// <returns> All projects the user with Guid==userGuid has access to </returns>
-        public List<Project.Project> GetProjectsForUser(Guid userGuid)
+        public List<Project.IProject> GetProjectsForUser(Guid userGuid)
         {
             const string LIST_PROJECTS_FOR_USER =
                 @"<ADMINISTRATION><USER guid=""{0}""><PROJECTS action=""list"" extendedinfo=""1""/></USER></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(String.Format(LIST_PROJECTS_FOR_USER, userGuid.ToRQLString()));
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("PROJECT");
-            return (from XmlElement curNode in xmlNodes select new Project.Project(this, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select (IProject)new Project.Project(this, curNode)).ToList();
         }
 
         /// <summary>
@@ -444,9 +444,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <summary>
         ///     All available CMS modules (e.g. SmartTree, SmartEdit, Tasks ...), indexed by ModuleType. The list is cached by default.
         /// </summary>
-        public IndexedRDList<ModuleType, Module> Modules { get; private set; }
+        public IndexedRDList<ModuleType, IModule> Modules { get; private set; }
 
-        public NameIndexedRDList<Project.Project> ProjectsForCurrentUser { get; private set; }
+        public NameIndexedRDList<Project.IProject> ProjectsForCurrentUser { get; private set; }
 
         /// <summary>
         ///     Select a project. Subsequent queries will be executed in the context of this project.
@@ -491,7 +491,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         /// <param name="project"> Project to select </param>
         /// <exception cref="Exception">Thrown, if the project could not get selected.</exception>
-        public void SelectProject(Project.Project project)
+        public void SelectProject(Project.IProject project)
         {
             SelectProject(project.Guid);
         }
@@ -499,7 +499,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <summary>
         ///     Get/Set the currently selected project.
         /// </summary>
-        public Project.Project SelectedProject
+        public Project.IProject SelectedProject
         {
             get
             {
@@ -586,7 +586,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
         /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
-        public void WaitForAsyncProcess(TimeSpan maxWait, Predicate<AsynchronousProcess> processPredicate)
+        public void WaitForAsyncProcess(TimeSpan maxWait, Predicate<IAsynchronousProcess> processPredicate)
         {
             var retryEverySecond = new TimeSpan(0, 0, 1);
             WaitForAsyncProcess(maxWait, retryEverySecond, processPredicate);
@@ -600,9 +600,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         /// <param name="retry">Determines how often the async processes should be checked</param>
         /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
         public void WaitForAsyncProcess(TimeSpan maxWait, TimeSpan retry,
-                                        Predicate<AsynchronousProcess> processPredicate)
+                                        Predicate<IAsynchronousProcess> processPredicate)
         {
-            Predicate<IRDList<AsynchronousProcess>> pred = list => list.Any(process => processPredicate(process));
+            Predicate<IRDList<IAsynchronousProcess>> pred = list => list.Any(process => processPredicate(process));
 
             //wait for the async process to spawn first and then wait until it is done
 
@@ -707,7 +707,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return builder.ToString();
         }
 
-        private List<ApplicationServer> GetApplicationServers()
+        private List<IApplicationServer> GetApplicationServers()
         {
             const string LIST_APPLICATION_SERVERS =
                 @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
@@ -716,20 +716,20 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             var editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
             return (from XmlElement curServer in editorialServers
                     select
-                        new ApplicationServer(this, curServer.GetGuid())
+                       (IApplicationServer) new ApplicationServer(this, curServer.GetGuid())
                             {
                                 Name = curServer.GetName(),
                                 IpAddress = curServer.GetAttributeValue("ip")
                             }).ToList();
         }
 
-        private List<AsynchronousProcess> GetAsynchronousProcesses()
+        private List<IAsynchronousProcess> GetAsynchronousProcesses()
         {
             const string LIST_PROCESSES = @"<ADMINISTRATION><ASYNCQUEUE action=""list"" project=""""/></ADMINISTRATION>";
             var xmlDoc = ExecuteRQL(LIST_PROCESSES);
             return
                 (from XmlElement curProcess in xmlDoc.GetElementsByTagName("ASYNCQUEUE")
-                 select new AsynchronousProcess(this, curProcess)).ToList();
+                 select (IAsynchronousProcess)new AsynchronousProcess(this, curProcess)).ToList();
         }
 
         private IUser GetCurrentUser()
@@ -739,7 +739,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return new User(this, userElement.GetGuid()) {Name = userElement.GetName()};
         }
 
-        private List<DatabaseServer> GetDatabaseServers()
+        private List<IDatabaseServer> GetDatabaseServers()
         {
             using (new ServerManagementContext(this))
             {
@@ -748,7 +748,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 var xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS, IODataFormat.SessionKeyAndLogonGuid);
 
                 var xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
-                return (from XmlElement curNode in xmlNodes select new DatabaseServer(this, curNode)).ToList();
+                return (from XmlElement curNode in xmlNodes select (IDatabaseServer)new DatabaseServer(this, curNode)).ToList();
             }
         }
 
@@ -819,7 +819,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return xmlDoc;
         }
 
-        private List<Module> GetModules()
+        private List<IModule> GetModules()
         {
             const string LIST_MODULES = @"<ADMINISTRATION><MODULES action=""list"" /></ADMINISTRATION>";
             var xmlDoc = ExecuteRQL(LIST_MODULES);
@@ -828,15 +828,15 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             //the change to the list occurs due to the cloning on the XmlElements in Module->AbstractAttributeContainer c'tor.
             //i have no idea why that changes the list as the same approach works without a problem everywhere else without the need for the intermediate list.
             var moduleElements = xmlDoc.GetElementsByTagName("MODULE").OfType<XmlElement>().ToList();
-            return (from XmlElement curModule in moduleElements select new Module(this, curModule)).ToList();
+            return (from XmlElement curModule in moduleElements select (IModule)new Module(this, curModule)).ToList();
         }
 
-        private List<Project.Project> GetProjects()
+        private List<Project.IProject> GetProjects()
         {
             const string LIST_PROJECTS = @"<ADMINISTRATION><PROJECTS action=""list""/></ADMINISTRATION>";
             XmlDocument xmlDoc = ExecuteRQL(LIST_PROJECTS);
             XmlNodeList projectNodes = xmlDoc.GetElementsByTagName("PROJECT");
-            return (from XmlElement curNode in projectNodes select new Project.Project(this, curNode)).ToList();
+            return (from XmlElement curNode in projectNodes select (IProject)new Project.Project(this, curNode)).ToList();
         }
 
         private XmlElement GetUserSessionInfoElement()
@@ -1068,7 +1068,13 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         }
     }
 
-    public class ApplicationServer : PartialRedDotObject
+    public interface IApplicationServer : IPartialRedDotObject
+    {
+        string From { get; }
+        string IpAddress { get; }
+    }
+
+    internal class ApplicationServer : PartialRedDotObject, IApplicationServer
     {
         private string _from;
         private string _ipAddress;

@@ -38,7 +38,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <exception cref="TimeoutException">Thrown, if the copy job wasn't finished in time</exception>
         void RunSync(TimeSpan maxWait);
 
-        ApplicationServer Server { get; set; }
+        IApplicationServer Server { get; set; }
     }
 
     public interface IAsyncProjectJob : IAsyncJob, IProjectObject
@@ -62,21 +62,21 @@ namespace erminas.SmartAPI.CMS.Project
 
         public abstract void RunAsync();
         public abstract void RunSync(TimeSpan maxWait);
-        public ApplicationServer Server { get; set; }
+        public IApplicationServer Server { get; set; }
 
         public Session Session { get; private set; }
     }
 
     internal abstract class AbstractAsyncProjectJob : AbstractAsyncJob, IAsyncProjectJob
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        protected AbstractAsyncProjectJob(Project project) : base(project.Session)
+        protected AbstractAsyncProjectJob(IProject project) : base(project.Session)
         {
             _project = project;
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

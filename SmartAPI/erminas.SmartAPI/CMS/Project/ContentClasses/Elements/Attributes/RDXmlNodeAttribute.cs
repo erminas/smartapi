@@ -20,7 +20,7 @@ using log4net;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public abstract class RDXmlNodeAttribute : IRDAttribute
+    internal abstract class RDXmlNodeAttribute : IRDAttribute
     {
         #region ElementDescriptions
 

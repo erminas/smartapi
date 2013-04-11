@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     Database server used in the connection.
         /// </summary>
-        DatabaseServer DatabaseServer { get; }
+        IDatabaseServer DatabaseServer { get; }
 
         /// <summary>
         ///     Description of the database connection
@@ -47,11 +47,11 @@ namespace erminas.SmartAPI.CMS.Project
         private DatabaseServer _databaseServer;
         private string _description;
 
-        internal DatabaseConnection(Project project, Guid guid) : base(project, guid)
+        internal DatabaseConnection(IProject project, Guid guid) : base(project, guid)
         {
         }
 
-        internal DatabaseConnection(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal DatabaseConnection(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -67,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     Database server used in the connection.
         /// </summary>
-        public DatabaseServer DatabaseServer
+        public IDatabaseServer DatabaseServer
         {
             get { return LazyLoad(ref _databaseServer); }
         }
@@ -89,7 +89,7 @@ namespace erminas.SmartAPI.CMS.Project
         {
             const string LOAD_DATABASE_CONNECTION = @"<DATABASE action=""load"" guid=""{0}""/>";
             XmlDocument xmlDoc = Project.ExecuteRQL(String.Format(LOAD_DATABASE_CONNECTION, Guid.ToRQLString()),
-                                                    Project.RqlType.SessionKeyInProject);
+                                                    RqlType.SessionKeyInProject);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASE");
             if (xmlNodes.Count != 1)
             {

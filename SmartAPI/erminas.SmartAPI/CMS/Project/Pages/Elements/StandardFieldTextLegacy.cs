@@ -15,16 +15,22 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public class StandardFieldTextLegacy : StandardField<string>
+    public interface IStandardFieldTextLegacy : IStandardField<string>
     {
-        internal StandardFieldTextLegacy(Project project, XmlElement xmlElement) : base(project, xmlElement)
+    }
+
+    [PageElementType(ElementType.StandardFieldTextLegacy)]
+    internal class StandardFieldTextLegacy : StandardField<string>, IStandardFieldTextLegacy
+    {
+        internal StandardFieldTextLegacy(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 
-        public StandardFieldTextLegacy(Project project, Guid guid, ILanguageVariant languageVariant)
+        public StandardFieldTextLegacy(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

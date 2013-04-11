@@ -25,14 +25,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Descending = 3
     }
 
-    //defaultvalue gets automatically handled by optionlistselectionattribute
-    //if a value is assigend for optionlistdata, the defaultvalue will get set, too, from the same
-    //source
-    public class OptionList : ContentClassContentElement
+    public interface IOptionList : IContentClassContentElement
+    {
+        IContentClassElement ChildElementOf { get; set; }
+        string DefaultValueString { get; set; }
+        string Description { get; set; }
+        string Entries { get; set; }
+        bool HasLanguageDependendNames { get; set; }
+        bool HasLanguageDependendValues { get; set; }
+        bool IsAllowingOtherValues { get; set; }
+        string SampleText { get; set; }
+        SortMode SortMode { get; set; }
+    }
+
+    internal class OptionList : ContentClassContentElement, IOptionList
     {
         private const string ELTDEFAULTVALUE = "eltdefaultvalue";
 
-        internal OptionList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal OptionList(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltlanguagedependentvalue", "eltlanguagedependentname", "eltuserdefinedallowed",
                              "eltrdexample", "eltrddescription", "eltorderby", /*"eltparentelementname",*/
@@ -42,7 +52,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 // ReSharper restore ObjectCreationAsStatement
         }
 
-        public ContentClassElement ChildElementOf
+        public IContentClassElement ChildElementOf
         {
             get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
             set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }

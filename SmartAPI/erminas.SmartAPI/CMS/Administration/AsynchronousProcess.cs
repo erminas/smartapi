@@ -15,6 +15,7 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Administration
@@ -50,7 +51,14 @@ namespace erminas.SmartAPI.CMS.Administration
         DeletePagesViaFTPInheritPublicationPackage = 26,
     }
 
-    public class AsynchronousProcess : RedDotObject
+    public interface IAsynchronousProcess : IRedDotObject
+    {
+        AsynchronousProcessType Type { get; }
+        IUser User { get; }
+        IProject Project { get; }
+    }
+
+    internal class AsynchronousProcess : RedDotObject, IAsynchronousProcess
     {
         private AsynchronousProcessType _type;
 
@@ -66,7 +74,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public IUser User { get; private set; }
 
-        public Project.Project Project { get; private set; }
+        public Project.IProject Project { get; private set; }
 
         private void LoadXml()
         {

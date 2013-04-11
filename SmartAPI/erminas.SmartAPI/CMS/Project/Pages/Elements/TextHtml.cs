@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.TextHtml)]
-    public class TextHtml : Text
+    public interface ITextHtml : IText
     {
-        public TextHtml(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.TextHtml)]
+    internal class TextHtml : Text, ITextHtml
+    {
+        public TextHtml(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal TextHtml(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal TextHtml(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

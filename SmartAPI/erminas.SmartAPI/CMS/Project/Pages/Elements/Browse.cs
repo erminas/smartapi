@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.Browse)]
-    public class Browse : AbstractLinkElement
+    public interface IBrowse : ILinkElement
     {
-        public Browse(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.Browse)]
+    internal class Browse : AbstractLinkElement, IBrowse
+    {
+        public Browse(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal Browse(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Browse(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

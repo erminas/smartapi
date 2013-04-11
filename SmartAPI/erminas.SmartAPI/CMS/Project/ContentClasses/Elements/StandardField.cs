@@ -18,9 +18,16 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class StandardField : ExtendedContentClassContentElement
+    public interface IStandardField : IExtendedContentClassContentElement
     {
-        protected StandardField(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        IContentClassElement ChildElementOf { get; set; }
+        string DefaultValue { get; set; }
+        string Sample { get; set; }
+    }
+
+    internal class StandardField : ExtendedContentClassContentElement, IStandardField
+    {
+        protected StandardField(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltrdexample", /*"eltparentelementname",*/ "eltparentelementguid");
 // ReSharper disable ObjectCreationAsStatement
@@ -28,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 // ReSharper restore ObjectCreationAsStatement
         }
 
-        public ContentClassElement ChildElementOf
+        public IContentClassElement ChildElementOf
         {
             get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
             set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }

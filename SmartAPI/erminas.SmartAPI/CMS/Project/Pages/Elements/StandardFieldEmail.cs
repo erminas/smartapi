@@ -20,17 +20,21 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+    public interface IStandardFieldEmail : IStandardField<string>
+    {
+    }
+
     [PageElementType(ElementType.StandardFieldEmail)]
-    public class StandardFieldEmail : StandardField<string>
+    internal class StandardFieldEmail : StandardField<string>, IStandardFieldEmail
     {
         private Regex _emailVerificationRegex;
 
-        internal StandardFieldEmail(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal StandardFieldEmail(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        public StandardFieldEmail(Project project, Guid guid, ILanguageVariant languageVariant)
+        public StandardFieldEmail(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

@@ -28,15 +28,15 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal class Folders : NameIndexedRDList<IFolder>, IFolders
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal Folders(Project project, Caching caching) : base(caching)
+        internal Folders(IProject project, Caching caching) : base(caching)
         {
             _project = project;
             RetrieveFunc = GetFolders;
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

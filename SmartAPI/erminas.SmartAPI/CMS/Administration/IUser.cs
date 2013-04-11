@@ -72,7 +72,7 @@ namespace erminas.SmartAPI.CMS.Administration
     /// <summary>
     ///     A user in the RedDot system.
     /// </summary>
-    public class User : PartialRedDotObject, IUser
+    internal class User : PartialRedDotObject, IUser
     {
         private Guid _accountSystemGuid;
         private string _description;

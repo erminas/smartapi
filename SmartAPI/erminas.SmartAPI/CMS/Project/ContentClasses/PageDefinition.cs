@@ -18,18 +18,25 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    public class PageDefinition : RedDotProjectObject, IPageDefinition
+
+    public interface IPageDefinition : IRedDotObject, IProjectObject
     {
-        private readonly ContentClass _contentClass;
+        IContentClass ContentClass { get; }
+        string Description { get; }
+    }
+
+    internal class PageDefinition : RedDotProjectObject, IPageDefinition
+    {
+        private readonly IContentClass _contentClass;
         private string _description;
 
-        internal PageDefinition(ContentClass contentClass, XmlElement element) : base(contentClass.Project, element)
+        internal PageDefinition(IContentClass contentClass, XmlElement element) : base(contentClass.Project, element)
         {
             _contentClass = contentClass;
             LoadXml();
         }
 
-        public ContentClass ContentClass
+        public IContentClass ContentClass
         {
             get { return _contentClass; }
         }

@@ -18,26 +18,26 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public abstract class PartialRedDotProjectObject : PartialRedDotObject, IProjectObject
+    internal abstract class PartialRedDotProjectObject : PartialRedDotObject, IProjectObject
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        protected PartialRedDotProjectObject(Project project, XmlElement xmlElement) : base(project.Session, xmlElement)
+        protected PartialRedDotProjectObject(IProject project, XmlElement xmlElement) : base(project.Session, xmlElement)
         {
             _project = project;
         }
 
-        protected PartialRedDotProjectObject(Project project, Guid guid) : base(project.Session, guid)
+        protected PartialRedDotProjectObject(IProject project, Guid guid) : base(project.Session, guid)
         {
             _project = project;
         }
 
-        protected PartialRedDotProjectObject(Project project) : base(project.Session)
+        protected PartialRedDotProjectObject(IProject project) : base(project.Session)
         {
             _project = project;
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }

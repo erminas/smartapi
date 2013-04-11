@@ -15,6 +15,7 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -44,7 +45,7 @@ namespace erminas.SmartAPI.CMS.Administration
         void Commit();
         bool IsTemplateEditor { get; set; }
         bool IsTranslationEditor { get; set; }
-        Project.Project Project { get; }
+        IProject Project { get; }
         IUser User { get; }
         UserRole UserRole { get; set; }
         IUserProjectAssignment Refreshed();
@@ -59,7 +60,7 @@ namespace erminas.SmartAPI.CMS.Administration
         private bool? _isTranslationEditor;
         private UserRole? _userRole;
 
-        internal UserProjectAssignment(IUser user, Project.Project project)
+        internal UserProjectAssignment(IUser user, IProject project)
         {
             Project = project;
             _user = user;
@@ -74,8 +75,7 @@ namespace erminas.SmartAPI.CMS.Administration
             _isInitialized = true;
         }
 
-        private UserProjectAssignment(IUser user, Project.Project project, UserRole role,
-                                      ExtendedUserRoles extendedUserRoles)
+        private UserProjectAssignment(IUser user, IProject project, UserRole role, ExtendedUserRoles extendedUserRoles)
         {
             Project = project;
             _user = user;
@@ -139,7 +139,7 @@ namespace erminas.SmartAPI.CMS.Administration
             return xmlDoc.GetSingleElement("PROJECT");
         }
 
-        public Project.Project Project { get; private set; }
+        public IProject Project { get; private set; }
 
         public Session Session
         {
@@ -174,7 +174,7 @@ namespace erminas.SmartAPI.CMS.Administration
             Delete(Project, User);
         }
 
-        internal static void Delete(Project.Project project, IUser user)
+        internal static void Delete(IProject project, IUser user)
         {
             const string UNASSING_PROJECT =
               @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
@@ -193,8 +193,7 @@ namespace erminas.SmartAPI.CMS.Administration
         /// <param name="role"></param>
         /// <param name="extendedUserRoles"></param>
         /// <returns></returns>
-        internal static UserProjectAssignment Create(IUser user, Project.Project project, UserRole role,
-                                                     ExtendedUserRoles extendedUserRoles)
+        internal static UserProjectAssignment Create(IUser user, IProject project, UserRole role, ExtendedUserRoles extendedUserRoles)
         {
             var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
             assignment.Commit();

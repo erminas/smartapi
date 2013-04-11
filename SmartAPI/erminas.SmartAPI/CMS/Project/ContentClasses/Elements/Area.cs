@@ -17,11 +17,23 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Area : AbstractWorkflowAssignments, IContentClassPreassignable
+    public interface IArea : IWorkflowAssignments, IContentClassPreassignable
+    {
+        string Coords { get; set; }
+        bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+        bool IsOnlyPathAndFilenameInserted { get; set; }
+        bool IsSyntaxConformingToXHtml { get; set; }
+        Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
+        string Shape { get; set; }
+        string Supplement { get; set; }
+        string Target { get; set; }
+    }
+
+    internal class Area : AbstractWorkflowAssignments, IArea
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 
-        internal Area(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal Area(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltxhtmlcompliant", "eltsupplement", "eltonlyhrefvalue", "eltshape", "elttarget",
                              "eltcoords");
@@ -60,7 +72,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
 
-        public Pages.Elements.Container PreassignedTargetContainer
+        public Pages.Elements.IContainer PreassignedTargetContainer
         {
             get { return _targetContainerPreassignment.TargetContainer; }
             set { _targetContainerPreassignment.TargetContainer = value; }

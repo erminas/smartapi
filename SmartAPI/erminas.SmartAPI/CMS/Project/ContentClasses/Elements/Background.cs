@@ -20,9 +20,19 @@ using erminas.SmartAPI.CMS.Project.Filesystem;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Background : ContentClassElement
+    public interface IBackground : IContentClassElement
     {
-        internal Background(ContentClass cc, XmlElement xmlElement) : base(cc, xmlElement)
+        bool IsDragAndDropActivated { get; set; }
+        bool IsHiddenInProjectStructure { get; set; }
+        bool IsLanguageIndependent { get; set; }
+        bool IsNotRelevantForWorklow { get; set; }
+        bool IsNotUsedInForm { get; set; }
+        File SrcFile { get; set; }
+    }
+
+    internal class Background : ContentClassElement, IBackground
+    {
+        internal Background(IContentClass cc, XmlElement xmlElement) : base(cc, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "elthideinform", "eltinvisibleinclient",
                              "eltdragdrop", "eltsrcsubdirguid", "eltsrc", "eltfolderguid");

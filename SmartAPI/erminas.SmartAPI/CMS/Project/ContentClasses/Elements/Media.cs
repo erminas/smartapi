@@ -68,9 +68,39 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     #endregion
 
-    public class Media : ContentClassElement, ICanBeRequiredForEditing
+    public interface IMedia : IContentClassElement, ICanBeRequiredForEditing
     {
-        internal Media(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        int? AutomaticMaximumScalingHeight { get; set; }
+        int? AutomaticMaximumScalingWidth { get; set; }
+        int? ColorDepthInBit { get; set; }
+        MediaConversionMode ConversionModeForSelectedDocuments { get; set; }
+        new void Commit();
+
+        /// <summary>
+        ///     All eligible suffixes separated by ";"
+        /// </summary>
+// todo use list<string> instead
+        string EligibleSuffixes { get; set; }
+
+        bool IsConvertingOnlyNonWebCompatibleFiles { get; set; }
+        bool IsLanguageIndependent { get; set; }
+        bool IsLinkNotAutomaticallyRemoved { get; set; }
+        bool IsNotRelevantForWorklow { get; set; }
+        bool IsNotUsedInForm { get; set; }
+        bool IsScaledOrConverted { get; set; }
+        int? MaxFileSizeInKB { get; set; }
+        string Quality { get; set; }
+        string RequiredNamePattern { get; set; }
+        int? RequiredPictureHeight { get; set; }
+        int? RequiredPictureWidth { get; set; }
+        File SampleFile { get; set; }
+        File SrcFile { get; set; }
+        TargetFormat TargetFormat { get; set; }
+    }
+
+    internal class Media : ContentClassElement, IMedia
+    {
+        internal Media(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "elthideinform",
                              "eltsuffixes", "eltdonotremove", "eltconvert", "eltmaxsize", "eltcompression",

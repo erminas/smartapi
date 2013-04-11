@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.TextAscii)]
-    public class TextAscii : Text
+    public interface ITextAscii : IText
     {
-        public TextAscii(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.TextAscii)]
+    internal class TextAscii : Text, ITextAscii
+    {
+        public TextAscii(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal TextAscii(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal TextAscii(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

@@ -17,9 +17,9 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class LanguageVariantAttribute : AbstractGuidXmlNodeAttribute<ILanguageVariant>
+    internal class LanguageVariantAttribute : AbstractGuidXmlNodeAttribute<ILanguageVariant>
     {
-        public LanguageVariantAttribute(ContentClassElement parent, string name)
+        public LanguageVariantAttribute(IContentClassElement parent, string name)
             : base(parent.ContentClass.Project.Session, parent, name)
         {
         }
@@ -51,12 +51,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override ILanguageVariant RetrieveByGuid(Guid guid)
         {
-            return ((ContentClassElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
+            return ((IContentClassElement) Parent).ContentClass.Project.LanguageVariants.GetByGuid(guid);
         }
 
         protected override ILanguageVariant RetrieveByName(string name)
         {
-            return ((ContentClassElement) Parent).ContentClass.Project.LanguageVariants[name];
+            return ((IContentClassElement) Parent).ContentClass.Project.LanguageVariants[name];
         }
     }
 }

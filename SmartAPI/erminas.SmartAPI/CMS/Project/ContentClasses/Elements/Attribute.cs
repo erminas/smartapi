@@ -27,9 +27,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         MBytes
     }
 
-    public class Attribute : ContentClassElement
+    public interface IAttribute : IContentClassElement
     {
-        internal Attribute(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        DateTimeFormat DateTimeFormat { get; set; }
+        FileSizeUnit FileSizeUnit { get; set; }
+        ISystemLocale Locale { get; set; }
+        string ReferencedElementName { get; set; }
+        MediaTypeAttribute SelectedAttribute { get; set; }
+    }
+
+    internal class Attribute : ContentClassElement, IAttribute
+    {
+        internal Attribute(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltmediatypename", "eltmediatypeattribute", "eltlcid", "eltformatno");
 // ReSharper disable ObjectCreationAsStatement

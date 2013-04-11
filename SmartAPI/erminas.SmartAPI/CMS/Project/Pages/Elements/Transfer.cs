@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.Transfer)]
-    public class Transfer : PageElement
+    public interface ITransfer : IPageElement
     {
-        public Transfer(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.Transfer)]
+    internal class Transfer : PageElement, ITransfer
+    {
+        public Transfer(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal Transfer(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Transfer(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

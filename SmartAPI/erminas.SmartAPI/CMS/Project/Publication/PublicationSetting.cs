@@ -22,36 +22,46 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationSetting : RedDotProjectObject
+    public interface IPublicationSetting : IRedDotObject, IProjectObject
     {
-        private readonly NameIndexedRDList<PublicationFolderSetting> _exportFolderSettings;
-        private List<PublicationTarget> _publishingTargets;
+        NameIndexedRDList<IPublicationFolderSetting> ExportFolderSettings { get; }
+        IProjectVariant ProjectVariant { get; }
+        IPublicationPackage PublicationPackage { get; set; }
+        IEnumerable<IPublicationTarget> PublishingTargets { get; }
+        void SetPublishingTargetsAndCommit(List<IPublicationTarget> newTargets);
+        ILanguageVariant LanguageVariant { get; }
+    }
 
-        internal PublicationSetting(PublicationPackage package, XmlElement xmlElement)
+    internal class PublicationSetting : RedDotProjectObject, IPublicationSetting
+    {
+        private readonly NameIndexedRDList<IPublicationFolderSetting> _exportFolderSettings;
+        private List<IPublicationTarget> _publishingTargets;
+
+        internal PublicationSetting(IPublicationPackage package, XmlElement xmlElement)
             : base(package.Project, xmlElement)
         {
-            _exportFolderSettings = new NameIndexedRDList<PublicationFolderSetting>(LoadExportFolderSettings,
+            _exportFolderSettings = new NameIndexedRDList<IPublicationFolderSetting>(LoadExportFolderSettings,
                                                                                     Caching.Enabled);
             PublicationPackage = package;
             LoadXml();
         }
 
-        public NameIndexedRDList<PublicationFolderSetting> ExportFolderSettings
+        public NameIndexedRDList<IPublicationFolderSetting> ExportFolderSettings
         {
             get { return _exportFolderSettings; }
         }
 
-        public ILanguageVariant ILanguageVariant { get; private set; }
+        public ILanguageVariant LanguageVariant { get; private set; }
         public IProjectVariant ProjectVariant { get; private set; }
 
-        public PublicationPackage PublicationPackage { get; set; }
+        public IPublicationPackage PublicationPackage { get; set; }
 
-        public IEnumerable<PublicationTarget> PublishingTargets
+        public IEnumerable<IPublicationTarget> PublishingTargets
         {
             get { return _publishingTargets.ToList(); }
         }
 
-        public void SetPublishingTargetsAndCommit(List<PublicationTarget> newTargets)
+        public void SetPublishingTargetsAndCommit(List<IPublicationTarget> newTargets)
         {
             const string SAVE_EXPORT_TARGETS =
                 @"<PROJECT><EXPORTSETTING guid=""{0}""><EXPORTTARGETS action=""save"">{1}</EXPORTTARGETS></EXPORTSETTING></PROJECT>";
@@ -80,7 +90,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             _exportFolderSettings.InvalidateCache();
         }
 
-        private List<PublicationFolderSetting> LoadExportFolderSettings()
+        private List<IPublicationFolderSetting> LoadExportFolderSettings()
         {
             const string LIST_EXPORT_FOLDER_SETTINGS =
                 @"<TREESEGMENT type=""project.1710"" action=""load"" guid=""{0}"" descent=""project"" parentguid=""{1}""/>";
@@ -90,7 +100,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
             return (from XmlElement curSegment in xmlDoc.GetElementsByTagName("SEGMENT")
                     select
-                        new PublicationFolderSetting(this, curSegment.GetGuid())
+                        (IPublicationFolderSetting) new PublicationFolderSetting(this, curSegment.GetGuid())
                             {
                                 Name = curSegment.GetAttributeValue("value")
                             }).ToList();
@@ -102,11 +112,11 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
             _name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
                    XmlElement.GetAttributeValue("languagevariantname");
-            ILanguageVariant =
+            LanguageVariant =
                 PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
             XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets =
-                (from XmlElement curTarget in exportTargets select new PublicationTarget(Project, curTarget.GetGuid()))
+                (from XmlElement curTarget in exportTargets select (IPublicationTarget) new PublicationTarget(Project, curTarget.GetGuid()))
                     .ToList();
         }
     }

@@ -29,12 +29,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     /// <remarks>
     ///     For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
-    public abstract class ContentClassElement : RedDotProjectObject, IContentClassElement
+    internal abstract class ContentClassElement : RedDotProjectObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private ILanguageVariant _languageVariant;
 
-        protected ContentClassElement(ContentClass contentClass, XmlElement xmlElement)
+        protected ContentClassElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
         {
             CreateAttributes("eltname", LANGUAGEVARIANTID);
@@ -56,11 +56,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             //One parameter: xml representation of the element, containing an attribute "action" with value "save"
             const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
             var node = (XmlElement) XmlElement.Clone();
-            using (new LanguageContext(ILanguageVariant))
+            using (new LanguageContext(LanguageVariant))
             {
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
-                                                    Project.RqlType.SessionKeyInProject);
+                                                    RqlType.SessionKeyInProject);
                 try
                 {
                     var resultElement = (XmlElement) rqlResult.GetElementsByTagName("ELEMENT")[0];
@@ -80,12 +80,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             }
         }
 
-        public ContentClass ContentClass { get; set; }
+        public IContentClass ContentClass { get; set; }
 
         /// <summary>
         ///     Language variant of the element (a separate instance exists for every language variant on the server).
         /// </summary>
-        public ILanguageVariant ILanguageVariant
+        public ILanguageVariant LanguageVariant
         {
             get
             {
@@ -122,7 +122,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         ///         </item>
         ///     </list>
         /// </remarks>
-        internal ContentClassElement CopyToContentClass(ContentClass contentClass)
+        public IContentClassElement CopyToContentClass(IContentClass contentClass)
         {
             ContentClassElement newContentClassElement = CreateElement(contentClass, Type);
             foreach (IRDAttribute attr in Attributes)
@@ -172,7 +172,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// <param name="contentClass"> parent content class that contains the element </param>
         /// <param name="xmlElement"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        internal static ContentClassElement CreateElement(ContentClass contentClass, XmlElement xmlElement)
+        internal static ContentClassElement CreateElement(IContentClass contentClass, XmlElement xmlElement)
         {
             var type = (ElementType) int.Parse(xmlElement.GetAttributeValue("elttype"));
             switch (type)
@@ -251,7 +251,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// <param name="contentClass"> parent content class of the element </param>
         /// <param name="elementType"> type of the element </param>
         /// <returns> </returns>
-        private static ContentClassElement CreateElement(ContentClass contentClass, ElementType elementType)
+        private static ContentClassElement CreateElement(IContentClass contentClass, ElementType elementType)
         {
             var doc = new XmlDocument();
             XmlElement element = doc.CreateElement("ELEMENT");

@@ -22,25 +22,23 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class AbstractLinkElement : PageElement, ILinkElement
+    internal abstract class AbstractLinkElement : PageElement, ILinkElement
     {
         private LinkType _linkType;
 
-        protected AbstractLinkElement(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected AbstractLinkElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
             ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
         }
 
-        protected AbstractLinkElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractLinkElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             ConnectedPages = new RDList<IPage>(GetLinkedPages, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
             LoadXml();
         }
-
-        #region ILinkElement Members
 
         public void Connect(IPage page)
         {
@@ -105,9 +103,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         }
 
         public IRDList<ILinkElement> ReferencedBy { get; private set; }
-
-        #endregion
-
+        
         protected void DisconnectPages(IEnumerable<IPage> pages)
         {
             const string DISCONNECT_PAGES = @"<LINK action=""save"" guid=""{0}""><PAGES>{1}</PAGES></LINK>";
@@ -133,7 +129,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
                     let page =
                         (IPage)
-                        new Page(Project, curPage.GetGuid(), ILanguageVariant)
+                        new Page(Project, curPage.GetGuid(), LanguageVariant)
                             {
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault(),
                                 Headline = curPage.GetAttributeValue("headline")
@@ -144,12 +140,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private List<ILinkElement> GetReferencingLinks()
         {
             const string LIST_REFERENCES = @"<REFERENCE action=""list"" guid=""{0}"" />";
-            XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+            XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), RqlType.SessionKeyInProject);
 
             //theoretically through an anchor the language variant of the target could be changed, but this is also not considered in the SmartTree,
             //so we ignore it, to be consistent with the SmartTree.
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) CreateElement(Project, curLink.GetGuid(), ILanguageVariant)).ToList();
+                    select (ILinkElement) CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList();
         }
 
         private void LoadXml()

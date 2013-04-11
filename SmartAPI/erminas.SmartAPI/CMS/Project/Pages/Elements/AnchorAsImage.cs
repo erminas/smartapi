@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.AnchorAsImage)]
-    public class AnchorAsImage : AbstractLinkElement
+    public interface IAnchorAsImage : ILinkElement
     {
-        public AnchorAsImage(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.AnchorAsImage)]
+    internal class AnchorAsImage : AbstractLinkElement, IAnchorAsImage
+    {
+        internal AnchorAsImage(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal AnchorAsImage(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal AnchorAsImage(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

@@ -33,7 +33,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <param name="cc"> Content class of the page </param>
         /// <param name="headline"> The headline, or null (default) for the default headline </param>
         /// <returns> The newly created page </returns>
-        IPage Create(ContentClass cc, string headline = null);
+        IPage Create(IContentClass cc, string headline = null);
 
         /// <summary>
         ///     Create a new page in the current language variant and link it.
@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
         /// <param name="headline"> The headline, or null (default) for the default headline </param>
         /// <returns> The newly created (and linked) page </returns>
-        IPage CreateAndConnect(ContentClass cc, Guid linkGuid, string headline = null);
+        IPage CreateAndConnect(IContentClass cc, Guid linkGuid, string headline = null);
 
         /// <summary>
         ///     Create an extended page search on this project.
@@ -101,9 +101,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         private readonly Dictionary<string, IndexedRDList<int, IPage>> _pagesByLanguage =
             new Dictionary<string, IndexedRDList<int, IPage>>();
 
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        public Pages(Project project)
+        public Pages(IProject project)
         {
             _project = project;
         }
@@ -114,7 +114,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <param name="cc"> Content class of the page </param>
         /// <param name="headline"> The headline, or null (default) for the default headline </param>
         /// <returns> The newly created page </returns>
-        public IPage Create(ContentClass cc, string headline = null)
+        public IPage Create(IContentClass cc, string headline = null)
         {
             XmlDocument xmlDoc = _project.ExecuteRQL(PageCreationString(cc, headline));
             return CreatePageFromCreationReply(xmlDoc);
@@ -127,7 +127,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <param name="linkGuid"> Guid of the link the page should be linked to </param>
         /// <param name="headline"> The headline, or null (default) for the default headline </param>
         /// <returns> The newly created (and linked) page </returns>
-        public IPage CreateAndConnect(ContentClass cc, Guid linkGuid, string headline = null)
+        public IPage CreateAndConnect(IContentClass cc, Guid linkGuid, string headline = null)
         {
             const string CREATE_AND_LINK_PAGE = @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
             XmlDocument xmlDoc =
@@ -257,7 +257,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-        private static string PageCreationString(ContentClass cc, string headline = null)
+        private static string PageCreationString(IContentClass cc, string headline = null)
         {
             const string PAGE_CREATION_STRING = @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
 

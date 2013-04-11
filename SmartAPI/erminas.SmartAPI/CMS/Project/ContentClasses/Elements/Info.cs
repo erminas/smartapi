@@ -20,9 +20,28 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class Info : ContentClassElement
+    public interface IInfo : IContentClassElement
     {
-        internal Info(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        /// <summary>
+        ///     A list of all possible values for the Content property (=Project.InfoAttributes)
+        /// </summary>
+        IIndexedCachedList<int, InfoAttribute> AllContentAttributes { get; }
+
+        InfoAttribute Content { get; set; }
+        DateTimeFormat DateFormat { get; set; }
+        bool IsNotConvertingCharactersToHtml { get; set; }
+        bool IsUsingDataOfPageInTargetContainer { get; set; }
+        bool IsUsingMainLink { get; set; }
+        bool IsUsingRfc3066 { get; set; }
+        ISystemLocale Locale { get; set; }
+        IProjectVariant ProjectVariant { get; set; }
+        string Separator { get; set; }
+        string UserDefinedDateFormat { get; set; }
+    }
+
+    internal class Info : ContentClassElement, IInfo
+    {
+        internal Info(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltsubtype", "eltevalcalledpage", "eltuserfc3066", "eltkeywordseparator", "eltformatno",
                              "eltlcid", "eltformatting", "eltdonothtmlencode", "eltusemainlink", "eltprojectvariantguid",

@@ -97,7 +97,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     Content class of the page
         /// </summary>
-        ContentClass ContentClass { get; }
+        IContentClass ContentClass { get; }
 
         /// <summary>
         ///     All content elements of this page. Indexed by name and cached by default.
@@ -164,10 +164,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
         IPageElement this[string elementName] { get; }
 
-        /// <summary>
-        ///     Language variant of this page instance.
-        /// </summary>
-        ILanguageVariant ILanguageVariant { get; }
+        ILanguageVariant LanguageVariant { get; }
 
         /// <summary>
         ///     All link elements of this page.

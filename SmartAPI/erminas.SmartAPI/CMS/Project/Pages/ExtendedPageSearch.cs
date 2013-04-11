@@ -76,9 +76,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         #endregion
 
         public readonly List<IPageSearchFilter> Filters = new List<IPageSearchFilter>();
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        public ExtendedPageSearch(Project project)
+        public ExtendedPageSearch(IProject project)
         {
             _project = project;
         }
@@ -99,7 +99,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public SortDirection GroupSortDirection { get; set; }
 
-        public ILanguageVariant ILanguageVariant { get; set; }
+        public ILanguageVariant LanguageVariant { get; set; }
 
         public int MaxHits { get; set; }
 
@@ -107,7 +107,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public SortDirection OrderDirection { get; set; }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }
@@ -138,7 +138,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         private ILanguageVariant LanguageVariantOfSearchResults
         {
-            get { return ILanguageVariant ?? _project.LanguageVariants.Current; }
+            get { return LanguageVariant ?? _project.LanguageVariants.Current; }
         }
 
         private static string OrderByTypeToString(OrderByType order)
@@ -174,9 +174,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 arguments += "groupdirection=\"" + SortDirectionToString(GroupSortDirection) + "\" ";
             }
 
-            if (ILanguageVariant != null)
+            if (LanguageVariant != null)
             {
-                arguments += "languagevariantid=\"" + ILanguageVariant.Abbreviation + "\" ";
+                arguments += "languagevariantid=\"" + LanguageVariant.Abbreviation + "\" ";
             }
 
             if (isCountOnly)

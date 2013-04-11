@@ -17,11 +17,24 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public class List : AbstractWorkflowAssignments, IContentClassPreassignable
+    public interface IList : IWorkflowAssignments, IContentClassPreassignable
+    {
+        string FontClass { get; set; }
+        string FontColor { get; set; }
+        string FontFace { get; set; }
+        string FontSize { get; set; }
+        bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+        bool IsFontBold { get; set; }
+        bool IsOnlyPathAndFilenameInserted { get; set; }
+        bool IsSyntaxConformingToXHtml { get; set; }
+        Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
+    }
+
+    internal class List : AbstractWorkflowAssignments, IList
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 
-        internal List(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal List(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("eltextendedlist", "eltfontclass", "eltfontsize", "eltfontbold", "eltonlyhrefvalue",
                              "eltxhtmlcompliant", "eltfontface", "eltfontcolor");
@@ -84,7 +97,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
 
-        public Pages.Elements.Container PreassignedTargetContainer
+        public Pages.Elements.IContainer PreassignedTargetContainer
         {
             get { return _targetContainerPreassignment.TargetContainer; }
             set { _targetContainerPreassignment.TargetContainer = value; }

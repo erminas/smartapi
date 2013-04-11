@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.ListEntry)]
-    public class ListEntry : PageElement
+    public interface IListEntry : IPageElement
     {
-        public ListEntry(Project project, Guid guid, ILanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.ListEntry)]
+    internal class ListEntry : PageElement, IListEntry
+    {
+        public ListEntry(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal ListEntry(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal ListEntry(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

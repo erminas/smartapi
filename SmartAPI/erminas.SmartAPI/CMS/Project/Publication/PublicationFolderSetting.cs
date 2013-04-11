@@ -20,16 +20,23 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public class PublicationFolderSetting : PartialRedDotProjectObject
+    public interface IPublicationFolderSetting : IPartialRedDotObject, IProjectObject
     {
-        private PublicationFolder _publicationFolder;
+        void Commit();
+        IPublicationFolder PublicationFolder { get; set; }
+        IPublicationSetting PublicationSetting { get; set; }
+    }
 
-        public PublicationFolderSetting(PublicationSetting parent, Guid guid) : base(parent.Project, guid)
+    internal class PublicationFolderSetting : PartialRedDotProjectObject, IPublicationFolderSetting
+    {
+        private IPublicationFolder _publicationFolder;
+
+        public PublicationFolderSetting(IPublicationSetting parent, Guid guid) : base(parent.Project, guid)
         {
             PublicationSetting = parent;
         }
 
-        internal PublicationFolderSetting(PublicationSetting parent, XmlElement element) : base(parent.Project, element)
+        internal PublicationFolderSetting(IPublicationSetting parent, XmlElement element) : base(parent.Project, element)
         {
             PublicationSetting = parent;
 
@@ -52,13 +59,13 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             }
         }
 
-        public PublicationFolder PublicationFolder
+        public IPublicationFolder PublicationFolder
         {
             get { return LazyLoad(ref _publicationFolder); }
             set { _publicationFolder = value; }
         }
 
-        public PublicationSetting PublicationSetting { get; set; }
+        public IPublicationSetting PublicationSetting { get; set; }
 
         protected override void LoadWholeObject()
         {

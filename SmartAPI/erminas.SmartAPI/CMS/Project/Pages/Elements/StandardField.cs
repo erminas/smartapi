@@ -18,17 +18,23 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class StandardField<T> : AbstractValueElement<T>
+    public interface IStandardField<T> : IValueElement<T>
+    {
+        string Description { get; }
+        string SampleText { get; }
+    }
+
+    internal abstract class StandardField<T> : AbstractValueElement<T>, IStandardField<T>
     {
         private string _description;
         private string _sample;
 
-        protected StandardField(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected StandardField(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
-        protected StandardField(Project project, Guid guid, ILanguageVariant languageVariant)
+        protected StandardField(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }

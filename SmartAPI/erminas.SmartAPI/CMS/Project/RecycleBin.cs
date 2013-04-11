@@ -22,9 +22,9 @@ namespace erminas.SmartAPI.CMS.Project
 {
     public class RecycleBin : IProjectObject
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal RecycleBin(Project project)
+        internal RecycleBin(IProject project)
         {
             _project = project;
         }
@@ -58,13 +58,13 @@ namespace erminas.SmartAPI.CMS.Project
         public IEnumerable<IPage> PagesOfLanguageVariant(string language)
         {
             ExtendedPageSearch search = CreatePageSearchForRecycleBin();
-            search.ILanguageVariant = _project.LanguageVariants[language];
+            search.LanguageVariant = _project.LanguageVariants[language];
 
             IEnumerable<Result> results = search.Execute()[0].Results;
             return results.Select(pageResult => pageResult.Page);
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }
