@@ -17,6 +17,6 @@ namespace erminas.SmartAPI.CMS
 {
     public interface ISessionObject
     {
-        Session Session { get; }
+        ISession Session { get; }
     }
 }

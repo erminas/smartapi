@@ -19,31 +19,51 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Administration.Language
 {
-    /// <summary>
-    ///     A date/time format used in locales.
-    /// </summary>
-    public class DateTimeFormat
+    public interface IDateTimeFormat
     {
-        public static readonly DateTimeFormat USER_DEFINED_DATE_FORMAT = new DateTimeFormat(DateTimeFormatTypes.Date);
-        public static readonly DateTimeFormat USER_DEFINED_TIME_FORMAT = new DateTimeFormat(DateTimeFormatTypes.Time);
-
-        public static readonly DateTimeFormat USER_DEFINED_DATE_TIME_FORMAT =
-            new DateTimeFormat(DateTimeFormatTypes.DateTime);
-
         /// <summary>
         ///     Example of the format
         /// </summary>
-        public readonly string Example;
+        string Example { get; }
 
         /// <summary>
         ///     Name of the format
         /// </summary>
-        public readonly string Name;
+        string Name { get; }
 
         /// <summary>
         ///     Format types id in RedDot
         /// </summary>
-        public readonly int TypeId;
+        int TypeId { get; }
+
+        bool IsDateFormat { get; }
+        bool IsDateTimeFormat { get; }
+        bool IsTimeFormat { get; }
+    }
+
+    /// <summary>
+    ///     A date/time format used in locales.
+    /// </summary>
+    public class DateTimeFormat : IDateTimeFormat
+    {
+        public static readonly IDateTimeFormat USER_DEFINED_DATE_FORMAT = new DateTimeFormat(DateTimeFormatTypes.Date);
+        public static readonly IDateTimeFormat USER_DEFINED_TIME_FORMAT = new DateTimeFormat(DateTimeFormatTypes.Time);
+        public static readonly IDateTimeFormat USER_DEFINED_DATE_TIME_FORMAT = new DateTimeFormat(DateTimeFormatTypes.DateTime);
+
+        /// <summary>
+        ///     Example of the format
+        /// </summary>
+        public string Example { get; private set; }
+
+        /// <summary>
+        ///     Name of the format
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        ///     Format types id in RedDot
+        /// </summary>
+        public int TypeId { get; private set; }
 
         private readonly DateTimeFormatTypes _formatTypes;
 

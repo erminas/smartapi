@@ -58,7 +58,7 @@ namespace erminas.SmartAPI.CMS.Administration
         ISystemLocale Locale { get; set; }
         int MaxLevel { get; }
         int MaximumNumberOfSessions { get; set; }
-        UserModuleAssignment ModuleAssignment { get; }
+        IUserModuleAssignment ModuleAssignment { get; }
         new string Name { get; set; }
         string NavigationType { get; }
         string Password { set; }
@@ -92,7 +92,7 @@ namespace erminas.SmartAPI.CMS.Administration
         private IDialogLocale _userInterfaceLanguage;
         private UserPofileChangeRestrictions _userPofileChangeRestrictions;
 
-        public User(Session session, Guid userGuid) : base(session, userGuid)
+        public User(ISession session, Guid userGuid) : base(session, userGuid)
         {
             Init();
         }
@@ -103,7 +103,7 @@ namespace erminas.SmartAPI.CMS.Administration
         /// <exception cref="FileDataException">Thrown if element doesn't contain valid data.</exception>
         /// <param name="session"> The cms session used to retrieve this user </param>
         /// <param name="xmlElement"> USER XML-Element to get data from </param>
-        internal User(Session session, XmlElement xmlElement) : base(session, xmlElement)
+        internal User(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             Init();
             // TODO: Read all data
@@ -128,13 +128,13 @@ namespace erminas.SmartAPI.CMS.Administration
                                                   IsAlwaysScrollingOpenTreeSegmentsInTheVisibleArea, PreferredEditor,
                                                   NavigationType, Locale, (int) UserPofileChangeRestrictions,
                                                   passwordAttribute);
-            Session.ExecuteRQL(query, Session.IODataFormat.LogonGuidOnly);
+            Session.ExecuteRQL(query, RQL.IODataFormat.LogonGuidOnly);
         }
 
         public void Delete()
         {
             const string DELETE_USER = @"<ADMINISTRATION><USER action=""delete"" guid=""{0}"" /></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(DELETE_USER.RQLFormat(this), Session.IODataFormat.LogonGuidOnly);
+            var xmlDoc = Session.ExecuteRQL(DELETE_USER.RQLFormat(this), RQL.IODataFormat.LogonGuidOnly);
             if (!xmlDoc.InnerText.Contains("ok"))
             {
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete user {0}", this));
@@ -238,7 +238,7 @@ namespace erminas.SmartAPI.CMS.Administration
             }
         }
 
-        public UserModuleAssignment ModuleAssignment { get; private set; }
+        public IUserModuleAssignment ModuleAssignment { get; private set; }
 
         public new string Name
         {
@@ -282,7 +282,7 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
             string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                               Session.IODataFormat.LogonGuidOnly);
+                                               RQL.IODataFormat.LogonGuidOnly);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(answer);
 

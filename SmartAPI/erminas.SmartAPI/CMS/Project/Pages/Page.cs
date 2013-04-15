@@ -179,12 +179,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                     @"<PAGEBUILDER><PAGES sessionkey=""{0}"" action=""pagevaluesetdirty""><PAGE sessionkey=""{0}"" guid=""{1}"" languages=""{2}""/></PAGES></PAGEBUILDER>";
                 Project.Session.ExecuteRql(
                     MARK_DIRTY.RQLFormat(Project.Session.SessionKey, this, LanguageVariant.Abbreviation),
-                    Session.IODataFormat.SessionKeyOnly);
+                    RQL.IODataFormat.SessionKeyOnly);
 
                 const string LINKING =
                     @"<PAGEBUILDER><LINKING sessionkey=""{0}""><PAGES><PAGE sessionkey=""{0}"" guid=""{1}""/></PAGES></LINKING></PAGEBUILDER>";
                 Project.Session.ExecuteRql(LINKING.RQLFormat(Project.Session.SessionKey, this),
-                                           Session.IODataFormat.SessionKeyOnly);
+                                           RQL.IODataFormat.SessionKeyOnly);
             }
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
@@ -235,7 +235,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var link = MainLinkElement as ILinkElement;
             if (link != null)
             {
-                link.Disconnect(this);
+                link.Connections.Remove(this);
             }
         }
 

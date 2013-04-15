@@ -45,7 +45,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {
                     return "user defined";
                 }
-                DateTimeFormat value = GetDateTimeFormat();
+                IDateTimeFormat value = GetDateTimeFormat();
                 if (value == null)
                 {
                     return null;
@@ -60,7 +60,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return o is DateTimeFormatAttribute;
         }
 
-        public DateTimeFormat Value
+        public IDateTimeFormat Value
         {
             get
             {
@@ -82,7 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                         : int.Parse(value);
         }
 
-        private DateTimeFormat GetDateTimeFormat()
+        private IDateTimeFormat GetDateTimeFormat()
         {
             int lcid;
             bool valid = int.TryParse(Parent.XmlElement.GetAttributeValue("eltlcid"), out lcid);

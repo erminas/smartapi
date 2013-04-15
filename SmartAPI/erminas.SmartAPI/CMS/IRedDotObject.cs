@@ -37,11 +37,11 @@ namespace erminas.SmartAPI.CMS
         private Guid _guid = Guid.Empty;
         protected string _name;
 
-        protected RedDotObject(Session session) : base(session)
+        protected RedDotObject(ISession session) : base(session)
         {
         }
 
-        protected RedDotObject(Session session, Guid guid) : base(session)
+        protected RedDotObject(ISession session, Guid guid) : base(session)
         {
             Guid = guid;
         }
@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS
         ///     A copy of the XML element is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
         /// <exception cref="ArgumentNullException">thrown, if xmlElement is null</exception>
-        protected RedDotObject(Session session, XmlElement xmlElement) : base(session, xmlElement)
+        protected RedDotObject(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             if (xmlElement == null)
             {
@@ -166,7 +166,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///     Get the string representation of the current object, which is needed in RQL to create/change a RedDotObject on the server. Adds an attribute "action" with value "save" to an XML node, replaces all attribute values which are null or empty with
         ///     <see
-        ///         cref="Session.SESSIONKEY_PLACEHOLDER" />
+        ///         cref="RQL.SESSIONKEY_PLACEHOLDER" />
         ///     and returns the string representation of the resulting node. The replacement of empty attributes is necessary for RQL to actually set the attributes to an empty value instead of ignoring the attribute. Note that the node itself gets modified, so use a copy, if changes must not be made.
         /// </summary>
         /// <param name="xmlElement"> the XML node to be converted </param>
@@ -178,7 +178,7 @@ namespace erminas.SmartAPI.CMS
             {
                 if (string.IsNullOrEmpty(curAttr.Value))
                 {
-                    curAttr.Value = Session.SESSIONKEY_PLACEHOLDER;
+                    curAttr.Value = RQL.SESSIONKEY_PLACEHOLDER;
                 }
             }
 

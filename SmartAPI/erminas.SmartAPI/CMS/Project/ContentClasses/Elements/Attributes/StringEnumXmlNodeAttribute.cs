@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
             try
             {
-                if (string.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER)
+                if (string.IsNullOrEmpty(value) || value == RQL.SESSIONKEY_PLACEHOLDER)
                 {
                     _value = default(T);
                     return;

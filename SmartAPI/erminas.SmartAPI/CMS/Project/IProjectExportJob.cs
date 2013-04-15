@@ -55,7 +55,7 @@ message=""{7}"" logoutusers=""{8}"" reddotserverguid=""{3}"" includeadmindata=""
                                          SecurityElement.Escape(EmailMessage), IsLoggingOffActiveUsersInProject,
                                          IsIncludingAdministrationSettings);
 
-            Session.ExecuteRQL(query, Session.IODataFormat.LogonGuidOnly);
+            Session.ExecuteRQL(query, RQL.IODataFormat.LogonGuidOnly);
         }
 
         public override void RunSync(TimeSpan maxWait)

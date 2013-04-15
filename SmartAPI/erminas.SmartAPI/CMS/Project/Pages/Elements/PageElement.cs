@@ -45,7 +45,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         static PageElement()
         {
-            TYPES.Add(ElementType.StandardFieldTextLegacy, typeof (StandardFieldText));
             foreach (Type curType in typeof (PageElement).Assembly.GetTypes())
             {
                 foreach (object curAttr in curType.GetCustomAttributes(typeof (PageElementType), false))
@@ -57,7 +56,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                         throw new SmartAPIInternalException(
                             string.Format("{0} does not contain a constructor (Project, XmlElement)", curType.Name));
                     }
-                    TYPES.Add(((PageElementType) curAttr).Type, curType);
+                    var type = ((PageElementType) curAttr).Type;
+                    if (TYPES.ContainsKey(type))
+                    {
+                        throw new SmartAPIInternalException(string.Format("Multiple definititions of {0}: {1} and {2}", type, TYPES[type].Name, curType.Name));
+                    }
+                    TYPES.Add(type, curType);
                 }
             }
         }

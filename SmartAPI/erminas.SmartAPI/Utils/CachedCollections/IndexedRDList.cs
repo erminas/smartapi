@@ -22,6 +22,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 {
     public interface IIndexedRDList<in TK, T> : IIndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
     {
+        new IIndexedRDList<TK, T> Refreshed();
     }
 
     public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IIndexedRDList<TK, T> where T : class, IRedDotObject
@@ -35,7 +36,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
         }
 
-        public new IndexedRDList<TK, T> Refreshed()
+        public new IIndexedRDList<TK, T> Refreshed()
         {
             Refresh();
             return this;

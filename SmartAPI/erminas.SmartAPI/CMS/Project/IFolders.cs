@@ -46,7 +46,7 @@ namespace erminas.SmartAPI.CMS.Project
             return this.Where(folder => folder.IsAssetManagerFolder).ToList();
         }
 
-        public Session Session
+        public ISession Session
         {
             get { return _project.Session; }
         }

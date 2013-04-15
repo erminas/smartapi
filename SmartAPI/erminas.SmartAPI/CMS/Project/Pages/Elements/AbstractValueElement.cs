@@ -43,7 +43,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             //TODO bei null/"" SESSIONKEY setzen??
             string xmlNodeValue = GetXmlNodeValue();
             string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
-                                    ? Session.SESSIONKEY_PLACEHOLDER
+                                    ? RQL.SESSIONKEY_PLACEHOLDER
                                     : HttpUtility.HtmlEncode(xmlNodeValue);
             ExecuteCommit(htmlEncode);
         }

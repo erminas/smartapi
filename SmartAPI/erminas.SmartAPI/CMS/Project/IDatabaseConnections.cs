@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.Project
             return (from XmlElement curNode in xmlNodes select (IDatabaseConnection) new DatabaseConnection(_project, curNode)).ToList();
         }
 
-        public Session Session { get { return _project.Session; } }
+        public ISession Session { get { return _project.Session; } }
         public IProject Project { get { return _project; } }
     }
 }

@@ -118,7 +118,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             using (new LanguageContext(LanguageVariant))
             {
                 //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
-                XmlElement.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
+                XmlElement.SetAttributeValue("eltsrc", RQL.SESSIONKEY_PLACEHOLDER);
 
                 Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>",
                                    RqlType.SessionKeyInProject);

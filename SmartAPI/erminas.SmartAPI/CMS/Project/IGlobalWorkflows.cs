@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.CMS.Project
 
             public Guid Guid { get { return Project.Guid; } }
             public string Name { get { return Project.Name; } }
-            public Session Session { get { return Project.Session; } }
+            public ISession Session { get { return Project.Session; } }
             public IProject Project { get { return _project; } }
         }
 
@@ -90,7 +90,7 @@ namespace erminas.SmartAPI.CMS.Project
             _workflowAssignments = new WorkflowAssignments(new ProjectWrapper(project));
         }
 
-        public Session Session { get { return _project.Session; } }
+        public ISession Session { get { return _project.Session; } }
         public IProject Project { get { return _project; } }
     }
 }

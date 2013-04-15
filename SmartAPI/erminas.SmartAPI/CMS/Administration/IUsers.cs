@@ -14,9 +14,9 @@ namespace erminas.SmartAPI.CMS.Administration
 
     internal class Users : NameIndexedRDList<IUser>, IUsers
     {
-        private readonly Session _session;
+        private readonly ISession _session;
 
-        internal Users(Session session, Caching caching) : base(caching)
+        internal Users(ISession session, Caching caching) : base(caching)
         {
             _session = session;
             RetrieveFunc = GetUsers;

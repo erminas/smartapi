@@ -83,7 +83,7 @@ namespace erminas.SmartAPI.CMS.Project
             get { return _project; }
         }
 
-        public Session Session
+        public ISession Session
         {
             get { return _project.Session; }
         }

@@ -53,10 +53,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             set
             {
                 XmlElement xmlNode = _parent.XmlElement;
-                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.LanguageVariant.Abbreviation);
-                xmlNode.SetAttributeValue("eltelementguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.Guid.ToRQLString());
-                xmlNode.SetAttributeValue("elttemplateguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Guid.ToRQLString());
-                xmlNode.SetAttributeValue("eltprojectguid", value == null ? Session.SESSIONKEY_PLACEHOLDER : value.ContentClass.Project.Guid.ToRQLString());
+                xmlNode.SetAttributeValue("eltlanguagevariantid", value == null ? RQL.SESSIONKEY_PLACEHOLDER : value.LanguageVariant.Abbreviation);
+                xmlNode.SetAttributeValue("eltelementguid", value == null ? RQL.SESSIONKEY_PLACEHOLDER : value.Guid.ToRQLString());
+                xmlNode.SetAttributeValue("elttemplateguid", value == null ? RQL.SESSIONKEY_PLACEHOLDER : value.ContentClass.Guid.ToRQLString());
+                xmlNode.SetAttributeValue("eltprojectguid", value == null ? RQL.SESSIONKEY_PLACEHOLDER : value.ContentClass.Project.Guid.ToRQLString());
             }
         }
 

@@ -123,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Project
             const string CHECK_IMPORT =
                 @"<ADMINISTRATION><PROJECT  action=""checkbeforeimport"" xmlpath=""{0}"" /></ADMINISTRATION>";
             var xmlDoc = Session.ExecuteRQL(CHECK_IMPORT.RQLFormat(SecurityElement.Escape(ImportFolder)),
-                                            Session.IODataFormat.LogonGuidOnly);
+                                            RQL.IODataFormat.LogonGuidOnly);
             Guid projectGuid;
             XmlElement projectElement = xmlDoc.GetSingleElement("PROJECT");
             if (projectElement == null || !projectElement.TryGetGuid(out projectGuid))
@@ -151,7 +151,7 @@ namespace erminas.SmartAPI.CMS.Project
                                                  SecurityElement.Escape(EmailSubject),
                                                  SecurityElement.Escape(EmailMessage));
 
-            Session.ExecuteRQL(query, Session.IODataFormat.LogonGuidOnly);
+            Session.ExecuteRQL(query, RQL.IODataFormat.LogonGuidOnly);
         }
     }
 }

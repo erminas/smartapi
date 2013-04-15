@@ -109,7 +109,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                     {"eltmaxpicheight", new StringAttributeFactory()},
                     {"eltmaxpicwidth", new StringAttributeFactory()},
                     {"eltmaxsize", new StringAttributeFactory()},
-                    {"eltmediatypeattribute", new EnumAttributeWithCustomValuesFactory<MediaTypeAttribute>()},
+                    {"eltmediatypeattribute", new EnumAttributeWithCustomValuesFactory<MediaTypeAttributeType>()},
                     {"eltmediatypename", new StringAttributeFactory()},
                     {"eltname", new StringAttributeFactory()},
                     {"eltnoresize", new BoolAttributeFactory()},

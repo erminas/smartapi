@@ -18,7 +18,24 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
-    public class File : IProjectObject,IDeletable
+    public interface IFile : IProjectObject, IDeletable
+    {
+        FileAttributes Attributes { get; }
+
+        /// <summary>
+        ///     Folder the file is stored in
+        /// </summary>
+        IFolder Folder { get; }
+
+        /// <summary>
+        ///     Name of the file
+        /// </summary>
+        string Name { get; }
+
+        int ReferenceCount();
+    }
+
+    internal class File : IFile
     {
         /// <summary>
         ///     Folder the file is stored in
@@ -120,7 +137,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
 
-        public Session Session
+        public ISession Session
         {
             get { return Project.Session; }
         }

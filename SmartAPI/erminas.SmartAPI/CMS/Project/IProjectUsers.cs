@@ -94,7 +94,7 @@ namespace erminas.SmartAPI.CMS.Project
             UserProjectAssignment.Delete(Project, user);
         }
 
-        public Session Session
+        public ISession Session
         {
             get { return _project.Session; }
         }

@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
     public interface IFolder : IPartialRedDotObject, IProjectObject
     {
-        ICachedList<File> AllFiles { get; }
+        ICachedList<IFile> AllFiles { get; }
         bool IsAssetManagerFolder { get; }
         bool IsSubFolder { get; }
         IFolder LinkedFolder { get; }
@@ -41,13 +41,13 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
         /// <returns> </returns>
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
-        IEnumerable<File> GetFilesByAttributeComparison(FileComparisonAttribute attribute, FileComparisonOperator @operator,
+        IEnumerable<IFile> GetFilesByAttributeComparison(FileComparisonAttribute attribute, FileComparisonOperator @operator,
                                                                         int value);
 
-        IEnumerable<File> GetFilesByAuthor(Guid authorGuid);
-        IEnumerable<File> GetFilesByLastModifier(Guid lastModifierGuid);
-        List<File> GetFilesByNamePattern(string searchText);
-        List<File> GetSubListOfFiles(int startCount, int fileCount);
+        IEnumerable<IFile> GetFilesByAuthor(Guid authorGuid);
+        IEnumerable<IFile> GetFilesByLastModifier(Guid lastModifierGuid);
+        List<IFile> GetFilesByNamePattern(string searchText);
+        List<IFile> GetSubListOfFiles(int startCount, int fileCount);
         void SaveFiles(IEnumerable<FileSource> sources);
         void UpdateFiles(IEnumerable<FileSource> files);
     }
@@ -160,7 +160,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             _parentFolder = parentFolder;
         }
 
-        public ICachedList<File> AllFiles { get; private set; }
+        public ICachedList<IFile> AllFiles { get; private set; }
 
         public static string AttributeToString(FileComparisonAttribute attribute)
         {
@@ -206,35 +206,35 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <param name="value"> Value e.g. 50 pixel/ 24 bit, etc. </param>
         /// <returns> </returns>
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
-        public IEnumerable<File> GetFilesByAttributeComparison(FileComparisonAttribute attribute, FileComparisonOperator @operator,
+        public IEnumerable<IFile> GetFilesByAttributeComparison(FileComparisonAttribute attribute, FileComparisonOperator @operator,
                                                         int value)
         {
-            Session.EnsureVersion();
+            VersionVerifier.EnsureVersion(Session);
             string rqlString = String.Format(FILTER_FILES_BY_COMMAND, Guid.ToRQLString(), AttributeToString(attribute),
                                              ComparisonOperatorToString(@operator), value);
             return RetrieveFiles(rqlString);
         }
 
-        public IEnumerable<File> GetFilesByAuthor(Guid authorGuid)
+        public IEnumerable<IFile> GetFilesByAuthor(Guid authorGuid)
         {
             string rqlString = String.Format(FILTER_FILES_BY_CREATOR, Guid.ToRQLString(), authorGuid.ToRQLString());
             return RetrieveFiles(rqlString);
         }
 
-        public IEnumerable<File> GetFilesByLastModifier(Guid lastModifierGuid)
+        public IEnumerable<IFile> GetFilesByLastModifier(Guid lastModifierGuid)
         {
             string rqlString = String.Format(FILTER_FILES_BY_CHANGEAUTHOR, Guid.ToRQLString(),
                                              lastModifierGuid.ToRQLString());
             return RetrieveFiles(rqlString);
         }
 
-        public List<File> GetFilesByNamePattern(string searchText)
+        public List<IFile> GetFilesByNamePattern(string searchText)
         {
             string rqlString = String.Format(FILTER_FILES_BY_TEXT, Guid.ToRQLString(), searchText);
             return RetrieveFiles(rqlString);
         }
 
-        public List<File> GetSubListOfFiles(int startCount, int fileCount)
+        public List<IFile> GetSubListOfFiles(int startCount, int fileCount)
         {
             string rqlString = String.Format(LIST_FILES_IN_FOLDER_PARTIAL, Guid.ToRQLString(), startCount, fileCount);
 
@@ -380,7 +380,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         // New Version to delete Files
 
-        private List<File> GetAllFiles()
+        private List<IFile> GetAllFiles()
         {
             string rqlString = String.Format(LIST_FILES_IN_FOLDER, Guid.ToRQLString());
 
@@ -389,7 +389,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         private void Init()
         {
-            AllFiles = new CachedList<File>(GetAllFiles, Caching.Enabled);
+            AllFiles = new CachedList<IFile>(GetAllFiles, Caching.Enabled);
         }
 
         private void LoadXml()
@@ -404,12 +404,12 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             }
         }
 
-        private List<File> RetrieveFiles(string rqlString)
+        private List<IFile> RetrieveFiles(string rqlString)
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(rqlString);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
 
-            return (from XmlElement xmlNode in xmlNodes select new File(Project, xmlNode)).ToList();
+            return (from XmlElement xmlNode in xmlNodes select (IFile)new File(Project, xmlNode)).ToList();
         }
 
         #region Nested type: FileSource

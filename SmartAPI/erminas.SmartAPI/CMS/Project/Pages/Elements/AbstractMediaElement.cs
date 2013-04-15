@@ -25,12 +25,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     public interface IMediaElementBase : IPageElement
     {
         void Commit();
-        File Value { get; set; }
+        IFile Value { get; set; }
     }
 
     internal abstract class AbstractMediaElement : PageElement, IMediaElementBase
     {
-        private File _file;
+        private IFile _file;
 
         protected AbstractMediaElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
@@ -48,15 +48,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                 @"<ELT action=""save"" reddotcacheguid="""" guid=""{0}"" value=""{1}"" {2} extendedinfo=""""></ELT>";
 
             string rqlStr = Value == null
-                                ? string.Format(COMMIT, Guid.ToRQLString(), Session.SESSIONKEY_PLACEHOLDER,
-                                                Session.SESSIONKEY_PLACEHOLDER)
+                                ? string.Format(COMMIT, Guid.ToRQLString(), RQL.SESSIONKEY_PLACEHOLDER,
+                                                RQL.SESSIONKEY_PLACEHOLDER)
                                 : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
                                                 IsFileInSubFolder ? "subdirguid=\"{0}\"".RQLFormat(Value.Folder) : "");
 
             Project.ExecuteRQL(rqlStr);
         }
 
-        public File Value
+        public IFile Value
         {
             get { return LazyLoad(ref _file); }
             set { _file = value; }

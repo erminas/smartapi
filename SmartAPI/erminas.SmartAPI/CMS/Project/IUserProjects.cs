@@ -99,7 +99,7 @@ namespace erminas.SmartAPI.CMS.Project
             return ContainsProjectGuid(project.Guid);
         }
 
-        public Session Session { get { return _user.Session; } }
+        public ISession Session { get { return _user.Session; } }
 
         private List<IUserProjectAssignment> GetProjectAssignments()
         {

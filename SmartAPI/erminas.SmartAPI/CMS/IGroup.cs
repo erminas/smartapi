@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS
 
     public static class GroupFactory
     {
-        public static IGroup CreateFromGuid(Session session, Guid guid)
+        public static IGroup CreateFromGuid(ISession session, Guid guid)
         {
             return new Group(session, guid);
         }
@@ -39,12 +39,12 @@ namespace erminas.SmartAPI.CMS
     {
         private string _email;
 
-        internal Group(Session session, XmlElement xmlElement) : base(session, xmlElement)
+        internal Group(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             LoadXml();
         }
 
-        internal Group(Session session, Guid guid) : base(session, guid)
+        internal Group(ISession session, Guid guid) : base(session, guid)
         {
         }
 

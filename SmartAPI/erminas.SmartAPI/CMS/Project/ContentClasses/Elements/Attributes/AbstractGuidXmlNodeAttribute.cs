@@ -21,10 +21,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
     internal abstract class AbstractGuidXmlNodeAttribute<T> : RDXmlNodeAttribute where T : class, IRedDotObject
     {
-        private readonly Session _session;
+        private readonly ISession _session;
         private T _value;
 
-        protected AbstractGuidXmlNodeAttribute(Session session, IAttributeContainer parent, string name)
+        protected AbstractGuidXmlNodeAttribute(ISession session, IAttributeContainer parent, string name)
             : base(parent, name, false)
         {
             _session = session;
@@ -129,7 +129,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         /// <param name="value"> accepts a guid or a name of an existing reddotobject </param>
         protected override void UpdateValue(string value)
         {
-            if (String.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER ||
+            if (String.IsNullOrEmpty(value) || value == RQL.SESSIONKEY_PLACEHOLDER ||
                 value == "#" + Parent.Session.SessionKey)
             {
                 _value = null;

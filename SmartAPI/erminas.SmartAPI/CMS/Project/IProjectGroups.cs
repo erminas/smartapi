@@ -33,13 +33,13 @@ namespace erminas.SmartAPI.CMS.Project
         {
             const string LIST_GROUPS =
                 @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(_project), Session.IODataFormat.LogonGuidOnly);
+            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(_project), RQL.IODataFormat.LogonGuidOnly);
             return
                 (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP") select (IGroup)new Group(Session, curGroup))
                     .ToList();
         }
 
-        public Session Session { get { return _project.Session; } }
+        public ISession Session { get { return _project.Session; } }
         
         public IProject Project { get { return _project; } }
 

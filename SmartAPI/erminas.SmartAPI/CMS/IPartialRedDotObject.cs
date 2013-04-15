@@ -58,7 +58,7 @@ namespace erminas.SmartAPI.CMS
         ///         cref="IsInitialized" />
         ///     )
         /// </summary>
-        protected PartialRedDotObject(Session session, XmlElement xmlElement) : base(session, xmlElement)
+        protected PartialRedDotObject(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             IsInitialized = true;
         }
@@ -69,17 +69,17 @@ namespace erminas.SmartAPI.CMS
         ///         cref="IsInitialized" />
         ///     )
         /// </summary>
-        protected PartialRedDotObject(Session session, Guid guid) : base(session, guid)
+        protected PartialRedDotObject(ISession session, Guid guid) : base(session, guid)
         {
             IsInitialized = false;
         }
 
-        protected PartialRedDotObject(Session session) : base(session)
+        protected PartialRedDotObject(ISession session) : base(session)
         {
             IsInitialized = false;
         }
 
-        protected override T GetAttributeValue<T>(string attributeName)
+        protected internal override T GetAttributeValue<T>(string attributeName)
         {
             EnsureInitialization();
             return base.GetAttributeValue<T>(attributeName);
@@ -113,7 +113,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         protected abstract XmlElement RetrieveWholeObject();
 
-        protected override void SetAttributeValue<T>(string attributeName, T value)
+        protected internal override void SetAttributeValue<T>(string attributeName, T value)
         {
             EnsureInitialization();
             base.SetAttributeValue(attributeName, value);

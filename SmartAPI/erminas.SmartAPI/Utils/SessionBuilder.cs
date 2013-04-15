@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.Utils
         ///     Create a new session initialized with the login guid, session key and project guid of this SessionBuilder.
         /// </summary>
         /// <returns> </returns>
-        public Session CreateSession()
+        public ISession CreateSession()
         {
             return new Session(Login, LoginGuid, SessionKey, ProjectGuid);
         }

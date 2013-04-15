@@ -47,7 +47,7 @@ namespace erminas.SmartAPI.CMS.Project
 
     internal abstract class AbstractAsyncJob : IAsyncJob
     {
-        protected AbstractAsyncJob(Session session)
+        protected AbstractAsyncJob(ISession session)
         {
             Session = session;
             EmailReceipient = Session.CurrentUser;
@@ -64,7 +64,7 @@ namespace erminas.SmartAPI.CMS.Project
         public abstract void RunSync(TimeSpan maxWait);
         public IApplicationServer Server { get; set; }
 
-        public Session Session { get; private set; }
+        public ISession Session { get; private set; }
     }
 
     internal abstract class AbstractAsyncProjectJob : AbstractAsyncJob, IAsyncProjectJob

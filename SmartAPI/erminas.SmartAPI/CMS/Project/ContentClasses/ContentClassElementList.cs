@@ -36,7 +36,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Number of content class elements contained in this list.
         /// </summary>
         /// <returns> </returns>
-        int Count();
+        int Count { get; }
 
         /// <summary>
         ///     Get an element on the list by guid.
@@ -90,9 +90,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Number of content class elements contained in this list.
         /// </summary>
         /// <returns> </returns>
-        public int Count()
+        public int Count
         {
-            return _elements.Count;
+            get { return _elements.Count; }
         }
 
         /// <summary>

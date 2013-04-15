@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.CMS.Project
             var syllablelist = xmlDoc.GetElementsByTagName("SYLLABLE");
             return (from XmlElement curNode in syllablelist select (ISyllable)new Syllable(Project, curNode)).ToList();
         }
-        public Session Session { get { return _project.Session; } }
+        public ISession Session { get { return _project.Session; } }
         public IProject Project { get { return _project; } }
     }
 }

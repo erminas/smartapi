@@ -27,12 +27,12 @@ namespace erminas.SmartAPI.CMS
         private readonly Dictionary<string, IRDAttribute> _attributeMap = new Dictionary<string, IRDAttribute>();
         private readonly List<IRDAttribute> _attributes = new List<IRDAttribute>();
 
-        protected AbstractAttributeContainer(Session session)
+        protected AbstractAttributeContainer(ISession session)
         {
             Session = session;
         }
 
-        protected AbstractAttributeContainer(Session session, XmlElement node)
+        protected AbstractAttributeContainer(ISession session, XmlElement node)
         {
             Session = session;
             XmlElement = (XmlElement) node.Clone();
@@ -75,7 +75,7 @@ namespace erminas.SmartAPI.CMS
             _attributeMap.Add(attribute.Name, attribute);
         }
 
-        public virtual Session Session { get; private set; }
+        public virtual ISession Session { get; private set; }
 
         public XmlElement XmlElement { get; set; }
 
@@ -87,7 +87,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        protected virtual T GetAttributeValue<T>(string attributeName)
+        protected internal virtual T GetAttributeValue<T>(string attributeName)
         {
             var type = typeof (T);
             if (type == typeof (string))
@@ -110,7 +110,7 @@ namespace erminas.SmartAPI.CMS
                               typeof (T).Name, attributeName));
         }
 
-        protected virtual void SetAttributeValue<T>(string attributeName, T value)
+        protected internal virtual void SetAttributeValue<T>(string attributeName, T value)
         {
             var type = typeof (T);
             if (type == typeof (string))
