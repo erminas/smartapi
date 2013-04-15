@@ -331,6 +331,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        public IRDList<ILinkElement> LinkedFrom { get; private set; }
+
         private void DeleteImpl(bool forceDeletion)
         {
             try
@@ -404,7 +406,17 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             LinkElements = new RDList<ILinkElement>(GetLinks, Caching.Enabled);
             ContentElements = new NameIndexedRDList<IPageElement>(GetContentElements, Caching.Enabled);
             Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
+            LinkedFrom = new RDList<ILinkElement>(GetLinksFrom, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+        }
+
+        private List<ILinkElement> GetLinksFrom()
+        {
+            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
+
+            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+            select (ILinkElement)PageElement.CreateElement(Project, curLink)).ToList();
         }
 
         private static bool IsReleasedIntoWorkflow(PageReleaseStatus value, PageReleaseStatus flag)

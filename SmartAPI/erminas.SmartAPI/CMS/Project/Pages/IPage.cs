@@ -166,5 +166,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     Returns the Workflow this page adheres to.
         /// </summary>
         Workflow Workflow { get; }
+
+        IRDList<ILinkElement> LinkedFrom { get; }
     }
 }
