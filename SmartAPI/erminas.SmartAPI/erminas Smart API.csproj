@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>erminas.SmartAPI</RootNamespace>
-    <AssemblyName>erminas Smart API</AssemblyName>
+    <AssemblyName>erminas SmartAPI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\erminas.RedDot\</SolutionDir>
