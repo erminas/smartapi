@@ -19,7 +19,6 @@ using System.Linq;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
-using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Exceptions;
@@ -28,83 +27,6 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
-    internal class PageAssignedKeywords : RDList<IKeyword>, IAssignedKeywords
-    {
-        private readonly IPage _page;
-
-        internal PageAssignedKeywords(IPage page, Caching caching) : base(caching)
-        {
-            _page = page;
-            RetrieveFunc = GetKeywords;
-        }
-
-        public void Add(IKeyword keyword)
-        {
-            if (ContainsGuid(keyword.Guid))
-            {
-                return;
-            }
-
-            const string ADD_KEYWORD =
-                @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS><KEYWORD guid=""{1}"" changed=""1"" /></KEYWORDS></PAGE>";
-            _page.Project.ExecuteRQL(ADD_KEYWORD.RQLFormat(_page, keyword), RqlType.SessionKeyInProject);
-            //server sends empty reply
-
-            InvalidateCache();
-        }
-
-        public void AddRange(IEnumerable<IKeyword> keywords)
-        {
-            Set(this.Union(keywords));
-        }
-
-        public void Clear()
-        {
-            Set(new IKeyword[0]);
-        }
-
-        public void Remove(IKeyword keyword)
-        {
-            const string DELETE_KEYWORD =
-                @"<PROJECT><PAGE guid=""{0}"" action=""unlink""><KEYWORD guid=""{1}"" /></PAGE></PROJECT>";
-            _page.Project.ExecuteRQL(DELETE_KEYWORD.RQLFormat(_page, keyword));
-
-            InvalidateCache();
-        }
-
-        public void Set(IEnumerable<IKeyword> newKeywords)
-        {
-            const string SET_KEYWORDS = @"<PAGE guid=""{0}"" action=""assign""><KEYWORDS>{1}</KEYWORDS></PAGE>";
-            const string REMOVE_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" delete=""1"" changed=""1"" />";
-            const string ADD_SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" changed=""1"" />";
-
-            var newKeywordsAsList = newKeywords as IList<IKeyword> ?? newKeywords.ToList();
-            string toRemove = this.Except(newKeywordsAsList)
-                                  .Aggregate("", (x, y) => x + REMOVE_SINGLE_KEYWORD.RQLFormat(y));
-
-            string toAdd = newKeywordsAsList.Except(this).Aggregate("", (x, y) => x + ADD_SINGLE_KEYWORD.RQLFormat(y));
-
-            if (string.IsNullOrEmpty(toRemove) && string.IsNullOrEmpty(toAdd))
-            {
-                return;
-            }
-
-            _page.Project.ExecuteRQL(SET_KEYWORDS.RQLFormat(_page, toRemove + toAdd),
-                                     RqlType.SessionKeyInProject);
-
-            InvalidateCache();
-        }
-
-        private List<IKeyword> GetKeywords()
-        {
-            const string LOAD_KEYWORDS = @"<PROJECT><PAGE guid=""{0}""><KEYWORDS action=""load"" /></PAGE></PROJECT>";
-            var xmlDoc = _page.Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(_page));
-            return
-                (from XmlElement curNode in xmlDoc.GetElementsByTagName("KEYWORD")
-                 select (IKeyword) new Keyword(_page.Project, curNode)).ToList();
-        }
-    }
-
     internal class Page : PartialRedDotProjectObject, IPage
     {
         private Guid _ccGuid;
@@ -141,6 +63,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             get { return LazyLoad(ref _checkinDate); }
         }
+
+        public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
 
         public void Commit()
         {
@@ -334,7 +258,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return _parentPage ?? (_parentPage = MainLinkElement != null ? MainLinkElement.Page : null); }
         }
 
-        public IRDList<ILinkElement> ReferencedBy { get; private set; }
+        public IRDList<ILinkElement> ReferencedFrom { get; private set; }
 
         public void Reject()
         {
@@ -386,6 +310,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             Project.ExecuteRQL(string.Format(SKIP_WORKFLOW, Guid.ToRQLString(), (int) PageReleaseStatus.WorkFlow));
         }
+
+        private List<ILinkingAndAppearance> GetLinksFrom()
+        {
+            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
+
+            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+                    select (ILinkingAndAppearance)new LinkingAndAppearance(this, curLink)).ToList();
+        }
+
 
         public PageState Status
         {
@@ -477,7 +411,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                     @"<PAGE action=""delete"" guid=""{0}"" forcedelete2910=""{1}"" forcedelete2911=""{1}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{2}""/></LANGUAGEVARIANTS></PAGE>";
                 XmlDocument xmlDoc =
                     Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion, LanguageVariant.Abbreviation));
-                if (!xmlDoc.InnerText.Contains("ok"))
+                if (!xmlDoc.IsContainingOk())
                 {
                     throw new PageDeletionException(Project.Session.ServerLogin,
                                                     string.Format("Could not delete page {0}", this));
@@ -532,8 +466,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             LinkElements = new RDList<ILinkElement>(GetLinks, Caching.Enabled);
             ContentElements = new NameIndexedRDList<IPageElement>(GetContentElements, Caching.Enabled);
-            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+            ReferencedFrom = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
             AssignedKeywords = new PageAssignedKeywords(this, Caching.Enabled);
+            LinkedFrom = new RDList<ILinkingAndAppearance>(GetLinksFrom, Caching.Enabled);
         }
 
         private static bool IsReleasedIntoWorkflow(PageReleaseStatus value, PageReleaseStatus flag)

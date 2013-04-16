@@ -64,7 +64,7 @@ namespace erminas.SmartAPI.CMS
         {
             const string DELETE_GROUP = @"<ADMINISTRATION><GROUP action=""delete"" guid=""{0}""/></ADMINISTRATION>";
             var xmlDoc = Session.ExecuteRQL(DELETE_GROUP.RQLFormat(this));
-            if (!xmlDoc.InnerText.Contains("ok"))
+            if (!xmlDoc.IsContainingOk())
             {
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete group {0}", this));
             }

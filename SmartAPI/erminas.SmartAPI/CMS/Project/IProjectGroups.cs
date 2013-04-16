@@ -67,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Project
 
             var xmlDoc = Session.ExecuteRQL(ASSIGN_GROUPS.RQLFormat(Project, groupsPart));
 
-            if (!xmlDoc.InnerText.Contains("ok"))
+            if (!xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not add group(s) to {0}: {1}",Project,  errorGroups));
@@ -89,7 +89,7 @@ namespace erminas.SmartAPI.CMS.Project
 
             var xmlDoc = Session.ExecuteRQL(UNASSIGN_GROUPS.RQLFormat(Project, groupsPart));
 
-            if (!xmlDoc.InnerText.Contains("ok"))
+            if (!xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not remove group(s) from {0}: {1}", Project, errorGroups));

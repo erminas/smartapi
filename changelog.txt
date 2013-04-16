@@ -1,14 +1,23 @@
 SmartAPI Changelog
 
+Major API overhaul in preparation of the 1.0 long term API stable release.
+- Introduction of interfaces for everything, the client code interacts with, 
+  to make automatic testing of client code easier,
+  because Smart API can now be mocked and no real RedDot server is needed.
+- More consistent naming of methods/properties
+- Consistent representation of collections in extra objects to allow for easy 
+  future extension without breaking source/binary compatibility or cluttering of
+  interfaces/namespaces
+
 Features:
 - Support for Importing/Exporting/Copying of projects
 - Access to asynchronous processes on the server
+- Access to linking and appearence schedule of pages
 - Access to main language variant of a project
 - Support for groups and and group (un-)assignment to projects
 - Versioning for projects can be enabled/disabled
 - Support for changing most of the properties of users
-- Support for deleting users
-
+- Support for creation and deletion of users
 
 Bugfixes:
 - Login with someone who was last logged in to a no longer existing project no longer throws an exception

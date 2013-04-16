@@ -135,7 +135,7 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             const string DELETE_USER = @"<ADMINISTRATION><USER action=""delete"" guid=""{0}"" /></ADMINISTRATION>";
             var xmlDoc = Session.ExecuteRQL(DELETE_USER.RQLFormat(this), RQL.IODataFormat.LogonGuidOnly);
-            if (!xmlDoc.InnerText.Contains("ok"))
+            if (!xmlDoc.IsContainingOk())
             {
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete user {0}", this));
             }

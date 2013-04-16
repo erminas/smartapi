@@ -89,6 +89,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         DateTime CheckinDate { get; }
 
+        IRDList<ILinkingAndAppearance> LinkedFrom { get; }
+
         /// <summary>
         ///     Save changes to headline/filename to the server.
         /// </summary>

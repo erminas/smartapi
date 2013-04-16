@@ -82,7 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             const string REMOVE_ELEMENT = @"<TEMPLATE><ELEMENT action=""delete"" guid=""{0}""/></TEMPLATE>";
             XmlDocument xmlDoc = Project.ExecuteRQL(REMOVE_ELEMENT.RQLFormat(guid), RqlType.SessionKeyInProject);
-            if (!xmlDoc.InnerText.Contains("ok"))
+            if (!xmlDoc.IsContainingOk())
             {
                 throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not remove element {0} from content class {1} ",

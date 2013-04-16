@@ -45,9 +45,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             _workflow = workflow;
         }
 
-        public IWorkflowActions Actions()
+        public IWorkflowActions Actions
         {
-            return _workflow.Actions();
+            get { return _workflow.Actions; }
         }
 
         public bool CanBeInherited

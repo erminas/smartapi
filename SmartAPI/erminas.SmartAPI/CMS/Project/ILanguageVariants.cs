@@ -63,7 +63,7 @@ namespace erminas.SmartAPI.CMS.Project
                 const string SELECT_LANGUAGE = @"<LANGUAGEVARIANT action=""setactive"" guid=""{0}""/>";
                 XmlDocument xmlDoc = _project.ExecuteRQL(SELECT_LANGUAGE.RQLFormat(value.Guid.ToRQLString()),
                                                          RqlType.SessionKeyInProject);
-                if (!xmlDoc.InnerText.Contains("ok"))
+                if (!xmlDoc.IsContainingOk())
                 {
                     throw new SmartAPIException(Session.ServerLogin,
                                                 string.Format("Could not load language variant '{0}' for project {1}",

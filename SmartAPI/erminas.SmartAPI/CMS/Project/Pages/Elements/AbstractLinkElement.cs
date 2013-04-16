@@ -30,13 +30,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             : base(project, guid, languageVariant)
         {
             Connections = new LinkConnections(this, Caching.Enabled);
-            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+            ReferencedFrom = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
         }
 
         protected AbstractLinkElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             Connections = new LinkConnections(this, Caching.Enabled);
-            ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+            ReferencedFrom = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
             LoadXml();
         }
 
@@ -47,7 +47,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             get { return LazyLoad(ref _linkType); }
         }
 
-        public IRDList<ILinkElement> ReferencedBy { get; private set; }
+        public IRDList<ILinkElement> ReferencedFrom { get; private set; }
         
         protected abstract void LoadWholeLinkElement();
 

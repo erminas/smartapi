@@ -52,7 +52,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                 Project.ExecuteRQL(string.Format(SAVE_SETTING, PublicationSetting.Guid.ToRQLString(),
                                                  _publicationFolder.Guid.ToRQLString(), Guid.ToRQLString()));
 
-            if (!xmlDoc.InnerText.Contains("ok"))
+            if (!xmlDoc.IsContainingOk())
             {
                 throw new SmartAPIException(Session.ServerLogin,
                                             string.Format("Could not change publication folder setting for {0}", this));

@@ -101,6 +101,7 @@
     <Compile Include="CMS\Project\Pages\Elements\ILinkConnections.cs" />
     <Compile Include="CMS\Project\Pages\Elements\IMultilinkConnections.cs" />
     <Compile Include="CMS\Project\Pages\IAssignedKeywords.cs" />
+    <Compile Include="CMS\Project\Pages\ILinkingAndAppearance.cs" />
     <Compile Include="CMS\Project\Pages\IPages.cs" />
     <Compile Include="CMS\Project\Pages\ILinkTarget.cs" />
     <Compile Include="CMS\Project\Pages\IPage.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="CMS\Project\Pages\Elements\ITextAscii.cs" />
     <Compile Include="CMS\Project\Pages\Elements\ITransfer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IPreassignedWorkflow.cs" />
+    <Compile Include="CMS\Project\Pages\PageAssignedKeywords.cs" />
     <Compile Include="CMS\Project\PartialRedDotProjectObject.cs" />
     <Compile Include="CMS\Project\IProjectCopyJob.cs" />
     <Compile Include="CMS\Project\IProjectExportJob.cs" />
@@ -256,7 +258,7 @@
     <Compile Include="CMS\Project\IProjectVariant.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationPackage.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationTarget.cs" />
-    <Compile Include="CMS\Session.cs" />
+    <Compile Include="CMS\ISession.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClass.cs" />
     <Compile Include="CMS\Project\Filesystem\ContentClassFolder.cs" />
     <Compile Include="CMS\Project\ContentClasses\ITemplateVariant.cs" />
