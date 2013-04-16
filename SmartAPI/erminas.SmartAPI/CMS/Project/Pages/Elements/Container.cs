@@ -19,16 +19,21 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+    
+    public interface IContainer : IKeywordAssignable, IMultiLinkElement
+    {
+    }
+
     //todo istargetcontainer
     [PageElementType(ElementType.Container)]
-    public class Container : AbstractKeywordAssignableMultiLinkElement
+    internal class Container : AbstractKeywordAssignableMultiLinkElement, IContainer
     {
-        public Container(Project project, Guid guid, LanguageVariant languageVariant)
+        public Container(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal Container(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Container(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

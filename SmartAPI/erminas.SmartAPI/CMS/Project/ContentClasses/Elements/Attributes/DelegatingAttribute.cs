@@ -19,13 +19,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
     internal class DelegatingAttribute<T> : IRDAttribute
     {
-        public readonly ContentClassElement ContentClassElement;
+        public readonly IContentClassElement ContentClassElement;
         private readonly string _description;
         private readonly Func<T> _getValue;
         private readonly Func<T, string> _getValueDisplayString;
         private readonly Action<T> _setValue;
 
-        public DelegatingAttribute(ContentClassElement contentClassElement, string name, Func<T> getFunction,
+        public DelegatingAttribute(IContentClassElement contentClassElement, string name, Func<T> getFunction,
                                    Action<T> setFunction, Func<T, string> getValueDisplayString, string description)
         {
             ContentClassElement = contentClassElement;

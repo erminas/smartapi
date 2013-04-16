@@ -20,7 +20,12 @@ using erminas.SmartAPI.CMS;
 
 namespace erminas.SmartAPI.Utils.CachedCollections
 {
-    public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
+    public interface IIndexedRDList<in TK, T> : IIndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
+    {
+        new IIndexedRDList<TK, T> Refreshed();
+    }
+
+    public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IIndexedRDList<TK, T> where T : class, IRedDotObject
     {
         public IndexedRDList(Func<List<T>> retrieveFunc, Func<T, TK> indexFunc, Caching caching)
             : base(retrieveFunc, indexFunc, caching)
@@ -31,14 +36,18 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
         }
 
-        public new ICachedList<T> Refreshed()
+        public new IIndexedRDList<TK, T> Refreshed()
         {
             Refresh();
             return this;
         }
 
-        #region IRDList<T> Members
-
+        IRDList<T> IRDList<T>.Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+        
         public bool ContainsGuid(Guid guid)
         {
             T tmp;
@@ -53,31 +62,34 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public T GetByGuid(Guid guid)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.First(x => x.Guid == guid);
         }
 
         public virtual T GetByName(string name)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.First(x => x.Name == name);
         }
 
         public bool TryGetByGuid(Guid guid, out T output)
         {
-            CheckList();
+            EnsureListIsLoaded();
             output = List.FirstOrDefault(x => x.Guid == guid);
             return output != null;
         }
 
         public virtual bool TryGetByName(string name, out T output)
         {
-            CheckList();
+            EnsureListIsLoaded();
             output = List.FirstOrDefault(x => x.Name == name);
             return output != null;
         }
 
-        #endregion
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
+        }
     }
 
     /// <summary>

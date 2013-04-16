@@ -19,7 +19,7 @@ using System.Text;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class EditorOptionsAttribute : RDXmlNodeAttribute
+    internal class EditorOptionsAttribute : RDXmlNodeAttribute
     {
         private EditorSettings _value;
 

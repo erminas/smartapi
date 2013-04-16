@@ -68,9 +68,22 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     #endregion
 
-    public class HitList : List
+    public interface IHitList : IList
     {
-        internal HitList(ContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        BasicAlignment Align { get; set; }
+        string AltText { get; set; }
+        string Border { get; set; }
+        string HSpace { get; set; }
+        HitListType HitListType { get; set; }
+        bool IsAltPreassignedAutomatically { get; set; }
+        string Supplement { get; set; }
+        string Usemap { get; set; }
+        string VSpace { get; set; }
+    }
+
+    internal class HitList : List, IHitList
+    {
+        internal HitList(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace", "eltusermap", "eltsupplement",
                              "eltalt");
@@ -105,10 +118,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             using (new LanguageContext(LanguageVariant))
             {
                 //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
-                XmlElement.SetAttributeValue("eltsrc", Session.SESSIONKEY_PLACEHOLDER);
+                XmlElement.SetAttributeValue("eltsrc", RQL.SESSIONKEY_PLACEHOLDER);
 
                 Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>",
-                                   Project.RqlType.SessionKeyInProject);
+                                   RqlType.SessionKeyInProject);
             }
         }
 

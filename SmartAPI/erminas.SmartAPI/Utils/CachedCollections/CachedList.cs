@@ -38,12 +38,12 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
             get
             {
-                CheckList();
+                EnsureListIsLoaded();
                 return List.Count;
             }
         }
 
-        protected void CheckList()
+        protected void EnsureListIsLoaded()
         {
             if (IsCachingEnabled && List != null)
             {
@@ -60,13 +60,13 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public T GetByPosition(int pos)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List[pos];
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.GetEnumerator();
         }
 
@@ -86,7 +86,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             List = null;
             if (IsCachingEnabled)
             {
-                CheckList();
+                EnsureListIsLoaded();
             }
         }
 
@@ -96,9 +96,14 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return this;
         }
 
+        public void WaitFor(Predicate<ICachedList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        {
+            Wait.For(()=>predicate(Refreshed()), wait, retryPeriod);
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.GetEnumerator();
         }
 

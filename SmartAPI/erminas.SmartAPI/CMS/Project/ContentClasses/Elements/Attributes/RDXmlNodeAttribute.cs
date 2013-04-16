@@ -20,7 +20,7 @@ using log4net;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public abstract class RDXmlNodeAttribute : IRDAttribute
+    internal abstract class RDXmlNodeAttribute : IRDAttribute
     {
         #region ElementDescriptions
 
@@ -200,7 +200,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             if (initValue)
             {
                 string attr = parent.XmlElement.GetAttributeValue(name);
-                if (attr != null && attr != Session.SESSIONKEY_PLACEHOLDER && attr != ("#" + Parent.Session.SessionKey))
+                if (attr != null && attr != RQL.SESSIONKEY_PLACEHOLDER && attr != ("#" + Parent.Session.SessionKey))
                 {
                     UpdateValue(attr);
                 }
@@ -247,7 +247,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
             string xmlNodeValue = GetXmlNodeValue();
 
-            UpdateValue(string.IsNullOrEmpty(xmlNodeValue) || xmlNodeValue == Session.SESSIONKEY_PLACEHOLDER
+            UpdateValue(string.IsNullOrEmpty(xmlNodeValue) || xmlNodeValue == RQL.SESSIONKEY_PLACEHOLDER
                             ? null
                             : xmlNodeValue);
         }
@@ -274,7 +274,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         protected virtual void SetXmlNodeValue(string value)
         {
             Parent.XmlElement.SetAttributeValue(Name,
-                                                string.IsNullOrEmpty(value) ? Session.SESSIONKEY_PLACEHOLDER : value);
+                                                string.IsNullOrEmpty(value) ? RQL.SESSIONKEY_PLACEHOLDER : value);
         }
 
         protected abstract void UpdateValue(string value);

@@ -19,14 +19,18 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.Frame)]
-    public class Frame : AbstractLinkElement
+    public interface IFrame : ILinkElement
     {
-        public Frame(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid, languageVariant)
+    }
+
+    [PageElementType(ElementType.Frame)]
+    internal class Frame : AbstractLinkElement, IFrame
+    {
+        public Frame(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
         {
         }
 
-        internal Frame(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Frame(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

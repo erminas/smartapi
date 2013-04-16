@@ -22,7 +22,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
     ///     Interface for collections of objects retrieved from the RedDot server with transparent caching. If caching is enabled the list of objects is retrieved from the server and subsequent access is done on the cache of this list. If caching is disabled the list of objects is retrieved from the server every time it gets accessed.
     /// </summary>
     /// <typeparam name="T"> TypeId of objects in the list </typeparam>
-    public interface ICachedList<out T> : IEnumerable<T>, ICaching where T : class
+    public interface ICachedList<out T> : IEnumerable<T>, ICached where T : class
     {
         int Count { get; }
 
@@ -39,6 +39,26 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         /// </summary>
         bool IsCachingEnabled { get; set; }
 
+        /// <summary>
+        ///     Calls Refresh() and returns this.
+        /// </summary>
         ICachedList<T> Refreshed();
+
+        /// <summary>
+        ///     Waits until a predicate on itself becomes true.
+        ///     Every retry period Refresh() is called and the predicate evaluated again, until the predicate evaluates to true,
+        ///     or the wait timespan is exhausted.
+        /// </summary>
+        /// <example>
+        /// Wait for a maximum of 5 seconds until a page with id 5 is included in the list, recheck the list every second:
+        /// <code>
+        /// <pre>
+        /// ICachedList&lt;Page&gt; list = ...;
+        /// list.WaitFor(list=>list.FirstOrDefault(page=>page.Id == 5) != null, new TimeSpan(0,0,5), new TimeSpan(0,0,1));
+        /// </pre>
+        /// </code>
+        /// </example>
+        /// <exception cref="TimeoutException">Thrown if the predicate didn't evaluate to true in the given amount of time</exception>
+        void WaitFor(Predicate<ICachedList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod);
     }
 }

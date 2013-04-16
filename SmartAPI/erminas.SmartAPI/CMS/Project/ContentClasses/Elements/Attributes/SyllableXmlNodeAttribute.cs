@@ -17,9 +17,9 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class SyllableXmlNodeAttribute : AbstractGuidXmlNodeAttribute<Syllable>
+    internal class SyllableXmlNodeAttribute : AbstractGuidXmlNodeAttribute<ISyllable>
     {
-        public SyllableXmlNodeAttribute(ContentClass element, string name)
+        public SyllableXmlNodeAttribute(IContentClass element, string name)
             : base(element.Project.Session, element, name)
         {
         }
@@ -29,14 +29,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "prefix/suffix";
         }
 
-        protected override Syllable RetrieveByGuid(Guid guid)
+        protected override ISyllable RetrieveByGuid(Guid guid)
         {
-            return ((ContentClass) Parent).Project.Syllables.GetByGuid(guid);
+            return ((IContentClass) Parent).Project.Syllables.GetByGuid(guid);
         }
 
-        protected override Syllable RetrieveByName(string name)
+        protected override ISyllable RetrieveByName(string name)
         {
-            return ((ContentClass) Parent).Project.Syllables[name];
+            return ((IContentClass) Parent).Project.Syllables[name];
         }
     }
 }

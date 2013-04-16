@@ -18,29 +18,45 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
-    public class File : IProjectObject
+    public interface IFile : IProjectObject, IDeletable
+    {
+        FileAttributes Attributes { get; }
+
+        /// <summary>
+        ///     Folder the file is stored in
+        /// </summary>
+        IFolder Folder { get; }
+
+        /// <summary>
+        ///     Name of the file
+        /// </summary>
+        string Name { get; }
+
+        int ReferenceCount();
+    }
+
+    internal class File : IFile
     {
         /// <summary>
         ///     Folder the file is stored in
         /// </summary>
-        private readonly Folder _folder;
+        private readonly IFolder _folder;
 
         /// <summary>
         ///     Name of the file
         /// </summary>
         private readonly string _name;
 
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal File(Project project, XmlElement xmlElement)
+        internal File(IProject project, XmlElement xmlElement)
         {
             _project = project;
-
             _name = xmlElement.GetAttributeValue("name");
             _folder = new Folder(project, xmlElement.GetGuid("folderguid"));
         }
 
-        public File(Folder folder, string fileName)
+        public File(IFolder folder, string fileName)
         {
             _project = folder.Project;
             _folder = folder;
@@ -86,7 +102,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// <summary>
         ///     Folder the file is stored in
         /// </summary>
-        public Folder Folder
+        public IFolder Folder
         {
             get { return _folder; }
         }
@@ -107,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             get { return _name; }
         }
 
-        public Project Project
+        public IProject Project
         {
             get { return _project; }
         }
@@ -121,7 +137,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
 
-        public Session Session
+        public ISession Session
         {
             get { return Project.Session; }
         }

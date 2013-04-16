@@ -19,12 +19,12 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public abstract class AbstractGuidXmlNodeAttribute<T> : RDXmlNodeAttribute where T : RedDotObject
+    internal abstract class AbstractGuidXmlNodeAttribute<T> : RDXmlNodeAttribute where T : class, IRedDotObject
     {
-        private readonly Session _session;
+        private readonly ISession _session;
         private T _value;
 
-        protected AbstractGuidXmlNodeAttribute(Session session, RedDotObject parent, string name)
+        protected AbstractGuidXmlNodeAttribute(ISession session, IAttributeContainer parent, string name)
             : base(parent, name, false)
         {
             _session = session;
@@ -38,7 +38,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public override object DisplayObject
         {
-            get { return _value == null ? string.Empty : _value.Name; }
+            get
+            {
+                try
+                {
+                    return _value == null ? string.Empty : _value.Name;
+                } catch (Exception)
+                {
+                    return string.Empty;
+                }
+            }
         }
 
         public override bool Equals(object o)
@@ -67,15 +76,23 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public override bool IsAssignableFrom(IRDAttribute o, out string reason)
         {
-            var t = (AbstractGuidXmlNodeAttribute<T>) o;
-            if (t.Value == null || RetrieveByName(t.Value.Name) != null)
+            try
             {
-                reason = string.Empty;
-                return true;
-            }
+                var t = (AbstractGuidXmlNodeAttribute<T>) o;
+                if (t.Value == null || RetrieveByName(t.Value.Name) != null)
+                {
+                    reason = string.Empty;
+                    return true;
+                }
 
-            reason = GetTypeDescription() + " named '" + t.Value.Name + "' not found in target!";
-            return false;
+                reason = GetTypeDescription() + " named '" + t.Value.Name + "' not found in target!";
+                return false;
+            } catch (Exception e)
+            {
+                reason = e.Message;
+                return false;
+            }
+            
         }
 
         public T Value
@@ -112,7 +129,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         /// <param name="value"> accepts a guid or a name of an existing reddotobject </param>
         protected override void UpdateValue(string value)
         {
-            if (String.IsNullOrEmpty(value) || value == Session.SESSIONKEY_PLACEHOLDER ||
+            if (String.IsNullOrEmpty(value) || value == RQL.SESSIONKEY_PLACEHOLDER ||
                 value == "#" + Parent.Session.SessionKey)
             {
                 _value = null;

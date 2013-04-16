@@ -18,7 +18,7 @@ using erminas.SmartAPI.CMS.Administration.Language;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class LocaleXmlNodeAttribute : RDXmlNodeAttribute
+    internal class LocaleXmlNodeAttribute : RDXmlNodeAttribute
     {
         #region locales
 
@@ -140,7 +140,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         private int? _lcid;
 
-        public LocaleXmlNodeAttribute(ContentClassElement contentClass, string name) : base(contentClass, name)
+        public LocaleXmlNodeAttribute(IContentClassElement contentClass, string name) : base(contentClass, name)
         {
         }
 
@@ -156,7 +156,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             {
                 return _lcid == null
                            ? null
-                           : ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value];
+                           : ((IContentClassElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value];
             }
         }
 
@@ -166,13 +166,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return o is LocaleXmlNodeAttribute;
         }
 
-        public Locale Value
+        public ISystemLocale Value
         {
             get
             {
                 return _lcid == null
                            ? null
-                           : ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value];
+                           : ((IContentClassElement) Parent).ContentClass.Project.Session.Locales[_lcid.Value];
             }
             set { SetValue(value == null ? null : value.LCID.ToString(CultureInfo.InvariantCulture)); }
         }

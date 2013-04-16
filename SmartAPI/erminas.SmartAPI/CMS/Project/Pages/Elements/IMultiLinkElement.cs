@@ -13,14 +13,10 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     public interface IMultiLinkElement : ILinkElement
     {
-        void ConnectPages(IEnumerable<IPage> pages);
-
-        void DisconnectPages(IEnumerable<IPage> pages);
+        new IMultilinkConnections Connections { get; }
     }
 }

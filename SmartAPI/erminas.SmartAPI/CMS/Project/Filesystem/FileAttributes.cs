@@ -22,35 +22,35 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
     public class FileAttributes
     {
-        internal FileAttributes(Folder folder, XmlElement xmlElement)
+        internal FileAttributes(IFolder folder, XmlElement xmlElement)
         {
             Folder = folder;
             LoadXml(xmlElement);
         }
 
-        public string Album { get; set; }
-        public string Artist { get; set; }
-        public string Colordepth { get; set; }
-        public string Comment { get; set; }
-        public string DocAuthor { get; set; }
-        public string DocCreatedWith { get; set; }
-        public string DocCreationDate { get; set; }
-        public string DocModificationDate { get; set; }
-        public int DocNumberOfPages { get; set; }
-        public string DocOriginalAuthor { get; set; }
-        public string DocTitle { get; set; }
-        public DateTime EntryDate { get; set; }
-        public string Filesize { get; set; }
-        public Folder Folder { get; private set; }
-        public string Genre { get; set; }
-        public string Height { get; set; }
-        public string Keywords { get; set; }
-        public string LastEditor { get; set; }
-        public DateTime ModificationDate { get; set; }
-        public string OriginalAuthor { get; set; }
-        public string Title { get; set; }
-        public string Width { get; set; }
-        public string Year { get; set; }
+        public string Album { get; private  set; }
+        public string Artist { get; private set; }
+        public string Colordepth { get; private set; }
+        public string Comment { get; private set; }
+        public string DocAuthor { get; private set; }
+        public string DocCreatedWith { get; private set; }
+        public string DocCreationDate { get; private set; }
+        public string DocModificationDate { get; private set; }
+        public int DocNumberOfPages { get; private set; }
+        public string DocOriginalAuthor { get; private set; }
+        public string DocTitle { get; private set; }
+        public DateTime EntryDate { get; private set; }
+        public string Filesize { get; private set; }
+        public IFolder Folder { get; private set; }
+        public string Genre { get; private set; }
+        public string Height { get; private set; }
+        public string Keywords { get; private set; }
+        public string LastEditor { get; private set; }
+        public DateTime ModificationDate { get; private set; }
+        public string OriginalAuthor { get; private set; }
+        public string Title { get; private set; }
+        public string Width { get; private set; }
+        public string Year { get; private set; }
 
         /*
         private static readonly Dictionary<string, string> RQLMapping = new Dictionary<string, string>()
@@ -71,8 +71,12 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
                                                                {"ext14", "Genre"}
                                                            };*/
 
-        protected void LoadXml(XmlElement xmlElement)
+        private void LoadXml(XmlElement xmlElement)
         {
+            if (xmlElement == null)
+            {
+                return;
+            }
             try
             {
                 if (xmlElement.GetAttributeValue("ext01") != null)

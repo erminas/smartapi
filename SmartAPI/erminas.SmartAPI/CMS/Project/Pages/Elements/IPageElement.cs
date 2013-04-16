@@ -20,8 +20,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     public interface IPageElement : IPartialRedDotObject, IProjectObject
     {
         ElementType ElementType { get; set; }
-        LanguageVariant LanguageVariant { get; }
+        ILanguageVariant LanguageVariant { get; }
 
-        Page Page { get; }
+        IPage Page { get; }
     }
 }

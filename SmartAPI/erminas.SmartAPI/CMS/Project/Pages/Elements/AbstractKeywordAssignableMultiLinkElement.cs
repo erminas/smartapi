@@ -23,75 +23,122 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class AbstractKeywordAssignableMultiLinkElement : AbstractMultiLinkElement, IKeywordAssignable
+    internal class LinkAssignedKeywords : RDList<IKeyword>, IAssignedKeywords
     {
-        protected AbstractKeywordAssignableMultiLinkElement(Project project, Guid guid, LanguageVariant languageVariant)
-            : base(project, guid, languageVariant)
+        private readonly AbstractKeywordAssignableMultiLinkElement _parent;
+
+        internal LinkAssignedKeywords(AbstractKeywordAssignableMultiLinkElement parent, Caching caching) : base(caching)
         {
-            Init();
+            _parent = parent;
+            RetrieveFunc = GetAssignedKeywords;
         }
 
-        protected AbstractKeywordAssignableMultiLinkElement(Project project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        public void Add(IKeyword keyword)
         {
-            Init();
-        }
-
-        public void AssignKeyword(Keyword keyword)
-        {
-            ExecuteAssignKeyword(keyword);
+            ExecuteAssignKeywords(new []{keyword});
 
             ExecutePagebuilderLinkCleanup();
 
-            AssignedKeywords.InvalidateCache();
+            InvalidateCache();
         }
 
-        public IRDList<Keyword> AssignedKeywords { get; private set; }
-
-        public void UnassignKeyword(Keyword keyword)
+        public void AddRange(IEnumerable<IKeyword> keywords)
         {
-            ExecuteUnassignKeyword(keyword);
+            ExecuteAssignKeywords(keywords);
 
             ExecutePagebuilderLinkCleanup();
 
-            AssignedKeywords.InvalidateCache();
+            InvalidateCache();
         }
 
-        private void ExecuteAssignKeyword(Keyword keyword)
+        public void Remove(IKeyword keyword)
+        {
+            ExecuteUnassignKeywords(new []{keyword});
+
+            ExecutePagebuilderLinkCleanup();
+
+            InvalidateCache();
+        }
+
+        public void Clear()
+        {
+            ExecuteUnassignKeywords(this);
+
+            ExecutePagebuilderLinkCleanup();
+
+            InvalidateCache();
+        }
+
+        public void Set(IEnumerable<IKeyword> keywords)
+        {
+            var currentKeywords = this.ToList();
+            var newKeywords = keywords as IList<IKeyword> ?? keywords.ToList();
+            ExecuteUnassignKeywords(currentKeywords.Except(newKeywords));
+            ExecuteAssignKeywords(newKeywords.Except(currentKeywords));
+        }
+
+        private void ExecuteAssignKeywords(IEnumerable<IKeyword> keywords)
         {
             const string ASSING_KEYWORD =
-                @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS><KEYWORD guid=""{1}"" changed=""1"" /></KEYWORDS></LINK>";
-            Project.ExecuteRQL(ASSING_KEYWORD.RQLFormat(this, keyword), Project.RqlType.SessionKeyInProject);
+                @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS>{1}</KEYWORDS></LINK>";
+            const string SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" changed=""1"" />";
+
+            var keywordsStr = keywords.Aggregate("", (s, keyword) => s + SINGLE_KEYWORD.RQLFormat(keyword));
+            _parent.Project.ExecuteRQL(ASSING_KEYWORD.RQLFormat(_parent, keywordsStr), RqlType.SessionKeyInProject);
         }
 
         private void ExecutePagebuilderLinkCleanup()
         {
             const string PAGEBUILDER_LINK =
                 @"<PAGEBUILDER><LINKING sessionkey=""{0}""><LINKS><LINK guid=""{1}""/></LINKS><PAGES><PAGE sessionkey=""{0}"" guid=""{2}""/></PAGES></LINKING></PAGEBUILDER>";
-            Project.ExecuteRQL(PAGEBUILDER_LINK.RQLFormat(Project.Session.SessionKey, this, Page));
+            _parent.Project.ExecuteRQL(PAGEBUILDER_LINK.RQLFormat(_parent.Project.Session.SessionKey, _parent, _parent.Page));
         }
 
-        private void ExecuteUnassignKeyword(Keyword keyword)
+        private void ExecuteUnassignKeywords(IEnumerable<IKeyword> keywords)
         {
             const string UNASSIGN_KEYWORD =
-                @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS><KEYWORD guid=""{1}"" delete=""1"" changed=""1"" /></KEYWORDS></LINK>";
-            Project.ExecuteRQL(UNASSIGN_KEYWORD.RQLFormat(this, keyword), Project.RqlType.SessionKeyInProject);
+                @"<LINK guid=""{0}"" action=""assign"" allkeywords=""0""><KEYWORDS>{1}</KEYWORDS></LINK>";
+
+            const string SINGLE_KEYWORD = @"<KEYWORD guid=""{0}"" delete=""1"" changed=""1"" />";
+
+            var keywordsStr = keywords.Aggregate("", (s, keyword) => s + SINGLE_KEYWORD.RQLFormat(keyword));
+
+            _parent.Project.ExecuteRQL(UNASSIGN_KEYWORD.RQLFormat(_parent, keywordsStr), RqlType.SessionKeyInProject);
         }
 
-        private List<Keyword> GetAssignedKeywords()
+        private List<IKeyword> GetAssignedKeywords()
         {
             const string LOAD_KEYWORDS = @"<LINK guid=""{0}""><KEYWORDS action=""load""/></LINK>";
-            var xmlDoc = Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(this), Project.RqlType.SessionKeyInProject);
+            var xmlDoc = _parent.Project.ExecuteRQL(LOAD_KEYWORDS.RQLFormat(_parent), RqlType.SessionKeyInProject);
 
             var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
             return keywords == null
-                       ? new List<Keyword>()
-                       : (from XmlElement keyword in keywords select new Keyword(Project, keyword)).ToList();
+                       ? new List<IKeyword>()
+                       : (from XmlElement keyword in keywords select (IKeyword)new Keyword(_parent.Project, keyword)).ToList();
         }
+    }
+
+    internal abstract class AbstractKeywordAssignableMultiLinkElement : AbstractMultiLinkElement, IKeywordAssignable
+    {
+        protected AbstractKeywordAssignableMultiLinkElement(IProject project, Guid guid, ILanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
+        {
+            Init();
+        }
+
+        protected AbstractKeywordAssignableMultiLinkElement(IProject project, XmlElement xmlElement)
+            : base(project, xmlElement)
+        {
+            Init();
+        }
+
+        
 
         private void Init()
         {
-            AssignedKeywords = new RDList<Keyword>(GetAssignedKeywords, Caching.Enabled);
+            AssignedKeywords = new LinkAssignedKeywords(this, Caching.Enabled);
         }
+
+        public IAssignedKeywords AssignedKeywords { get; private set; }
     }
 }

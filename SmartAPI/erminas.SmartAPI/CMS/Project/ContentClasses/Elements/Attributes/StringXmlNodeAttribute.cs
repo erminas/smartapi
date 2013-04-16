@@ -15,7 +15,7 @@
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class StringXmlNodeAttribute : RDXmlNodeAttribute
+    internal class StringXmlNodeAttribute : RDXmlNodeAttribute
     {
         private string _value;
 

@@ -44,5 +44,13 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         /// </summary>
         /// <returns> true, if an element could be found, false otherwise </returns>
         bool TryGetByName(string name, out T output);
+
+        /// <summary>
+        /// Same as <see cref="WaitFor"/> in <see cref="ICachedList{T}"/> but with an IRDList as predicate input.
+        /// Provided for convenience.
+        /// </summary>
+        void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod);
+
+        new IRDList<T> Refreshed();
     }
 }

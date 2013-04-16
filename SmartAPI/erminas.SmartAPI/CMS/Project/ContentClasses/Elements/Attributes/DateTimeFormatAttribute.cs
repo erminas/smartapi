@@ -19,11 +19,11 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class DateTimeFormatAttribute : RDXmlNodeAttribute
+    internal class DateTimeFormatAttribute : RDXmlNodeAttribute
     {
         private int? _type;
 
-        public DateTimeFormatAttribute(ContentClassElement parent, string name) : base(parent, name, true)
+        public DateTimeFormatAttribute(IContentClassElement parent, string name) : base(parent, name, true)
         {
         }
 
@@ -45,7 +45,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {
                     return "user defined";
                 }
-                DateTimeFormat value = GetDateTimeFormat();
+                IDateTimeFormat value = GetDateTimeFormat();
                 if (value == null)
                 {
                     return null;
@@ -60,7 +60,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return o is DateTimeFormatAttribute;
         }
 
-        public DateTimeFormat Value
+        public IDateTimeFormat Value
         {
             get
             {
@@ -82,7 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                         : int.Parse(value);
         }
 
-        private DateTimeFormat GetDateTimeFormat()
+        private IDateTimeFormat GetDateTimeFormat()
         {
             int lcid;
             bool valid = int.TryParse(Parent.XmlElement.GetAttributeValue("eltlcid"), out lcid);
@@ -92,7 +92,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             }
 
             return
-                ((ContentClassElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
+                ((IContentClassElement) Parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[_type.Value];
         }
     }
 }

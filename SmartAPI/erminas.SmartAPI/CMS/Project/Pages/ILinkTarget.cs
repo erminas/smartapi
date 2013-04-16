@@ -20,6 +20,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 {
     public interface ILinkTarget : IRedDotObject, IProjectObject
     {
-        IRDList<ILinkElement> ReferencedBy { get; }
+        IRDList<ILinkElement> ReferencedFrom { get; }
     }
 }

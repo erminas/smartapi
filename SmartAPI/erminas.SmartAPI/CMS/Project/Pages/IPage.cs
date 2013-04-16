@@ -16,16 +16,80 @@
 using System;
 using System.Collections.Generic;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
-using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
-    public interface IPage : ILinkTarget, IPartialRedDotObject
+    public enum PageType
     {
+        All = 0,
+        Released = 1,
+        Unlinked = 8192,
+        Draft = 262144
+    };
+
+    public enum PageState
+    {
+        NotSet = 0,
+        IsReleased = 1,
+        WaitsForRelease = 2,
+        WaitsForCorrection = 3,
+        SavedAsDraft = 4,
+        NotAvailableInLanguage = 5,
+
+        /// <summary>
+        ///     From RQL docs: 6= Page has never been released in the selected language variant, in which it was created for the first time.
+        /// </summary>
+        NeverHasBeenReleasedInOriginalLanguage = 6,
+        IsInRecycleBin = 10,
+        WillBeArchived = 50,
+        WillBeRemovedCompletely = 99
+    }
+
+    [Flags]
+    public enum PageReleaseStatus
+    {
+        Draft = 65536,
+        WorkFlow = 32768,
+        Released = 4096,
+        NotSet = 0,
+        Rejected = 16384
+    };
+
+    [Flags]
+    public enum PageFlags
+    {
+        NotSet = 0,
+        NotForBreadcrumb = 4,
+        Workflow = 64,
+        WaitingForTranslation = 1024,
+        Unlinked = 8192,
+        WaitingForCorrection = 131072,
+        Draft = 262144,
+        Released = 524288,
+        BreadCrumbStaringPoint = 2097152,
+        ContainsExternalReference = 8388608,
+        OwnPageWaitingForRelease = 134217728,
+        Locked = 268435456,
+        Null = -1
+    }
+
+    /// <summary>
+    ///     Wrapper for the RedDot Page object. If status changes occur, you have to call
+    ///     <see
+    ///         cref="PartialRedDotObject.Refresh" />
+    ///     to see them reflected in the status field,
+    /// </summary>
+    public interface IPage : ILinkTarget, IPartialRedDotObject, IAttributeContainer, IKeywordAssignable, IDeletable
+    {
+        new string Name { get; set; }
+
         DateTime CheckinDate { get; }
+
+        IRDList<ILinkingAndAppearance> LinkedFrom { get; }
 
         /// <summary>
         ///     Save changes to headline/filename to the server.
@@ -35,17 +99,17 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     Content class of the page
         /// </summary>
-        ContentClass ContentClass { get; }
+        IContentClass ContentClass { get; }
 
         /// <summary>
-        ///     All content elements of this page.
+        ///     All content elements of this page. Indexed by name and cached by default.
         /// </summary>
-        NameIndexedRDList<IPageElement> ContentElements { get; }
+        IIndexedRDList<string, IPageElement> ContentElements { get; }
 
         /// <summary>
         ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
         /// </summary>
-        void Delete();
+        new void Delete();
 
         /// <summary>
         ///     Delete the page from the recycle bin
@@ -53,14 +117,33 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         void DeleteFromRecycleBin();
 
         /// <summary>
-        ///     Remove a keyword from this page.
+        ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
+        ///     If you want to make sure it is completly removed from the server, even if has been released,
+        ///     use <see cref="Page.DeleteIrrevocably" /> instead of calling this method and <see cref="Page.DeleteFromRecycleBin" />.
+        ///     Throws a PageDeletionException, if references still point to elements of this page or an element is assigned as target container to a link.
         /// </summary>
-        void DeleteKeyword(Keyword keyword);
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
+        void DeleteIfNotReferenced();
+
+        /// <summary>
+        ///     Delete the page Independant of the state the page is in (e.g released or already in recycle bin), the page will be removed from CMS and cannot be restored.
+        ///     Forces the deletion, even if references still point to elements of this page or an element is assigned as target container to a link.
+        ///     If the page was released, it will be moved to the recycle bin first.
+        ///     Removing it from there leads to a race condition on the server: the page can be already marked as being in the recycle bin, but a call to remove it from there can still fail for some time.
+        ///     For this reason a we try to delete it until the operation is successful or a timeout is reached.
+        ///     If you want to delete multiple pages a call only to Delete() and a collective removal from the recycle bin afterwards is faster than a call
+        ///     to DeleteIrrevocably on every single page.
+        /// </summary>
+        /// <param name="maxWaitForDeletionInMs">Maximum amount of time in miliseconds to wait for a successful deletion of the page. The default value of 1250ms proved reliable in internal tests.</param>
+        /// <exception cref="PageDeletionException">Thrown, if page could not be deleted.</exception>
+        void DeleteIrrevocably(int maxWaitForDeletionInMs = 1250);
 
         /// <summary>
         ///     Disconnects the page from its parent (main link).
         /// </summary>
         void DisconnectFromParent();
+
+        bool Exists { get; }
 
         /// <summary>
         ///     Page filename. Same as Name.
@@ -83,15 +166,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <exception cref="KeyNotFoundException">Thrown, if no element with the expected name could be found.</exception>
         IPageElement this[string elementName] { get; }
 
-        /// <summary>
-        ///     All keywords associated with this page.
-        /// </summary>
-        RDList<Keyword> Keywords { get; }
-
-        /// <summary>
-        ///     Language variant of this page instance.
-        /// </summary>
-        LanguageVariant LanguageVariant { get; }
+        ILanguageVariant LanguageVariant { get; }
 
         /// <summary>
         ///     All link elements of this page.
@@ -101,12 +176,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     The element this page has as mainlink.
         /// </summary>
-        PageElement MainLinkElement { get; }
+        IPageElement MainLinkElement { get; }
 
         /// <summary>
         ///     Parent page (the page containing this page's main link).
         /// </summary>
-        Page Parent { get; }
+        IPage Parent { get; }
 
         /// <summary>
         ///     Rejects the page from the current level of workflow.
@@ -127,7 +202,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     The current release status of this page. Setting it will change it on the server.
         /// </summary>
-        Page.PageReleaseStatus ReleaseStatus { get; set; }
+        PageReleaseStatus ReleaseStatus { get; set; }
 
         /// <summary>
         ///     Reset the page to draft status.
@@ -150,7 +225,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     ReleaseStatus of the page.
         /// </summary>
-        Page.PageState Status { get; set; }
+        PageState Status { get; set; }
 
         /// <summary>
         ///     Submit the page to workflow.
@@ -165,8 +240,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     Returns the Workflow this page adheres to.
         /// </summary>
-        Workflow Workflow { get; }
-
-        IRDList<ILinkElement> LinkedFrom { get; }
+        IWorkflow Workflow { get; }
     }
 }

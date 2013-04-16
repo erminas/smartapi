@@ -46,17 +46,17 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public T GetByGuid(Guid guid)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.First(x => x.Guid == guid);
         }
 
         public T GetByName(string name)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return List.First(x => x.Name == name);
         }
 
-        public new RDList<T> Refreshed()
+        public new IRDList<T> Refreshed()
         {
             Refresh();
             return this;
@@ -64,16 +64,21 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public bool TryGetByGuid(Guid guid, out T output)
         {
-            CheckList();
+            EnsureListIsLoaded();
             output = List.Find(x => x.Guid == guid);
             return output != null;
         }
 
         public bool TryGetByName(string name, out T output)
         {
-            CheckList();
+            EnsureListIsLoaded();
             output = List.Find(x => x.Name == name);
             return output != null;
+        }
+
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
         }
 
         #endregion

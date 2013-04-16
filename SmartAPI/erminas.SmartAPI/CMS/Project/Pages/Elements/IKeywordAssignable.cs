@@ -13,15 +13,10 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using erminas.SmartAPI.CMS.Project.Keywords;
-using erminas.SmartAPI.Utils.CachedCollections;
-
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     public interface IKeywordAssignable
     {
-        void AssignKeyword(Keyword keyword);
-        IRDList<Keyword> AssignedKeywords { get; }
-        void UnassignKeyword(Keyword keyword);
+        IAssignedKeywords AssignedKeywords { get; }
     }
 }

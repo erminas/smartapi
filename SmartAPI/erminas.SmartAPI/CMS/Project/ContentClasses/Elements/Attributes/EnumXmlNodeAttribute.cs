@@ -19,12 +19,12 @@ using System.Globalization;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class EnumXmlNodeAttribute<T> : RDXmlNodeAttribute where T : struct, IConvertible
+    internal class EnumXmlNodeAttribute<T> : RDXmlNodeAttribute where T : struct, IConvertible
     {
         private readonly Dictionary<T, string> _displayStrings;
         protected T _value;
 
-        public EnumXmlNodeAttribute(ContentClassElement parent, string name, bool initValue = true)
+        public EnumXmlNodeAttribute(IContentClassElement parent, string name, bool initValue = true)
             : base(parent, name, initValue)
         {
         }

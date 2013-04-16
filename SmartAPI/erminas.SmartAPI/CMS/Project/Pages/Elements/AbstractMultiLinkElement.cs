@@ -14,37 +14,28 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Xml;
+using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class AbstractMultiLinkElement : AbstractLinkElement, IMultiLinkElement
+    internal abstract class AbstractMultiLinkElement : AbstractLinkElement, IMultiLinkElement
     {
-        protected AbstractMultiLinkElement(Project project, Guid guid, LanguageVariant languageVariant)
+        protected AbstractMultiLinkElement(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
+            Connections = new MultiLinkConnections(this, Caching.Enabled);
         }
 
-        protected AbstractMultiLinkElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected AbstractMultiLinkElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
+            Connections = new MultiLinkConnections(this, Caching.Enabled);
         }
 
-        #region IMultiLinkElement Members
-
-        public void ConnectPages(IEnumerable<IPage> pages)
+        public new IMultilinkConnections Connections
         {
-            foreach (IPage curPage in pages)
-            {
-                Connect(curPage);
-            }
+            get { return (IMultilinkConnections) base.Connections; }
+            private set { base.Connections = value; }
         }
-
-        public new void DisconnectPages(IEnumerable<IPage> pages)
-        {
-            base.DisconnectPages(pages);
-        }
-
-        #endregion
     }
 }

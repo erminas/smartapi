@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using erminas.SmartAPI.Utils.CachedCollections;
-
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     public enum LinkType
@@ -27,12 +25,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
     public interface ILinkElement : IPageElement, ILinkTarget
     {
-        void Connect(IPage page);
-        IRDList<IPage> ConnectedPages { get; }
-        void DeleteReference();
-        void Disconnect(IPage page);
-        bool IsReference { get; }
+        ILinkConnections Connections { get; }
         LinkType LinkType { get; }
-        void Reference(ILinkTarget target);
     }
 }

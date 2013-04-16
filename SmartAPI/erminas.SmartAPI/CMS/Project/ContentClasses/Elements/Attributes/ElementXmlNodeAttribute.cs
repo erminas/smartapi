@@ -18,9 +18,9 @@ using System.Linq;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class ElementXmlNodeAttribute : AbstractGuidXmlNodeAttribute<ContentClassElement>
+    internal class ElementXmlNodeAttribute : AbstractGuidXmlNodeAttribute<IContentClassElement>
     {
-        public ElementXmlNodeAttribute(ContentClassElement parent, string name)
+        public ElementXmlNodeAttribute(IContentClassElement parent, string name)
             : base(parent.ContentClass.Project.Session, parent, name)
         {
         }
@@ -30,19 +30,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "element";
         }
 
-        protected override ContentClassElement RetrieveByGuid(Guid elementGuid)
+        protected override IContentClassElement RetrieveByGuid(Guid elementGuid)
         {
-            var parentCcElement = (ContentClassElement) Parent;
+            var parentCcElement = (IContentClassElement) Parent;
             return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].FirstOrDefault(
+                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Abbreviation].FirstOrDefault(
                     x => x.Guid.Equals(elementGuid));
         }
 
-        protected override ContentClassElement RetrieveByName(string name)
+        protected override IContentClassElement RetrieveByName(string name)
         {
-            var parentCcElement = (ContentClassElement) Parent;
+            var parentCcElement = (IContentClassElement) Parent;
             return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Language].FirstOrDefault(
+                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Abbreviation].FirstOrDefault(
                     x => x.Name == name);
         }
     }

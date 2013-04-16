@@ -70,6 +70,7 @@
     <Compile Include="NameIndexedRDListTest.cs" />
     <Compile Include="CachedListTest.cs" />
     <Compile Include="AbstractCachedListTest.cs" />
+    <Compile Include="StringConversionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\erminas.SmartAPI\erminas Smart API.csproj">

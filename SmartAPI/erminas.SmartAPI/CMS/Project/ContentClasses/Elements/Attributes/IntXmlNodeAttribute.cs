@@ -17,7 +17,7 @@ using System;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class IntXmlNodeAttribute : RDXmlNodeAttribute
+    internal class IntXmlNodeAttribute : RDXmlNodeAttribute
     {
         private int? _value;
 

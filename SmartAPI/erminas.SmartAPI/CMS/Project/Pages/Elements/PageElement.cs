@@ -33,19 +33,18 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     ///         cref="RegisterType" />
     ///     method.
     /// </summary>
-    public abstract class PageElement : PartialRedDotProjectObject, IPageElement
+    internal abstract class PageElement : PartialRedDotProjectObject, IPageElement
     {
         private const string RETRIEVE_PAGE_ELEMENT = @"<ELT action=""load"" guid=""{0}""/>";
 
         private static readonly Dictionary<ElementType, Type> TYPES = new Dictionary<ElementType, Type>();
 
         protected ElementType Type;
-        private LanguageVariant _languageVariant;
-        private Page _page;
+        private ILanguageVariant _languageVariant;
+        private IPage _page;
 
         static PageElement()
         {
-            TYPES.Add(ElementType.StandardFieldTextLegacy, typeof (StandardFieldText));
             foreach (Type curType in typeof (PageElement).Assembly.GetTypes())
             {
                 foreach (object curAttr in curType.GetCustomAttributes(typeof (PageElementType), false))
@@ -57,17 +56,22 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                         throw new SmartAPIInternalException(
                             string.Format("{0} does not contain a constructor (Project, XmlElement)", curType.Name));
                     }
-                    TYPES.Add(((PageElementType) curAttr).Type, curType);
+                    var type = ((PageElementType) curAttr).Type;
+                    if (TYPES.ContainsKey(type))
+                    {
+                        throw new SmartAPIInternalException(string.Format("Multiple definititions of {0}: {1} and {2}", type, TYPES[type].Name, curType.Name));
+                    }
+                    TYPES.Add(type, curType);
                 }
             }
         }
 
-        protected PageElement(Project project, Guid guid, LanguageVariant languageVariant) : base(project, guid)
+        protected PageElement(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid)
         {
             LanguageVariant = languageVariant;
         }
 
-        protected PageElement(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        protected PageElement(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
@@ -78,7 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         /// <param name="project"> Page that contains the element </param>
         /// <param name="xmlElement"> XML representation of the element </param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static PageElement CreateElement(Project project, XmlElement xmlElement)
+        public static IPageElement CreateElement(IProject project, XmlElement xmlElement)
         {
             var typeValue = (ElementType) int.Parse(xmlElement.GetAttributeValue("elttype"));
             Type type;
@@ -87,7 +91,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                 throw new ArgumentException(string.Format("Unknown element type: {0}", typeValue));
             }
             return
-                (PageElement)
+                (IPageElement)
                 Activator.CreateInstance(type, BindingFlags.NonPublic | BindingFlags.Instance, null,
                                          new object[] {project, xmlElement}, CultureInfo.InvariantCulture);
         }
@@ -99,7 +103,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         /// <param name="elementGuid"> Guid of the element </param>
         /// <param name="languageVariant">The language variant of the page element</param>
         /// <exception cref="ArgumentException">if the "elttype" attribute of the XML node contains an unknown value</exception>
-        public static PageElement CreateElement(Project project, Guid elementGuid, LanguageVariant languageVariant)
+        public static IPageElement CreateElement(IProject project, Guid elementGuid, ILanguageVariant languageVariant)
         {
             using (new LanguageContext(languageVariant))
             {
@@ -128,13 +132,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             set { Type = value; }
         }
 
-        public LanguageVariant LanguageVariant
+        public ILanguageVariant LanguageVariant
         {
             get { return _languageVariant; }
             private set { _languageVariant = value; }
         }
 
-        public Page Page
+        public IPage Page
         {
             get { return LazyLoad(ref _page); }
         }

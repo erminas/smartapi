@@ -20,16 +20,16 @@ using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    public class FolderXmlNodeAttribute : AbstractGuidXmlNodeAttribute<Folder>
+    internal class FolderXmlNodeAttribute : AbstractGuidXmlNodeAttribute<IFolder>
     {
-        private readonly ContentClass _contentClass;
+        private readonly IContentClass _contentClass;
 
         public FolderXmlNodeAttribute(IContentClassElement parent, string name)
             : this(parent, parent.ContentClass, name)
         {
         }
 
-        private FolderXmlNodeAttribute(IAttributeContainer parent, ContentClass cc, string name)
+        private FolderXmlNodeAttribute(IAttributeContainer parent, IContentClass cc, string name)
             : base(cc.Project.Session, (RedDotObject) parent, name)
         {
             _contentClass = cc;
@@ -40,15 +40,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             return "folder";
         }
 
-        protected override Folder RetrieveByGuid(Guid guid)
+        protected override IFolder RetrieveByGuid(Guid guid)
         {
             return new Folder(_contentClass.Project, guid);
         }
 
-        protected override Folder RetrieveByName(string name)
+        protected override IFolder RetrieveByName(string name)
         {
             var folders = _contentClass.Project.Folders;
-            Folder folder;
+            IFolder folder;
             if (folders.TryGetByName(name, out folder))
             {
                 return folder;

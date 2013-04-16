@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.Background)]
-    public class Background : AbstractMediaElement
+    public interface IBackground : IMediaElementBase
     {
-        public Background(Project project, Guid guid, LanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.Background)]
+    internal class Background : AbstractMediaElement, IBackground
+    {
+        public Background(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal Background(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal Background(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
     }

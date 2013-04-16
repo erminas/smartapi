@@ -22,25 +22,33 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Filesystem
 {
+    public interface IContentClassFolder : IRedDotObject, IProjectObject
+    {
+        /// <summary>
+        ///     All content classes contained in this folder, indexed by name. The list is cached by default.
+        /// </summary>
+        IIndexedRDList<string, IContentClass> ContentClasses { get; }
+    }
+
     /// <summary>
     ///     A folder containing content classes.
     /// </summary>
-    public class ContentClassFolder : RedDotProjectObject
+    internal class ContentClassFolder : RedDotProjectObject, IContentClassFolder
     {
-        private readonly Project _project;
+        private readonly IProject _project;
 
-        internal ContentClassFolder(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal ContentClassFolder(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            ContentClasses = new NameIndexedRDList<ContentClass>(GetContentClasses, Caching.Enabled);
+            ContentClasses = new NameIndexedRDList<IContentClass>(GetContentClasses, Caching.Enabled);
             _project = project;
         }
 
         /// <summary>
         ///     All content classes contained in this folder, indexed by name. The list is cached by default.
         /// </summary>
-        public NameIndexedRDList<ContentClass> ContentClasses { get; private set; }
+        public IIndexedRDList<string, IContentClass> ContentClasses { get; private set; }
 
-        private List<ContentClass> GetContentClasses()
+        private List<IContentClass> GetContentClasses()
         {
             // RQL for listing all content classes of a folder. 
             // One Parameter: Folder Guid: {0}
@@ -50,7 +58,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
             return
                 (from XmlElement curNode in XMLDoc.GetElementsByTagName("TEMPLATE")
-                 select new ContentClass(_project, curNode)).ToList();
+                 select (IContentClass) new ContentClass(_project, curNode)).ToList();
         }
     }
 }

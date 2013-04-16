@@ -19,15 +19,19 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    [PageElementType(ElementType.HitList)]
-    public class HitList : AbstractMultiLinkElement
+    public interface IHitList: IMultiLinkElement
     {
-        public HitList(Project project, Guid guid, LanguageVariant languageVariant)
+    }
+
+    [PageElementType(ElementType.HitList)]
+    internal class HitList : AbstractMultiLinkElement, IHitList
+    {
+        public HitList(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
         }
 
-        internal HitList(Project project, XmlElement xmlElement) : base(project, xmlElement)
+        internal HitList(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
         }
 

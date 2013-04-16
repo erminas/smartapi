@@ -38,7 +38,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             _indexFunc = indexFunc;
         }
 
-        public new ICachedList<T> Refreshed()
+        public new virtual ICachedList<T> Refreshed()
         {
             Refresh();
             return this;
@@ -64,13 +64,13 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public bool ContainsKey(TK key)
         {
-            CheckList();
+            EnsureListIsLoaded();
             return _index.ContainsKey(key);
         }
 
         public T Get(TK key)
         {
-            CheckList();
+            EnsureListIsLoaded();
             try
             {
                 return IsCachingEnabled ? _index[key] : List.First(x => _indexFunc(x).Equals(key));
@@ -107,7 +107,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public bool TryGet(TK key, out T obj)
         {
-            CheckList();
+            EnsureListIsLoaded();
             if (IsCachingEnabled)
             {
                 return _index.TryGetValue(key, out obj);
