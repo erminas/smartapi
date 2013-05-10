@@ -106,7 +106,6 @@ namespace erminas.SmartAPI.CMS.Administration
         internal User(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             Init();
-            // TODO: Read all data
 
             LoadXml();
         }

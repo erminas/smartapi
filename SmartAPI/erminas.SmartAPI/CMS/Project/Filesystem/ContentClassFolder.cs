@@ -56,9 +56,8 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
             XMLDoc = _project.ExecuteRQL(string.Format(LIST_CC_OF_FOLDER, Guid.ToRQLString()));
 
-            return
-                (from XmlElement curNode in XMLDoc.GetElementsByTagName("TEMPLATE")
-                 select (IContentClass) new ContentClass(_project, curNode)).ToList();
+            return (from XmlElement curNode in XMLDoc.GetElementsByTagName("TEMPLATE")
+                    select (IContentClass) new ContentClass(_project, curNode)).ToList();
         }
     }
 }

@@ -46,9 +46,9 @@ namespace erminas.SmartAPI.CMS.Administration
         bool IsTemplateEditor { get; set; }
         bool IsTranslationEditor { get; set; }
         IProject Project { get; }
+        IUserProjectAssignment Refreshed();
         IUser User { get; }
         UserRole UserRole { get; set; }
-        IUserProjectAssignment Refreshed();
     }
 
     internal class UserProjectAssignment : IUserProjectAssignment
@@ -89,12 +89,24 @@ namespace erminas.SmartAPI.CMS.Administration
         public void Commit()
         {
             EnsureInitialization();
-            //TODO check results
             const string SAVE_USER_RIGHTS =
                 @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""1"" lm=""{2}"" te=""{3}"" userlevel=""{4}""/></PROJECTS></USER></ADMINISTRATION>";
 
             User.Session.ExecuteRQL(SAVE_USER_RIGHTS.RQLFormat(User, Project, IsTranslationEditor, IsTemplateEditor,
                                                                (int) UserRole));
+        }
+
+        public void Delete()
+        {
+            Delete(Project, User);
+        }
+
+        public void InvalidateCache()
+        {
+            _userRole = null;
+            _isTemplateEditor = null;
+            _isTranslationEditor = null;
+            _isInitialized = false;
         }
 
         public bool IsTemplateEditor
@@ -121,25 +133,19 @@ namespace erminas.SmartAPI.CMS.Administration
             set { _isTranslationEditor = value; }
         }
 
-        private void EnsureInitialization()
-        {
-            if (!_isInitialized)
-            {
-                var xml = RetrieveObjectElement();
-                LoadXml(xml);
-                _isInitialized = true;
-            }
-        }
-
-        private XmlElement RetrieveObjectElement()
-        {
-            const string LOAD_ACCESS_LEVEL =
-               @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load"" extendedinfo=""1""/></USER></ADMINISTRATION>";
-            var xmlDoc = Project.ExecuteRQL(LOAD_ACCESS_LEVEL.RQLFormat(User, Project));
-            return xmlDoc.GetSingleElement("PROJECT");
-        }
-
         public IProject Project { get; private set; }
+
+        public void Refresh()
+        {
+            InvalidateCache();
+            EnsureInitialization();
+        }
+
+        public IUserProjectAssignment Refreshed()
+        {
+            Refresh();
+            return this;
+        }
 
         public ISession Session
         {
@@ -153,7 +159,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public UserRole UserRole
         {
-              get
+            get
             {
                 EnsureInitialization();
 // ReSharper disable PossibleInvalidOperationException
@@ -163,21 +169,22 @@ namespace erminas.SmartAPI.CMS.Administration
             set { _userRole = value; }
         }
 
-        public IUserProjectAssignment Refreshed()
+        internal static IUserProjectAssignment Create(IUser user, IProject project, UserRole role,
+                                                      ExtendedUserRoles extendedUserRoles)
         {
-            Refresh();
-            return this;
-        }
+            var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
+            assignment.Commit();
 
-        public void Delete()
-        {
-            Delete(Project, User);
+            user.Projects.InvalidateCache();
+            project.Users.InvalidateCache();
+
+            return assignment;
         }
 
         internal static void Delete(IProject project, IUser user)
         {
             const string UNASSING_PROJECT =
-              @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
+                @"<ADMINISTRATION><USER action=""save"" guid=""{0}""><PROJECTS><PROJECT guid=""{1}"" checked=""0""/></PROJECTS><CCSCONNECTIONS/></USER></ADMINISTRATION>";
 
             project.Session.ExecuteRQL(UNASSING_PROJECT.RQLFormat(user, project));
 
@@ -185,24 +192,14 @@ namespace erminas.SmartAPI.CMS.Administration
             user.Projects.InvalidateCache();
         }
 
-        /// <summary>
-        ///     TODO warum ist das nicht oeffentlich?
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="project"></param>
-        /// <param name="role"></param>
-        /// <param name="extendedUserRoles"></param>
-        /// <returns></returns>
-        internal static IUserProjectAssignment Create(IUser user, IProject project, UserRole role, ExtendedUserRoles extendedUserRoles)
+        private void EnsureInitialization()
         {
-            var assignment = new UserProjectAssignment(user, project, role, extendedUserRoles);
-            assignment.Commit();
-
-
-            user.Projects.InvalidateCache();
-            project.Users.InvalidateCache();
-
-            return assignment;
+            if (!_isInitialized)
+            {
+                var xml = RetrieveObjectElement();
+                LoadXml(xml);
+                _isInitialized = true;
+            }
         }
 
         private bool HasRight(XmlElement projectElement, string attributeName)
@@ -239,22 +236,16 @@ namespace erminas.SmartAPI.CMS.Administration
             }
             if (_isTranslationEditor == null)
             {
-                _isTranslationEditor= HasRight(projectAssignment, "languagemanagerright");
+                _isTranslationEditor = HasRight(projectAssignment, "languagemanagerright");
             }
         }
 
-        public void InvalidateCache()
+        private XmlElement RetrieveObjectElement()
         {
-            _userRole = null;
-            _isTemplateEditor = null;
-            _isTranslationEditor = null;
-            _isInitialized = false;
-        }
-
-        public void Refresh()
-        {
-            InvalidateCache();
-            EnsureInitialization();
+            const string LOAD_ACCESS_LEVEL =
+                @"<ADMINISTRATION><USER guid=""{0}"" ><PROJECT guid=""{1}"" action=""load"" extendedinfo=""1""/></USER></ADMINISTRATION>";
+            var xmlDoc = Project.ExecuteRQL(LOAD_ACCESS_LEVEL.RQLFormat(User, Project));
+            return xmlDoc.GetSingleElement("PROJECT");
         }
     }
 }

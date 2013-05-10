@@ -22,6 +22,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     internal abstract class AbstractWorkflowAssignments : ContentClassElement, IWorkflowAssignments
     {
         private readonly WorkflowAssignments _workflowAssignments;
+
+        protected AbstractWorkflowAssignments(IContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
+        {
+            _workflowAssignments = new WorkflowAssignments(this);
+        }
+
         public void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants)
         {
             _workflowAssignments.CreateAndConnectContentWorkflow(workflowName, languageVariants);
@@ -77,13 +84,5 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _workflowAssignments.StructuralWorkflow; }
             set { _workflowAssignments.StructuralWorkflow = value; }
         }
-
-        protected AbstractWorkflowAssignments(IContentClass contentClass, XmlElement xmlElement)
-            : base(contentClass, xmlElement)
-        {
-            _workflowAssignments = new WorkflowAssignments(this);
-        }
-
-        
     }
 }

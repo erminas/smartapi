@@ -81,11 +81,6 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             LoadXml();
         }
 
-        internal XmlElement RetrieveObjectInternal()
-        {
-            return RetrieveWholeObject();
-        }
-
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_WORKFLOW = @"<WORKFLOW action=""load"" guid=""{0}""/>";
@@ -93,6 +88,11 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             return
                 (XmlElement)
                 Project.ExecuteRQL(String.Format(LOAD_WORKFLOW, Guid.ToRQLString())).GetElementsByTagName("WORKFLOW")[0];
+        }
+
+        internal XmlElement RetrieveObjectInternal()
+        {
+            return RetrieveWholeObject();
         }
 
         private void LoadXml()

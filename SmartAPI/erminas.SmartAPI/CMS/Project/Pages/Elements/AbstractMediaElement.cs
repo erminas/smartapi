@@ -82,7 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
 
             Guid subFolderGuid;
-            var folderList = Project.Folders.Union(Project.Folders.SelectMany(folder => folder.Subfolders)).ToList();
+            var folderList = Project.Folders.AllIncludingSubFolders;
             return XmlElement.TryGetGuid("subdirguid", out subFolderGuid)
                        ? folderList.FirstOrDefault(folder => folder.Guid == subFolderGuid)
                        : folderList.FirstOrDefault(folder => folder.Guid == folderGuid);
@@ -96,8 +96,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                 _file = null;
             }
 
-            var files = folder.GetFilesByNamePattern(fileName);
-            _file = files.Find(file => file.Name == fileName);
+            var files = folder.Files.GetByNamePattern(fileName);
+            _file = files.FirstOrDefault(file => file.Name == fileName);
         }
 
         private bool IsFileInSubFolder

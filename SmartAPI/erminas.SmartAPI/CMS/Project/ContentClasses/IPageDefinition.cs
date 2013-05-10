@@ -14,11 +14,9 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-
     public interface IPageDefinition : IRedDotObject, IProjectObject
     {
         IContentClass ContentClass { get; }

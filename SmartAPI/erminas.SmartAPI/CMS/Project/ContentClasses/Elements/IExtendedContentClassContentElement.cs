@@ -24,7 +24,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         string StartTagForAutomaticProcessing { get; set; }
     }
 
-    internal abstract class ExtendedContentClassContentElement : ContentClassContentElement, IExtendedContentClassContentElement
+    internal abstract class ExtendedContentClassContentElement : ContentClassContentElement,
+                                                                 IExtendedContentClassContentElement
     {
         protected ExtendedContentClassContentElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)

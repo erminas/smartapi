@@ -98,7 +98,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public void WaitFor(Predicate<ICachedList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
         {
-            Wait.For(()=>predicate(Refreshed()), wait, retryPeriod);
+            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

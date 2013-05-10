@@ -54,7 +54,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLICATION_PACKAGE, Guid.ToRQLString()));
 
             return (from XmlElement curSetting in xmlDoc.GetElementsByTagName("EXPORTSETTING")
-                    select (IPublicationSetting)new PublicationSetting(this, curSetting)).ToList();
+                    select (IPublicationSetting) new PublicationSetting(this, curSetting)).ToList();
         }
     }
 }

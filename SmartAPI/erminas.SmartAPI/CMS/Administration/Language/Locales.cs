@@ -71,8 +71,7 @@ namespace erminas.SmartAPI.CMS.Administration.Language
 
     internal class DialogLocale : Locale, IDialogLocale
     {
-        internal DialogLocale(ISession session, XmlElement xmlElement)
-            : base(session, xmlElement)
+        internal DialogLocale(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
         }
 
@@ -124,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Administration.Language
 
         public bool Equals(Locale other)
         {
-            return string.Equals(LCID, other.LCID);
+            return Equals(LCID, other.LCID);
         }
 
         public override int GetHashCode()
@@ -152,7 +151,9 @@ namespace erminas.SmartAPI.CMS.Administration.Language
         {
             List<IDateTimeFormat> dateEntries =
                 (from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.Date)
-                 select (IDateTimeFormat)new DateTimeFormat(DateTimeFormatTypes.Date | DateTimeFormatTypes.DateTime, curEntry)).ToList();
+                 select
+                     (IDateTimeFormat)
+                     new DateTimeFormat(DateTimeFormatTypes.Date | DateTimeFormatTypes.DateTime, curEntry)).ToList();
 
             IEnumerable<DateTimeFormat> timeEntries =
                 from XmlElement curEntry in GetFormatsOfSingleType(DateTimeFormatTypes.Time)

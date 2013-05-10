@@ -39,13 +39,8 @@ namespace erminas.SmartAPI.CMS.Project
             RetrieveFunc = GetLanguageVariants;
         }
 
-        public ILanguageVariant Main
-        {
-            get { return this.First(variant => variant.IsMainLanguage); }
-        }
-
         /// <summary>
-        /// Retrieves or selects the active language variant. 
+        ///     Retrieves or selects the active language variant.
         /// </summary>
         public ILanguageVariant Current
         {
@@ -76,6 +71,11 @@ namespace erminas.SmartAPI.CMS.Project
                 ((LanguageVariant) value).IsCurrentLanguageVariant = true;
                 _currentLanguageVariant = value;
             }
+        }
+
+        public ILanguageVariant Main
+        {
+            get { return this.First(variant => variant.IsMainLanguage); }
         }
 
         public IProject Project

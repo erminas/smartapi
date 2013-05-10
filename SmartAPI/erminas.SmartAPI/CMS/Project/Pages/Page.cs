@@ -64,8 +64,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return LazyLoad(ref _checkinDate); }
         }
 
-        public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
-
         public void Commit()
         {
             const string SAVE_PAGE = @"<PAGE action=""save"" guid=""{0}"" headline=""{1}"" name=""{2}"" />";
@@ -199,11 +197,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-        public ILanguageVariant LanguageVariant
-        {
-            get { return _lang; }
-        }
-
         public int Id
         {
             get { return LazyLoad(ref _id); }
@@ -221,7 +214,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        public ILanguageVariant LanguageVariant
+        {
+            get { return _lang; }
+        }
+
         public IRDList<ILinkElement> LinkElements { get; private set; }
+        public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
 
         public IPageElement MainLinkElement
         {
@@ -310,16 +309,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             Project.ExecuteRQL(string.Format(SKIP_WORKFLOW, Guid.ToRQLString(), (int) PageReleaseStatus.WorkFlow));
         }
-
-        private List<ILinkingAndAppearance> GetLinksFrom()
-        {
-            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
-
-            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
-            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkingAndAppearance)new LinkingAndAppearance(this, curLink)).ToList();
-        }
-
 
         public PageState Status
         {
@@ -447,6 +436,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        private List<ILinkingAndAppearance> GetLinksFrom()
+        {
+            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
+
+            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+                    select (ILinkingAndAppearance) new LinkingAndAppearance(this, curLink)).ToList();
+        }
+
         private static IEnumerable<string> GetNames(XmlNodeList elements)
         {
             return elements.Cast<XmlElement>().Select(x => x.GetAttributeValue("name"));
@@ -458,8 +456,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), RqlType.SessionKeyInProject);
 
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant))
-                .ToList();
+                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList
+                ();
         }
 
         private void InitProperties()

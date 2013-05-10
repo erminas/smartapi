@@ -63,7 +63,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get
             {
                 EnsureElementsAreLoaded();
-                return _elements.Keys.ToList();
+                return _elements.First().Value.Select(element => element.Name).ToList();
             }
         }
 

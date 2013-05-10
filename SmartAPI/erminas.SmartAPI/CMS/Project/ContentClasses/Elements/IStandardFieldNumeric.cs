@@ -25,7 +25,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     internal class StandardFieldNumeric : StandardFieldNonDate, IStandardFieldNumeric
     {
-        internal StandardFieldNumeric(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        internal StandardFieldNumeric(IContentClass contentClass, XmlElement xmlElement)
+            : base(contentClass, xmlElement)
         {
             CreateAttributes("eltmaxsize");
         }

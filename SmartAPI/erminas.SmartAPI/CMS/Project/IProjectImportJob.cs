@@ -115,7 +115,7 @@ namespace erminas.SmartAPI.CMS.Project
         private void CheckImport()
         {
             //older RedDot versions don't support the checkbeforeimport command
-            if (Session.Version < new Version(10, 0))
+            if (Session.ServerVersion < new Version(10, 0))
             {
                 return;
             }

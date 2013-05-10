@@ -26,7 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Media)]
     internal class Media : AbstractMediaElement, IMedia
     {
-        public Media(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
+        public Media(IProject project, Guid guid, ILanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

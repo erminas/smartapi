@@ -26,7 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.List)]
     internal class List : AbstractKeywordAssignableMultiLinkElement, IList
     {
-        public List(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
+        public List(IProject project, Guid guid, ILanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

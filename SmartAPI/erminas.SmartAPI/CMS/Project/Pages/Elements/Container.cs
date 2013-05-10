@@ -19,7 +19,6 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    
     public interface IContainer : IKeywordAssignable, IMultiLinkElement
     {
     }

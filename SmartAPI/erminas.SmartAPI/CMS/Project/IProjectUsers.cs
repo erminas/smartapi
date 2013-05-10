@@ -119,7 +119,8 @@ namespace erminas.SmartAPI.CMS.Project
         {
             try
             {
-                const string GET_USERS = @"<ADMINISTRATION><PROJECT guid=""{0}""><USERS action=""list""/></PROJECT></ADMINISTRATION>";
+                const string GET_USERS =
+                    @"<ADMINISTRATION><PROJECT guid=""{0}""><USERS action=""list""/></PROJECT></ADMINISTRATION>";
                 var xmlDoc = Session.ExecuteRQL(GET_USERS.RQLFormat(Project));
                 var xmlNodes = xmlDoc.GetElementsByTagName("USER");
 

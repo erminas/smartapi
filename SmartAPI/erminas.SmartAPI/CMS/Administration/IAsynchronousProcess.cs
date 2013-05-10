@@ -53,9 +53,9 @@ namespace erminas.SmartAPI.CMS.Administration
 
     public interface IAsynchronousProcess : IRedDotObject
     {
+        IProject Project { get; }
         AsynchronousProcessType Type { get; }
         IUser User { get; }
-        IProject Project { get; }
     }
 
     internal class AsynchronousProcess : RedDotObject, IAsynchronousProcess
@@ -67,14 +67,14 @@ namespace erminas.SmartAPI.CMS.Administration
             LoadXml();
         }
 
+        public IProject Project { get; private set; }
+
         public AsynchronousProcessType Type
         {
             get { return _type; }
         }
 
         public IUser User { get; private set; }
-
-        public Project.IProject Project { get; private set; }
 
         private void LoadXml()
         {
@@ -87,7 +87,7 @@ namespace erminas.SmartAPI.CMS.Administration
             Guid projectGuid;
             if (XmlElement.TryGetGuid("project", out projectGuid))
             {
-                Project = new Project.Project(Session, projectGuid) { Name = XmlElement.GetAttributeValue("projectname") };
+                Project = new Project.Project(Session, projectGuid) {Name = XmlElement.GetAttributeValue("projectname")};
             }
 
             EnsuredInit(ref _type, "category", s => (AsynchronousProcessType) int.Parse(s));

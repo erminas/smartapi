@@ -17,12 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.Utils.CachedCollections
 {
     public interface IIndexedRDList<in TK, T> : IIndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
     {
         new IIndexedRDList<TK, T> Refreshed();
+        void WaitFor(Func<IIndexedRDList<TK, T>, bool> predicate, TimeSpan maxWait, TimeSpan retryEverySecond);
     }
 
     public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IIndexedRDList<TK, T> where T : class, IRedDotObject
@@ -36,18 +38,11 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
         }
 
-        public new IIndexedRDList<TK, T> Refreshed()
+        public bool Contains(T element)
         {
-            Refresh();
-            return this;
+            return ContainsGuid(element.Guid);
         }
 
-        IRDList<T> IRDList<T>.Refreshed()
-        {
-            Refresh();
-            return this;
-        }
-        
         public bool ContainsGuid(Guid guid)
         {
             T tmp;
@@ -72,6 +67,22 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return List.First(x => x.Name == name);
         }
 
+        public new IIndexedRDList<TK, T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
+        public void WaitFor(Func<IIndexedRDList<TK, T>, bool> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
+        }
+
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
+        }
+
         public bool TryGetByGuid(Guid guid, out T output)
         {
             EnsureListIsLoaded();
@@ -85,10 +96,11 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             output = List.FirstOrDefault(x => x.Name == name);
             return output != null;
         }
-
-        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        
+        IRDList<T> IRDList<T>.Refreshed()
         {
-            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
+            Refresh();
+            return this;
         }
     }
 

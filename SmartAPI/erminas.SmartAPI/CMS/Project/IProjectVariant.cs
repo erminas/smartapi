@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Project
 
     public static class ProjectVariantFactory
     {
-        public  static IProjectVariant CreateFromGuid(IProject project, Guid guid)
+        public static IProjectVariant CreateFromGuid(IProject project, Guid guid)
         {
             return new ProjectVariant(project, guid);
         }

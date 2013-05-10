@@ -59,7 +59,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                     var type = ((PageElementType) curAttr).Type;
                     if (TYPES.ContainsKey(type))
                     {
-                        throw new SmartAPIInternalException(string.Format("Multiple definititions of {0}: {1} and {2}", type, TYPES[type].Name, curType.Name));
+                        throw new SmartAPIInternalException(string.Format("Multiple definititions of {0}: {1} and {2}",
+                                                                          type, TYPES[type].Name, curType.Name));
                     }
                     TYPES.Add(type, curType);
                 }

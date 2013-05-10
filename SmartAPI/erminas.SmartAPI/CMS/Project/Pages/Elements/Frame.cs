@@ -26,7 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Frame)]
     internal class Frame : AbstractLinkElement, IFrame
     {
-        public Frame(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
+        public Frame(IProject project, Guid guid, ILanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

@@ -25,32 +25,15 @@ namespace erminas.SmartAPI.Utils.CachedCollections
     ///     . If you need indexed access through name, use <see cref="NameIndexedRDList{T}" />
     /// </summary>
     /// <typeparam name="T"> </typeparam>
-    public interface IRDList<T> : ICachedList<T> where T : class, IRedDotObject
+    public interface IRDList<T> : IRDEnumerable<T>, ICachedList<T> where T : class, IRedDotObject
     {
-        bool ContainsGuid(Guid guid);
+        new IRDList<T> Refreshed();
 
-        bool ContainsName(string name);
-        T GetByGuid(Guid guid);
-
+        new int Count { get; }
         /// <summary>
-        ///     Get the first element with Name == name
-        /// </summary>
-        T GetByName(string name);
-
-        bool TryGetByGuid(Guid guid, out T output);
-
-        /// <summary>
-        ///     Try to get the first element with Name == name
-        /// </summary>
-        /// <returns> true, if an element could be found, false otherwise </returns>
-        bool TryGetByName(string name, out T output);
-
-        /// <summary>
-        /// Same as <see cref="WaitFor"/> in <see cref="ICachedList{T}"/> but with an IRDList as predicate input.
-        /// Provided for convenience.
+        ///     Same as <see cref="WaitFor" /> in <see cref="ICachedList{T}" /> but with an IRDList as predicate input.
+        ///     Provided for convenience.
         /// </summary>
         void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod);
-
-        new IRDList<T> Refreshed();
     }
 }

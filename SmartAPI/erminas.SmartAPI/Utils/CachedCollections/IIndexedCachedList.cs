@@ -51,5 +51,9 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         /// <param name="obj"> Output parameter containing the entry on success </param>
         /// <returns> true, if entry could be found, false otherwise. </returns>
         bool TryGet(TK name, out T obj);
+
+        void WaitFor(Predicate<IIndexedCachedList<TK, T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod);
+
+        new IIndexedCachedList<TK, T> Refreshed();
     }
 }

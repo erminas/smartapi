@@ -202,7 +202,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public IFolder PublicationFolder
         {
-            get { return GetAttributeValue<Folder>("eltrelatedfolderguid"); }
+            get { return GetAttributeValue<IFolder>("eltrelatedfolderguid"); }
             set { SetAttributeValue("eltrelatedfolderguid", value); }
         }
 

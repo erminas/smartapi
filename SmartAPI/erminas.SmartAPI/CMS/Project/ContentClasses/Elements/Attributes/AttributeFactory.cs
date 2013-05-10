@@ -312,7 +312,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         }
     }
 
-    internal class StringEnumAttributeFactory<T> : EnumAttributeWithCustomValuesFactory<T> where T : struct, IConvertible
+    internal class StringEnumAttributeFactory<T> : EnumAttributeWithCustomValuesFactory<T>
+        where T : struct, IConvertible
     {
         private readonly Func<string, T> _fromString;
         private readonly Func<T, string> _toString;

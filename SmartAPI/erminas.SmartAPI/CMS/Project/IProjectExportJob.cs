@@ -46,7 +46,8 @@ namespace erminas.SmartAPI.CMS.Project
 
         public override void RunAsync()
         {
-            const string EXPORT = @"<ADMINISTRATION><PROJECT action=""export"" projectguid=""{0}"" targetpath=""{1}"" emailnotification=""{2}""
+            const string EXPORT =
+                @"<ADMINISTRATION><PROJECT action=""export"" projectguid=""{0}"" targetpath=""{1}"" emailnotification=""{2}""
 editorialserver=""{3}"" includearchive=""{4}"" to=""{5}"" provider="""" subject=""{6}"" 
 message=""{7}"" logoutusers=""{8}"" reddotserverguid=""{3}"" includeadmindata=""{9}"" />
 </ADMINISTRATION>";

@@ -20,7 +20,7 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
-{ 
+{
     public interface IStandardFieldTime : IStandardField<TimeSpan>
     {
     }

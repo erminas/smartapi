@@ -1,4 +1,19 @@
-﻿using System;
+﻿// Smart API - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -10,20 +25,19 @@ namespace erminas.SmartAPI.CMS.Project
 {
     public interface IUserProjects : IIndexedCachedList<string, IUserProjectAssignment>, ISessionObject
     {
-        IUser User { get; }
-
         IUserProjectAssignment AddOrSet(IProject project, UserRole role, ExtendedUserRoles extendedRoles);
-        void Remove(IProject project);
-        IUserProjectAssignment GetByProjectName(string projectName);
-        IUserProjectAssignment GetByProjectGuid(Guid projectGuid);
-        IUserProjectAssignment GetByProject(IProject project);
-        IUserProjectAssignment this[IProject project] { get; }
-        bool TryGetByProjectName(string projectName, out IUserProjectAssignment assignment);
-        bool TryGetByProjectGuid(Guid projectGuid, out IUserProjectAssignment assignment);
-        bool TryGetByProject(IProject project, out IUserProjectAssignment assignment);
-        bool ContainsProjectName(string projectName);
-        bool ContainsProjectGuid(Guid projectGuid);
         bool ContainsProject(IProject project);
+        bool ContainsProjectGuid(Guid projectGuid);
+        bool ContainsProjectName(string projectName);
+        IUserProjectAssignment GetByProject(IProject project);
+        IUserProjectAssignment GetByProjectGuid(Guid projectGuid);
+        IUserProjectAssignment GetByProjectName(string projectName);
+        IUserProjectAssignment this[IProject project] { get; }
+        void Remove(IProject project);
+        bool TryGetByProject(IProject project, out IUserProjectAssignment assignment);
+        bool TryGetByProjectGuid(Guid projectGuid, out IUserProjectAssignment assignment);
+        bool TryGetByProjectName(string projectName, out IUserProjectAssignment assignment);
+        IUser User { get; }
     }
 
     internal class UserProjects : IndexedCachedList<string, IUserProjectAssignment>, IUserProjects
@@ -36,26 +50,24 @@ namespace erminas.SmartAPI.CMS.Project
             RetrieveFunc = GetProjectAssignments;
         }
 
-        public IUser User { get { return _user; } }
-
         public IUserProjectAssignment AddOrSet(IProject project, UserRole role, ExtendedUserRoles extendedRoles)
         {
             return UserProjectAssignment.Create(_user, project, role, extendedRoles);
         }
 
-        public void Remove(IProject project)
+        public bool ContainsProject(IProject project)
         {
-            UserProjectAssignment.Delete(project, User);
+            return ContainsProjectGuid(project.Guid);
         }
 
-        public IUserProjectAssignment GetByProjectName(string projectName)
+        public bool ContainsProjectGuid(Guid projectGuid)
         {
-            return this[projectName];
+            return this.Any(assignment => assignment.Project.Guid == projectGuid);
         }
 
-        public IUserProjectAssignment GetByProjectGuid(Guid projectGuid)
+        public bool ContainsProjectName(string projectName)
         {
-            return this.First(assignment => assignment.Project.Guid == projectGuid);
+            return ContainsKey(projectName);
         }
 
         public IUserProjectAssignment GetByProject(IProject project)
@@ -63,14 +75,34 @@ namespace erminas.SmartAPI.CMS.Project
             return this[project];
         }
 
+        public IUserProjectAssignment GetByProjectGuid(Guid projectGuid)
+        {
+            return this.First(assignment => assignment.Project.Guid == projectGuid);
+        }
+
+        public IUserProjectAssignment GetByProjectName(string projectName)
+        {
+            return this[projectName];
+        }
+
         public IUserProjectAssignment this[IProject project]
         {
             get { return GetByProjectGuid(project.Guid); }
         }
 
-        public bool TryGetByProjectName(string projectName, out IUserProjectAssignment assignment)
+        public void Remove(IProject project)
         {
-            return TryGet(projectName, out assignment);
+            UserProjectAssignment.Delete(project, User);
+        }
+
+        public ISession Session
+        {
+            get { return _user.Session; }
+        }
+
+        public bool TryGetByProject(IProject project, out IUserProjectAssignment assignment)
+        {
+            return TryGetByProjectName(project.Name, out assignment);
         }
 
         public bool TryGetByProjectGuid(Guid projectGuid, out IUserProjectAssignment assignment)
@@ -79,27 +111,15 @@ namespace erminas.SmartAPI.CMS.Project
             return assignment != null;
         }
 
-        public bool TryGetByProject(IProject project, out IUserProjectAssignment assignment)
+        public bool TryGetByProjectName(string projectName, out IUserProjectAssignment assignment)
         {
-            return TryGetByProjectName(project.Name, out assignment);
+            return TryGet(projectName, out assignment);
         }
 
-        public bool ContainsProjectName(string projectName)
+        public IUser User
         {
-            return ContainsKey(projectName);
+            get { return _user; }
         }
-
-        public bool ContainsProjectGuid(Guid projectGuid)
-        {
-            return this.Any(assignment => assignment.Project.Guid == projectGuid);
-        }
-
-        public bool ContainsProject(IProject project)
-        {
-            return ContainsProjectGuid(project.Guid);
-        }
-
-        public ISession Session { get { return _user.Session; } }
 
         private List<IUserProjectAssignment> GetProjectAssignments()
         {
@@ -108,7 +128,7 @@ namespace erminas.SmartAPI.CMS.Project
 
             var xmlDoc = Session.ExecuteRQL(LIST_USER_PROJECTS.RQLFormat(User));
             return (from XmlElement assignmentElement in xmlDoc.GetElementsByTagName("PROJECT")
-                    select (IUserProjectAssignment)new UserProjectAssignment(_user, assignmentElement)).ToList();
+                    select (IUserProjectAssignment) new UserProjectAssignment(_user, assignmentElement)).ToList();
         }
     }
 }

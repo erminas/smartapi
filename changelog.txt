@@ -1,5 +1,11 @@
 SmartAPI Changelog
 
+Other:
+- New Folder/File API. Currently supported are File and Asset Manager Folders (and Content Class Folders, but they are not part of this API).
+
+
+2013-04-18: Version 0.9.9.0 (1.0RC1)
+------------------------------------
 Major API overhaul in preparation of the 1.0 long term API stable release.
 - Introduction of interfaces for everything, the client code interacts with, 
   to make automatic testing of client code easier,

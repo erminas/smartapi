@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         public void Add(IKeyword keyword)
         {
-            ExecuteAssignKeywords(new []{keyword});
+            ExecuteAssignKeywords(new[] {keyword});
 
             ExecutePagebuilderLinkCleanup();
 
@@ -51,18 +51,18 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             InvalidateCache();
         }
 
-        public void Remove(IKeyword keyword)
+        public void Clear()
         {
-            ExecuteUnassignKeywords(new []{keyword});
+            ExecuteUnassignKeywords(this);
 
             ExecutePagebuilderLinkCleanup();
 
             InvalidateCache();
         }
 
-        public void Clear()
+        public void Remove(IKeyword keyword)
         {
-            ExecuteUnassignKeywords(this);
+            ExecuteUnassignKeywords(new[] {keyword});
 
             ExecutePagebuilderLinkCleanup();
 
@@ -91,7 +91,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             const string PAGEBUILDER_LINK =
                 @"<PAGEBUILDER><LINKING sessionkey=""{0}""><LINKS><LINK guid=""{1}""/></LINKS><PAGES><PAGE sessionkey=""{0}"" guid=""{2}""/></PAGES></LINKING></PAGEBUILDER>";
-            _parent.Project.ExecuteRQL(PAGEBUILDER_LINK.RQLFormat(_parent.Project.Session.SessionKey, _parent, _parent.Page));
+            _parent.Project.ExecuteRQL(PAGEBUILDER_LINK.RQLFormat(_parent.Project.Session.SessionKey, _parent,
+                                                                  _parent.Page));
         }
 
         private void ExecuteUnassignKeywords(IEnumerable<IKeyword> keywords)
@@ -114,13 +115,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             var keywords = xmlDoc.SelectNodes("/IODATA/CATEGORIES/CATEGORY/KEYWORDS/KEYWORD");
             return keywords == null
                        ? new List<IKeyword>()
-                       : (from XmlElement keyword in keywords select (IKeyword)new Keyword(_parent.Project, keyword)).ToList();
+                       : (from XmlElement keyword in keywords select (IKeyword) new Keyword(_parent.Project, keyword))
+                             .ToList();
         }
     }
 
     internal abstract class AbstractKeywordAssignableMultiLinkElement : AbstractMultiLinkElement, IKeywordAssignable
     {
-        protected AbstractKeywordAssignableMultiLinkElement(IProject project, Guid guid, ILanguageVariant languageVariant)
+        protected AbstractKeywordAssignableMultiLinkElement(IProject project, Guid guid,
+                                                            ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
         {
             Init();
@@ -132,13 +135,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             Init();
         }
 
-        
+        public IAssignedKeywords AssignedKeywords { get; private set; }
 
         private void Init()
         {
             AssignedKeywords = new LinkAssignedKeywords(this, Caching.Enabled);
         }
-
-        public IAssignedKeywords AssignedKeywords { get; private set; }
     }
 }

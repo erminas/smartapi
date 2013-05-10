@@ -191,7 +191,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set
@@ -211,7 +211,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set

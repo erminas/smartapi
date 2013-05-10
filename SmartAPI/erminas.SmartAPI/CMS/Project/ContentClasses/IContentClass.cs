@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
@@ -39,29 +38,23 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     {
         private readonly IContentClass _contentClass;
 
-        public IContentClass ContentClass
-        {
-            get { return _contentClass; }
-        }
-
         internal ContentClassVersions(IContentClass contentClass, Caching caching) : base(caching)
         {
             _contentClass = contentClass;
             RetrieveFunc = GetVersions;
         }
 
-        private List<IContentClassVersion> GetVersions()
+        public IContentClass ContentClass
         {
-            const string LIST_VERSIONS =
-                @"<PROJECT><TEMPLATE guid=""{0}""><ARCHIVE action=""list""/></TEMPLATE></PROJECT>";
-            
-            var xmlDoc = Project.ExecuteRQL(LIST_VERSIONS.RQLFormat(_contentClass));
-            var versionNodes = xmlDoc.GetElementsByTagName("VERSION");
+            get { return _contentClass; }
+        }
 
-            return (from XmlElement curVersion in versionNodes
-                    let cc = (IContentClassVersion)new ContentClass.ContentClassVersion(_contentClass, curVersion)
-                    orderby cc.Date descending
-                    select cc).ToList();
+        /// <summary>
+        ///     Versioning information for the latest version of the content class.
+        /// </summary>
+        public IContentClassVersion Current
+        {
+            get { return this.FirstOrDefault(); }
         }
 
         public IProject Project
@@ -74,19 +67,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return _contentClass.Session; }
         }
 
-
-        /// <summary>
-        ///     Versioning information for the latest version of the content class.
-        /// </summary>
-        public IContentClassVersion Current
+        private List<IContentClassVersion> GetVersions()
         {
-            get { return this.FirstOrDefault(); }
+            const string LIST_VERSIONS =
+                @"<PROJECT><TEMPLATE guid=""{0}""><ARCHIVE action=""list""/></TEMPLATE></PROJECT>";
+
+            var xmlDoc = Project.ExecuteRQL(LIST_VERSIONS.RQLFormat(_contentClass));
+            var versionNodes = xmlDoc.GetElementsByTagName("VERSION");
+
+            return (from XmlElement curVersion in versionNodes
+                    let cc = (IContentClassVersion) new ContentClass.ContentClassVersion(_contentClass, curVersion)
+                    orderby cc.Date descending
+                    select cc).ToList();
         }
     }
 
     public interface IContentClass : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
     {
-       /// <summary>
+        /// <summary>
         ///     Commit changes on attributes to the server.
         /// </summary>
         void Commit();
@@ -120,10 +118,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Folder that contains the content class.
         /// </summary>
-        IFolder Folder { get; }
-        bool IsAvailableViaTheShortcutMenuInSmartEdit { get; set; }
+        IContentClassFolder Folder { get; }
 
-        IProjectVariantAssignments ProjectVariantAssignments { get; }
+        bool IsAvailableViaTheShortcutMenuInSmartEdit { get; set; }
 
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         bool IsChangingHeadlineEffectiveForAllLanguageVariants { get; set; }
@@ -142,6 +139,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Default prefix for pages.
         /// </summary>
         ISyllable Prefix { get; }
+
+        IProjectVariantAssignments ProjectVariantAssignments { get; }
 
         ICategory RequiredKeywordCategory { get; set; }
 
@@ -166,6 +165,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private IContentClassEditableAreaSettings _editableAreaSettings;
         private Syllable _prefix;
         private Syllable _suffix;
+        private IContentClassFolder _folder;
 
         internal ContentClass(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -179,8 +179,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             Init();
             //TODO sharedrights = 1 bei ccs von anderen projekten
         }
-
-       
 
         /// <summary>
         ///     Commit changes on attributes to the server.
@@ -262,7 +260,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             CopyPreassignedKeywordsToCC(targetCC);
         }
 
-
         /// <summary>
         ///     Delete this content class
         /// </summary>
@@ -322,24 +319,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Folder that contains the content class.
         /// </summary>
-        public IFolder Folder
+        public IContentClassFolder Folder
         {
             get
             {
                 EnsureInitialization();
-                return new Folder(Project, XmlElement.GetGuid("folderguid"));
+                return _folder;
             }
         }
-
-       
 
         public bool IsAvailableViaTheShortcutMenuInSmartEdit
         {
             get { return GetAttributeValue<bool>("selectinnewpage"); }
             set { SetAttributeValue("selectinnewpage", value); }
         }
-
-        public IProjectVariantAssignments ProjectVariantAssignments { get; private set; }
 
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         public bool IsChangingHeadlineEffectiveForAllLanguageVariants
@@ -403,6 +396,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return LazyLoad(ref _prefix); }
         }
 
+        public IProjectVariantAssignments ProjectVariantAssignments { get; private set; }
+
         public override void Refresh()
         {
             base.Refresh();
@@ -440,7 +435,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Default suffix for pages.
         /// </summary>
-        [ScriptIgnore]
         public ISyllable Suffix
         {
             get { return LazyLoad(ref _suffix); }
@@ -560,7 +554,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             {
                 List<IKeyword> keywordsToAssign =
                     PreassignedKeywords.Select(
-                        x => targetCC.Project.Categories.GetByName(x.Category.Name).CategoryKeywords.GetByName(x.Name)).ToList();
+                        x => targetCC.Project.Categories.GetByName(x.Category.Name).CategoryKeywords.GetByName(x.Name))
+                                       .ToList();
                 targetCC.PreassignedKeywords.Set(keywordsToAssign);
             } catch (Exception e)
             {
@@ -647,6 +642,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             //InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
             InitIfPresent(ref _prefix, "praefixguid", x => new Syllable(Project, GuidConvert(x)));
             InitIfPresent(ref _suffix, "suffixguid", x => new Syllable(Project, GuidConvert(x)));
+            InitIfPresent(ref _folder, "folderguid", x=>Project.ContentClassFolders.GetByGuid(Guid.Parse(x)));
         }
 
         #region Nested type: CCEditableAreaSettings
@@ -726,7 +722,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         internal class ContentClassVersion : RedDotProjectObject, IContentClassVersion
         {
             private DateTime? _date;
-            private IFolder _folder;
+            private IContentClassFolder _folder;
             private IUser _user;
 
             internal ContentClassVersion(IContentClass parent, XmlElement xmlElement) : base(parent.Project, xmlElement)
@@ -757,14 +753,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 get { return XmlElement.GetAttributeValue("description"); }
             }
 
-            public IFolder Folder
+            public IContentClassFolder Folder
             {
-                get
-                {
-                    return _folder ??
-                           (_folder =
-                            new Folder(ContentClass.Project, GuidConvert(XmlElement.GetAttributeValue("folderguid"))));
-                }
+                get { return _folder ?? (_folder = Project.ContentClassFolders.GetByGuid(XmlElement.GetGuid("folderguid"))); }
             }
 
             public IUser User
@@ -823,7 +814,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// </summary>
         string Description { get; }
 
-        IFolder Folder { get; }
+        IContentClassFolder Folder { get; }
         IUser User { get; }
         string Username { get; }
     }

@@ -19,13 +19,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IContentClassContentElement : IContentClassElement, ICanBeRequiredForEditing
     {
+        new void Commit();
         bool IsHiddenInProjectStructure { get; set; }
         bool IsLanguageIndependent { get; set; }
         bool IsNotConvertingCharactersToHtml { get; set; }
         bool IsNotRelevantForWorklow { get; set; }
         bool IsNotUsedInForm { get; set; }
         bool IsNotVisibleOnPublishedPage { get; set; }
-        new void Commit();
     }
 
     internal abstract class ContentClassContentElement : ContentClassElement, IContentClassContentElement

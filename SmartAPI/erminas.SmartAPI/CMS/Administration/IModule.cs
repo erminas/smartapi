@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Administration
     {
         NoModule = 0,
         Cms,
-        
+
         /// only exists in version &gt; 9
         Search,
         TemplateEditor,
@@ -38,8 +38,10 @@ namespace erminas.SmartAPI.CMS.Administration
         CollaborationManager,
         //////only exists in version &lt; 10
         DocumentManager,
+
         /// only exists in version &lt; 10
         BusinessProcessManager,
+
         /// only exists in version &lt; 10
         Ccs
     }
@@ -110,7 +112,7 @@ namespace erminas.SmartAPI.CMS.Administration
                     return "collaboration";
                 case ModuleType.DocumentManager:
                     return "dms";
-                    case ModuleType.Ccs:
+                case ModuleType.Ccs:
                     return "ccs";
                 default:
                     throw new SmartAPIInternalException(string.Format("Invalid {0} for RQL string conversion: {1}",

@@ -70,8 +70,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             using (new LanguageContext(LanguageVariant))
             {
                 const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
-                string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this),
-                                                           RQL.IODataFormat.FormattedText);
+                string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this), RQL.IODataFormat.FormattedText);
                 _value = HttpUtility.UrlDecode(result);
             }
         }

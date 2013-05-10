@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     }
 
     [PageElementType(ElementType.SiteMap)]
-    class SiteMap : AbstractLinkElement, ISiteMap
+    internal class SiteMap : AbstractLinkElement, ISiteMap
     {
         public SiteMap(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)

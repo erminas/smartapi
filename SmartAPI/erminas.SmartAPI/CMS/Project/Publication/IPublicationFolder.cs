@@ -21,13 +21,17 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public interface IPublicationFolder : IPartialRedDotObject, IProjectObject
+    /// <summary>
+    /// TODO trennen in ftp/ds
+    /// </summary>
+    public interface IPublicationFolder : IPartialRedDotObject, IProjectObject, IDeletable
     {
         void Commit();
         string ContentGroup { get; set; }
         PublicationFolderContentType ContentTypeValue { get; set; }
         PublicationFolderContextInfoPreparationType ContextInfoPreparation { get; set; }
         string ContextTags { get; set; }
+        void CreateInProject(IProject project, Guid parentFolderGuid);
         bool DoCreateLog { get; set; }
         bool DoIndexForFulltextSearch { get; set; }
         bool DoReleaseAfterImport { get; set; }
@@ -38,8 +42,6 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         string RealVirtualName { get; set; }
         PublicationFolderType Type { get; set; }
         string VirtualName { get; set; }
-        void CreateInProject(IProject project, Guid parentFolderGuid);
-        void Delete();
     }
 
     internal class PublicationFolder : PartialRedDotProjectObject, IPublicationFolder
@@ -216,38 +218,6 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             LoadXml();
         }
 
-        private void LoadXml()
-        {
-            if (Guid == PUBLISHED_PAGES_GUID)
-            {
-                return;
-            }
-            EnsuredInit(ref _realName, "realname", x => x);
-            EnsuredInit(ref _type, "type", x => (PublicationFolderType) int.Parse(x));
-
-            InitIfPresent(ref _realVirtualName, "realvirtualname", x => x);
-            InitIfPresent(ref _virtualName, "virtualname", x => x);
-            if (_type == PublicationFolderType.DeliveryServer)
-            {
-                InitIfPresent(ref _contentgroup, "contentgroup", x => x);
-                EnsuredInit(ref _contenttype, "contenttype", x => (PublicationFolderContentType) Enum.Parse(typeof (PublicationFolderContentType), x));
-                InitIfPresent(ref _contexttags, "contexttags", x => x);
-                InitIfPresent(ref _contextInfoPreparationType, "contextinfo",
-                              x => (PublicationFolderContextInfoPreparationType) Enum.Parse(typeof (PublicationFolderContextInfoPreparationType), x));
-                EnsuredInit(ref _doArchivePreviousVersion, "flag_archive_prev_version", BoolConvert);
-                InitIfPresent(ref _doCreateLog, "flag_create_log", BoolConvert);
-                InitIfPresent(ref _doIndexing, "flag_indexing", BoolConvert);
-                InitIfPresent(ref _doOverwriteContent, "flag_overwrite_content", BoolConvert);
-                InitIfPresent(ref _doOverwriteGroupAssignment, "flag_overwrite_group_assignment", BoolConvert);
-                InitIfPresent(ref _doReleasePublishedFiles, "flag_set_final", BoolConvert);
-                InitIfPresent(ref _doIgnoreMetadata, "ignore_metadata", BoolConvert);
-                InitIfPresent(ref _inlineFunctionName, "inlinefunctionname", x => x);
-                InitIfPresent(ref _prefix, "prefix", x => x);
-                InitIfPresent(ref _script, "script", x => x);
-                InitIfPresent(ref _usePrefix, "useprefix", BoolConvert);
-            }
-        }
-
         protected override XmlElement RetrieveWholeObject()
         {
             if (Guid != PUBLISHED_PAGES_GUID)
@@ -267,6 +237,41 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         private static string BoolToString(bool value)
         {
             return value ? "1" : "0";
+        }
+
+        private void LoadXml()
+        {
+            if (Guid == PUBLISHED_PAGES_GUID)
+            {
+                return;
+            }
+            EnsuredInit(ref _realName, "realname", x => x);
+            EnsuredInit(ref _type, "type", x => (PublicationFolderType) int.Parse(x));
+
+            InitIfPresent(ref _realVirtualName, "realvirtualname", x => x);
+            InitIfPresent(ref _virtualName, "virtualname", x => x);
+            if (_type == PublicationFolderType.DeliveryServer)
+            {
+                InitIfPresent(ref _contentgroup, "contentgroup", x => x);
+                EnsuredInit(ref _contenttype, "contenttype",
+                            x => (PublicationFolderContentType) Enum.Parse(typeof (PublicationFolderContentType), x));
+                InitIfPresent(ref _contexttags, "contexttags", x => x);
+                InitIfPresent(ref _contextInfoPreparationType, "contextinfo",
+                              x =>
+                              (PublicationFolderContextInfoPreparationType)
+                              Enum.Parse(typeof (PublicationFolderContextInfoPreparationType), x));
+                EnsuredInit(ref _doArchivePreviousVersion, "flag_archive_prev_version", BoolConvert);
+                InitIfPresent(ref _doCreateLog, "flag_create_log", BoolConvert);
+                InitIfPresent(ref _doIndexing, "flag_indexing", BoolConvert);
+                InitIfPresent(ref _doOverwriteContent, "flag_overwrite_content", BoolConvert);
+                InitIfPresent(ref _doOverwriteGroupAssignment, "flag_overwrite_group_assignment", BoolConvert);
+                InitIfPresent(ref _doReleasePublishedFiles, "flag_set_final", BoolConvert);
+                InitIfPresent(ref _doIgnoreMetadata, "ignore_metadata", BoolConvert);
+                InitIfPresent(ref _inlineFunctionName, "inlinefunctionname", x => x);
+                InitIfPresent(ref _prefix, "prefix", x => x);
+                InitIfPresent(ref _script, "script", x => x);
+                InitIfPresent(ref _usePrefix, "useprefix", BoolConvert);
+            }
         }
 
         private string SaveParameters()

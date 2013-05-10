@@ -85,11 +85,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     /// </summary>
     public interface IPage : ILinkTarget, IPartialRedDotObject, IAttributeContainer, IKeywordAssignable, IDeletable
     {
-        new string Name { get; set; }
-
         DateTime CheckinDate { get; }
-
-        IRDList<ILinkingAndAppearance> LinkedFrom { get; }
 
         /// <summary>
         ///     Save changes to headline/filename to the server.
@@ -173,10 +169,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// </summary>
         IRDList<ILinkElement> LinkElements { get; }
 
+        IRDList<ILinkingAndAppearance> LinkedFrom { get; }
+
         /// <summary>
         ///     The element this page has as mainlink.
         /// </summary>
         IPageElement MainLinkElement { get; }
+
+        new string Name { get; set; }
 
         /// <summary>
         ///     Parent page (the page containing this page's main link).

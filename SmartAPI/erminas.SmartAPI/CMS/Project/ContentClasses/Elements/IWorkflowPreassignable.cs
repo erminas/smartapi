@@ -23,24 +23,25 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IWorkflowAssignable: IRedDotObject, IProjectObject {}
+    public interface IWorkflowAssignable : IRedDotObject, IProjectObject
+    {
+    }
 
     public interface IWorkflowAssignments
     {
         void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants);
-        void DisconnectAllWorkflows();
 
-        void CreateAndConnectContentWorkflow(string workflowName,
-                                                               IEnumerable<ILanguageVariant> languageVariants);
+        void CreateAndConnectContentWorkflow(string workflowName, IEnumerable<ILanguageVariant> languageVariants);
 
         void CreateAndConnectStructuralworkflow(string workflowName);
+        void DisconnectAllWorkflows();
         IPreassignedWorkflow GetContentWorkflowFor(string languageVariantId);
         IPreassignedWorkflow GetContentWorkflowFor(ILanguageVariant languageVariant);
         IPreassignedWorkflow GetContentWorkflowForCurrentLanguageVariant();
+        void InvalidateCache();
         void SetContentWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants);
         void SetContentWorkflow(IWorkflow workflow, params string[] languageVariantIds);
         IPreassignedWorkflow StructuralWorkflow { get; set; }
-        void InvalidateCache();
     }
 
     internal class WorkflowAssignments : IWorkflowAssignments
@@ -61,9 +62,21 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public void CreateAndConnectContentWorkflow(string workflowName, params string[] languageVariants)
         {
             CreateAndConnectContentWorkflow(workflowName,
-                                              languageVariants.Select(
-                                                  curVariant =>
-                                                  _element.Project.LanguageVariants[curVariant]));
+                                            languageVariants.Select(
+                                                curVariant => _element.Project.LanguageVariants[curVariant]));
+        }
+
+        public void CreateAndConnectContentWorkflow(string workflowName, IEnumerable<ILanguageVariant> languageVariants)
+        {
+            const bool IS_STRUCTURAL_WORKFLOW = false;
+            ExecuteCreateAndPreassignWorkflow(workflowName, languageVariants, IS_STRUCTURAL_WORKFLOW);
+        }
+
+        public void CreateAndConnectStructuralworkflow(string workflowName)
+        {
+            const bool IS_STRUCTURAL_WORKFLOW = true;
+            ExecuteCreateAndPreassignWorkflow(workflowName, new[] {_element.Project.LanguageVariants.Current},
+                                              IS_STRUCTURAL_WORKFLOW);
         }
 
         public void DisconnectAllWorkflows()
@@ -88,20 +101,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 workflows.Add(workflow.Guid);
             }
             InvalidateCache();
-        }
-
-        public void CreateAndConnectContentWorkflow(string workflowName,
-                                                        IEnumerable<ILanguageVariant> languageVariants)
-        {
-            const bool IS_STRUCTURAL_WORKFLOW = false;
-            ExecuteCreateAndPreassignWorkflow(workflowName, languageVariants, IS_STRUCTURAL_WORKFLOW);
-        }
-
-        public void CreateAndConnectStructuralworkflow(string workflowName)
-        {
-            const bool IS_STRUCTURAL_WORKFLOW = true;
-            ExecuteCreateAndPreassignWorkflow(workflowName, new[] {_element.Project.LanguageVariants.Current},
-                                              IS_STRUCTURAL_WORKFLOW);
         }
 
         public IPreassignedWorkflow GetContentWorkflowFor(string languageVariantId)
@@ -161,7 +160,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     curLanguageVariantId => _element.Project.LanguageVariants[curLanguageVariantId]);
             SetContentWorkflow(workflow, languageVariants);
         }
-
 
         public IPreassignedWorkflow StructuralWorkflow
         {

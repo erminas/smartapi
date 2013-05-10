@@ -73,8 +73,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         int? AutomaticMaximumScalingHeight { get; set; }
         int? AutomaticMaximumScalingWidth { get; set; }
         int? ColorDepthInBit { get; set; }
-        MediaConversionMode ConversionModeForSelectedDocuments { get; set; }
         new void Commit();
+        MediaConversionMode ConversionModeForSelectedDocuments { get; set; }
 
         /// <summary>
         ///     All eligible suffixes separated by ";"
@@ -252,7 +252,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set
@@ -272,7 +272,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set

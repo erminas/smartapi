@@ -26,6 +26,10 @@ namespace erminas.SmartAPI.CMS.Administration.Language
         /// </summary>
         string Example { get; }
 
+        bool IsDateFormat { get; }
+        bool IsDateTimeFormat { get; }
+        bool IsTimeFormat { get; }
+
         /// <summary>
         ///     Name of the format
         /// </summary>
@@ -35,10 +39,6 @@ namespace erminas.SmartAPI.CMS.Administration.Language
         ///     Format types id in RedDot
         /// </summary>
         int TypeId { get; }
-
-        bool IsDateFormat { get; }
-        bool IsDateTimeFormat { get; }
-        bool IsTimeFormat { get; }
     }
 
     /// <summary>
@@ -48,22 +48,9 @@ namespace erminas.SmartAPI.CMS.Administration.Language
     {
         public static readonly IDateTimeFormat USER_DEFINED_DATE_FORMAT = new DateTimeFormat(DateTimeFormatTypes.Date);
         public static readonly IDateTimeFormat USER_DEFINED_TIME_FORMAT = new DateTimeFormat(DateTimeFormatTypes.Time);
-        public static readonly IDateTimeFormat USER_DEFINED_DATE_TIME_FORMAT = new DateTimeFormat(DateTimeFormatTypes.DateTime);
 
-        /// <summary>
-        ///     Example of the format
-        /// </summary>
-        public string Example { get; private set; }
-
-        /// <summary>
-        ///     Name of the format
-        /// </summary>
-        public string Name { get; private set; }
-
-        /// <summary>
-        ///     Format types id in RedDot
-        /// </summary>
-        public int TypeId { get; private set; }
+        public static readonly IDateTimeFormat USER_DEFINED_DATE_TIME_FORMAT =
+            new DateTimeFormat(DateTimeFormatTypes.DateTime);
 
         private readonly DateTimeFormatTypes _formatTypes;
 
@@ -83,6 +70,11 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             _formatTypes = dateTimeFormatTypes;
         }
 
+        /// <summary>
+        ///     Example of the format
+        /// </summary>
+        public string Example { get; private set; }
+
         public bool IsDateFormat
         {
             get { return (_formatTypes & DateTimeFormatTypes.Date) == DateTimeFormatTypes.Date; }
@@ -101,6 +93,16 @@ namespace erminas.SmartAPI.CMS.Administration.Language
                 return _formatTypes == DateTimeFormatTypes.Time;
             }
         }
+
+        /// <summary>
+        ///     Name of the format
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        ///     Format types id in RedDot
+        /// </summary>
+        public int TypeId { get; private set; }
     }
 
     [Flags]

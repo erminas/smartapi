@@ -22,7 +22,8 @@ namespace erminas.SmartAPI.CMS.Project
     {
         private readonly IProject _project;
 
-        protected PartialRedDotProjectObject(IProject project, XmlElement xmlElement) : base(project.Session, xmlElement)
+        protected PartialRedDotProjectObject(IProject project, XmlElement xmlElement)
+            : base(project.Session, xmlElement)
         {
             _project = project;
         }

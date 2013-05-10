@@ -25,17 +25,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IPreassignedWorkflow : IWorkflow
     {
-        IWorkflowAssignable ElementPreassignedTo { get; }
-        IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo { get; }
         void DisconnectFromLinkCompletely();
         void DisconnectFromLinkForLanguages(IEnumerable<ILanguageVariant> languageVariants);
         void DisconnectFromLinkForLanguages(params string[] languageVariants);
+        IWorkflowAssignable ElementPreassignedTo { get; }
         void EnsureInitialization();
+        IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo { get; }
     }
 
     internal class PreassignedWorkflow : IPreassignedWorkflow
     {
-        public IWorkflowAssignable ElementPreassignedTo { get; private set; }
         private readonly Workflow _workflow;
         private ReadOnlyCollection<ILanguageVariant> _languageVariants;
 
@@ -53,6 +52,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public bool CanBeInherited
         {
             get { return _workflow.CanBeInherited; }
+        }
+
+        public void Delete()
+        {
+            _workflow.Delete();
         }
 
         public void DisconnectFromLinkCompletely()
@@ -84,6 +88,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             DisconnectFromLinkForLanguages(languages);
         }
 
+        public IWorkflowAssignable ElementPreassignedTo { get; private set; }
+
         public void EnsureInitialization()
         {
             _workflow.EnsureInitialization();
@@ -98,11 +104,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public override int GetHashCode()
         {
             return _workflow.GetHashCode();
-        }
-
-        public void Delete()
-        {
-            _workflow.Delete();
         }
 
         public Guid Guid

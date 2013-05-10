@@ -29,8 +29,11 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         protected RDList(Caching caching) : base(caching)
         {
         }
-
-        #region IRDList<T> Members
+        
+        public bool Contains(T element)
+        {
+            return ContainsGuid(element.Guid);
+        }
 
         public bool ContainsGuid(Guid guid)
         {
@@ -81,6 +84,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
         }
 
-        #endregion
+        
     }
 }

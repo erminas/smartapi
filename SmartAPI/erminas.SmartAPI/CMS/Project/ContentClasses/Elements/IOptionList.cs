@@ -32,10 +32,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         string Description { get; set; }
 
         /// <summary>
-        /// The entries as xml string as provided by RQL.
-        /// In a future version a Entries property giving access to an object model of the entries might get added.
+        ///     The entries as xml string as provided by RQL.
+        ///     In a future version a Entries property giving access to an object model of the entries might get added.
         /// </summary>
         string EntriesAsString { get; set; }
+
         bool HasLanguageDependendNames { get; set; }
         bool HasLanguageDependendValues { get; set; }
         bool IsAllowingOtherValues { get; set; }

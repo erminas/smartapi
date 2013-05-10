@@ -28,16 +28,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     internal class InfoAttribute : IInfoAttribute
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public InfoType Type { get; private set; }
-
         internal InfoAttribute(XmlElement xmlElement)
         {
             Type = (InfoType) Enum.Parse(typeof (InfoType), xmlElement.Name, true);
             Id = int.Parse(xmlElement.GetAttributeValue("id"));
             Name = xmlElement.GetAttributeValue("name");
         }
+
+        public int Id { get; private set; }
+        public string Name { get; private set; }
+        public InfoType Type { get; private set; }
     }
 
     public enum InfoType

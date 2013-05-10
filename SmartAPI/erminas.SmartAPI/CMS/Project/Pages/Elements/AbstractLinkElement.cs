@@ -48,7 +48,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         }
 
         public IRDList<ILinkElement> ReferencedFrom { get; private set; }
-        
+
         protected abstract void LoadWholeLinkElement();
 
         protected override sealed void LoadWholePageElement()
@@ -72,7 +72,5 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
             InitIfPresent(ref _linkType, "islink", x => (LinkType) int.Parse(x));
         }
-
-        
     }
 }

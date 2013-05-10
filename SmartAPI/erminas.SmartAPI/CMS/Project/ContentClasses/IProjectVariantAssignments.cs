@@ -121,7 +121,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             try
             {
                 var xmlDoc = Project.ExecuteRQL(PROJECT_VARIANT_ASSIGNMENT.RQLFormat(_contentClass),
-                                                        RqlType.SessionKeyInProject);
+                                                RqlType.SessionKeyInProject);
                 using (new CachingContext<IProjectVariant>(Project.ProjectVariants, Caching.Enabled))
                 {
                     return (from XmlElement curElement in xmlDoc.GetElementsByTagName("TEMPLATEVARIANT")
@@ -143,10 +143,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             get
             {
-                return (from curAssignment in this
-                        where curAssignment.TemplateVariant.Equals(templateVariant)
-                        select curAssignment)
-                    .ToList();
+                return
+                    (from curAssignment in this
+                     where curAssignment.TemplateVariant.Equals(templateVariant)
+                     select curAssignment).ToList();
             }
         }
     }

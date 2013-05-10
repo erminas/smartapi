@@ -25,9 +25,10 @@ namespace erminas.SmartAPI.Utils
 {
     public static class StringConversion
     {
-        public static T ToEnum<T>(this string value) where T : struct, IConvertible
+        public static string RQLFormat(this string value, params object[] args)
         {
-            return (T)Enum.Parse(typeof (T), value);
+            IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
+            return string.Format(value, newArgs.ToArray());
         }
 
         public static string SecureRQLFormat(this string value, params object[] args)
@@ -36,16 +37,9 @@ namespace erminas.SmartAPI.Utils
             return string.Format(value, newArgs.ToArray());
         }
 
-        private static object SecureConvertRQL(object o)
+        public static T ToEnum<T>(this string value) where T : struct, IConvertible
         {
-            var s = o as string;
-            return s != null ? SecurityElement.Escape(s) : ConvertRQL(o);
-        }
-
-        public static string RQLFormat(this string value, params object[] args)
-        {
-            IEnumerable<object> newArgs = from x in args select ConvertRQL(x);
-            return string.Format(value, newArgs.ToArray());
+            return (T) Enum.Parse(typeof (T), value);
         }
 
         /// <summary>
@@ -102,11 +96,18 @@ namespace erminas.SmartAPI.Utils
             {
                 const string SINGLE_LANGUAGE = @"<LANGUAGEVARIANT language=""{0}""/>";
                 string languages = variants.Aggregate("",
-                                                      (s, variant) => s + SINGLE_LANGUAGE.RQLFormat(variant.Abbreviation));
+                                                      (s, variant) =>
+                                                      s + SINGLE_LANGUAGE.RQLFormat(variant.Abbreviation));
                 return languages;
             }
 
             return o is IRedDotObject ? ((IRedDotObject) o).Guid.ToRQLString() : o;
+        }
+
+        private static object SecureConvertRQL(object o)
+        {
+            var s = o as string;
+            return s != null ? SecurityElement.Escape(s) : ConvertRQL(o);
         }
     }
 }

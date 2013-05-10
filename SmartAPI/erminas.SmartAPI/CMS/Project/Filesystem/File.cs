@@ -53,7 +53,8 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         {
             _project = project;
             _name = xmlElement.GetAttributeValue("name");
-            _folder = new Folder(project, xmlElement.GetGuid("folderguid"));
+            var folderGuid = xmlElement.GetGuid("folderguid");
+            _folder = project.Folders.AllIncludingSubFolders.GetByGuid(folderGuid);
         }
 
         public File(IFolder folder, string fileName)

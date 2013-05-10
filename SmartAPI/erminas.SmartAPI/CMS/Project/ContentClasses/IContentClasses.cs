@@ -52,8 +52,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
 
             return (from XmlElement curNode in xmlNodes
-                    select (IContentClass)new ContentClass(_project, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")})
-                .ToList();
+                    select
+                        (IContentClass)
+                        new ContentClass(_project, curNode.GetGuid()) {Name = curNode.GetAttributeValue("name")}).ToList
+                ();
         }
     }
 }

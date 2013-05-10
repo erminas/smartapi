@@ -61,6 +61,12 @@
     <Compile Include="CMS\Administration\IAsynchronousProcess.cs" />
     <Compile Include="CMS\Administration\ServerManagementContext.cs" />
     <Compile Include="CMS\Administration\IUsers.cs" />
+    <Compile Include="CMS\Project\Filesystem\IAssetManagerFiles.cs" />
+    <Compile Include="CMS\Project\Filesystem\IAssetManagerFolder.cs" />
+    <Compile Include="CMS\Project\Filesystem\IFiles.cs" />
+    <Compile Include="CMS\Project\Filesystem\ISubFolders.cs" />
+    <Compile Include="CMS\Project\Filesystem\SubFolders.cs" />
+    <Compile Include="CMS\Project\IClipboard.cs" />
     <Compile Include="CMS\IDeletable.cs" />
     <Compile Include="CMS\IGroup.cs" />
     <Compile Include="CMS\ISessionObject.cs" />
@@ -249,7 +255,7 @@
     <Compile Include="CMS\Project\ISyllable.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClassElementList.cs" />
     <Compile Include="CMS\Project\Filesystem\File.cs" />
-    <Compile Include="CMS\Project\Filesystem\Folder.cs" />
+    <Compile Include="CMS\Project\Filesystem\IFolder.cs" />
     <Compile Include="CMS\Project\Keywords\IKeyword.cs" />
     <Compile Include="CMS\Project\ILanguageVariant.cs" />
     <Compile Include="CMS\Project\Pages\Page.cs" />
@@ -274,6 +280,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Utils\CachedCollections\CachingContext.cs" />
+    <Compile Include="Utils\CachedCollections\IRDEnumerable.cs" />
     <Compile Include="Utils\CachedCollections\RDListExtensions.cs" />
     <Compile Include="Utils\CollectionExtensions.cs" />
     <Compile Include="Utils\CachedCollections\ICached.cs" />

@@ -49,7 +49,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         public IInfoAttribute Value
         {
-            get { return _id == null ? null : ((IContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value]; }
+            get
+            {
+                return _id == null
+                           ? null
+                           : ((IContentClassElement) Parent).ContentClass.Project.InfoAttributes[_id.Value];
+            }
             set { SetValue(value == null ? null : value.Id.ToString(CultureInfo.InvariantCulture)); }
         }
 
