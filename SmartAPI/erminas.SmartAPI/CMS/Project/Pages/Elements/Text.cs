@@ -14,15 +14,17 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Security;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public abstract class Text : AbstractValueElement<String>
+    public abstract class Text : PageElement, IValueElement<string>
     {
         private string _description;
+        private string _value;
 
         protected Text(Project project, Guid guid, LanguageVariant languageVariant)
             : base(project, guid, languageVariant)
@@ -34,13 +36,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             LoadXml();
         }
 
-        public override void Commit()
+        public void Commit()
         {
-            string xmlNodeValue = GetXmlNodeValue();
-            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
-                                    ? Session.SESSIONKEY_PLACEHOLDER
-                                    : HttpUtility.UrlEncode(xmlNodeValue);
-            ExecuteCommit(htmlEncode);
+            string htmlEncodedValue = string.IsNullOrEmpty(_value)
+                                          ? Session.SESSIONKEY_PLACEHOLDER
+                                          : HttpUtility.HtmlEncode(_value);
+
+            const string SAVE_VALUE =
+                @"<ELT translationmode=""0"" extendedinfo="""" reddotcacheguid="""" action=""save"" guid=""{0}"" pageid=""{1}"" id="""" index="""" type=""{2}"">{3}</ELT>";
+            Project.Select();
+            Project.Session.ExecuteRql(SAVE_VALUE.RQLFormat(this, Page.Id, (int)Type, htmlEncodedValue), Session.IODataFormat.FormattedText);
         }
 
         public string Description
@@ -48,26 +53,30 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             get { return LazyLoad(ref _description); }
         }
 
-        protected override string FromString(string value)
+        public void SetValueFromString(string value)
         {
-            return value;
+            Value = value;
         }
 
-        protected override sealed string FromXmlNodeValue(string arg)
+        public string Value
         {
-            return null;
+            get
+            {
+                return LazyLoad(ref _value);
+            }
+            set { _value = value; }
         }
 
-        protected override sealed void LoadWholeValueElement()
+        protected override void LoadWholePageElement()
         {
             LoadXml();
-
             using (new LanguageContext(LanguageVariant))
             {
                 const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
+                Project.Select();
                 string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this),
                                                            Session.IODataFormat.FormattedText);
-                _value = HttpUtility.UrlDecode(result);
+                _value = HttpUtility.HtmlDecode(result);
             }
         }
 
