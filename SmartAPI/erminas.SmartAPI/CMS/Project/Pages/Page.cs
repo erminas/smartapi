@@ -331,6 +331,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        public IRDList<ILinkElement> LinkedFrom { get; private set; }
+
         private void DeleteImpl(bool forceDeletion)
         {
             try
@@ -353,7 +355,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             Status = PageState.NotSet;
         }
 
-        private List<PageElement> GetContentElements()
+        private List<IPageElement> GetContentElements()
         {
             using (new LanguageContext(LanguageVariant))
             {
@@ -402,9 +404,19 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         private void InitProperties()
         {
             LinkElements = new RDList<ILinkElement>(GetLinks, Caching.Enabled);
-            ContentElements = new NameIndexedRDList<PageElement>(GetContentElements, Caching.Enabled);
+            ContentElements = new NameIndexedRDList<IPageElement>(GetContentElements, Caching.Enabled);
             Keywords = new RDList<Keyword>(GetKeywords, Caching.Enabled);
+            LinkedFrom = new RDList<ILinkElement>(GetLinksFrom, Caching.Enabled);
             ReferencedBy = new RDList<ILinkElement>(GetReferencingLinks, Caching.Enabled);
+        }
+
+        private List<ILinkElement> GetLinksFrom()
+        {
+            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
+
+            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+            select (ILinkElement)PageElement.CreateElement(Project, curLink)).ToList();
         }
 
         private static bool IsReleasedIntoWorkflow(PageReleaseStatus value, PageReleaseStatus flag)
@@ -453,13 +465,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             return default(PageReleaseStatus);
         }
 
-        private List<PageElement> ToElementList(XmlNodeList elementNodes)
+        private List<IPageElement> ToElementList(XmlNodeList elementNodes)
         {
             return
                 (from XmlElement curNode in elementNodes
                  let element = TryCreateElement(curNode)
                  where element != null
-                 select element).ToList();
+                 select element).Cast<IPageElement>().ToList();
         }
 
         private PageElement TryCreateElement(XmlElement xmlElement)
@@ -547,7 +559,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     All content elements of this page.
         /// </summary>
-        public NameIndexedRDList<PageElement> ContentElements { get; private set; }
+        public NameIndexedRDList<IPageElement> ContentElements { get; private set; }
 
         /// <summary>
         ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
@@ -648,7 +660,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             get
             {
-                PageElement result;
+                IPageElement result;
                 return ContentElements.TryGetByName(elementName, out result)
                            ? (IPageElement) result
                            : LinkElements.GetByName(elementName);

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://reddot.de/cms/webservices/navigation/1_1" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" targetNamespace="http://reddot.de/cms/webservices/navigation/1_1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://reddot.de/cms/webservices/navigation/1_1">
+      <s:element name="ExecuteString">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="command" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteStringResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecuteStringResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteInThreadPool">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="command" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteInThreadPoolResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="Execute">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="command" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteResponse">
+        <s:complexType />
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ExecuteStringSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteString" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteStringSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteStringResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteInThreadPoolSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteInThreadPool" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteInThreadPoolSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteInThreadPoolResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteSoapIn">
+    <wsdl:part name="parameters" element="tns:Execute" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteResponse" />
+  </wsdl:message>
+  <wsdl:portType name="RqlServiceSoap">
+    <wsdl:operation name="ExecuteString">
+      <wsdl:input message="tns:ExecuteStringSoapIn" />
+      <wsdl:output message="tns:ExecuteStringSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteInThreadPool">
+      <wsdl:input message="tns:ExecuteInThreadPoolSoapIn" />
+      <wsdl:output message="tns:ExecuteInThreadPoolSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <wsdl:input message="tns:ExecuteSoapIn" />
+      <wsdl:output message="tns:ExecuteSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="RqlServiceSoap" type="tns:RqlServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ExecuteString">
+      <soap:operation soapAction="http://reddot.de/cms/webservices/navigation/1_1/ExecuteString" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteInThreadPool">
+      <soap:operation soapAction="http://reddot.de/cms/webservices/navigation/1_1/ExecuteInThreadPool" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <soap:operation soapAction="http://reddot.de/cms/webservices/navigation/1_1/Execute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="RqlService">
+    <wsdl:port name="RqlServiceSoap" binding="tns:RqlServiceSoap">
+      <soap:address location="http://10.1.1.114/cms/services/RQLService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
