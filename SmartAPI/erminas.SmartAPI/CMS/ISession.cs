@@ -286,7 +286,7 @@ namespace erminas.SmartAPI.CMS
             @"<IODATA loginguid=""{0}"" sessionkey=""{1}"" format=""1"">{2}</IODATA>";
 
         private static readonly Regex VERSION_REGEXP =
-            new Regex("(Management Server&nbsp;|CMS Version )\\d+(\\.\\d+)*&nbsp;Build&nbsp;(\\d+\\.\\d+\\.\\d+\\.\\d+)");
+            new Regex("(Management Server.*&nbsp;|CMS Version )\\d+(\\.\\d+)*&nbsp;Build&nbsp;(\\d+\\.\\d+\\.\\d+\\.\\d+)");
 
         private static readonly ILog LOG = LogManager.GetLogger("Session");
 

@@ -22,10 +22,8 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public interface IMediaElementBase : IPageElement
+    public interface IMediaElementBase : IValueElement<IFile>
     {
-        void Commit();
-        IFile Value { get; set; }
     }
 
     internal abstract class AbstractMediaElement : PageElement, IMediaElementBase
@@ -49,7 +47,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
             string rqlStr = Value == null
                                 ? string.Format(COMMIT, Guid.ToRQLString(), RQL.SESSIONKEY_PLACEHOLDER,
-                                                RQL.SESSIONKEY_PLACEHOLDER)
+                                                "")
                                 : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
                                                 IsFileInSubFolder ? "subdirguid=\"{0}\"".RQLFormat(Value.Folder) : "");
 
