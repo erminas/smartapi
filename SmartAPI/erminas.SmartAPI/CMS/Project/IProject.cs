@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project
         ICategories Categories { get; }
 
         /// <summary>
-        ///     All concent class folders, indexed by name. The list is cached by default.
+        ///     All content class folders, indexed by name. The list is cached by default.
         /// </summary>
         IIndexedRDList<string, IContentClassFolder> ContentClassFolders { get; }
 
