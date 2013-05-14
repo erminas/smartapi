@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
+using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Exceptions;
@@ -30,6 +31,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         Unlinked = 8192,
         Draft = 262144
     };
+
+    public enum Replace
+    {
+        OnlyOnThisPage,
+        OnAllPagesOfContentClass
+    }
 
     public enum PageState
     {
@@ -85,6 +92,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     /// </summary>
     public interface IPage : ILinkTarget, IPartialRedDotObject, IAttributeContainer, IKeywordAssignable, IDeletable
     {
+        IPage Refreshed();
+
         DateTime CheckinDate { get; }
 
         /// <summary>
@@ -241,5 +250,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     Returns the Workflow this page adheres to.
         /// </summary>
         IWorkflow Workflow { get; }
+
+        void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping, Replace replace);
     }
 }

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
+using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Exceptions;
@@ -58,6 +59,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
 
         public IAssignedKeywords AssignedKeywords { get; private set; }
+
+        public IPage Refreshed()
+        {
+            Refresh();
+            return this;
+        }
 
         public DateTime CheckinDate
         {
@@ -340,6 +347,42 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 return new Workflow(Project,
                                     ((XmlElement) XmlElement.SelectSingleNode("descendant::WORKFLOW")).GetGuid());
             }
+        }
+
+        public void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping, Replace replace)
+        {
+            const string REPLACE_CC =
+                @"<PAGE action=""changetemplate"" guid=""{0}"" changeall=""{1}"" holdreferences=""1"" holdexportsettings=""1"" holdauthorizations=""1"" holdworkflow=""1""><TEMPLATE originalguid=""{2}"" changeguid=""{3}"">{4}</TEMPLATE></PAGE>";
+
+            const string REPLACE_ELEMENT = @"<ELEMENT originalguid=""{0}"" changeguid=""{1}""/>";
+            var oldElements = ContentClass.Elements[Project.LanguageVariants.Main];
+            var newElements = replacement.Elements[Project.LanguageVariants.Main];
+
+            var unmappedElements = oldElements.Where(element => !oldToNewMapping.ContainsKey(element.Name));
+            var unmappedStr = unmappedElements.Aggregate("",
+                                                            (s, element) =>
+                                                            s +
+                                                            REPLACE_ELEMENT.RQLFormat(element,
+                                                                                      RQL.SESSIONKEY_PLACEHOLDER));
+            var mappedStr = string.Join("", from entry in oldToNewMapping
+                            let oldElement = oldElements[entry.Key]
+                            let newElement = newElements.GetByName(entry.Value)
+                            select REPLACE_ELEMENT.RQLFormat(oldElement, newElement));
+
+            var isReplacingAll = replace == Replace.OnAllPagesOfContentClass;
+            var query = REPLACE_CC.RQLFormat(this, isReplacingAll, ContentClass, replacement, mappedStr + unmappedStr);
+
+            Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
+
+            _contentClass = null;
+            _ccGuid = default(Guid);
+        }
+
+        public override void Refresh()
+        {
+            _contentClass = null;
+            _ccGuid = default(Guid);
+            base.Refresh();
         }
 
         protected override void LoadWholeObject()
