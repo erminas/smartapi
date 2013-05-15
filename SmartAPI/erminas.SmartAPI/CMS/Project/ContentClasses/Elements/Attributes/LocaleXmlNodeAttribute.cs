@@ -147,7 +147,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         public override void Assign(IRDAttribute o)
         {
             var attr = (LocaleXmlNodeAttribute) o;
-            SetValue(attr.GetXmlNodeValue());
+            string xmlNodeValue = attr.GetXmlNodeValue();
+            //workaround, because sometimes the server responds with this invalid value
+            if (xmlNodeValue.Contains("EmptyBuffer"))
+            {
+                xmlNodeValue = "";
+            }
+            SetValue(xmlNodeValue);
         }
 
         public override object DisplayObject
@@ -179,7 +185,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            _lcid = value == null || value == "#" + Parent.Session.SessionKey ? (int?) null : int.Parse(value);
+            _lcid = value == null || value == "#" + Parent.Session.SessionKey || value.Contains("EmptyBuffer") ? (int?) null : int.Parse(value);
         }
     }
 }

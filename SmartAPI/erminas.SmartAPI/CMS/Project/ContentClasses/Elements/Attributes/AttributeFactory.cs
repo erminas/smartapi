@@ -59,7 +59,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                     {"eltextendedlist", new BoolAttributeFactory()},
                     {"eltfilename", new StringAttributeFactory()},
                     {"eltfolderguid", new FolderAttributeFactory()},
-                    {"eltformatting", new StringAttributeFactory()},
+                    {"eltformatting", new BuggedStringAttributeFactory()},
                     {"eltformatno", new DateTimeFormatAttributeFactory()},
                     {"eltfontbold", new BoolAttributeFactory()},
                     {"eltfontclass", new StringAttributeFactory()},
@@ -358,6 +358,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
         {
             return new CategoryXmlNodeAttribute((ContentClass) element, name);
+        }
+    }
+
+    internal class BuggedStringAttributeFactory : AttributeFactory
+    {
+        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        {
+            return new BuggedStringXmlNodeAttribute(element, name);
         }
     }
 }

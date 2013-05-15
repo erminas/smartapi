@@ -77,7 +77,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override void UpdateValue(string value)
         {
-            _type = string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey
+            _type = string.IsNullOrEmpty(value) || value == "#" + Parent.Session.SessionKey || value.Contains("EmptyBuffer")
                         ? (int?) null
                         : int.Parse(value);
         }

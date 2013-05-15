@@ -44,7 +44,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 // ReSharper disable ObjectCreationAsStatement
             new StringEnumXmlNodeAttribute<FileSizeUnit>(this, "eltformatting", x => x.ToString(),
                                                          // ReSharper restore ObjectCreationAsStatement
-                                                         x => (FileSizeUnit) Enum.Parse(typeof (FileSizeUnit), x));
+                                                         //emptybuffer -> workaround for error in server
+                                                         x => x.Contains("EmptyBuffer") ? default(FileSizeUnit) : (FileSizeUnit) Enum.Parse(typeof (FileSizeUnit), x));
         }
 
         public override ContentClassCategory Category
