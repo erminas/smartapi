@@ -44,6 +44,51 @@ namespace erminas.SmartAPI.CMS.Project
         AdminAndPublisher = 17
     };
 
+    public interface IContentClassFolders : IIndexedRDList<string, IContentClassFolder>, IProjectObject
+    {
+        IIndexedRDList<string, IContentClassFolder> Broken{ get; }
+    }
+
+
+    internal class ContentClassFolders : NameIndexedRDList<IContentClassFolder>, IContentClassFolders
+    {
+        private readonly Project _project;
+
+        internal ContentClassFolders(Project project, Caching caching) : base(caching)
+        {
+            _project = project;
+            RetrieveFunc = GetContentClassFolders;
+            Broken = new NameIndexedRDList<IContentClassFolder>(GetBrokenFolders, Caching.Enabled);
+        }
+
+        private List<IContentClassFolder> GetBrokenFolders()
+        {
+            const string TREE = @"<TREESEGMENT type=""project.4000"" action=""load"" guid=""4AF89E44535511D4BDAB004005312B7C"" descent=""app"" parentguid=""""/>";
+            var result = Project.ExecuteRQL(TREE);
+            var guids = this.Select(folder => folder.Guid).ToList();
+            return (from XmlElement element in result.GetElementsByTagName("SEGMENT")
+                    let curGuid = element.GetGuid()
+                    where !guids.Contains(curGuid)
+                    select (IContentClassFolder)new ContentClassFolder(_project, curGuid) { Name = element.GetAttributeValue("value") }).ToList();
+        }
+
+        public ISession Session { get { return _project.Session; } }
+        public IProject Project { get { return _project; }}
+
+        public IIndexedRDList<string, IContentClassFolder> Broken{ get; private set; }
+
+        private List<IContentClassFolder> GetContentClassFolders()
+        {
+            const string LIST_CC_FOLDERS_OF_PROJECT = @"<TEMPLATEGROUPS action=""load"" />";
+            //TODO project.execute
+            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_FOLDERS_OF_PROJECT, _project.Guid);
+            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
+
+            return
+                (from XmlElement curNode in xmlNodes select (IContentClassFolder)new ContentClassFolder(_project, curNode))
+                    .ToList();
+        }
+    }
     public interface IProject : IPartialRedDotObject, ISessionObject
     {
 
@@ -55,7 +100,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     All content class folders, indexed by name. The list is cached by default.
         /// </summary>
-        IIndexedRDList<string, IContentClassFolder> ContentClassFolders { get; }
+        IContentClassFolders ContentClassFolders { get; }
 
         IContentClasses ContentClasses { get; }
 
@@ -205,7 +250,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     All concent class folders, indexed by name. The list is cached by default.
         /// </summary>
-        public IIndexedRDList<string, IContentClassFolder> ContentClassFolders { get; private set; }
+        public IContentClassFolders ContentClassFolders { get; private set; }
 
         public IContentClasses ContentClasses
         {
@@ -424,17 +469,6 @@ namespace erminas.SmartAPI.CMS.Project
             return ((Project) Session.ProjectsForCurrentUser.GetByGuid(Guid)).XmlElement;
         }
 
-        private List<IContentClassFolder> GetContentClassFolders()
-        {
-            const string LIST_CC_FOLDERS_OF_PROJECT = @"<TEMPLATEGROUPS action=""load"" />";
-            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_FOLDERS_OF_PROJECT, Guid);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
-
-            return
-                (from XmlElement curNode in xmlNodes select (IContentClassFolder) new ContentClassFolder(this, curNode))
-                    .ToList();
-        }
-
         private List<IInfoAttribute> GetInfoAttributes()
         {
             const string LOAD_INFO_ELEMENTS = @"<TEMPLATE><INFOELEMENTS action=""list""></INFOELEMENTS></TEMPLATE>";
@@ -513,7 +547,7 @@ namespace erminas.SmartAPI.CMS.Project
             PublicationPackages = new RDList<IPublicationPackage>(GetPublicationPackages, Caching.Enabled);
             InfoAttributes = new IndexedCachedList<int, IInfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
 
-            ContentClassFolders = new NameIndexedRDList<IContentClassFolder>(GetContentClassFolders, Caching.Enabled);
+            ContentClassFolders = new ContentClassFolders(this, Caching.Enabled);
             Folders = new Folders(this, Caching.Enabled);
             ProjectVariants = new ProjectVariants(this, Caching.Enabled);
             LanguageVariants = new LanguageVariants(this, Caching.Enabled);

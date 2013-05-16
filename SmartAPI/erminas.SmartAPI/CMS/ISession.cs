@@ -20,7 +20,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Principal;
 using System.ServiceModel;
+using System.ServiceModel.Description;
+using System.ServiceModel.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -1047,6 +1050,14 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             {
                 using (var client = new WebClient())
                 {
+                    if (ServerLogin.WindowsAuthentication != null)
+                    {
+                        var c = new CredentialCache();
+                        c.Add(new Uri(baseURL), "NTLM", ServerLogin.WindowsAuthentication);
+                        client.Credentials = c;
+                    }
+
+
                     string responseText = client.DownloadString(versionURI);
                     Match match = VERSION_REGEXP.Match(responseText);
                     if (match.Groups.Count != 4)
@@ -1224,12 +1235,20 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
                 binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
                 binding.SendTimeout = TimeSpan.FromMinutes(10);
-
+                
+                //binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
+                //binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                
                 var add = new EndpointAddress(CmsServerConnectionUrl);
-
+                
                 try
                 {
                     var client = new RqlWebServiceClient(binding, add);
+                    
+                    //var channel = client.ChannelFactory.CreateChannel();
+                    //var res = channel.Execute(new ExecuteRequest(rqlQuery, error, resultInfo));
+                    //var result = res.Result;
+                    
                     string result = client.Execute(rqlQuery, ref error, ref resultInfo);
                     string errorStr = (error ?? "").ToString();
                     if (!string.IsNullOrEmpty(errorStr))

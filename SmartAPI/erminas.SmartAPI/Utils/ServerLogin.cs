@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Net;
 
 namespace erminas.SmartAPI.Utils
 {
@@ -31,6 +32,8 @@ namespace erminas.SmartAPI.Utils
             Address = new Uri(url);
             AuthData = authData;
         }
+
+        public NetworkCredential WindowsAuthentication { get; set; }
 
         /// <summary>
         ///     Address of the server. If you do not know the version of the RedDot server use
