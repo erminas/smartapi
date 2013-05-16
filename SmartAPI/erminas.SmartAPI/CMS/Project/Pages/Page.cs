@@ -369,7 +369,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                             let newElement = newElements.GetByName(entry.Value)
                             select REPLACE_ELEMENT.RQLFormat(oldElement, newElement));
 
-            var isReplacingAll = replace == Replace.OnAllPagesOfContentClass;
+            var isReplacingAll = replace == Replace.ForAllPagesOfContentClass;
             var query = REPLACE_CC.RQLFormat(this, isReplacingAll, ContentClass, replacement, mappedStr + unmappedStr);
 
             Project.ExecuteRQL(query, RqlType.SessionKeyInProject);

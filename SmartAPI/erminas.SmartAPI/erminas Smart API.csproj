@@ -61,11 +61,12 @@
     <Compile Include="CMS\Administration\IAsynchronousProcess.cs" />
     <Compile Include="CMS\Administration\ServerManagementContext.cs" />
     <Compile Include="CMS\Administration\IUsers.cs" />
-    <Compile Include="CMS\Project\Filesystem\IAssetManagerFiles.cs" />
-    <Compile Include="CMS\Project\Filesystem\IAssetManagerFolder.cs" />
-    <Compile Include="CMS\Project\Filesystem\IFiles.cs" />
-    <Compile Include="CMS\Project\Filesystem\ISubFolders.cs" />
-    <Compile Include="CMS\Project\Filesystem\SubFolders.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\BuggedStringXmlNodeAttribute.cs" />
+    <Compile Include="CMS\Project\Folder\IAssetManagerFiles.cs" />
+    <Compile Include="CMS\Project\Folder\IAssetManagerFolder.cs" />
+    <Compile Include="CMS\Project\Folder\IFiles.cs" />
+    <Compile Include="CMS\Project\Folder\ISubFolders.cs" />
+    <Compile Include="CMS\Project\Folder\SubFolders.cs" />
     <Compile Include="CMS\Project\IClipboard.cs" />
     <Compile Include="CMS\IDeletable.cs" />
     <Compile Include="CMS\IGroup.cs" />
@@ -222,7 +223,7 @@
     <Compile Include="CMS\Project\Publication\IPublicationFolderSetting.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationSetting.cs" />
     <Compile Include="CMS\Project\Pages\IExtendedPageSearch.cs" />
-    <Compile Include="CMS\Project\Filesystem\FileAttributes.cs" />
+    <Compile Include="CMS\Project\Folder\FileAttributes.cs" />
     <Compile Include="CMS\IRedDotObject.cs" />
     <Compile Include="CMS\Project\Workflows\INote.cs" />
     <Compile Include="CMS\Project\Pages\Elements\PageElement.cs" />
@@ -254,8 +255,8 @@
     <Compile Include="CMS\Project\Publication\IPublicationFolder.cs" />
     <Compile Include="CMS\Project\ISyllable.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClassElementList.cs" />
-    <Compile Include="CMS\Project\Filesystem\File.cs" />
-    <Compile Include="CMS\Project\Filesystem\IFolder.cs" />
+    <Compile Include="CMS\Project\Folder\File.cs" />
+    <Compile Include="CMS\Project\Folder\IFolder.cs" />
     <Compile Include="CMS\Project\Keywords\IKeyword.cs" />
     <Compile Include="CMS\Project\ILanguageVariant.cs" />
     <Compile Include="CMS\Project\Pages\Page.cs" />
@@ -266,7 +267,7 @@
     <Compile Include="CMS\Project\Publication\IPublicationTarget.cs" />
     <Compile Include="CMS\ISession.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClass.cs" />
-    <Compile Include="CMS\Project\Filesystem\ContentClassFolder.cs" />
+    <Compile Include="CMS\Project\Folder\ContentClassFolder.cs" />
     <Compile Include="CMS\Project\ContentClasses\ITemplateVariant.cs" />
     <Compile Include="CMS\Administration\IUser.cs" />
     <Compile Include="CMS\Project\Workflows\IWorkflow.cs" />

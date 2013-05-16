@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes

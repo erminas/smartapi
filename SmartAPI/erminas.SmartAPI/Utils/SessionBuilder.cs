@@ -14,6 +14,8 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using erminas.SmartAPI.CMS;
 
 namespace erminas.SmartAPI.Utils
@@ -47,6 +49,18 @@ namespace erminas.SmartAPI.Utils
         public static ISession CreateSession(ServerLogin login)
         {
             return new Session(login);
+        }
+
+        public static ISession CreateOrReplaceSession(Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>  sessionReplacementSelector)
+        {
+            return null;
+        }
+
+        public static ISession CreateOrReplaceOldestSession()
+        {
+            Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector =
+                infos => infos.OrderBy(info => info.LoginDate).First();
+            return CreateOrReplaceSession(sessionReplacementSelector);
         }
 
         public ServerLogin Login { get; set; }

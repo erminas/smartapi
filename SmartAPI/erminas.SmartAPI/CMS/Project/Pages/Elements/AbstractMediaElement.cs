@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements

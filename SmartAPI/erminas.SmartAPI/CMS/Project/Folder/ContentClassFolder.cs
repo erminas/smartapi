@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -20,7 +21,7 @@ using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Project.Filesystem
+namespace erminas.SmartAPI.CMS.Project.Folder
 {
     public interface IContentClassFolderSharing : IIndexedRDList<string, IProject>, IProjectObject
     {
@@ -32,7 +33,9 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
     internal class ContentClassFolderSharing : NameIndexedRDList<IProject>, IContentClassFolderSharing
     {
-        private const string SHARING = @"<SHAREDFOLDER shared=""{0}"" action=""save"" guid=""{1}"" ><PROJECTS>{2}</PROJECTS></SHAREDFOLDER>";
+        private const string SHARING =
+            @"<SHAREDFOLDER shared=""{0}"" action=""save"" guid=""{1}"" ><PROJECTS>{2}</PROJECTS></SHAREDFOLDER>";
+
         private const string SINGLE_PROJECT = @"<PROJECT guid=""{0}"" sharedrights=""{1}"" />";
         private readonly ContentClassFolder _contentClassFolder;
 
@@ -49,9 +52,10 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
         public void AddRange(IEnumerable<IProject> projects)
         {
-            var projectsRql = projects.Aggregate("", (s, project) => s + SINGLE_PROJECT.RQLFormat(project, 1));
+            const bool IS_SHARED = true;
+            var projectsRql = projects.Aggregate("", (s, project) => s + SINGLE_PROJECT.RQLFormat(project, IS_SHARED));
 
-            var query = SHARING.RQLFormat(1, _contentClassFolder, projectsRql);
+            var query = SHARING.RQLFormat(IS_SHARED, _contentClassFolder, projectsRql);
             Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
 
             InvalidateCache();
@@ -70,7 +74,9 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         public void Remove(IProject project)
         {
             var isStillSharing = Count > 1 || (Count == 1 && !this.First().Equals(project));
-            Project.ExecuteRQL(SHARING.RQLFormat(isStillSharing, _contentClassFolder, SINGLE_PROJECT.RQLFormat(project, 0)), RqlType.SessionKeyInProject);
+            Project.ExecuteRQL(
+                SHARING.RQLFormat(isStillSharing, _contentClassFolder, SINGLE_PROJECT.RQLFormat(project, 0)),
+                RqlType.SessionKeyInProject);
 
             InvalidateCache();
         }
@@ -107,22 +113,32 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// </summary>
         IIndexedRDList<string, IContentClass> ContentClasses { get; }
 
-        bool IsShared { get; }
+        bool IsSharedToOtherProjects { get; }
+        IContentClassFolder SharedFrom { get; }
         IContentClassFolderSharing SharedTo { get; }
     }
 
     /// <summary>
     ///     A folder containing content classes.
     /// </summary>
-    internal class ContentClassFolder : RedDotProjectObject, IContentClassFolder
+    internal sealed class ContentClassFolder : RedDotProjectObject, IContentClassFolder
     {
         private readonly IProject _project;
+        private readonly Lazy<IContentClassFolder> _sharedFrom;
+
+        internal ContentClassFolder(IProject project, Guid guid) : base(project, guid)
+        {
+            ContentClasses = new NameIndexedRDList<IContentClass>(GetContentClasses, Caching.Enabled);
+            SharedTo = new ContentClassFolderSharing(this, Caching.Enabled);
+            _project = project;
+        }
 
         internal ContentClassFolder(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             ContentClasses = new NameIndexedRDList<IContentClass>(GetContentClasses, Caching.Enabled);
             SharedTo = new ContentClassFolderSharing(this, Caching.Enabled);
             _project = project;
+            _sharedFrom = new Lazy<IContentClassFolder>(GetSharedFrom);
         }
 
         /// <summary>
@@ -130,9 +146,14 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         /// </summary>
         public IIndexedRDList<string, IContentClass> ContentClasses { get; private set; }
 
-        public bool IsShared
+        public bool IsSharedToOtherProjects
         {
             get { return SharedTo.Any(); }
+        }
+
+        public IContentClassFolder SharedFrom
+        {
+            get { return _sharedFrom.Value; }
         }
 
         public IContentClassFolderSharing SharedTo { get; private set; }
@@ -147,6 +168,31 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
 
             return (from XmlElement curNode in XMLDoc.GetElementsByTagName("TEMPLATE")
                     select (IContentClass) new ContentClass(_project, curNode)).ToList();
+        }
+
+        private IContentClassFolder GetSharedFrom()
+        {
+            const string LOAD_FOLDER = @"<PROJECT><FOLDER action=""load"" guid=""{0}""/></PROJECT>";
+            var xmlDoc = Project.ExecuteRQL(LOAD_FOLDER.RQLFormat(this));
+            XmlElement = xmlDoc.GetSingleElement("FOLDER");
+            Guid sharedProjectGuid, sharedFolderGuid;
+            if (XmlElement.TryGetGuid("linkedprojectguid", out sharedProjectGuid) &&
+                XmlElement.TryGetGuid("linkedfolderguid", out sharedFolderGuid))
+            {
+                if (Session.CurrentUser.ModuleAssignment.IsServerManager)
+                {
+                    return Session.Projects.GetByGuid(sharedProjectGuid).ContentClassFolders.GetByGuid(sharedFolderGuid);
+                }
+                if (Session.ProjectsForCurrentUser.ContainsGuid(sharedProjectGuid))
+                {
+                    return
+                        Session.ProjectsForCurrentUser.GetByGuid(sharedProjectGuid)
+                               .ContentClassFolders.GetByGuid(sharedFolderGuid);
+                }
+                var sharedProject = new Project(Session, sharedProjectGuid);
+                return new ContentClassFolder(sharedProject, sharedFolderGuid);
+            }
+            return null;
         }
     }
 }

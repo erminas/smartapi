@@ -38,6 +38,50 @@ using Module = erminas.SmartAPI.CMS.Administration.Module;
 
 namespace erminas.SmartAPI.CMS
 {
+    public class RunningSessionInfo
+    {
+        private readonly string _projectName;
+        private readonly string _moduleName;
+        private readonly DateTime _loginDate;
+        private readonly DateTime _lastActionDate;
+
+        public RunningSessionInfo(string projectName, string moduleName, DateTime loginDate, DateTime lastActionDate)
+        {
+            _projectName = projectName;
+            _moduleName = moduleName;
+            _loginDate = loginDate;
+            _lastActionDate = lastActionDate;
+        }
+
+        internal RunningSessionInfo(XmlElement element)
+        {
+            _projectName = element.GetAttributeValue("projectname");
+            _moduleName = element.GetAttributeValue("moduledescription");
+            _loginDate = element.GetOADate("logindate").GetValueOrDefault();
+            _lastActionDate = element.GetOADate("lastactiondate").GetValueOrDefault();
+        }
+
+        public string ProjectName
+        {
+            get { return _projectName; }
+        }
+
+        public string ModuleName
+        {
+            get { return _moduleName; }
+        }
+
+        public DateTime LoginDate
+        {
+            get { return _loginDate; }
+        }
+
+        public DateTime LastActionDate
+        {
+            get { return _lastActionDate; }
+        }
+    }
+
     public interface ISession : IDisposable
     {
 

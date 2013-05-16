@@ -16,7 +16,7 @@
 using System.Xml;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Project.Filesystem
+namespace erminas.SmartAPI.CMS.Project.Folder
 {
     public interface IFile : IProjectObject, IDeletable
     {

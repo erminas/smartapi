@@ -34,8 +34,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
     public enum Replace
     {
-        OnlyOnThisPage,
-        OnAllPagesOfContentClass
+        OnlyForThisPage,
+        ForAllPagesOfContentClass
     }
 
     public enum PageState

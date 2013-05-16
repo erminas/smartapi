@@ -5,7 +5,7 @@ using System.Linq;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Project.Filesystem
+namespace erminas.SmartAPI.CMS.Project.Folder
 {
     internal class EmptySubFolders : ISubFolders
     {

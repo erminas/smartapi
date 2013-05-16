@@ -1,7 +1,7 @@
 using System.Xml;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Project.Filesystem
+namespace erminas.SmartAPI.CMS.Project.Folder
 {
     internal class AssetManagerFolder : BaseFolder, IAssetManagerFolder
     {

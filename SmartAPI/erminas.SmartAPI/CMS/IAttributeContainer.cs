@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS

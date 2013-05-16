@@ -21,7 +21,7 @@ using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
