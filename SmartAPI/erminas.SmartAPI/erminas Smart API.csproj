@@ -149,6 +149,7 @@
     <Compile Include="CMS\Project\Workflows\IWorkflowActions.cs" />
     <Compile Include="CMS\VersionAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IWorkflowPreassignable.cs" />
+    <Compile Include="Exceptions\BrokenContentClassFolderSharingException.cs" />
     <Compile Include="Exceptions\InvalidServerVersionException.cs" />
     <Compile Include="Exceptions\MissingElementValueException.cs" />
     <Compile Include="Exceptions\MissingKeywordsException.cs" />

@@ -69,7 +69,7 @@ namespace erminas.SmartAPI.CMS.Project
             return (from XmlElement element in result.GetElementsByTagName("SEGMENT")
                     let curGuid = element.GetGuid()
                     where !guids.Contains(curGuid)
-                    select (IContentClassFolder)new ContentClassFolder(_project, curGuid) { Name = element.GetAttributeValue("value") }).ToList();
+                    select (IContentClassFolder)new ContentClassFolder(_project, curGuid) { Name = element.GetAttributeValue("value"), IsBroken = true}).ToList();
         }
 
         public ISession Session { get { return _project.Session; } }

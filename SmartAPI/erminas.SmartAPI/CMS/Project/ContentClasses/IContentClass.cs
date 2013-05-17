@@ -642,7 +642,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             //InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
             InitIfPresent(ref _prefix, "praefixguid", x => new Syllable(Project, GuidConvert(x)));
             InitIfPresent(ref _suffix, "suffixguid", x => new Syllable(Project, GuidConvert(x)));
-            InitIfPresent(ref _folder, "folderguid", x=>Project.ContentClassFolders.GetByGuid(Guid.Parse(x)));
+            InitIfPresent(ref _folder, "folderguid", x=>Project.ContentClassFolders.Union(Project.ContentClassFolders.Broken).First(folder => folder.Guid == Guid.Parse(x)));
         }
 
         #region Nested type: CCEditableAreaSettings
