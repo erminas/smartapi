@@ -64,13 +64,13 @@ namespace erminas.SmartAPI.CMS.Project
     //    }
     //}
 
-    public interface IFolders : IIndexedRDList<string, IFolder>, IProjectObject
+    public interface IFolders : IIndexedRDList<Guid, IFolder>, IProjectObject
     {
         IRDEnumerable<IAssetManagerFolder> AssetManagerFolders { get; }
         IRDEnumerable<IFolder> AllIncludingSubFolders { get; }
     }
 
-    internal class Folders : NameIndexedRDList<IFolder>, IFolders
+    internal class Folders : GuidIndexedRDList<IFolder>, IFolders
     {
         private readonly IProject _project;
 
