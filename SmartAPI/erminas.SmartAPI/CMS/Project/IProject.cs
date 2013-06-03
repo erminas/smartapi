@@ -303,9 +303,11 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         /// <summary>
-        ///     All folders, indexed by name. The list is cached by default.
+        ///     All folders, indexed by guid. The list is cached by default.
         /// </summary>
         public IFolders Folders { get; private set; }
+
+        internal XmlDocument AllFoldersXmlDocument { get; set; }
 
         /// <see cref="CMS.Session.GetTextContent" />
         public string GetTextContent(Guid textElementGuid, ILanguageVariant lang, string typeString)
