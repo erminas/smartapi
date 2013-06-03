@@ -82,21 +82,13 @@ namespace erminas.SmartAPI.CMS.Project
 
         public IRDEnumerable<IAssetManagerFolder> AssetManagerFolders
         {
-            get
-            {
-                EnsureListIsLoaded();
-                return this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().ToRDEnumerable();
-            }
+            get { return this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().ToRDEnumerable(); }
 
         }
 
         public IRDEnumerable<IFolder> AllIncludingSubFolders
         {
-            get
-            {
-                EnsureListIsLoaded();
-                return this.Union(this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().SelectMany(folder => folder.SubFolders)).ToRDEnumerable(); 
-            }
+            get { return this.Union(this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().SelectMany(folder => folder.SubFolders)).ToRDEnumerable(); }
         }
 
         public IFolder GetByGuidIncludingSubFolders(Guid folderGuid)
