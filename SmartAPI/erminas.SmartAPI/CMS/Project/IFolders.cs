@@ -64,13 +64,13 @@ namespace erminas.SmartAPI.CMS.Project
     //    }
     //}
 
-    public interface IFolders : IIndexedRDList<Guid, IFolder>, IProjectObject
+    public interface IFolders : IIndexedRDList<string, IFolder>, IProjectObject
     {
         IRDEnumerable<IAssetManagerFolder> AssetManagerFolders { get; }
         IRDEnumerable<IFolder> AllIncludingSubFolders { get; }
     }
 
-    internal class Folders : GuidIndexedRDList<IFolder>, IFolders
+    internal class Folders : NameIndexedRDList<IFolder>, IFolders
     {
         private readonly IProject _project;
 
@@ -115,7 +115,7 @@ namespace erminas.SmartAPI.CMS.Project
         private List<IFolder> GetFolders()
         {
             const string LIST_FILE_FOLDERS =
-                @"<PROJECT><FOLDERS action=""list"" withsubfolders=""1""/></PROJECT>";
+                @"<PROJECT><FOLDERS action=""list"" withsubfolders=""0""/></PROJECT>";
             var xmlDoc = Project.ExecuteRQL(LIST_FILE_FOLDERS);
 
             return (from XmlElement curNode in xmlDoc.GetElementsByTagName("FOLDER")

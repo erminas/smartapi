@@ -54,5 +54,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                 (from XmlElement curSubNode in subFolders
                  select (IAssetManagerFolder) new AssetManagerFolder(_folder, curSubNode)).ToList();
         }
+
+        public override void InvalidateCache()
+        {
+            ((Project) Project).AllFoldersXmlDocument = null;
+            base.InvalidateCache();
+        }
     }
 }

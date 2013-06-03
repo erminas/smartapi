@@ -72,6 +72,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             return RetrieveFiles(LIST_FILES_BY_NAME_PATTERN.SecureRQLFormat(Folder, searchText)).AsReadOnly();
         }
 
+        public IFile GetByName(string name)
+        {
+            return GetByNamePattern(name).First(file => file.Name == name);
+        }
+
         public IProject Project
         {
             get { return Folder.Project; }

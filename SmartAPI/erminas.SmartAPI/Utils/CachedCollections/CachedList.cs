@@ -56,7 +56,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         protected virtual List<T> List { get; set; }
         protected Func<List<T>> RetrieveFunc { private get; set; }
 
-        #region ICachedList<T> Members
 
         public T GetByPosition(int pos)
         {
@@ -70,7 +69,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return List.GetEnumerator();
         }
 
-        public void InvalidateCache()
+        public virtual void InvalidateCache()
         {
             List = null;
         }
@@ -107,7 +106,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return List.GetEnumerator();
         }
 
-        #endregion
     }
 
     public enum Caching
