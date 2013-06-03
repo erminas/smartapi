@@ -307,6 +307,8 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         public IFolders Folders { get; private set; }
 
+        internal XmlDocument AllFoldersXmlDocument { get; set; }
+
         /// <see cref="CMS.Session.GetTextContent" />
         public string GetTextContent(Guid textElementGuid, ILanguageVariant lang, string typeString)
         {
