@@ -47,13 +47,20 @@ namespace erminas.SmartAPI.CMS
         private readonly string _moduleName;
         private readonly DateTime _loginDate;
         private readonly DateTime _lastActionDate;
+        private readonly Guid _loginGuid;
 
-        public RunningSessionInfo(string projectName, string moduleName, DateTime loginDate, DateTime lastActionDate)
+        public RunningSessionInfo(Guid loginGuid, string projectName, string moduleName, DateTime loginDate, DateTime lastActionDate)
         {
+            _loginGuid = loginGuid;
             _projectName = projectName;
             _moduleName = moduleName;
             _loginDate = loginDate;
             _lastActionDate = lastActionDate;
+        }
+
+        public Guid LoginGuid
+        {
+            get { return _loginGuid; }
         }
 
         internal RunningSessionInfo(XmlElement element)
@@ -62,6 +69,7 @@ namespace erminas.SmartAPI.CMS
             _moduleName = element.GetAttributeValue("moduledescription");
             _loginDate = element.GetOADate("logindate").GetValueOrDefault();
             _lastActionDate = element.GetOADate("lastactiondate").GetValueOrDefault();
+            _loginGuid = element.GetGuid();
         }
 
         public string ProjectName
@@ -358,14 +366,11 @@ namespace erminas.SmartAPI.CMS
             AsynchronousProcesses = new RDList<IAsynchronousProcess>(GetAsynchronousProcesses, Caching.Disabled);
         }
 
-        /// <summary>
-        ///     Create a new session. Will use a new session key, even if the user is already logged in. If you want to create a session from a red dot plugin with an existing sesssion key, use Session(ServerLogin, String, String, String) instead.
-        /// </summary>
-        /// <param name="login"> Login data </param>
-        public Session(ServerLogin login) : this()
+        public Session(ServerLogin login, Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector)
+            : this()
         {
             ServerLogin = login;
-            Login();
+            Login(sessionReplacementSelector);
         }
 
         /// <summary>
@@ -382,15 +387,6 @@ namespace erminas.SmartAPI.CMS
             SelectedProjectGuid = sessionInfo.GetGuid("projectguid");
             SelectProject(projectGuid);
         }
-
-        #region CONFIG
-
-        /// <summary>
-        ///     Forcelogin=true means that if the user was already logged in the old session will be closed and a new one started.
-        /// </summary>
-        private const bool FORCE_LOGIN = true;
-
-        #endregion
 
         public IRDList<IApplicationServer> ApplicationServers { get; private set; }
 
@@ -849,13 +845,13 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return xmlElement.GetAttributeValue("loginguid") ?? "";
         }
 
-        private void CheckLoginResponse(XmlDocument xmlDoc)
+        private void CheckLoginResponse(XmlDocument xmlDoc, Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>  sesssionReplacementSelector)
         {
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
 
             if (xmlNodes.Count > 0)
             {
-                ParseLoginResponse(xmlNodes, ServerLogin.AuthData, xmlDoc);
+                ParseLoginResponse(xmlNodes, ServerLogin.AuthData, xmlDoc, sesssionReplacementSelector);
             }
             else
             {
@@ -941,14 +937,14 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     select (IDialogLocale) new DialogLocale(this, curElement)).ToList();
         }
 
-        private XmlElement GetForceLoginXmlNode(PasswordAuthentication pa, string oldLoginGuid)
+        private XmlElement GetForceLoginXmlNode(PasswordAuthentication pa, Guid oldLoginGuid)
         {
-            LOG.InfoFormat("User login will be forced. Old login guid was: {0}", oldLoginGuid);
+            LOG.InfoFormat("User login will be forced. Old login guid was: {0}", oldLoginGuid.ToRQLString());
             //hide user password in log message
             string rql = string.Format(RQL_IODATA,
-                                       string.Format(RQL_LOGIN_FORCE, pa.Username, pa.Password, oldLoginGuid));
+                                       RQL_LOGIN_FORCE.RQLFormat(pa.Username, pa.Password, oldLoginGuid));
             string debugRQLOutput = string.Format(RQL_IODATA,
-                                                  string.Format(RQL_LOGIN_FORCE, pa.Username, "*****", oldLoginGuid));
+                                                  RQL_LOGIN_FORCE.RQLFormat(pa.Username, "*****", oldLoginGuid));
             string result = SendRQLToServer(rql, debugRQLOutput);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(result);
@@ -1045,6 +1041,15 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             {
                 baseURL += "/";
             }
+            ServerVersion = ServerLogin.ManualVersionOverride ?? GetServerVersion(baseURL);
+            CmsServerConnectionUrl = baseURL +
+                                            (ServerVersion.Major < 11
+                                                 ? "webservice/RDCMSXMLServer.WSDL"
+                                                 : "WebService/RQLWebService.svc");
+        }
+
+        private Version GetServerVersion(string baseURL)
+        {
             string versionURI = baseURL + "ioVersionInfo.asp";
             try
             {
@@ -1057,21 +1062,16 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                         client.Credentials = c;
                     }
 
-
                     string responseText = client.DownloadString(versionURI);
                     Match match = VERSION_REGEXP.Match(responseText);
                     if (match.Groups.Count != 4)
                     {
                         throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
-                                                            "Could not retrieve version info of RedDot server at " +
-                                                            baseURL + "\n" + responseText);
+                                                            "Could not retrieve version info of RedDot server at " + baseURL +
+                                                            "\n" + responseText);
                     }
 
-                    ServerVersion = new Version(match.Groups[3].Value);
-                    CmsServerConnectionUrl = baseURL +
-                                             (ServerVersion.Major < 11
-                                                  ? "webservice/RDCMSXMLServer.WSDL"
-                                                  : "WebService/RQLWebService.svc");
+                    return new Version(match.Groups[3].Value);
                 }
             } catch (RedDotConnectionException)
             {
@@ -1079,13 +1079,13 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             } catch (WebException e)
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
-                                                    "Could not retrieve version info of RedDot server at " + baseURL +
-                                                    "\n" + e.Message, e);
+                                                    "Could not retrieve version info of RedDot server at " + baseURL + "\n" +
+                                                    e.Message, e);
             } catch (Exception e)
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.Unknown,
-                                                    "Could not retrieve version info of RedDot server at " + baseURL +
-                                                    "\n" + e.Message, e);
+                                                    "Could not retrieve version info of RedDot server at " + baseURL + "\n" +
+                                                    e.Message, e);
             }
         }
 
@@ -1119,15 +1119,15 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             }
         }
 
-        private void Login()
+        private void Login(Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector )
         {
             InitConnection();
 
             var xmlDoc = GetLoginResponse();
 
-            CheckLoginResponse(xmlDoc);
+            CheckLoginResponse(xmlDoc, sessionReplacementSelector);
 
-            LoadSelectedProject(xmlDoc);
+         //   LoadSelectedProject(xmlDoc);
         }
 
         private void Logout(Guid logonGuid)
@@ -1136,21 +1136,20 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             ExecuteRql(string.Format(RQL_LOGOUT, logonGuid.ToRQLString()), RQL.IODataFormat.LogonGuidOnly);
         }
 
-        private void ParseLoginResponse(XmlNodeList xmlNodes, PasswordAuthentication authData, XmlDocument xmlDoc)
+        private void ParseLoginResponse(XmlNodeList xmlNodes, PasswordAuthentication authData, XmlDocument xmlDoc, Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector)
         {
             // check if already logged in
             var xmlNode = (XmlElement) xmlNodes[0];
             string oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
-            // ReSharper disable ConditionIsAlwaysTrueOrFalse
-            if (oldLoginGuid != "" && !FORCE_LOGIN) // ReSharper restore ConditionIsAlwaysTrueOrFalse
-            {
-                throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.AlreadyLoggedIn,
-                                                    "User already logged in.");
-            }
             if (oldLoginGuid != "")
             {
-                // forcelogin is true -> force the login
-                xmlNode = GetForceLoginXmlNode(authData, oldLoginGuid);
+                RunningSessionInfo sessionToReplace;
+                if (sessionReplacementSelector == null ||
+                    !TryGetSessionInfo(xmlDoc, sessionReplacementSelector, out sessionToReplace))
+                {
+                    throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.AlreadyLoggedIn, "User is already logged in and no open session was selected to get replaced");
+                }
+                xmlNode = GetForceLoginXmlNode(authData, sessionToReplace.LoginGuid);
                 if (xmlNode == null)
                 {
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
@@ -1167,6 +1166,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             }
             LogonGuid = Guid.Parse(loginGuid);
 
+            LoadSelectedProject(xmlNode.OwnerDocument);
             var loginNode = (XmlElement) xmlNodes[0];
             string userGuidStr = loginNode.GetAttributeValue("userguid");
             if (string.IsNullOrEmpty(userGuidStr))
@@ -1183,6 +1183,19 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             {
                 CurrentUser = new User(this, Guid.Parse(loginNode.GetAttributeValue("userguid")));
             }
+        }
+
+        private static bool TryGetSessionInfo(XmlDocument xmlDoc, Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector, out RunningSessionInfo sessionToReplace)
+        {
+            if (sessionReplacementSelector == null)
+            {
+                sessionToReplace = null;
+                return false;
+            }
+            sessionToReplace = sessionReplacementSelector(from XmlElement curLogin in xmlDoc.GetElementsByTagName("LOGIN")
+                                                             select new RunningSessionInfo(curLogin));
+
+            return sessionToReplace != null;
         }
 
         private XmlDocument ParseRQLResult(string result)

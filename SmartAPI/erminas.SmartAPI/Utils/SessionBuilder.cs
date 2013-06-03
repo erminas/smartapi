@@ -17,7 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Xml;
+using System.Xml.Linq;
 using erminas.SmartAPI.CMS;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.Utils
 {
@@ -49,19 +52,19 @@ namespace erminas.SmartAPI.Utils
 
         public static ISession CreateSession(ServerLogin login)
         {
-            return new Session(login);
+            return new Session(login, null);
         }
 
-        public static ISession CreateOrReplaceSession(Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>  sessionReplacementSelector)
+        public static ISession CreateOrReplaceSession(ServerLogin login, Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>  sessionReplacementSelector)
         {
-            return null;
+            return new Session(login, sessionReplacementSelector);
         }
 
-        public static ISession CreateOrReplaceOldestSession()
+        public static ISession CreateOrReplaceOldestSession(ServerLogin login)
         {
             Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector =
                 infos => infos.OrderBy(info => info.LoginDate).First();
-            return CreateOrReplaceSession(sessionReplacementSelector);
+            return CreateOrReplaceSession(login, sessionReplacementSelector);
         }
 
         public ServerLogin Login { get; set; }

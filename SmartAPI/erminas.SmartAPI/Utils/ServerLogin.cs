@@ -52,5 +52,7 @@ namespace erminas.SmartAPI.Utils
         ///     (Optional) Name of the login.
         /// </summary>
         public string Name { get; set; }
+
+        public Version ManualVersionOverride { get; set; }
     }
 }
