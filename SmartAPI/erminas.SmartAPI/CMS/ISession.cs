@@ -1235,16 +1235,24 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
                 binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
                 binding.SendTimeout = TimeSpan.FromMinutes(10);
-                
-                //binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
-                //binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+
+                if (ServerLogin.WindowsAuthentication != null)
+                {
+                    binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
+                    binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                }
                 
                 var add = new EndpointAddress(CmsServerConnectionUrl);
                 
                 try
                 {
                     var client = new RqlWebServiceClient(binding, add);
-                    
+                    if (ServerLogin.WindowsAuthentication != null)
+                    {
+                        client.ClientCredentials.Windows.ClientCredential = ServerLogin.WindowsAuthentication;
+                        //client.ClientCredentials.Windows.AllowNtlm = true;
+                        client.ClientCredentials.Windows.AllowedImpersonationLevel = TokenImpersonationLevel.Impersonation;
+                    }
                     //var channel = client.ChannelFactory.CreateChannel();
                     //var res = channel.Execute(new ExecuteRequest(rqlQuery, error, resultInfo));
                     //var result = res.Result;
