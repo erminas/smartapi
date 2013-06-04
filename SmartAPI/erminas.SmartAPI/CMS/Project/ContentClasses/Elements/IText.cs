@@ -22,8 +22,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IText : IExtendedContentClassContentElement
     {
-        string DefaultText { get; set; }
-        string ExampleText { get; set; }
+        string DefaultValue { get; set; }
+        string ExampleValue { get; set; }
         bool IsCrlfConvertedToBr { get; set; }
         bool IsDirectEditActivated { get; set; }
         bool IsDragAndDropActivated { get; set; }
@@ -56,13 +56,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             base.Commit();
         }
 
-        public string DefaultText
+        public string DefaultValue
         {
             get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
             set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
         }
 
-        public string ExampleText
+        public string ExampleValue
         {
             get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
             set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
