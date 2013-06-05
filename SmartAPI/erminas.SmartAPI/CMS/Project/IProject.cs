@@ -46,9 +46,8 @@ namespace erminas.SmartAPI.CMS.Project
 
     public interface IContentClassFolders : IIndexedRDList<string, IContentClassFolder>, IProjectObject
     {
-        IIndexedRDList<string, IContentClassFolder> Broken{ get; }
+        IIndexedRDList<string, IContentClassFolder> Broken { get; }
     }
-
 
     internal class ContentClassFolders : NameIndexedRDList<IContentClassFolder>, IContentClassFolders
     {
@@ -61,38 +60,51 @@ namespace erminas.SmartAPI.CMS.Project
             Broken = new NameIndexedRDList<IContentClassFolder>(GetBrokenFolders, Caching.Enabled);
         }
 
+        public IIndexedRDList<string, IContentClassFolder> Broken { get; private set; }
+
+        public IProject Project
+        {
+            get { return _project; }
+        }
+
+        public ISession Session
+        {
+            get { return _project.Session; }
+        }
+
         private List<IContentClassFolder> GetBrokenFolders()
         {
-            const string TREE = @"<TREESEGMENT type=""project.4000"" action=""load"" guid=""4AF89E44535511D4BDAB004005312B7C"" descent=""app"" parentguid=""""/>";
+            const string TREE =
+                @"<TREESEGMENT type=""project.4000"" action=""load"" guid=""4AF89E44535511D4BDAB004005312B7C"" descent=""app"" parentguid=""""/>";
             var result = Project.ExecuteRQL(TREE);
             var guids = this.Select(folder => folder.Guid).ToList();
             return (from XmlElement element in result.GetElementsByTagName("SEGMENT")
                     let curGuid = element.GetGuid()
                     where !guids.Contains(curGuid)
-                    select (IContentClassFolder)new ContentClassFolder(_project, curGuid) { Name = element.GetAttributeValue("value"), IsBroken = true}).ToList();
+                    select
+                        (IContentClassFolder)
+                        new ContentClassFolder(_project, curGuid)
+                            {
+                                Name = element.GetAttributeValue("value"),
+                                IsBroken = true
+                            }).ToList();
         }
-
-        public ISession Session { get { return _project.Session; } }
-        public IProject Project { get { return _project; }}
-
-        public IIndexedRDList<string, IContentClassFolder> Broken{ get; private set; }
 
         private List<IContentClassFolder> GetContentClassFolders()
         {
             const string LIST_CC_FOLDERS_OF_PROJECT = @"<TEMPLATEGROUPS action=""load"" />";
             //TODO project.execute
-            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_FOLDERS_OF_PROJECT, _project.Guid);
+            XmlDocument xmlDoc = Session.ExecuteRQLInProjectContext(LIST_CC_FOLDERS_OF_PROJECT, _project.Guid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
 
             return
-                (from XmlElement curNode in xmlNodes select (IContentClassFolder)new ContentClassFolder(_project, curNode))
-                    .ToList();
+                (from XmlElement curNode in xmlNodes
+                 select (IContentClassFolder) new ContentClassFolder(_project, curNode)).ToList();
         }
     }
+
     public interface IProject : IPartialRedDotObject, ISessionObject
     {
-
-
         //IClipboard Clipboard { get; }
         IProjectGroups AssignedGroups { get; }
         ICategories Categories { get; }
@@ -294,9 +306,9 @@ namespace erminas.SmartAPI.CMS.Project
             switch (type)
             {
                 case RqlType.SessionKeyInIodata:
-                    return Session.ExecuteRQL(query, Guid);
+                    return Session.ExecuteRQLInProjectContext(query, Guid);
                 case RqlType.SessionKeyInProject:
-                    return Session.ExecuteRQLProject(Guid, query);
+                    return Session.ExecuteRQLInProjectContextAndEmbeddedInProjectElement(query, Guid);
                 default:
                     throw new ArgumentException(string.Format("Unknown query type: {0}", type));
             }
@@ -306,8 +318,6 @@ namespace erminas.SmartAPI.CMS.Project
         ///     All folders, indexed by guid. The list is cached by default.
         /// </summary>
         public IFolders Folders { get; private set; }
-
-        internal XmlDocument AllFoldersXmlDocument { get; set; }
 
         /// <see cref="CMS.Session.GetTextContent" />
         public string GetTextContent(Guid textElementGuid, ILanguageVariant lang, string typeString)
@@ -470,6 +480,8 @@ namespace erminas.SmartAPI.CMS.Project
             }
             return ((Project) Session.ProjectsForCurrentUser.GetByGuid(Guid)).XmlElement;
         }
+
+        internal XmlDocument AllFoldersXmlDocument { get; set; }
 
         private List<IInfoAttribute> GetInfoAttributes()
         {

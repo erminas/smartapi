@@ -114,11 +114,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         /// </summary>
         IIndexedRDList<string, IContentClass> ContentClasses { get; }
 
+        bool IsBroken { get; }
+
         bool IsSharedToOtherProjects { get; }
         IContentClassFolder SharedFrom { get; }
         IContentClassFolderSharing SharedTo { get; }
-
-        bool IsBroken { get; }
     }
 
     /// <summary>
@@ -134,14 +134,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             Init(project);
         }
 
-        private void Init(IProject project)
-        {
-            ContentClasses = new NameIndexedRDList<IContentClass>(GetContentClasses, Caching.Enabled);
-            SharedTo = new ContentClassFolderSharing(this, Caching.Enabled);
-            _project = project;
-            _sharedFrom = new Lazy<IContentClassFolder>(GetSharedFrom);
-        }
-
         internal ContentClassFolder(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             Init(project);
@@ -151,6 +143,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         ///     All content classes contained in this folder, indexed by name. The list is cached by default.
         /// </summary>
         public IIndexedRDList<string, IContentClass> ContentClasses { get; private set; }
+
+        public bool IsBroken { get; internal set; }
 
         public bool IsSharedToOtherProjects
         {
@@ -163,7 +157,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         }
 
         public IContentClassFolderSharing SharedTo { get; private set; }
-        public bool IsBroken { get; internal set; }
 
         private List<IContentClass> GetContentClasses()
         {
@@ -188,7 +181,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             {
                 if (IsBroken)
                 {
-                    throw new BrokenContentClassFolderSharingException(Session.ServerLogin, this, sharedProjectGuid, sharedFolderGuid);
+                    throw new BrokenContentClassFolderSharingException(Session.ServerLogin, this, sharedProjectGuid,
+                                                                       sharedFolderGuid);
                 }
                 if (Session.CurrentUser.ModuleAssignment.IsServerManager)
                 {
@@ -208,7 +202,17 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         private static IContentClassFolder GetSharedFromFolder(IProject project, Guid sharedFolderGuid)
         {
-            return project.ContentClassFolders.Union(project.ContentClassFolders.Broken).First(x=>x.Guid == sharedFolderGuid);
+            return
+                project.ContentClassFolders.Union(project.ContentClassFolders.Broken)
+                       .First(x => x.Guid == sharedFolderGuid);
+        }
+
+        private void Init(IProject project)
+        {
+            ContentClasses = new NameIndexedRDList<IContentClass>(GetContentClasses, Caching.Enabled);
+            SharedTo = new ContentClassFolderSharing(this, Caching.Enabled);
+            _project = project;
+            _sharedFrom = new Lazy<IContentClassFolder>(GetSharedFrom);
         }
     }
 }

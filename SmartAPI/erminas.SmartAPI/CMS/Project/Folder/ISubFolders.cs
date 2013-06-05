@@ -1,4 +1,19 @@
-﻿using System;
+﻿// Smart API - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,7 +89,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         {
             get { throw new SmartAPIException(Session.ServerLogin, "Subfolders cannot contain other subfolders"); }
         }
-        
+
         public IAssetManagerFolder ParentFolder { get; private set; }
 
         public IProject Project
@@ -84,6 +99,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public void Refresh()
         {
+        }
+
+        public IIndexedCachedList<string, IAssetManagerFolder> Refreshed()
+        {
+            return this;
         }
 
         public ISession Session
@@ -97,33 +117,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             return false;
         }
 
-        public void WaitFor(Predicate<IIndexedCachedList<string, IAssetManagerFolder>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
-        {
-            if (!predicate(this))
-            {
-                throw new TimeoutException(
-                    string.Format(
-                        "Predicate is a contradiction on subfolders of {0} as it cannot contain other subdirectories.",
-                        ParentFolder));
-            }
-        }
-
-        public IIndexedCachedList<string, IAssetManagerFolder> Refreshed()
-        {
-            return this;
-        }
-
-        public void WaitFor(Func<IIndexedRDList<string, IAssetManagerFolder>, bool> predicate, TimeSpan maxWait, TimeSpan retryEverySecond)
-        {
-            if (!predicate(this))
-            {
-                throw new TimeoutException(
-                    string.Format(
-                        "Predicate is a contradiction on subfolders of {0} as it cannot contain other subdirectories.",
-                        ParentFolder));
-            }
-        }
-
         public bool TryGetByGuid(Guid guid, out IAssetManagerFolder output)
         {
             output = null;
@@ -134,6 +127,30 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         {
             output = null;
             return false;
+        }
+
+        public void WaitFor(Predicate<IIndexedCachedList<string, IAssetManagerFolder>> predicate, TimeSpan maxWait,
+                            TimeSpan retryPeriod)
+        {
+            if (!predicate(this))
+            {
+                throw new TimeoutException(
+                    string.Format(
+                        "Predicate is a contradiction on subfolders of {0} as it cannot contain other subdirectories.",
+                        ParentFolder));
+            }
+        }
+
+        public void WaitFor(Func<IIndexedRDList<string, IAssetManagerFolder>, bool> predicate, TimeSpan maxWait,
+                            TimeSpan retryEverySecond)
+        {
+            if (!predicate(this))
+            {
+                throw new TimeoutException(
+                    string.Format(
+                        "Predicate is a contradiction on subfolders of {0} as it cannot contain other subdirectories.",
+                        ParentFolder));
+            }
         }
 
         public void WaitFor(Predicate<IRDList<IAssetManagerFolder>> predicate, TimeSpan wait, TimeSpan retryPeriod)

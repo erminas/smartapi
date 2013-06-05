@@ -192,7 +192,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             var session = _element.Project.Session;
             string query = CREATE_AND_ASSIGN_WORKFLOW.RQLFormat(session.SessionKey, _element, isStructural, workflowName,
                                                                 languageVariants);
-            session.ExecuteRql(query, RQL.IODataFormat.LogonGuidOnly);
+            session.ExecuteRQLRaw(query, RQL.IODataFormat.LogonGuidOnly);
         }
 
         private PreassignedWorkflow ExecuteLoadWorkflow(string LOAD_WORKFLOW)
@@ -212,7 +212,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 @"<WORKFLOW sessionkey=""{0}""><LINK guid=""{1}"" action=""assign""><WORKFLOW action=""addnew"" structureworkflow=""{2}"" guid=""{3}"" name=""{4}""><LANGUAGEVARIANTS>{5}</LANGUAGEVARIANTS></WORKFLOW></LINK></WORKFLOW>";
 
             var session = _element.Project.Session;
-            session.ExecuteRql(
+            session.ExecuteRQLRaw(
                 PREASSIGN_WORKFLOW.RQLFormat(session.SessionKey, _element, workflow.IsStructureWorkflow, workflow,
                                              workflow.Name, languageVariants), RQL.IODataFormat.LogonGuidOnly);
 

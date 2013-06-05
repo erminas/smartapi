@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Exceptions;
@@ -92,8 +91,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     /// </summary>
     public interface IPage : ILinkTarget, IPartialRedDotObject, IAttributeContainer, IKeywordAssignable, IDeletable
     {
-        IPage Refreshed();
-
         DateTime CheckinDate { get; }
 
         /// <summary>
@@ -192,6 +189,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// </summary>
         IPage Parent { get; }
 
+        IPage Refreshed();
+
         /// <summary>
         ///     Rejects the page from the current level of workflow.
         /// </summary>
@@ -212,6 +211,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     The current release status of this page. Setting it will change it on the server.
         /// </summary>
         PageReleaseStatus ReleaseStatus { get; set; }
+
+        void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping, Replace replace);
 
         /// <summary>
         ///     Reset the page to draft status.
@@ -250,7 +251,5 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     Returns the Workflow this page adheres to.
         /// </summary>
         IWorkflow Workflow { get; }
-
-        void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping, Replace replace);
     }
 }

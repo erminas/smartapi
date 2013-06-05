@@ -74,7 +74,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             string query = UNLINK_WORKFLOW.RQLFormat(session.SessionKey, ElementPreassignedTo, _workflow,
                                                      languageVariants);
 
-            session.ExecuteRql(query, RQL.IODataFormat.LogonGuidOnly);
+            session.ExecuteRQLRaw(query, RQL.IODataFormat.LogonGuidOnly);
 
             InvalidateCache();
         }

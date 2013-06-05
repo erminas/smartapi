@@ -32,10 +32,10 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
     public interface IFolder : IPartialRedDotObject, IProjectObject
     {
-        IFolder LinkedFolder { get; }
         IFiles Files { get; }
         bool IsAssetManager { get; }
         bool IsFileFolder { get; }
+        IFolder LinkedFolder { get; }
         FolderType Type { get; }
     }
 
@@ -90,29 +90,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             LoadXml();
         }
 
-        private void LoadXml()
-        {
-            Guid linkedProjectGuid;
-            if (XmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
-            {
-                var project = Project.Session.Projects.GetByGuid(linkedProjectGuid);
-                
-                // project could be null if the linked project is not available (broken folder)
-                // in that case do not try to set the linked folder
-                if (project != null)
-                {
-                    var linkedFolderGuid = XmlElement.GetGuid("linkedfolderguid");
-                    _linkedFolder = project.Folders.AllIncludingSubFolders.GetByGuid(linkedFolderGuid);
-                }
-            }
-        }
-
         internal BaseFolder(IProject project, Guid guid) : base(project, guid)
         {
             Files = new Files(this, Caching.Enabled);
         }
 
-        public IFolder LinkedFolder { get { return LazyLoad(ref _linkedFolder); } }
         public IFiles Files { get; protected set; }
 
         public virtual bool IsAssetManager
@@ -123,6 +105,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         public bool IsFileFolder
         {
             get { return Type == FolderType.FileFolder; }
+        }
+
+        public IFolder LinkedFolder
+        {
+            get { return LazyLoad(ref _linkedFolder); }
         }
 
         public abstract FolderType Type { get; }
@@ -136,6 +123,23 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         {
             const string LOAD_FOLDER = @"<PROJECT><FOLDER action=""load"" guid=""{0}""/></PROJECT>";
             return Project.ExecuteRQL(LOAD_FOLDER.RQLFormat(this)).GetSingleElement("FOLDER");
+        }
+
+        private void LoadXml()
+        {
+            Guid linkedProjectGuid;
+            if (XmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
+            {
+                var project = Project.Session.Projects.GetByGuid(linkedProjectGuid);
+
+                // project could be null if the linked project is not available (broken folder)
+                // in that case do not try to set the linked folder
+                if (project != null)
+                {
+                    var linkedFolderGuid = XmlElement.GetGuid("linkedfolderguid");
+                    _linkedFolder = project.Folders.AllIncludingSubFolders.GetByGuid(linkedFolderGuid);
+                }
+            }
         }
     }
 

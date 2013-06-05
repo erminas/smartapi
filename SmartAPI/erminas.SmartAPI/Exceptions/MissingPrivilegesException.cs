@@ -13,3 +13,12 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+namespace erminas.SmartAPI.Exceptions
+{
+    public class MissingPrivilegesException : RQLException
+    {
+        public MissingPrivilegesException(RQLException exception) : base(exception)
+        {
+        }
+    }
+}

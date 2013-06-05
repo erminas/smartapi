@@ -56,7 +56,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             if (!string.IsNullOrWhiteSpace(responseText))
             {
                 throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not add files in folder {0}: {1}", _folder, responseText));
+                                            string.Format("Could not add files in folder {0}: {1}", _folder,
+                                                          responseText));
             }
         }
 
@@ -65,16 +66,16 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             get { return _folder; }
         }
 
+        public IFile GetByName(string name)
+        {
+            return GetByNamePattern(name).First(file => file.Name == name);
+        }
+
         public ReadOnlyCollection<IFile> GetByNamePattern(string searchText)
         {
             const string LIST_FILES_BY_NAME_PATTERN =
                 @"<PROJECT><TEMPLATE><ELEMENT folderguid=""{0}""><FILES action=""list"" searchtext=""{1}"" /></ELEMENT></TEMPLATE></PROJECT>";
             return RetrieveFiles(LIST_FILES_BY_NAME_PATTERN.SecureRQLFormat(Folder, searchText)).AsReadOnly();
-        }
-
-        public IFile GetByName(string name)
-        {
-            return GetByNamePattern(name).First(file => file.Name == name);
         }
 
         public IProject Project
@@ -125,20 +126,20 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             get { return Folder.Session; }
         }
 
-        private List<IFile> GetFiles()
-        {
-            const string LIST_FILES =
-                @"<PROJECT><TEMPLATE><ELEMENT folderguid=""{0}""><FILES action=""list"" /></ELEMENT></TEMPLATE></PROJECT>";
-
-            return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
-        }
-
         protected List<IFile> RetrieveFiles(string rqlString)
         {
             XmlDocument xmlDoc = Project.ExecuteRQL(rqlString);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("FILE");
 
             return (from XmlElement xmlNode in xmlNodes select (IFile) new File(Project, xmlNode)).ToList();
+        }
+
+        private List<IFile> GetFiles()
+        {
+            const string LIST_FILES =
+                @"<PROJECT><TEMPLATE><ELEMENT folderguid=""{0}""><FILES action=""list"" /></ELEMENT></TEMPLATE></PROJECT>";
+
+            return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
         }
     }
 

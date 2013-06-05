@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
     /// <summary>
-    /// TODO trennen in ftp/ds
+    ///     TODO trennen in ftp/ds
     /// </summary>
     public interface IPublicationFolder : IPartialRedDotObject, IProjectObject, IDeletable
     {

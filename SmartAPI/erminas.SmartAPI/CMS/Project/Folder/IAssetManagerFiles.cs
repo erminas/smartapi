@@ -37,7 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         /// <returns> </returns>
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
         ReadOnlyCollection<IFile> GetByAttribute(FileComparisonAttribute attribute, FileComparisonOperator @operator,
-                                                    int value);
+                                                 int value);
 
         ReadOnlyCollection<IFile> GetByAuthor(IUser user);
         ReadOnlyCollection<IFile> GetByLastModifier(IUser user);
@@ -59,7 +59,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
         public ReadOnlyCollection<IFile> GetByAttribute(FileComparisonAttribute attribute,
-                                                           FileComparisonOperator @operator, int value)
+                                                        FileComparisonOperator @operator, int value)
         {
             VersionVerifier.EnsureVersion(Session);
 
@@ -74,7 +74,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         public ReadOnlyCollection<IFile> GetByAuthor(IUser author)
         {
             const string FILTER_FILES_BY_CREATOR =
-                    @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" createguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+                @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" createguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
 
             var query = FILTER_FILES_BY_CREATOR.RQLFormat(Folder, author);
             return RetrieveFiles(query).AsReadOnly();
@@ -82,7 +82,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public ReadOnlyCollection<IFile> GetByLastModifier(IUser lastModifier)
         {
-            const string FILTER_FILES_BY_CHANGEAUTHOR = @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" changeguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+            const string FILTER_FILES_BY_CHANGEAUTHOR =
+                @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" changeguid=""{1}"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
 
             var query = FILTER_FILES_BY_CHANGEAUTHOR.RQLFormat(Folder, lastModifier);
             return RetrieveFiles(query).AsReadOnly();
@@ -90,7 +91,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public void UpdateThumbnailAndFileInformation(string filename)
         {
-            UpdateThumbnailAndFileInformationRange(new []{filename});
+            UpdateThumbnailAndFileInformationRange(new[] {filename});
         }
 
         public void UpdateThumbnailAndFileInformationForAll()

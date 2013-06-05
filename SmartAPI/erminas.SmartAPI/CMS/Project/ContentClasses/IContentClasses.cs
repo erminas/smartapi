@@ -48,7 +48,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private List<IContentClass> GetContentClasses()
         {
             const string LIST_CC_OF_PROJECT = @"<TEMPLATES action=""list""/>";
-            XmlDocument xmlDoc = Session.ExecuteRQL(LIST_CC_OF_PROJECT, _project.Guid);
+            XmlDocument xmlDoc = Session.ExecuteRQLInProjectContext(LIST_CC_OF_PROJECT, _project.Guid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("TEMPLATE");
 
             return (from XmlElement curNode in xmlNodes

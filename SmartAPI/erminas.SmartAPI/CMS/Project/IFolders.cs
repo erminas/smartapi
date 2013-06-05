@@ -66,8 +66,8 @@ namespace erminas.SmartAPI.CMS.Project
 
     public interface IFolders : IIndexedRDList<string, IFolder>, IProjectObject
     {
-        IRDEnumerable<IAssetManagerFolder> AssetManagerFolders { get; }
         IRDEnumerable<IFolder> AllIncludingSubFolders { get; }
+        IRDEnumerable<IAssetManagerFolder> AssetManagerFolders { get; }
     }
 
     internal class Folders : NameIndexedRDList<IFolder>, IFolders
@@ -80,26 +80,26 @@ namespace erminas.SmartAPI.CMS.Project
             RetrieveFunc = GetFolders;
         }
 
+        public IRDEnumerable<IFolder> AllIncludingSubFolders
+        {
+            get
+            {
+                return
+                    this.Union(
+                        this.Where(folder => folder is IAssetManagerFolder)
+                            .Cast<IAssetManagerFolder>()
+                            .SelectMany(folder => folder.SubFolders)).ToRDEnumerable();
+            }
+        }
+
         public IRDEnumerable<IAssetManagerFolder> AssetManagerFolders
         {
             get { return this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().ToRDEnumerable(); }
-
-        }
-
-        public IRDEnumerable<IFolder> AllIncludingSubFolders
-        {
-            get { return this.Union(this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().SelectMany(folder => folder.SubFolders)).ToRDEnumerable(); }
         }
 
         public IFolder GetByGuidIncludingSubFolders(Guid folderGuid)
         {
             return AllIncludingSubFolders.First(folder => folder.Guid == folderGuid);
-        }
-
-        public bool TryGetByGuidIncludingSubFolders(Guid folderGuid, out IFolder folder)
-        {
-            folder = AllIncludingSubFolders.FirstOrDefault(folder2 => folder2.Guid == folderGuid);
-            return folder != null;
         }
 
         public IProject Project
@@ -112,10 +112,15 @@ namespace erminas.SmartAPI.CMS.Project
             get { return _project.Session; }
         }
 
+        public bool TryGetByGuidIncludingSubFolders(Guid folderGuid, out IFolder folder)
+        {
+            folder = AllIncludingSubFolders.FirstOrDefault(folder2 => folder2.Guid == folderGuid);
+            return folder != null;
+        }
+
         private List<IFolder> GetFolders()
         {
-            const string LIST_FILE_FOLDERS =
-                @"<PROJECT><FOLDERS action=""list"" withsubfolders=""0""/></PROJECT>";
+            const string LIST_FILE_FOLDERS = @"<PROJECT><FOLDERS action=""list"" withsubfolders=""0""/></PROJECT>";
             var xmlDoc = Project.ExecuteRQL(LIST_FILE_FOLDERS);
 
             return (from XmlElement curNode in xmlDoc.GetElementsByTagName("FOLDER")

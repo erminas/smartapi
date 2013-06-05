@@ -33,8 +33,6 @@ namespace erminas.SmartAPI.Utils
             AuthData = authData;
         }
 
-        public NetworkCredential WindowsAuthentication { get; set; }
-
         /// <summary>
         ///     Address of the server. If you do not know the version of the RedDot server use
         ///     <see
@@ -48,11 +46,13 @@ namespace erminas.SmartAPI.Utils
         /// </summary>
         public PasswordAuthentication AuthData { get; set; }
 
+        public Version ManualVersionOverride { get; set; }
+
         /// <summary>
         ///     (Optional) Name of the login.
         /// </summary>
         public string Name { get; set; }
 
-        public Version ManualVersionOverride { get; set; }
+        public NetworkCredential WindowsAuthentication { get; set; }
     }
 }

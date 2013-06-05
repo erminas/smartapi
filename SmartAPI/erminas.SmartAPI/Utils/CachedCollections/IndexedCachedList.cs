@@ -99,6 +99,12 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             get { return Get(key); }
         }
 
+        public new IIndexedCachedList<TK, T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         public bool TryGet(TK key, out T obj)
         {
             EnsureListIsLoaded();
@@ -114,12 +120,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         public void WaitFor(Predicate<IIndexedCachedList<TK, T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
         {
             Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
-        }
-
-        public new IIndexedCachedList<TK, T> Refreshed()
-        {
-            Refresh();
-            return this;
         }
 
         #endregion

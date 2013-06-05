@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using erminas.SmartAPI.CMS;
-using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.Utils.CachedCollections
 {
@@ -73,16 +72,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return this;
         }
 
-        public void WaitFor(Func<IIndexedRDList<TK, T>, bool> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
-        {
-            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
-        }
-
-        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
-        {
-            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
-        }
-
         public virtual bool TryGetByGuid(Guid guid, out T output)
         {
             EnsureListIsLoaded();
@@ -96,7 +85,17 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             output = List.FirstOrDefault(x => x.Name == name);
             return output != null;
         }
-        
+
+        public void WaitFor(Func<IIndexedRDList<TK, T>, bool> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
+        }
+
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
+        }
+
         IRDList<T> IRDList<T>.Refreshed()
         {
             Refresh();
@@ -134,21 +133,18 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return TryGet(name, out output);
         }
     }
-	
-	
+
     /// <summary>
     ///     Convenience class for a IndexedRDList with an index on the Guid attribute GetByGuid and TryGetByGuid both use the index to access the elements.
     /// </summary>
     /// <typeparam name="T"> TypeId of the stored elements </typeparam>
     public class GuidIndexedRDList<T> : IndexedRDList<Guid, T> where T : class, IRedDotObject
     {
-        public GuidIndexedRDList(Func<List<T>> retrieveFunc, Caching caching)
-            : base(retrieveFunc, x => x.Guid, caching)
+        public GuidIndexedRDList(Func<List<T>> retrieveFunc, Caching caching) : base(retrieveFunc, x => x.Guid, caching)
         {
         }
 
-        protected GuidIndexedRDList(Caching caching)
-            : base(x => x.Guid, caching)
+        protected GuidIndexedRDList(Caching caching) : base(x => x.Guid, caching)
         {
         }
 

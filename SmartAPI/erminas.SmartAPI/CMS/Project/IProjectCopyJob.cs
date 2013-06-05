@@ -92,8 +92,8 @@ namespace erminas.SmartAPI.CMS.Project
             }
             else
             {
-                var retryEverySecond = new TimeSpan(0,0,1);
-                Session.Projects.WaitFor(list => 
+                var retryEverySecond = new TimeSpan(0, 0, 1);
+                Session.Projects.WaitFor(list =>
                     {
                         IProject project;
                         return list.Refreshed().TryGetByName(NewProjectName, out project) &&

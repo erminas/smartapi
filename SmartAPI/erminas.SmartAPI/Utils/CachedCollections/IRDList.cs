@@ -27,9 +27,9 @@ namespace erminas.SmartAPI.Utils.CachedCollections
     /// <typeparam name="T"> </typeparam>
     public interface IRDList<T> : IRDEnumerable<T>, ICachedList<T> where T : class, IRedDotObject
     {
+        new int Count { get; }
         new IRDList<T> Refreshed();
 
-        new int Count { get; }
         /// <summary>
         ///     Same as <see cref="WaitFor" /> in <see cref="ICachedList{T}" /> but with an IRDList as predicate input.
         ///     Provided for convenience.

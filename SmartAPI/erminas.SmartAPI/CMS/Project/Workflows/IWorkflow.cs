@@ -58,7 +58,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         {
             const string DELETE_WORKFLOW = @"<WORKFLOW sessionkey=""{0}"" action=""delete"" guid=""{1}""/>";
             var session = Project.Session;
-            var reply = session.ExecuteRql(DELETE_WORKFLOW.RQLFormat(session, this), RQL.IODataFormat.LogonGuidOnly);
+            var reply = session.ExecuteRQLRaw(DELETE_WORKFLOW.RQLFormat(session, this), RQL.IODataFormat.LogonGuidOnly);
 
             if (!reply.Contains("ok"))
             {

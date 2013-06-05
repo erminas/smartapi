@@ -163,9 +163,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     internal class ContentClass : PartialRedDotProjectObject, IContentClass
     {
         private IContentClassEditableAreaSettings _editableAreaSettings;
+        private IContentClassFolder _folder;
         private Syllable _prefix;
         private Syllable _suffix;
-        private IContentClassFolder _folder;
 
         internal ContentClass(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -642,7 +642,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             //InitIfPresent(ref _languageVariant, "languagevariantid", x => Project.LanguageVariants[x]);
             InitIfPresent(ref _prefix, "praefixguid", x => new Syllable(Project, GuidConvert(x)));
             InitIfPresent(ref _suffix, "suffixguid", x => new Syllable(Project, GuidConvert(x)));
-            InitIfPresent(ref _folder, "folderguid", x=>Project.ContentClassFolders.Union(Project.ContentClassFolders.Broken).First(folder => folder.Guid == Guid.Parse(x)));
+            InitIfPresent(ref _folder, "folderguid",
+                          x =>
+                          Project.ContentClassFolders.Union(Project.ContentClassFolders.Broken)
+                                 .First(folder => folder.Guid == Guid.Parse(x)));
         }
 
         #region Nested type: CCEditableAreaSettings

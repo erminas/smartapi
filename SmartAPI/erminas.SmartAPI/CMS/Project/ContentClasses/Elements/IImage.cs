@@ -36,6 +36,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 // todo use list<string> instead
         string EligibleSuffixes { get; set; }
 
+        IFile ExampleFile { get; set; }
+
         string HSpace { get; set; }
         string HtmlHeight { get; set; }
         string HtmlWidth { get; set; }
@@ -54,7 +56,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         TargetFormat TargetFormat { get; set; }
         string Usemap { get; set; }
         string VSpace { get; set; }
-        IFile ExampleFile { get; set; }
     }
 
     internal class Image : ExtendedContentClassContentElement, IImage
@@ -137,6 +138,29 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return GetAttributeValue<string>("eltsuffixes"); }
             set { SetAttributeValue("eltsuffixes", value); }
+        }
+
+        public IFile ExampleFile
+        {
+            get
+            {
+                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid");
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
+                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
+                {
+                    return null;
+                }
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
+            }
+
+            set
+            {
+                ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value != null ? value.Name : "";
+                if (value != null)
+                {
+                    ((FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid")).Value = value.Folder;
+                }
+            }
         }
 
         public string HSpace
@@ -248,29 +272,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 if (value != null)
                 {
                     ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value.Folder;
-                }
-            }
-        }
-
-        public IFile ExampleFile
-        {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute)GetAttribute("eltrdexamplesubdirguid");
-                string srcName = ((StringXmlNodeAttribute)GetAttribute("eltrdexample")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute)GetAttribute("eltrdexample")).Value = value != null ? value.Name : "";
-                if (value != null)
-                {
-                    ((FolderXmlNodeAttribute)GetAttribute("eltrdexamplesubdirguid")).Value = value.Folder;
                 }
             }
         }

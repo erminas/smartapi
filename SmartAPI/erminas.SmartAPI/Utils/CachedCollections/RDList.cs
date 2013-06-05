@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         protected RDList(Caching caching) : base(caching)
         {
         }
-        
+
         public bool Contains(T element)
         {
             return ContainsGuid(element.Guid);
@@ -83,7 +83,5 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
             Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
         }
-
-        
     }
 }

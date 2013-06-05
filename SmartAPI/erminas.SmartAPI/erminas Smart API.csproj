@@ -153,6 +153,7 @@
     <Compile Include="Exceptions\InvalidServerVersionException.cs" />
     <Compile Include="Exceptions\MissingElementValueException.cs" />
     <Compile Include="Exceptions\MissingKeywordsException.cs" />
+    <Compile Include="Exceptions\MissingPrivilegesException.cs" />
     <Compile Include="Exceptions\PageStatusException.cs" />
     <Compile Include="Exceptions\RQLException.cs" />
     <Compile Include="Exceptions\PageDeletionException.cs" />

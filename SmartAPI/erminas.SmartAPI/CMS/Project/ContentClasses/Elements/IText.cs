@@ -23,13 +23,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IText : IExtendedContentClassContentElement
     {
         string DefaultValue { get; set; }
-        string ExampleValue { get; set; }
         bool IsCrlfConvertedToBr { get; set; }
         bool IsDirectEditActivated { get; set; }
         bool IsDragAndDropActivated { get; set; }
         bool IsTextFilterDeactivated { get; set; }
         bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
         int? MaxCharacterCount { get; set; }
+        string SampleValue { get; set; }
     }
 
     internal abstract class Text : ExtendedContentClassContentElement, IText
@@ -60,12 +60,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
             set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
-        }
-
-        public string ExampleValue
-        {
-            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
-            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
         }
 
         public bool IsCrlfConvertedToBr
@@ -112,6 +106,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     throw new ArgumentNullException("value");
                 }
             }
+        }
+
+        public string SampleValue
+        {
+            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
+            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
         }
     }
 }
