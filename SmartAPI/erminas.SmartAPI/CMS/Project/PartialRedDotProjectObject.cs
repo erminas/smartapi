@@ -33,7 +33,7 @@ namespace erminas.SmartAPI.CMS.Project
             _project = project;
         }
 
-        protected PartialRedDotProjectObject(IProject project) : base(project.Session)
+        protected PartialRedDotProjectObject(IProject project) : base(project != null ? project.Session : null)
         {
             _project = project;
         }

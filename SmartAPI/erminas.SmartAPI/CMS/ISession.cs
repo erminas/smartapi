@@ -1066,9 +1066,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     SelectProject(Guid.Parse(projectStr));
                 } catch (SmartAPIException e)
                 {
-                    if (e.InnerException != null &&
-                        e.InnerException.Message.Contains(
-                            "The project you have selected is no longer available. Please select a different project via the Main Menu."))
+                    if (IsProjectUnavailbaleException(e) || (e.InnerException != null &&
+                        IsProjectUnavailbaleException(e.InnerException)))
                     {
                         SelectedProjectGuid = Guid.Empty;
                     }
@@ -1078,6 +1077,12 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     }
                 }
             }
+        }
+
+        private static bool IsProjectUnavailbaleException(Exception e)
+        {
+            return e.Message.Contains(
+                "The project you have selected is no longer available. Please select a different project via the Main Menu.");
         }
 
         private void Login(Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector)
@@ -1231,6 +1236,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                         {
                             throw new MissingPrivilegesException(exception);
                         }
+                        throw exception;
                     }
                     LOG.DebugFormat("Received RQL [{0}]: {1}", ServerLogin.Name, result);
                     return result;
