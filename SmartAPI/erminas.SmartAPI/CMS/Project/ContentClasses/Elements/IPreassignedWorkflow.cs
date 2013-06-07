@@ -25,17 +25,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IPreassignedWorkflow : IWorkflow
     {
-        IWorkflowAssignable ElementPreassignedTo { get; }
-        IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo { get; }
         void DisconnectFromLinkCompletely();
         void DisconnectFromLinkForLanguages(IEnumerable<ILanguageVariant> languageVariants);
         void DisconnectFromLinkForLanguages(params string[] languageVariants);
+        IWorkflowAssignable ElementPreassignedTo { get; }
         void EnsureInitialization();
+        IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo { get; }
     }
 
     internal class PreassignedWorkflow : IPreassignedWorkflow
     {
-        public IWorkflowAssignable ElementPreassignedTo { get; private set; }
         private readonly Workflow _workflow;
         private ReadOnlyCollection<ILanguageVariant> _languageVariants;
 
@@ -55,6 +54,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _workflow.CanBeInherited; }
         }
 
+        public void Delete()
+        {
+            _workflow.Delete();
+        }
+
         public void DisconnectFromLinkCompletely()
         {
             DisconnectFromLinkForLanguages(LanguageVariantsPreassignedTo);
@@ -70,7 +74,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             string query = UNLINK_WORKFLOW.RQLFormat(session.SessionKey, ElementPreassignedTo, _workflow,
                                                      languageVariants);
 
-            session.ExecuteRql(query, RQL.IODataFormat.LogonGuidOnly);
+            session.ExecuteRQLRaw(query, RQL.IODataFormat.LogonGuidOnly);
 
             InvalidateCache();
         }
@@ -83,6 +87,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 languageVariants.Select(language => project.LanguageVariants[language]);
             DisconnectFromLinkForLanguages(languages);
         }
+
+        public IWorkflowAssignable ElementPreassignedTo { get; private set; }
 
         public void EnsureInitialization()
         {
@@ -98,11 +104,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public override int GetHashCode()
         {
             return _workflow.GetHashCode();
-        }
-
-        public void Delete()
-        {
-            _workflow.Delete();
         }
 
         public Guid Guid

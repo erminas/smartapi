@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         }
 
         private FolderXmlNodeAttribute(IAttributeContainer parent, IContentClass cc, string name)
-            : base(cc.Project.Session, (RedDotObject) parent, name)
+            : base(cc.Project.Session, parent, name)
         {
             _contentClass = cc;
         }
@@ -42,20 +42,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override IFolder RetrieveByGuid(Guid guid)
         {
-            return new Folder(_contentClass.Project, guid);
+            return _contentClass.Project.Folders.AllIncludingSubFolders.First(folder => folder.Guid == guid);
         }
 
         protected override IFolder RetrieveByName(string name)
         {
-            var folders = _contentClass.Project.Folders;
-            IFolder folder;
-            if (folders.TryGetByName(name, out folder))
-            {
-                return folder;
-            }
-
-            folder =
-                folders.SelectMany(folder1 => folder1.Subfolders).FirstOrDefault(subfolder => subfolder.Name == name);
+            var folders = _contentClass.Project.Folders.AllIncludingSubFolders;
+            var folder = folders.FirstOrDefault(folder1 => folder1.Name == name);
             if (folder == null)
             {
                 throw new SmartAPIException(_contentClass.Session.ServerLogin,

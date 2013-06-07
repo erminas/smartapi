@@ -18,7 +18,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     public interface IValueElement<T> : IPageElement
     {
         void Commit();
-        void SetValueFromString(string value);
+        //void SetValueFromString(string value);
         T Value { get; set; }
     }
 }

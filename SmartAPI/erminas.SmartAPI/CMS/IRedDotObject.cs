@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Web.Script.Serialization;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -32,7 +31,7 @@ namespace erminas.SmartAPI.CMS
     /// </remarks>
     internal abstract class RedDotObject : AbstractAttributeContainer, IRedDotObject
     {
-        [ScriptIgnore] protected static XmlDocument XMLDoc = new XmlDocument();
+        protected static XmlDocument XMLDoc = new XmlDocument();
 
         private Guid _guid = Guid.Empty;
         protected string _name;

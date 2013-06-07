@@ -49,12 +49,12 @@ namespace erminas.SmartAPI.CMS.Administration
         bool HasAccessToAssetManager { get; set; }
         bool HasAccessToSmartEdit { get; set; }
         bool HasAccessToSmartTree { get; set; }
+        bool IsModuleAssigned(ModuleType moduleType);
         bool IsServerManager { get; set; }
         bool IsTemplateEditor { get; set; }
         bool IsTranslationEditor { get; set; }
-        ServerManagerRights ServerManagerRights { get; set; }
-        bool IsModuleAssigned(ModuleType moduleType);
         void RemoveServerManagerRights(ServerManagerRights right);
+        ServerManagerRights ServerManagerRights { get; set; }
         void SetIsModuleAssigned(ModuleType moduleType, bool assign);
         void SetModuleAssignment(IUserModuleAssignment otherAssignment);
     }
@@ -76,12 +76,17 @@ namespace erminas.SmartAPI.CMS.Administration
             _user = user;
             Session = _user.Session;
             _assignedModules = new IndexedRDList<ModuleType, IModule>(GetAssignedModules, module => module.Type,
-                                                                     Caching.Enabled);
+                                                                      Caching.Enabled);
         }
 
         public void AddServerManagerRights(ServerManagerRights right)
         {
             ServerManagerRights |= right;
+        }
+
+        public IEnumerator<IModule> GetEnumerator()
+        {
+            return _assignedModules.GetEnumerator();
         }
 
         public bool HasAccessToAssetManager
@@ -100,6 +105,11 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             get { return IsModuleAssigned(ModuleType.SmartTree); }
             set { SetIsModuleAssigned(ModuleType.SmartTree, value); }
+        }
+
+        public void InvalidateCache()
+        {
+            _assignedModules.InvalidateCache();
         }
 
         public bool IsModuleAssigned(ModuleType moduleType)
@@ -123,6 +133,11 @@ namespace erminas.SmartAPI.CMS.Administration
         {
             get { return IsModuleAssigned(ModuleType.Translation); }
             set { SetIsModuleAssigned(ModuleType.Translation, value); }
+        }
+
+        public void Refresh()
+        {
+            _assignedModules.Refresh();
         }
 
         public void RemoveServerManagerRights(ServerManagerRights right)
@@ -210,15 +225,21 @@ namespace erminas.SmartAPI.CMS.Administration
             var modules = xmlDoc.GetElementsByTagName("MODULE").Cast<XmlElement>().ToList();
 
             return
-                (from curModule in modules where IsAssignedModule(curModule) select (IModule)new Module(Session, curModule))
-                    .ToList();
+                (from curModule in modules
+                 where IsAssignedModule(curModule)
+                 select (IModule) new Module(Session, curModule)).ToList();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         private static ServerManagerRights GetServerManagerRights(IModule serverManagerModule)
         {
             return
                 (ServerManagerRights)
-               ((Module) serverManagerModule).XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
+                ((Module) serverManagerModule).XmlElement.GetIntAttributeValue("servermanagerflag").GetValueOrDefault();
         }
 
         private static bool IsAssignedModule(XmlElement curModule)
@@ -271,27 +292,6 @@ namespace erminas.SmartAPI.CMS.Administration
             value = ResolveDepenciesOfAdministerDirectoryServices(value);
 
             return value;
-        }
-
-
-        public void InvalidateCache()
-        {
-            _assignedModules.InvalidateCache();
-        }
-
-        public void Refresh()
-        {
-            _assignedModules.Refresh();
-        }
-
-        public IEnumerator<IModule> GetEnumerator()
-        {
-            return _assignedModules.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

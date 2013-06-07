@@ -41,11 +41,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         public override void Commit()
         {
-            string xmlNodeValue = GetXmlNodeValue();
-            string htmlEncode = string.IsNullOrEmpty(xmlNodeValue)
-                                    ? RQL.SESSIONKEY_PLACEHOLDER
-                                    : HttpUtility.UrlEncode(xmlNodeValue);
-            ExecuteCommit(htmlEncode);
+            string htmlEncodedValue = string.IsNullOrEmpty(_value)
+                                          ? RQL.SESSIONKEY_PLACEHOLDER
+                                          : HttpUtility.HtmlEncode(_value);
+
+            const string SAVE_TEXT_VALUE =
+                @"<ELT translationmode=""0"" extendedinfo="""" reddotcacheguid="""" action=""save"" guid=""{0}"" pageid=""{1}"" id="""" index="""" type=""{2}"">{3}</ELT>";
+            Project.Select();
+            Project.Session.ExecuteRQLRaw(SAVE_TEXT_VALUE.RQLFormat(this, Page.Id, (int) Type, htmlEncodedValue),
+                                          RQL.IODataFormat.FormattedText);
         }
 
         public string Description
@@ -70,9 +74,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             using (new LanguageContext(LanguageVariant))
             {
                 const string LOAD_VALUE = @"<ELT action=""load"" guid=""{0}"" extendedinfo=""""/>";
-                string result = Project.Session.ExecuteRql(LOAD_VALUE.RQLFormat(this),
-                                                           RQL.IODataFormat.FormattedText);
-                _value = HttpUtility.UrlDecode(result);
+                Project.Select();
+                _value = Project.Session.ExecuteRQLRaw(LOAD_VALUE.RQLFormat(this), RQL.IODataFormat.FormattedText);
             }
         }
 

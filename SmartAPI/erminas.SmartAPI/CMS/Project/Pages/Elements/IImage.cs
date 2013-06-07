@@ -26,7 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.Image)]
     internal class Image : AbstractMediaElement, IImage
     {
-        public Image(IProject project, Guid guid, ILanguageVariant languageVariant) : base(project, guid, languageVariant)
+        public Image(IProject project, Guid guid, ILanguageVariant languageVariant)
+            : base(project, guid, languageVariant)
         {
         }
 

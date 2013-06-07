@@ -43,21 +43,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             }
         }
 
-        protected void EnsureListIsLoaded()
-        {
-            if (IsCachingEnabled && List != null)
-            {
-                return;
-            }
-
-            List = RetrieveFunc();
-        }
-
-        protected virtual List<T> List { get; set; }
-        protected Func<List<T>> RetrieveFunc { private get; set; }
-
-        #region ICachedList<T> Members
-
         public T GetByPosition(int pos)
         {
             EnsureListIsLoaded();
@@ -70,7 +55,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return List.GetEnumerator();
         }
 
-        public void InvalidateCache()
+        public virtual void InvalidateCache()
         {
             List = null;
         }
@@ -98,16 +83,27 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public void WaitFor(Predicate<ICachedList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
         {
-            Wait.For(()=>predicate(Refreshed()), wait, retryPeriod);
+            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
         }
+
+        protected void EnsureListIsLoaded()
+        {
+            if (IsCachingEnabled && List != null)
+            {
+                return;
+            }
+
+            List = RetrieveFunc();
+        }
+
+        protected virtual List<T> List { get; set; }
+        protected Func<List<T>> RetrieveFunc { private get; set; }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             EnsureListIsLoaded();
             return List.GetEnumerator();
         }
-
-        #endregion
     }
 
     public enum Caching

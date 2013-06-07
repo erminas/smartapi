@@ -83,7 +83,11 @@ namespace erminas.SmartAPI.CMS
         public new string Name
         {
             get { return base.Name; }
-            set { EnsureInitialization(); base.Name = value; }
+            set
+            {
+                EnsureInitialization();
+                base.Name = value;
+            }
         }
 
         protected override void LoadWholeObject()

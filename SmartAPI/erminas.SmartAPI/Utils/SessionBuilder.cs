@@ -14,6 +14,8 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using erminas.SmartAPI.CMS;
 
 namespace erminas.SmartAPI.Utils
@@ -23,11 +25,6 @@ namespace erminas.SmartAPI.Utils
     /// </summary>
     public class SessionBuilder
     {
-        public ServerLogin Login { get; set; }
-        public Guid LoginGuid { get; set; }
-        public string SessionKey { get;set; }
-        public Guid ProjectGuid { get; set; }
-
         public SessionBuilder(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid)
         {
             Login = login;
@@ -36,7 +33,23 @@ namespace erminas.SmartAPI.Utils
             ProjectGuid = projectGuid;
         }
 
-        public SessionBuilder() {}
+        public SessionBuilder()
+        {
+        }
+
+        public static ISession CreateOrReplaceOldestSession(ServerLogin login)
+        {
+            Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector =
+                infos => infos.OrderBy(info => info.LoginDate).First();
+            return CreateOrReplaceSession(login, sessionReplacementSelector);
+        }
+
+        public static ISession CreateOrReplaceSession(ServerLogin login,
+                                                      Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
+                                                          sessionReplacementSelector)
+        {
+            return new Session(login, sessionReplacementSelector);
+        }
 
         /// <summary>
         ///     Create a new session initialized with the login guid, session key and project guid of this SessionBuilder.
@@ -46,5 +59,15 @@ namespace erminas.SmartAPI.Utils
         {
             return new Session(Login, LoginGuid, SessionKey, ProjectGuid);
         }
+
+        public static ISession CreateSession(ServerLogin login)
+        {
+            return new Session(login, null);
+        }
+
+        public ServerLogin Login { get; set; }
+        public Guid LoginGuid { get; set; }
+        public Guid ProjectGuid { get; set; }
+        public string SessionKey { get; set; }
     }
 }

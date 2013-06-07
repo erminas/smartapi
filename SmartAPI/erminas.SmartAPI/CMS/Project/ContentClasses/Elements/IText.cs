@@ -22,14 +22,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IText : IExtendedContentClassContentElement
     {
-        string DefaultText { get; set; }
-        string ExampleText { get; set; }
+        string DefaultValue { get; set; }
         bool IsCrlfConvertedToBr { get; set; }
         bool IsDirectEditActivated { get; set; }
         bool IsDragAndDropActivated { get; set; }
         bool IsTextFilterDeactivated { get; set; }
         bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
         int? MaxCharacterCount { get; set; }
+        string SampleValue { get; set; }
     }
 
     internal abstract class Text : ExtendedContentClassContentElement, IText
@@ -56,16 +56,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             base.Commit();
         }
 
-        public string DefaultText
+        public string DefaultValue
         {
             get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
             set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
-        }
-
-        public string ExampleText
-        {
-            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
-            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
         }
 
         public bool IsCrlfConvertedToBr
@@ -112,6 +106,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     throw new ArgumentNullException("value");
                 }
             }
+        }
+
+        public string SampleValue
+        {
+            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
+            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
         }
     }
 }

@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("erminas")]
 [assembly: AssemblyProduct("erminas SmartAPI")]
-[assembly: AssemblyCopyright("Copyright © erminas 2012")]
+[assembly: AssemblyCopyright("Copyright © erminas 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,6 +51,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.9.9.0")]
-[assembly: AssemblyFileVersion("0.9.9.0")]
+[assembly: AssemblyVersion("0.9.9.1")]
+[assembly: AssemblyFileVersion("0.9.9.1")]
 [assembly: InternalsVisibleTo("erminas Smart API Test")]

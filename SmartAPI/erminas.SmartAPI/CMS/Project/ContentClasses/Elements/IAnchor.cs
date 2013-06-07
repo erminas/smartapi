@@ -74,6 +74,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     public interface IAnchor : IWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable
     {
+        new void Commit();
         string Description { get; set; }
         string ExampleText { get; set; }
         HtmlTarget HtmlTarget { get; set; }
@@ -91,7 +92,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
         IProjectVariant ProjectVariantToSwitchTo { get; set; }
         string Supplement { get; set; }
-        new void Commit();
     }
 
     internal class Anchor : AbstractWorkflowAssignments, IAnchor

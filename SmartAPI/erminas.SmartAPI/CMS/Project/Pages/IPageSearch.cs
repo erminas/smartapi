@@ -31,6 +31,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         IContentClass ContentClass { get; set; }
         DateTime CreatedFrom { get; set; }
         DateTime CreatedTo { get; set; }
+        IEnumerable<IPage> Execute();
         string Headline { get; set; }
         bool HeadlineExact { get; set; }
         string Keyword { get; set; }
@@ -39,10 +40,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         int PageIdFrom { get; set; }
         int PageIdTo { get; set; }
         PageType PageType { get; set; }
+        void SetDefaults();
         string Text { get; set; }
         bool TextExact { get; set; }
-        IEnumerable<IPage> Execute();
-        void SetDefaults();
     }
 
     internal class PageSearch : IPageSearch
@@ -191,8 +191,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public readonly IUser OriginalAuthor;
         public readonly IPage Page;
 
-        public Result(IPage page, DateTime creationDate, IUser originalAuthor, DateTime dateOfLastChange, IUser lastEditor,
-                      IContentClass contentClass)
+        public Result(IPage page, DateTime creationDate, IUser originalAuthor, DateTime dateOfLastChange,
+                      IUser lastEditor, IContentClass contentClass)
         {
             Page = page;
             CreationDate = creationDate;
@@ -307,16 +307,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         internal class UserInfo : IIUserInfo
         {
-            public bool HasUserReleasedPage { get; private set; }
-            public DateTime PageReleaseDate{ get; private set; }
-            public IUser User{ get; private set; }
-
             public UserInfo(IProject project, XmlElement user)
             {
                 User = new User(project.Session, user.GetGuid()) {Name = user.GetName()};
                 HasUserReleasedPage = user.GetIntAttributeValue("released").GetValueOrDefault() == 1;
                 PageReleaseDate = user.GetOADate().GetValueOrDefault();
             }
+
+            public bool HasUserReleasedPage { get; private set; }
+            public DateTime PageReleaseDate { get; private set; }
+            public IUser User { get; private set; }
         }
     }
 }

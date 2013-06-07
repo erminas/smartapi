@@ -106,7 +106,6 @@ namespace erminas.SmartAPI.CMS.Administration
         internal User(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             Init();
-            // TODO: Read all data
 
             LoadXml();
         }
@@ -281,8 +280,8 @@ namespace erminas.SmartAPI.CMS.Administration
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-            string answer = Session.ExecuteRql(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                               RQL.IODataFormat.LogonGuidOnly);
+            string answer = Session.ExecuteRQLRaw(String.Format(LOAD_USER, Guid.ToRQLString()),
+                                                  RQL.IODataFormat.LogonGuidOnly);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(answer);
 

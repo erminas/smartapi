@@ -64,8 +64,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return LazyLoad(ref _checkinDate); }
         }
 
-        public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
-
         public void Commit()
         {
             const string SAVE_PAGE = @"<PAGE action=""save"" guid=""{0}"" headline=""{1}"" name=""{2}"" />";
@@ -101,14 +99,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
                 const string MARK_DIRTY =
                     @"<PAGEBUILDER><PAGES sessionkey=""{0}"" action=""pagevaluesetdirty""><PAGE sessionkey=""{0}"" guid=""{1}"" languages=""{2}""/></PAGES></PAGEBUILDER>";
-                Project.Session.ExecuteRql(
+                Project.Session.ExecuteRQLRaw(
                     MARK_DIRTY.RQLFormat(Project.Session.SessionKey, this, LanguageVariant.Abbreviation),
                     RQL.IODataFormat.SessionKeyOnly);
 
                 const string LINKING =
                     @"<PAGEBUILDER><LINKING sessionkey=""{0}""><PAGES><PAGE sessionkey=""{0}"" guid=""{1}""/></PAGES></LINKING></PAGEBUILDER>";
-                Project.Session.ExecuteRql(LINKING.RQLFormat(Project.Session.SessionKey, this),
-                                           RQL.IODataFormat.SessionKeyOnly);
+                Project.Session.ExecuteRQLRaw(LINKING.RQLFormat(Project.Session.SessionKey, this),
+                                              RQL.IODataFormat.SessionKeyOnly);
             }
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
@@ -199,11 +197,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-        public ILanguageVariant LanguageVariant
-        {
-            get { return _lang; }
-        }
-
         public int Id
         {
             get { return LazyLoad(ref _id); }
@@ -221,7 +214,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        public ILanguageVariant LanguageVariant
+        {
+            get { return _lang; }
+        }
+
         public IRDList<ILinkElement> LinkElements { get; private set; }
+        public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
 
         public IPageElement MainLinkElement
         {
@@ -260,6 +259,19 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public IRDList<ILinkElement> ReferencedFrom { get; private set; }
 
+        public override void Refresh()
+        {
+            _contentClass = null;
+            _ccGuid = default(Guid);
+            base.Refresh();
+        }
+
+        public IPage Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         public void Reject()
         {
             ReleaseStatus = PageReleaseStatus.Rejected;
@@ -288,6 +300,35 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        public void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping,
+                                        Replace replace)
+        {
+            const string REPLACE_CC =
+                @"<PAGE action=""changetemplate"" guid=""{0}"" changeall=""{1}"" holdreferences=""1"" holdexportsettings=""1"" holdauthorizations=""1"" holdworkflow=""1""><TEMPLATE originalguid=""{2}"" changeguid=""{3}"">{4}</TEMPLATE></PAGE>";
+
+            const string REPLACE_ELEMENT = @"<ELEMENT originalguid=""{0}"" changeguid=""{1}""/>";
+            var oldElements = ContentClass.Elements[Project.LanguageVariants.Main];
+            var newElements = replacement.Elements[Project.LanguageVariants.Main];
+
+            var unmappedElements = oldElements.Where(element => !oldToNewMapping.ContainsKey(element.Name));
+            var unmappedStr = unmappedElements.Aggregate("",
+                                                         (s, element) =>
+                                                         s +
+                                                         REPLACE_ELEMENT.RQLFormat(element, RQL.SESSIONKEY_PLACEHOLDER));
+            var mappedStr = string.Join("", from entry in oldToNewMapping
+                                            let oldElement = oldElements[entry.Key]
+                                            let newElement = newElements.GetByName(entry.Value)
+                                            select REPLACE_ELEMENT.RQLFormat(oldElement, newElement));
+
+            var isReplacingAll = replace == Replace.ForAllPagesOfContentClass;
+            var query = REPLACE_CC.RQLFormat(this, isReplacingAll, ContentClass, replacement, mappedStr + unmappedStr);
+
+            Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
+            
+            _contentClass = null;
+            _ccGuid = default(Guid);
+        }
+
         public void ResetToDraft()
         {
             ReleaseStatus = PageReleaseStatus.Draft;
@@ -310,16 +351,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             Project.ExecuteRQL(string.Format(SKIP_WORKFLOW, Guid.ToRQLString(), (int) PageReleaseStatus.WorkFlow));
         }
-
-        private List<ILinkingAndAppearance> GetLinksFrom()
-        {
-            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
-
-            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
-            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkingAndAppearance)new LinkingAndAppearance(this, curLink)).ToList();
-        }
-
 
         public PageState Status
         {
@@ -447,6 +478,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        private List<ILinkingAndAppearance> GetLinksFrom()
+        {
+            const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
+
+            var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
+            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+                    select (ILinkingAndAppearance) new LinkingAndAppearance(this, curLink)).ToList();
+        }
+
         private static IEnumerable<string> GetNames(XmlNodeList elements)
         {
             return elements.Cast<XmlElement>().Select(x => x.GetAttributeValue("name"));
@@ -458,8 +498,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), RqlType.SessionKeyInProject);
 
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant))
-                .ToList();
+                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList
+                ();
         }
 
         private void InitProperties()

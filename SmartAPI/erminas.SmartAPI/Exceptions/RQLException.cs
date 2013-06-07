@@ -25,6 +25,7 @@ namespace erminas.SmartAPI.Exceptions
     public enum ErrorCode
     {
         Unknown = 0,
+        NoRight,
         PleaseLogin,
         RDError1,
         RDError2,
@@ -72,6 +73,10 @@ namespace erminas.SmartAPI.Exceptions
             {
                 return ErrorCode.PleaseLogin;
             }
+            if (value.Trim() == "No right")
+            {
+                return ErrorCode.NoRight;
+            }
             return (ErrorCode) Enum.Parse(typeof (ErrorCode), value);
         }
     }
@@ -89,6 +94,7 @@ namespace erminas.SmartAPI.Exceptions
 
         private readonly List<Tuple<string, string>> _errorCodes = new List<Tuple<string, string>>
             {
+                Tuple.Create("No right", "The user does not have the required privileges."),
                 Tuple.Create("Please Login",
                              "The user session has timed out or the Login GUID is no longer valid. Please login again."),
                 Tuple.Create("RDError1", "The number of modules in the license key does not correspond to the checksum."),
@@ -150,6 +156,7 @@ namespace erminas.SmartAPI.Exceptions
         protected RQLException(RQLException rqlException)
             : this(rqlException.Server, rqlException.ErrorMessage, rqlException.Response)
         {
+            ErrorCode = rqlException.ErrorCode;
         }
 
         public ErrorCode ErrorCode { get; set; }

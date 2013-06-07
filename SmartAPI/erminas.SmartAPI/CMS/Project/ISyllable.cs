@@ -18,7 +18,6 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-
     /// <summary>
     ///     Represents a prefix or a postfix.
     /// </summary>
@@ -42,7 +41,7 @@ namespace erminas.SmartAPI.CMS.Project
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return ((Syllable)Project.Syllables.GetByGuid(Guid)).XmlElement;
+            return ((Syllable) Project.Syllables.GetByGuid(Guid)).XmlElement;
         }
     }
 }

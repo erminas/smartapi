@@ -23,6 +23,8 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 {
     public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
     {
+        CategoryKeywords CategoryKeywords { get; }
+
         /// <summary>
         ///     Use after setting Name to rename category on the server.
         /// </summary>
@@ -58,8 +60,6 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         ///     </example>
         /// </summary>
         void Rename(string newCategoryName);
-
-        CategoryKeywords CategoryKeywords { get; }
     }
 
     /// <summary>
@@ -67,11 +67,6 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// </summary>
     internal class Category : PartialRedDotProjectObject, ICategory
     {
-        /// <summary>
-        ///     All keywords belonging to this category, indexed by name. This list is cached by default.
-        /// </summary>
-        public CategoryKeywords CategoryKeywords { get; private set; }
-
         private ILanguageVariant _languageVariant;
 
         internal Category(IProject project, XmlElement xmlElement) : base(project, xmlElement)
@@ -84,6 +79,11 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         {
             CategoryKeywords = new CategoryKeywords(this);
         }
+
+        /// <summary>
+        ///     All keywords belonging to this category, indexed by name. This list is cached by default.
+        /// </summary>
+        public CategoryKeywords CategoryKeywords { get; private set; }
 
         /// <summary>
         ///     Use after setting Name to rename category on the server.

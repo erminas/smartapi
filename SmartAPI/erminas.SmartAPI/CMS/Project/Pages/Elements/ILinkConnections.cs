@@ -1,4 +1,19 @@
-﻿using System;
+﻿// Smart API - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -34,6 +49,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             {
                 RemoveRange(this);
             }
+        }
+
+        public void Connect(IPage page)
+        {
+            SaveConnection(page);
         }
 
         public bool IsReference
@@ -92,17 +112,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
         }
 
-        public void Connect(IPage page)
-        {
-            SaveConnection(page);
-        }
-
         protected void RemoveRange(IEnumerable<IPage> pages)
         {
             const string DISCONNECT_PAGES = @"<LINK action=""save"" guid=""{0}""><PAGES>{1}</PAGES></LINK>";
             const string SINGLE_PAGE = @"<PAGE deleted=""1"" guid=""{0}"" />";
 
-            var pagesStr = pages.Aggregate("", (x, page) => x + string.Format(SINGLE_PAGE, StringConversion.ToRQLString((Guid) page.Guid)));
+            var pagesStr = pages.Aggregate("", (x, page) => x + string.Format(SINGLE_PAGE, (page.Guid).ToRQLString()));
             Project.ExecuteRQL(DISCONNECT_PAGES.RQLFormat(_element, pagesStr));
             InvalidateCache();
         }
@@ -204,12 +219,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     public interface ILinkConnections : IRDList<IPage>, IProjectObject
     {
         void Clear();
+        void Connect(IPage page);
 
         bool IsReferencing { get; }
         LinkType LinkType { get; }
         ILinkTarget Reference { get; set; }
         void Remove(IPage page);
         void Set(ILinkTarget page, Linking linking);
-        void Connect(IPage page);
     }
 }

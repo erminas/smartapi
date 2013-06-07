@@ -38,12 +38,6 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             _indexFunc = indexFunc;
         }
 
-        public new virtual ICachedList<T> Refreshed()
-        {
-            Refresh();
-            return this;
-        }
-
         protected override List<T> List
         {
             set
@@ -105,6 +99,12 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             get { return Get(key); }
         }
 
+        public new IIndexedCachedList<TK, T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         public bool TryGet(TK key, out T obj)
         {
             EnsureListIsLoaded();
@@ -115,6 +115,11 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
             obj = List.FirstOrDefault(x => _indexFunc(x).Equals(key));
             return obj != null;
+        }
+
+        public void WaitFor(Predicate<IIndexedCachedList<TK, T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
         }
 
         #endregion

@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -191,7 +191,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set
@@ -211,7 +211,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set

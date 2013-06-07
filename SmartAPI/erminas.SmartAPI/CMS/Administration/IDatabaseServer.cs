@@ -67,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return ((DatabaseServer)Session.DatabaseServers.GetByGuid(Guid)).XmlElement;
+            return ((DatabaseServer) Session.DatabaseServers.GetByGuid(Guid)).XmlElement;
         }
 
         private void LoadXml()

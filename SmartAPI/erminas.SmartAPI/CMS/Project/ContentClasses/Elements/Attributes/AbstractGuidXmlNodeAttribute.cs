@@ -92,7 +92,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 reason = e.Message;
                 return false;
             }
-            
         }
 
         public T Value

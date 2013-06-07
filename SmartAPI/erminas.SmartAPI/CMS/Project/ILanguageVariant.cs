@@ -19,21 +19,26 @@ namespace erminas.SmartAPI.CMS.Project
 {
     public interface ILanguageVariant : IRedDotObject, IProjectObject
     {
+        string Abbreviation { get; }
         bool IsCurrentLanguageVariant { get; }
         bool IsMainLanguage { get; }
-        string Abbreviation { get; }
         void Select();
     }
 
     internal class LanguageVariant : RedDotProjectObject, ILanguageVariant
     {
+        private string _abbreviation;
         private bool _isCurrentLanguageVariant;
         private bool _isMainLanguage;
-        private string _abbreviation;
 
         internal LanguageVariant(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
+        }
+
+        public string Abbreviation
+        {
+            get { return _abbreviation; }
         }
 
         public bool IsCurrentLanguageVariant
@@ -45,11 +50,6 @@ namespace erminas.SmartAPI.CMS.Project
         public bool IsMainLanguage
         {
             get { return _isMainLanguage; }
-        }
-
-        public string Abbreviation
-        {
-            get { return _abbreviation; }
         }
 
         public void Select()

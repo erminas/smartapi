@@ -85,6 +85,12 @@ namespace erminas.SmartAPI.CMS
             return base.GetAttributeValue<T>(attributeName);
         }
 
+        protected internal override void SetAttributeValue<T>(string attributeName, T value)
+        {
+            EnsureInitialization();
+            base.SetAttributeValue(attributeName, value);
+        }
+
         /// <summary>
         ///     Indicates, wether the object is already completly initialized (true) or not (false).
         /// </summary>
@@ -113,12 +119,6 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         protected abstract XmlElement RetrieveWholeObject();
 
-        protected internal override void SetAttributeValue<T>(string attributeName, T value)
-        {
-            EnsureInitialization();
-            base.SetAttributeValue(attributeName, value);
-        }
-
         #region IPartialRedDotObject Members
 
         public void EnsureInitialization()
@@ -133,9 +133,9 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _name); }
             internal set { base.Name = value; }
-        //    internal set { EnsureInitialization();
-        //        _name = value;
-        //    }
+            //    internal set { EnsureInitialization();
+            //        _name = value;
+            //    }
         }
 
         public virtual void Refresh()

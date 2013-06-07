@@ -24,7 +24,13 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
-    internal class OptionListSelectionAttribute : IRDAttribute
+    public interface IOptionListSelectionAttribute : IRDAttribute
+    {
+        string GetDefaultValueStringFromParent();
+        string Value { get; }
+    }
+
+    internal class OptionListSelectionAttribute : IOptionListSelectionAttribute
     {
         private const string IDENTIFIER = "identifier";
         private const string SELECTION = "SELECTION";
@@ -77,33 +83,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 return _value;
             }
         }
-
-        #region Nested type: OptionListEntry
-
-        public struct OptionListEntry
-        {
-            public readonly bool IsDefault;
-            public readonly string Name;
-            public readonly string Value;
-
-            public OptionListEntry(string name, string value, bool isDefault)
-            {
-                Name = name;
-                Value = value;
-                IsDefault = isDefault;
-            }
-        }
-
-        #endregion
-
-        #region Nested type: OptionListValue
-
-        public class OptionListValue
-        {
-            public Dictionary<string, List<OptionListEntry>> Entries { get; set; }
-        }
-
-        #endregion
 
         #region Nested type: SourceTarget
 
@@ -293,5 +272,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         }
 
         #endregion
+    }
+
+    public struct OptionListEntry
+    {
+        public readonly bool IsDefault;
+        public readonly string Name;
+        public readonly string Value;
+
+        public OptionListEntry(string name, string value, bool isDefault)
+        {
+            Name = name;
+            Value = value;
+            IsDefault = isDefault;
+        }
+    }
+
+    public class OptionListValue
+    {
+        public IDictionary<string, List<OptionListEntry>> Entries { get; set; }
     }
 }

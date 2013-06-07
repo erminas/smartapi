@@ -22,8 +22,7 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
-
-    public interface  ICategories : IRDList<ICategory>, IProjectObject
+    public interface ICategories : IRDList<ICategory>, IProjectObject
     {
         ICategory CreateOrGet(string categoryName);
         void Delete(string categoryName);
@@ -87,7 +86,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
             const string LIST_CATEGORIES = @"<PROJECT><CATEGORIES action=""list"" /></PROJECT>";
             XmlDocument xmlDoc = _project.ExecuteRQL(LIST_CATEGORIES);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("CATEGORY");
-            return (from XmlElement curNode in xmlNodes select (ICategory)new Category(_project, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select (ICategory) new Category(_project, curNode)).ToList();
         }
     }
 }

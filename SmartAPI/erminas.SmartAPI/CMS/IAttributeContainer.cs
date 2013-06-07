@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS
@@ -79,14 +79,6 @@ namespace erminas.SmartAPI.CMS
 
         public XmlElement XmlElement { get; set; }
 
-        protected void CreateAttributes(params string[] attributeNames)
-        {
-            foreach (string curAttr in attributeNames)
-            {
-                AttributeFactory.CreateAttribute(this, curAttr);
-            }
-        }
-
         protected internal virtual T GetAttributeValue<T>(string attributeName)
         {
             var type = typeof (T);
@@ -95,7 +87,7 @@ namespace erminas.SmartAPI.CMS
                 return (T) (object) ((StringXmlNodeAttribute) GetAttribute(attributeName)).Value;
             }
 
-            if (typeof(IFolder).IsAssignableFrom(type))
+            if (typeof (IFolder).IsAssignableFrom(type))
             {
                 return (T) ((FolderXmlNodeAttribute) GetAttribute(attributeName)).Value;
             }
@@ -135,6 +127,14 @@ namespace erminas.SmartAPI.CMS
             throw new SmartAPIInternalException(
                 string.Format("In SetAttributeValue<T> for  attribute {1}, unexpected attribute type: {0}",
                               typeof (T).Name, attributeName));
+        }
+
+        protected void CreateAttributes(params string[] attributeNames)
+        {
+            foreach (string curAttr in attributeNames)
+            {
+                AttributeFactory.CreateAttribute(this, curAttr);
+            }
         }
     }
 

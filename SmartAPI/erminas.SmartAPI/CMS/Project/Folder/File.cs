@@ -16,7 +16,7 @@
 using System.Xml;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Project.Filesystem
+namespace erminas.SmartAPI.CMS.Project.Folder
 {
     public interface IFile : IProjectObject, IDeletable
     {
@@ -53,7 +53,8 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
         {
             _project = project;
             _name = xmlElement.GetAttributeValue("name");
-            _folder = new Folder(project, xmlElement.GetGuid("folderguid"));
+            var folderGuid = xmlElement.GetGuid("folderguid");
+            _folder = project.Folders.AllIncludingSubFolders.GetByGuid(folderGuid);
         }
 
         public File(IFolder folder, string fileName)

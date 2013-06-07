@@ -23,6 +23,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
     public interface IIndexedRDList<in TK, T> : IIndexedCachedList<TK, T>, IRDList<T> where T : class, IRedDotObject
     {
         new IIndexedRDList<TK, T> Refreshed();
+        void WaitFor(Func<IIndexedRDList<TK, T>, bool> predicate, TimeSpan maxWait, TimeSpan retryEverySecond);
     }
 
     public class IndexedRDList<TK, T> : IndexedCachedList<TK, T>, IIndexedRDList<TK, T> where T : class, IRedDotObject
@@ -36,18 +37,11 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         {
         }
 
-        public new IIndexedRDList<TK, T> Refreshed()
+        public bool Contains(T element)
         {
-            Refresh();
-            return this;
+            return ContainsGuid(element.Guid);
         }
 
-        IRDList<T> IRDList<T>.Refreshed()
-        {
-            Refresh();
-            return this;
-        }
-        
         public bool ContainsGuid(Guid guid)
         {
             T tmp;
@@ -60,7 +54,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return TryGetByName(name, out tmp);
         }
 
-        public T GetByGuid(Guid guid)
+        public virtual T GetByGuid(Guid guid)
         {
             EnsureListIsLoaded();
             return List.First(x => x.Guid == guid);
@@ -72,7 +66,13 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return List.First(x => x.Name == name);
         }
 
-        public bool TryGetByGuid(Guid guid, out T output)
+        public new IIndexedRDList<TK, T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
+        public virtual bool TryGetByGuid(Guid guid, out T output)
         {
             EnsureListIsLoaded();
             output = List.FirstOrDefault(x => x.Guid == guid);
@@ -86,9 +86,20 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             return output != null;
         }
 
-        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan wait, TimeSpan retryPeriod)
+        public void WaitFor(Func<IIndexedRDList<TK, T>, bool> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
         {
-            Wait.For(() => predicate(Refreshed()), wait, retryPeriod);
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
+        }
+
+        public void WaitFor(Predicate<IRDList<T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod)
+        {
+            Wait.For(() => predicate(Refreshed()), maxWait, retryPeriod);
+        }
+
+        IRDList<T> IRDList<T>.Refreshed()
+        {
+            Refresh();
+            return this;
         }
     }
 
@@ -120,6 +131,37 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         public override bool TryGetByName(string name, out T output)
         {
             return TryGet(name, out output);
+        }
+    }
+
+    /// <summary>
+    ///     Convenience class for a IndexedRDList with an index on the Guid attribute GetByGuid and TryGetByGuid both use the index to access the elements.
+    /// </summary>
+    /// <typeparam name="T"> TypeId of the stored elements </typeparam>
+    public class GuidIndexedRDList<T> : IndexedRDList<Guid, T> where T : class, IRedDotObject
+    {
+        public GuidIndexedRDList(Func<List<T>> retrieveFunc, Caching caching) : base(retrieveFunc, x => x.Guid, caching)
+        {
+        }
+
+        protected GuidIndexedRDList(Caching caching) : base(x => x.Guid, caching)
+        {
+        }
+
+        public override T GetByGuid(Guid guid)
+        {
+            return this[guid];
+        }
+
+        public new GuidIndexedRDList<T> Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
+        public override bool TryGetByGuid(Guid guid, out T output)
+        {
+            return TryGet(guid, out output);
         }
     }
 }

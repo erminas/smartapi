@@ -235,7 +235,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             XmlDocument xmlDoc = _project.ExecuteRQL(LIST_PAGES);
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
                     select
-                        (IPage)new Page(_project, curPage.GetGuid(), _project.LanguageVariants.Current)
+                        (IPage)
+                        new Page(_project, curPage.GetGuid(), _project.LanguageVariants.Current)
                             {
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault()

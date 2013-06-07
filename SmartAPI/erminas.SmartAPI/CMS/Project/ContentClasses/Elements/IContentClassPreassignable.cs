@@ -41,8 +41,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             Element = element;
             var contentClassModifier = new Modifier<IContentClass>(GetContentClasses,
-                                                                  contentClasses => Set(contentClasses, PageDefinitions),
-                                                                  Add, Remove);
+                                                                   contentClasses =>
+                                                                   Set(contentClasses, PageDefinitions), Add, Remove);
             ContentClasses = new Preassigned<IContentClass>(contentClassModifier);
 
             var pageDefinitionModifier = new Modifier<IPageDefinition>(GetPageDefinitions,
@@ -112,7 +112,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             return (from XmlElement curContentClass in contentClasses
                     select
-                        (IContentClass)new ContentClass(Element.ContentClass.Project, curContentClass.GetGuid())
+                        (IContentClass)
+                        new ContentClass(Element.ContentClass.Project, curContentClass.GetGuid())
                             {
                                 Name = curContentClass.GetName(),
                                 Description = curContentClass.GetAttributeValue("description")
@@ -191,7 +192,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             }
         }
     }
-
 
     public class Preassigned<T> : IEnumerable<T> where T : IRedDotObject
     {

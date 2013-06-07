@@ -38,16 +38,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         IContentClass ContentClass { get; set; }
 
         /// <summary>
-        ///     Language variant of the element.
-        /// </summary>
-        ILanguageVariant LanguageVariant { get; }
-
-        /// <summary>
-        ///     TypeId of the element.
-        /// </summary>
-        ElementType Type { get; }
-
-        /// <summary>
         ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
         ///     Make sure to set the language variant in the target project into which the element should be copied, first.
         /// </summary>
@@ -68,6 +58,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         ///     </list>
         /// </remarks>
         IContentClassElement CopyToContentClass(IContentClass contentClass);
+
+        /// <summary>
+        ///     Language variant of the element.
+        /// </summary>
+        ILanguageVariant LanguageVariant { get; }
+
+        /// <summary>
+        ///     TypeId of the element.
+        /// </summary>
+        ElementType Type { get; }
     }
 
     /// <summary>
@@ -128,26 +128,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         public IContentClass ContentClass { get; set; }
-
-        /// <summary>
-        ///     Language variant of the element (a separate instance exists for every language variant on the server).
-        /// </summary>
-        public ILanguageVariant LanguageVariant
-        {
-            get
-            {
-                return _languageVariant ??
-                       (_languageVariant =
-                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
-            }
-        }
-       
-        //public new string Name { get { return base.Name; } set { base.Name = value; } }
-
-        /// <summary>
-        ///     TypeId of the element.
-        /// </summary>
-        public ElementType Type { get; private set; }
 
         /// <summary>
         ///     Copies the element to another content class by creating a new element and copying the attribute values to it.
@@ -212,6 +192,26 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
             return newContentClassElement;
         }
+
+        /// <summary>
+        ///     Language variant of the element (a separate instance exists for every language variant on the server).
+        /// </summary>
+        public ILanguageVariant LanguageVariant
+        {
+            get
+            {
+                return _languageVariant ??
+                       (_languageVariant =
+                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
+            }
+        }
+
+        //public new string Name { get { return base.Name; } set { base.Name = value; } }
+
+        /// <summary>
+        ///     TypeId of the element.
+        /// </summary>
+        public ElementType Type { get; private set; }
 
         /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.

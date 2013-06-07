@@ -16,7 +16,7 @@
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -35,6 +35,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// </summary>
 // todo use list<string> instead
         string EligibleSuffixes { get; set; }
+
+        IFile ExampleFile { get; set; }
 
         string HSpace { get; set; }
         string HtmlHeight { get; set; }
@@ -138,6 +140,29 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue("eltsuffixes", value); }
         }
 
+        public IFile ExampleFile
+        {
+            get
+            {
+                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid");
+                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
+                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
+                {
+                    return null;
+                }
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
+            }
+
+            set
+            {
+                ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value != null ? value.Name : "";
+                if (value != null)
+                {
+                    ((FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid")).Value = value.Folder;
+                }
+            }
+        }
+
         public string HSpace
         {
             get { return GetAttributeValue<string>("elthspace"); }
@@ -238,7 +263,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return null;
                 }
-                return folderAttr.Value.GetFilesByNamePattern(srcName).First(x => x.Name == srcName);
+                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
             }
 
             set

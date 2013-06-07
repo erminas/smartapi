@@ -17,15 +17,13 @@ using System;
 using System.Linq;
 using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.Filesystem;
+using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public interface IMediaElementBase : IPageElement
+    public interface IMediaElementBase : IValueElement<IFile>
     {
-        void Commit();
-        IFile Value { get; set; }
     }
 
     internal abstract class AbstractMediaElement : PageElement, IMediaElementBase
@@ -48,8 +46,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                 @"<ELT action=""save"" reddotcacheguid="""" guid=""{0}"" value=""{1}"" {2} extendedinfo=""""></ELT>";
 
             string rqlStr = Value == null
-                                ? string.Format(COMMIT, Guid.ToRQLString(), RQL.SESSIONKEY_PLACEHOLDER,
-                                                RQL.SESSIONKEY_PLACEHOLDER)
+                                ? string.Format(COMMIT, Guid.ToRQLString(), RQL.SESSIONKEY_PLACEHOLDER, "")
                                 : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
                                                 IsFileInSubFolder ? "subdirguid=\"{0}\"".RQLFormat(Value.Folder) : "");
 
@@ -82,7 +79,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
 
             Guid subFolderGuid;
-            var folderList = Project.Folders.Union(Project.Folders.SelectMany(folder => folder.Subfolders)).ToList();
+            var folderList = Project.Folders.AllIncludingSubFolders;
             return XmlElement.TryGetGuid("subdirguid", out subFolderGuid)
                        ? folderList.FirstOrDefault(folder => folder.Guid == subFolderGuid)
                        : folderList.FirstOrDefault(folder => folder.Guid == folderGuid);
@@ -96,8 +93,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                 _file = null;
             }
 
-            var files = folder.GetFilesByNamePattern(fileName);
-            _file = files.Find(file => file.Name == fileName);
+            var files = folder.Files.GetByNamePattern(fileName);
+            _file = files.FirstOrDefault(file => file.Name == fileName);
         }
 
         private bool IsFileInSubFolder

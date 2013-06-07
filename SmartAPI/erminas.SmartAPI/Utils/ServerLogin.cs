@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Net;
 
 namespace erminas.SmartAPI.Utils
 {
@@ -45,9 +46,13 @@ namespace erminas.SmartAPI.Utils
         /// </summary>
         public PasswordAuthentication AuthData { get; set; }
 
+        public Version ManualVersionOverride { get; set; }
+
         /// <summary>
         ///     (Optional) Name of the login.
         /// </summary>
         public string Name { get; set; }
+
+        public NetworkCredential WindowsAuthentication { get; set; }
     }
 }

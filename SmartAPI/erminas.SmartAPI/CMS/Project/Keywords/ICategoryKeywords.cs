@@ -25,10 +25,10 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 {
     public interface ICategoryKeywords : IRDList<IKeyword>, IProjectObject
     {
+        ICategory Category { get; }
         IKeyword CreateOrGet(string keywordName);
         void Delete(string keywordName);
         void DeleteForcibly(string keywordName);
-        ICategory Category { get; }
     }
 
     /// <summary>
@@ -39,14 +39,14 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
     /// </remarks>
     public class CategoryKeywords : RDList<IKeyword>, ICategoryKeywords
     {
-        public ICategory Category { get; private set; }
-
         internal CategoryKeywords(ICategory category) : base(Caching.Enabled)
         {
             Project = category.Project;
             Category = category;
             RetrieveFunc = GetKeywords;
         }
+
+        public ICategory Category { get; private set; }
 
         public IKeyword CreateOrGet(string keywordName)
         {
@@ -109,8 +109,9 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
                     new Keyword(Category.Project, Category.Guid) {Name = "[category]", Category = Category}
                 };
             return
-                (from XmlElement curNode in xmlNodes select(IKeyword) new Keyword(Category.Project, curNode) {Category = Category})
-                    .Union(kategoryKeyword).ToList();
+                (from XmlElement curNode in xmlNodes
+                 select (IKeyword) new Keyword(Category.Project, curNode) {Category = Category}).Union(kategoryKeyword)
+                                                                                                .ToList();
         }
     }
 }

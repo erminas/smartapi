@@ -58,7 +58,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         {
             const string DELETE_WORKFLOW = @"<WORKFLOW sessionkey=""{0}"" action=""delete"" guid=""{1}""/>";
             var session = Project.Session;
-            var reply = session.ExecuteRql(DELETE_WORKFLOW.RQLFormat(session, this), RQL.IODataFormat.LogonGuidOnly);
+            var reply = session.ExecuteRQLRaw(DELETE_WORKFLOW.RQLFormat(session, this), RQL.IODataFormat.LogonGuidOnly);
 
             if (!reply.Contains("ok"))
             {
@@ -81,11 +81,6 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             LoadXml();
         }
 
-        internal XmlElement RetrieveObjectInternal()
-        {
-            return RetrieveWholeObject();
-        }
-
         protected override XmlElement RetrieveWholeObject()
         {
             const string LOAD_WORKFLOW = @"<WORKFLOW action=""load"" guid=""{0}""/>";
@@ -93,6 +88,11 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
             return
                 (XmlElement)
                 Project.ExecuteRQL(String.Format(LOAD_WORKFLOW, Guid.ToRQLString())).GetElementsByTagName("WORKFLOW")[0];
+        }
+
+        internal XmlElement RetrieveObjectInternal()
+        {
+            return RetrieveWholeObject();
         }
 
         private void LoadXml()

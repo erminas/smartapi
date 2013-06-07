@@ -42,6 +42,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     {
         int Count();
         List<ResultGroup> Execute();
+        List<IPageSearchFilter> Filters { get; }
         GroupBy GroupBy { get; set; }
         SortDirection GroupSortDirection { get; set; }
         ILanguageVariant LanguageVariant { get; set; }
@@ -49,13 +50,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         OrderBy OrderBy { get; set; }
         SortDirection OrderDirection { get; set; }
         IUser User { get; set; }
-        List<IPageSearchFilter> Filters { get; }
     }
-    
+
     internal class ExtendedPageSearch : IExtendedPageSearch
     {
-        private readonly List<IPageSearchFilter>  _filters = new List<IPageSearchFilter>();
-        public List<IPageSearchFilter> Filters { get { return _filters; } }
+        private readonly List<IPageSearchFilter> _filters = new List<IPageSearchFilter>();
+
         private readonly IProject _project;
 
         public ExtendedPageSearch(IProject project)
@@ -73,6 +73,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public List<ResultGroup> Execute()
         {
             return ToResult(RunQuery(false));
+        }
+
+        public List<IPageSearchFilter> Filters
+        {
+            get { return _filters; }
         }
 
         public GroupBy GroupBy { get; set; }
@@ -142,9 +147,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         private XmlDocument RunQuery(bool isCountOnly)
         {
-            if (Session.Version < new Version(10,0) && Filters.Any(filter => filter is WorkflowFilter))
+            if (Session.ServerVersion < new Version(10, 0) && Filters.Any(filter => filter is WorkflowFilter))
             {
-                throw new InvalidServerVersionException(Session.ServerLogin, "Searches for pages in workflow are not supported for RedDot servers with version < 10");
+                throw new InvalidServerVersionException(Session.ServerLogin,
+                                                        "Searches for pages in workflow are not supported for RedDot servers with version < 10");
             }
             const string XSEARCH = @"<PAGE action=""xsearch"" {0}>{1}</PAGE>";
             string arguments = "";

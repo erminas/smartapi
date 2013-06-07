@@ -84,6 +84,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         IContentClass ContentClass { get; }
 
         /// <summary>
+        ///     Copy this template over to another content class
+        /// </summary>
+        /// <param name="target"> </param>
+        void CopyToContentClass(IContentClass target);
+
+        /// <summary>
         ///     Timestamp of the creation of the template
         /// </summary>
         DateTime CreationDate { get; }
@@ -102,6 +108,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Description of the template
         /// </summary>
         string Description { get; }
+
+        void EnsureInitialization();
 
         string FileExtension { get; }
         IRedDotObject Handle { get; }
@@ -129,14 +137,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Current release status of the template
         /// </summary>
         TemplateVariantState ReleaseStatus { get; }
-
-        /// <summary>
-        ///     Copy this template over to another content class
-        /// </summary>
-        /// <param name="target"> </param>
-        void CopyToContentClass(IContentClass target);
-
-        void EnsureInitialization();
     }
 
     /// <summary>
@@ -162,7 +162,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             ContentClass = contentClass;
         }
-
 
         internal TemplateVariant(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
@@ -273,6 +272,22 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     e.Data.Add("query_result", result);
                 }
                 _data = value;
+            }
+        }
+
+        public void Delete()
+        {
+            const string DELETE_TEMPLATE =
+                @"<TEMPLATE><TEMPLATEVARIANTS><TEMPLATEVARIANT action=""delete"" guid=""{0}""/></TEMPLATEVARIANTS></TEMPLATE>";
+            try
+            {
+                Project.ExecuteRQL(DELETE_TEMPLATE.RQLFormat(this), RqlType.SessionKeyInProject);
+            } catch (RQLException e)
+            {
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format(
+                                                "Could not delete template variant {0} from content class {1}: {2}",
+                                                this, ContentClass, e.Message), e);
             }
         }
 
@@ -397,21 +412,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 _status = BoolConvert(XmlElement.GetAttributeValue("waitforrelease"))
                               ? TemplateVariantState.WaitsForRelease
                               : TemplateVariantState.Released;
-            }
-        }
-
-        public void Delete()
-        {
-            const string DELETE_TEMPLATE =
-                @"<TEMPLATE><TEMPLATEVARIANTS><TEMPLATEVARIANT action=""delete"" guid=""{0}""/></TEMPLATEVARIANTS></TEMPLATE>";
-            try
-            {
-                Project.ExecuteRQL(DELETE_TEMPLATE.RQLFormat(this), RqlType.SessionKeyInProject);
-            }
-            catch (RQLException e)
-            {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not delete template variant {0} from content class {1}: {2}", this, ContentClass, e.Message), e);
             }
         }
     }

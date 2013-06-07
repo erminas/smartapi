@@ -1,4 +1,19 @@
-﻿using System.Collections.Generic;
+﻿// Smart API - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
@@ -10,18 +25,18 @@ namespace erminas.SmartAPI.CMS.Project
     public interface IProjectGroups : IIndexedRDList<string, IGroup>, IProjectObject
     {
         void Add(IGroup group);
-        void Remove(IGroup group);
         void AddRange(IEnumerable<IGroup> group);
         void Clear();
-        void Set(IEnumerable<IGroup> group);
-        new IProjectGroups Refreshed();
         IGroup CreateAndAdd(string groupName, string groupEmailAdress);
+        new IProjectGroups Refreshed();
+        void Remove(IGroup group);
+        void Set(IEnumerable<IGroup> group);
     }
 
     internal class ProjectGroups : NameIndexedRDList<IGroup>, IProjectGroups
     {
-        private readonly IProject _project;
         private const string SINGLE_GROUP = @"<GROUP guid=""{0}"" />";
+        private readonly IProject _project;
 
         internal ProjectGroups(IProject project, Caching caching) : base(caching)
         {
@@ -29,34 +44,15 @@ namespace erminas.SmartAPI.CMS.Project
             RetrieveFunc = GetAssignedGroups;
         }
 
-        private List<IGroup> GetAssignedGroups()
-        {
-            const string LIST_GROUPS =
-                @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(_project), RQL.IODataFormat.LogonGuidOnly);
-            return
-                (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP") select (IGroup)new Group(Session, curGroup))
-                    .ToList();
-        }
-
-        public ISession Session { get { return _project.Session; } }
-        
-        public IProject Project { get { return _project; } }
-
         public void Add(IGroup @group)
         {
-            AddRange(new []{@group});
-        }
-
-        public void Remove(IGroup @group)
-        {
-            RemoveRange(new []{@group});
+            AddRange(new[] {@group});
         }
 
         public void AddRange(IEnumerable<IGroup> groups)
         {
             const string ASSIGN_GROUPS =
-              @"<ADMINISTRATION action=""assign""><PROJECT guid=""{0}"">{1}</PROJECT></ADMINISTRATION>";
+                @"<ADMINISTRATION action=""assign""><PROJECT guid=""{0}"">{1}</PROJECT></ADMINISTRATION>";
 
             var groupsList = groups as IList<IGroup> ?? groups.ToList();
             if (!groupsList.Any())
@@ -70,15 +66,72 @@ namespace erminas.SmartAPI.CMS.Project
             if (!xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
-                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not add group(s) to {0}: {1}",Project,  errorGroups));
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not add group(s) to {0}: {1}", Project, errorGroups));
             }
             InvalidateCache();
+        }
+
+        public void Clear()
+        {
+            RemoveRange(this);
+        }
+
+        public IGroup CreateAndAdd(string groupName, string groupEmailAdress)
+        {
+            const string CREATE_GROUP =
+                @"<ADMINISTRATION><PROJECT guid=""{0}"" action=""assign""><GROUPS action=""addnew""><GROUP name=""{1}"" email=""{2}""/></GROUPS></PROJECT></ADMINISTRATION>";
+
+            var xmlDoc = Session.ExecuteRQL(CREATE_GROUP.SecureRQLFormat(_project, groupName, groupEmailAdress));
+
+            var groupGuid = xmlDoc.GetSingleElement("GROUP").GetGuid();
+            InvalidateCache();
+            return GroupFactory.CreateFromGuid(Session, groupGuid);
+        }
+
+        public IProject Project
+        {
+            get { return _project; }
+        }
+
+        public void Remove(IGroup @group)
+        {
+            RemoveRange(new[] {@group});
+        }
+
+        public ISession Session
+        {
+            get { return _project.Session; }
+        }
+
+        public void Set(IEnumerable<IGroup> newGroups)
+        {
+            var curGroups = this.ToList();
+            var newGroupsList = newGroups as IList<IGroup> ?? newGroups.ToList();
+
+            RemoveRange(curGroups.Except(newGroupsList));
+            AddRange(newGroupsList.Except(curGroups));
+        }
+
+        private List<IGroup> GetAssignedGroups()
+        {
+            const string LIST_GROUPS =
+                @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
+            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(_project), RQL.IODataFormat.LogonGuidOnly);
+            return
+                (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")
+                 select (IGroup) new Group(Session, curGroup)).ToList();
+        }
+
+        IProjectGroups IProjectGroups.Refreshed()
+        {
+            return this;
         }
 
         private void RemoveRange(IEnumerable<IGroup> groups)
         {
             const string UNASSIGN_GROUPS =
-               @"<ADMINISTRATION action=""unlink""><PROJECT guid=""{0}"">{1}</PROJECT></ADMINISTRATION>";
+                @"<ADMINISTRATION action=""unlink""><PROJECT guid=""{0}"">{1}</PROJECT></ADMINISTRATION>";
 
             var groupsList = groups as IList<IGroup> ?? groups.ToList();
             if (!groupsList.Any())
@@ -92,40 +145,11 @@ namespace erminas.SmartAPI.CMS.Project
             if (!xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
-                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not remove group(s) from {0}: {1}", Project, errorGroups));
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Could not remove group(s) from {0}: {1}", Project,
+                                                          errorGroups));
             }
             InvalidateCache();
-        }
-
-        public void Clear()
-        {
-            RemoveRange(this);
-        }
-
-        public void Set(IEnumerable<IGroup> newGroups)
-        {
-            var curGroups = this.ToList();
-            var newGroupsList = newGroups as IList<IGroup> ?? newGroups.ToList();
-
-            RemoveRange(curGroups.Except(newGroupsList));
-            AddRange(newGroupsList.Except(curGroups));
-        }
-
-        IProjectGroups IProjectGroups.Refreshed()
-        {
-            return this;
-        }
-
-        public IGroup CreateAndAdd(string groupName, string groupEmailAdress)
-        {
-            const string CREATE_GROUP =
-                @"<ADMINISTRATION><PROJECT guid=""{0}"" action=""assign""><GROUPS action=""addnew""><GROUP name=""{1}"" email=""{2}""/></GROUPS></PROJECT></ADMINISTRATION>";
-
-            var xmlDoc = Session.ExecuteRQL(CREATE_GROUP.SecureRQLFormat(_project, groupName, groupEmailAdress));
-
-            var groupGuid = xmlDoc.GetSingleElement("GROUP").GetGuid();
-            InvalidateCache();
-            return GroupFactory.CreateFromGuid(Session, groupGuid);
         }
     }
 }

@@ -18,7 +18,7 @@ using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Project.Filesystem
+namespace erminas.SmartAPI.CMS.Project.Folder
 {
     public class FileAttributes
     {
@@ -28,7 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.Filesystem
             LoadXml(xmlElement);
         }
 
-        public string Album { get; private  set; }
+        public string Album { get; private set; }
         public string Artist { get; private set; }
         public string Colordepth { get; private set; }
         public string Comment { get; private set; }

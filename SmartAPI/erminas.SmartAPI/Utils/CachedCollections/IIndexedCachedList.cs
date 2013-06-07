@@ -44,6 +44,8 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         /// </summary>
         T this[TK key] { get; }
 
+        new IIndexedCachedList<TK, T> Refreshed();
+
         /// <summary>
         ///     Try to get an entry with a specific key value, returns false, if entry could not be found.
         /// </summary>
@@ -51,5 +53,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         /// <param name="obj"> Output parameter containing the entry on success </param>
         /// <returns> true, if entry could be found, false otherwise. </returns>
         bool TryGet(TK name, out T obj);
+
+        void WaitFor(Predicate<IIndexedCachedList<TK, T>> predicate, TimeSpan maxWait, TimeSpan retryPeriod);
     }
 }
