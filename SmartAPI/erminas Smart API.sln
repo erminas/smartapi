@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "erminas Smart API Test", "..\..\SmartAPI_Tests\SmartAPI Tests\erminas Smart API Test.csproj", "{857806A1-4469-4CBC-9DBA-02C1FC123ED4}"
+# Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "erminas Smart API Test", "..\..\SmartAPI_Tests\SmartAPI Tests\erminas Smart API Test.csproj", "{857806A1-4469-4CBC-9DBA-02C1FC123ED4}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
