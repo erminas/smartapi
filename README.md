@@ -22,7 +22,7 @@ var login = new ServerLogin {Address = new Uri("http://my-reddot-server/cms"), A
 // Creating the session object automatically creates a connection.
 // Dispose() closes the connection in a a clean way (this is done
 // automatically at the end of the using block).
-using(var session = new Session(login))
+using(var session = SessionBuilder.CreateOrReplaceOldestSession(login))
 {
   // Select a project based on the name
   var project = session.Projects.GetByName("MyProjekt");
