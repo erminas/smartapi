@@ -61,6 +61,7 @@
     <Compile Include="CMS\Administration\IAsynchronousProcess.cs" />
     <Compile Include="CMS\Administration\ServerManagementContext.cs" />
     <Compile Include="CMS\Administration\IUsers.cs" />
+    <Compile Include="CMS\Project\Authorizations\IAuthorizationPackage.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\BuggedStringXmlNodeAttribute.cs" />
     <Compile Include="CMS\Project\Folder\IAssetManagerFiles.cs" />
     <Compile Include="CMS\Project\Folder\IAssetManagerFolder.cs" />
