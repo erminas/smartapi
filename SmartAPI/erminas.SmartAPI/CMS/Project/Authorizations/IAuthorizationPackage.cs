@@ -263,7 +263,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             var xmlDoc = _package.Project.ExecuteRQL(LOAD_AUTH.RQLFormat(_package));
 
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("GROUP")
-                    let curGroup =  _package.Session.Groups.GetByGuid(curElement.GetGuid())
+                    let curGroup =  _package.Project.AssignedGroups.GetByGuid(curElement.GetGuid())
                     select
                         (IGroupAuthorization)
                         new GroupAuthorizationRights(_package, curGroup,
@@ -295,10 +295,10 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             var xmlDoc = _package.Project.ExecuteRQL(LOAD_AUTH.RQLFormat(_package));
 
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("USER")
-                    let curUser = _package.Session.Users.GetByGuid(curElement.GetGuid())
+                    let curUser = _package.Project.Users.GetByUserGuid(curElement.GetGuid())
                     select
                         (IUserAuthorization)
-                        new UserAuthorizationRights(_package, curUser,
+                        new UserAuthorizationRights(_package, curUser.User,
                                                      curElement)).ToList();
         }
 

@@ -116,8 +116,9 @@ namespace erminas.SmartAPI.CMS.Project
         private List<IGroup> GetAssignedGroups()
         {
             const string LIST_GROUPS =
-                @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(_project), RQL.IODataFormat.LogonGuidOnly);
+                @"<PROJECT><GROUPS action=""list""/></PROJECT>";
+            
+            var xmlDoc = Session.ExecuteRQLInProjectContext(LIST_GROUPS, _project.Guid);
             return
                 (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")
                  select (IGroup) new Group(Session, curGroup)).ToList();
