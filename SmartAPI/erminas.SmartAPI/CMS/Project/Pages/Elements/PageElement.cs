@@ -24,6 +24,29 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
+
+    public interface IPageElementFactory
+    {
+        IPageElement CreateElement(IProject project, Guid elementGuid, ILanguageVariant languageVariant);
+    }
+
+    public class PageElementFactory : IPageElementFactory
+    {
+        static PageElementFactory ()
+        {
+            Instance = new PageElementFactory();
+        }
+        
+        public static IPageElementFactory Instance { get; set; }
+
+        private PageElementFactory() {}
+
+        public IPageElement CreateElement(IProject project, Guid elementGuid, ILanguageVariant languageVariant)
+        {
+            return PageElement.CreateElement(project, elementGuid, languageVariant);
+        }
+    }
+
     /// <summary>
     ///     Base class for elements of pages. All page element classes have to either get annotated with a
     ///     <see
