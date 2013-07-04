@@ -521,7 +521,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             //TODO schoenere loesung fuer partielles nachladen von pages wegen unterschiedlicher anfragen fuer unterschiedliche infos
             InitIfPresent(ref _id, "id", int.Parse);
             EnsuredInit(ref _lang, "languagevariantid", Project.LanguageVariants.Get);
-            InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
+            //parentguid seems to be the mainlinkguid
+            //InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
             InitIfPresent(ref _headline, "headline", x => x);
             InitIfPresent(ref _pageFlags, "flags", x => (PageFlags) int.Parse(x));
             InitIfPresent(ref _ccGuid, "templateguid", Guid.Parse);
