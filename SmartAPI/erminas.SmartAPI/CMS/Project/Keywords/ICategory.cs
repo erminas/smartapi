@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 {
     public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
     {
-        CategoryKeywords CategoryKeywords { get; }
+        CategoryKeywords Keywords { get; }
 
         /// <summary>
         ///     Use after setting Name to rename category on the server.
@@ -71,19 +71,19 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
         internal Category(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            CategoryKeywords = new CategoryKeywords(this);
+            Keywords = new CategoryKeywords(this);
             LoadXml();
         }
 
         public Category(IProject project, Guid guid) : base(project, guid)
         {
-            CategoryKeywords = new CategoryKeywords(this);
+            Keywords = new CategoryKeywords(this);
         }
 
         /// <summary>
         ///     All keywords belonging to this category, indexed by name. This list is cached by default.
         /// </summary>
-        public CategoryKeywords CategoryKeywords { get; private set; }
+        public CategoryKeywords Keywords { get; private set; }
 
         /// <summary>
         ///     Use after setting Name to rename category on the server.

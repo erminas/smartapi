@@ -90,6 +90,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         IIndexedCachedList<string, IAuthorizationPackage> ForPages { get; }
         IIndexedCachedList<string, IAuthorizationPackage> Standard { get; }
     }
+
     public enum AuthorizationType
     {
         Standard = 0,
@@ -101,8 +102,8 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         ProjectVariant = 32,
         Folder=64,
         LanguageVariant=128
-
     }
+
     internal class AuthorizationPackages : IAuthorizationPackages
     {
         public AuthorizationPackages(IProject project) 
@@ -488,10 +489,10 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
 
         public override void Commit()
         {
-            const string SAVE_USER_RIGHTS =
+            const string SAVE_GROUP_RIGHTS =
                 @"<AUTHORIZATION><AUTHORIZATIONPACKET action=""save"" guid=""{0}""><GROUPS><GROUP guid=""{1}"" right1=""{2}"" right2=""{3}"" right3=""{4}"" right4=""{5}"" right5=""{6}"" right6=""{7}"" right7=""{8}"" right8=""{9}"" deny1=""{10}"" deny2=""{11}"" deny3=""{12}"" deny4=""{13}"" deny5=""{14}"" deny6=""{15}"" deny7=""{16}"" deny8=""{17}""/></GROUPS></AUTHORIZATIONPACKET></AUTHORIZATION>";
 
-            string query = SAVE_USER_RIGHTS.RQLFormat(AuthorizationPackage, Group, GrantedPageRights,
+            string query = SAVE_GROUP_RIGHTS.RQLFormat(AuthorizationPackage, Group, GrantedPageRights,
                                                       GrantedStructuralElementRights, GrantedElementRights,
                                                       GrantedGlobalRights, GrantedAssetManagerAttributeRights,
                                                       GrantedContentClassRights, GrantedProjectOrLanguageVariantRights,

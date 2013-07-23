@@ -106,7 +106,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
                                                 this));
             }
 
-            Category.CategoryKeywords.InvalidateCache();
+            Category.Keywords.InvalidateCache();
         }
 
         public void DeleteForcibly()
@@ -123,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete keyword {0}", this));
             }
 
-            Category.CategoryKeywords.InvalidateCache();
+            Category.Keywords.InvalidateCache();
         }
 
         public void Rename(string newKeywordName)

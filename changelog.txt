@@ -1,5 +1,19 @@
 SmartAPI Changelog
 
+Bugfixes:
+- Simple page search by page type now works as expected
+
+Features:
+- Support for authentication packages
+- Support for reading and writing OptionList values on pages
+
+API:
+- Object model for option list entries
+- Introduction of PageElementFactory to be able to access page elements only through their guid again
+- Renamed Category.CategoryKeywords to Category.Keywords
+- Renamed IPageSearch.HeadlineExact to IPageSearch.IsMatchingHeadlineExactly
+- Renamed IPageSearch.KeywordExact to IPageSearch.IsMatchingKeywordExactly
+
 2013-07-06: Version 0.9.9.1 (1.0RC2)
 ------------------------------------
 Features:
