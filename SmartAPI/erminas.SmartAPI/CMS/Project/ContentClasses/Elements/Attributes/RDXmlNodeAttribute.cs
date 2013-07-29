@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using erminas.SmartAPI.Utils;
 using log4net;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
@@ -188,9 +187,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         #endregion
 
-        protected readonly IAttributeContainer Parent;
+        protected readonly ISessionObject Parent;
 
-        protected RDXmlNodeAttribute(IAttributeContainer parent, string name, bool initValue = true)
+        protected RDXmlNodeAttribute(ISessionObject parent, string name, bool initValue = true)
         {
             Parent = parent;
             Name = name;

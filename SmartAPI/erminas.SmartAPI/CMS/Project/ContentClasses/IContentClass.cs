@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
@@ -26,63 +27,11 @@ using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
+using System.Runtime.CompilerServices;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    public interface IContentClassVersions : IRDList<IContentClassVersion>, IProjectObject
-    {
-        IContentClassVersion Current { get; }
-    }
-
-    internal class ContentClassVersions : RDList<IContentClassVersion>, IContentClassVersions
-    {
-        private readonly IContentClass _contentClass;
-
-        internal ContentClassVersions(IContentClass contentClass, Caching caching) : base(caching)
-        {
-            _contentClass = contentClass;
-            RetrieveFunc = GetVersions;
-        }
-
-        public IContentClass ContentClass
-        {
-            get { return _contentClass; }
-        }
-
-        /// <summary>
-        ///     Versioning information for the latest version of the content class.
-        /// </summary>
-        public IContentClassVersion Current
-        {
-            get { return this.FirstOrDefault(); }
-        }
-
-        public IProject Project
-        {
-            get { return _contentClass.Project; }
-        }
-
-        public ISession Session
-        {
-            get { return _contentClass.Session; }
-        }
-
-        private List<IContentClassVersion> GetVersions()
-        {
-            const string LIST_VERSIONS =
-                @"<PROJECT><TEMPLATE guid=""{0}""><ARCHIVE action=""list""/></TEMPLATE></PROJECT>";
-
-            var xmlDoc = Project.ExecuteRQL(LIST_VERSIONS.RQLFormat(_contentClass));
-            var versionNodes = xmlDoc.GetElementsByTagName("VERSION");
-
-            return (from XmlElement curVersion in versionNodes
-                    let cc = (IContentClassVersion) new ContentClass.ContentClassVersion(_contentClass, curVersion)
-                    orderby cc.Date descending
-                    select cc).ToList();
-        }
-    }
-
-    public interface IContentClass : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
+    public interface IContentClass : IPartialRedDotObject, IProjectObject, IDeletable, ISessionObject
     {
         /// <summary>
         ///     Commit changes on attributes to the server.
@@ -299,14 +248,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             {
                 if (_editableAreaSettings == null)
                 {
-                    const string LOAD_CC_SETTINGS = @"<TEMPLATE guid=""{0}""><SETTINGS action=""load""/></TEMPLATE>";
-                    XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_CC_SETTINGS, Guid.ToRQLString()));
-                    var node = (XmlElement) xmlDoc.GetElementsByTagName("SETTINGS")[0];
-                    if (node == null)
-                    {
-                        throw new SmartAPIException(Session.ServerLogin,
-                                                    string.Format("Could not load settings for content class {0}", this));
-                    }
+                   
                     _editableAreaSettings = new CCEditableAreaSettings(this, node);
                 }
                 return _editableAreaSettings;
@@ -650,73 +592,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         #region Nested type: CCEditableAreaSettings
 
-        /// <summary>
-        ///     Represents editable area configuration of a content class.
-        /// </summary>
-        private class CCEditableAreaSettings : AbstractAttributeContainer, IContentClassEditableAreaSettings
+        public interface ILanguageDependentPartialRedDotObject : IPartialRedDotObject, IProjectObject, ILanguageDependentXmlBasedObject
         {
-            private readonly IContentClass _parent;
-
-            internal CCEditableAreaSettings(IContentClass parent, XmlElement xmlElement)
-                : base(parent.Session, xmlElement)
-            {
-                Debug.Assert(xmlElement != null);
-                Project = parent.Project;
-                _parent = parent;
-                InitAttributes();
-            }
-
-            public string BorderColor
-            {
-                get { return GetAttributeValue<string>("bordercolor"); }
-                set { SetAttributeValue("bordercolor", value); }
-            }
-
-            public string BorderStyle
-            {
-                get { return GetAttributeValue<string>("borderstyle"); }
-                set { SetAttributeValue("borderstyle", value); }
-            }
-
-            public string BorderWidth
-            {
-                get { return GetAttributeValue<string>("borderwidth"); }
-                set { SetAttributeValue("borderwidth", value); }
-            }
-
-            public void Commit()
-            {
-                const string SAVE_CC_SETTINGS = @"<TEMPLATE guid=""{0}"">{1}</TEMPLATE>";
-                XmlDocument result =
-                    _parent.Project.ExecuteRQL(
-                        string.Format(SAVE_CC_SETTINGS, _parent.Guid.ToRQLString(),
-                                      GetSaveString((XmlElement) XmlElement.Clone())), RqlType.SessionKeyInProject);
-
-                if (result.GetElementsByTagName("SETTINGS").Count != 1)
-                {
-                    throw new SmartAPIException(Session.ServerLogin,
-                                                string.Format("Could not save settings for content class {0}", _parent));
-                }
-            }
-
-            public bool IsUsingBorderDefinitionFromProjectSetting
-            {
-                get { return GetAttributeValue<bool>("usedefaultrangesettings"); }
-                set { SetAttributeValue("usedefaultrangesettings", value); }
-            }
-
-            public bool IsUsingBordersToHighlightPages
-            {
-                get { return GetAttributeValue<bool>("showpagerange"); }
-                set { SetAttributeValue("showpagerange", value); }
-            }
-
-            public IProject Project { get; private set; }
-
-            private void InitAttributes()
-            {
-                CreateAttributes("bordercolor", "borderstyle", "borderwidth", "showpagerange", "usedefaultrangesettings");
-            }
+            
         }
 
         /// <summary>
@@ -785,40 +663,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         #endregion
     }
 
-    public interface IContentClassEditableAreaSettings : IAttributeContainer, IProjectObject
-    {
-        string BorderColor { get; set; }
-        string BorderStyle { get; set; }
-        string BorderWidth { get; set; }
-        void Commit();
-        bool IsUsingBorderDefinitionFromProjectSetting { get; set; }
-        bool IsUsingBordersToHighlightPages { get; set; }
-    }
+    
 
     public enum ContentClassVersionType
     {
         AutomaticallyCreated = 1,
         ManuallyCreate = 2,
         Temporary = 3
-    }
-
-    public interface IContentClassVersion : IRedDotObject, IProjectObject
-    {
-        IContentClass ContentClass { get; }
-        ContentClassVersionType CreationType { get; }
-
-        /// <summary>
-        ///     Time the version was created
-        /// </summary>
-        DateTime Date { get; }
-
-        /// <summary>
-        ///     Description text
-        /// </summary>
-        string Description { get; }
-
-        IContentClassFolder Folder { get; }
-        IUser User { get; }
-        string Username { get; }
     }
 }

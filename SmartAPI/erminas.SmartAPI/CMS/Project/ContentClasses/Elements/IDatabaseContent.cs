@@ -17,7 +17,6 @@ using System;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.CMS.Project.Folder;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -100,7 +99,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         private class DatabaseConnectionAttributeFactory : AttributeFactory
         {
-            protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+            protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
             {
                 return new DatabaseConnectionXmlNodeAttribute((ContentClassElement) element, name);
             }

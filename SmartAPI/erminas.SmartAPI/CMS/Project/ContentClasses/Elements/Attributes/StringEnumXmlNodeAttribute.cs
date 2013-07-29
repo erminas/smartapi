@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using erminas.SmartAPI.Exceptions;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
@@ -34,7 +33,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             UpdateValue(Parent.XmlElement.GetAttributeValue(Name));
         }
 
-        public StringEnumXmlNodeAttribute(IAttributeContainer parent, string name, Dictionary<T, string> displayStrings,
+        public StringEnumXmlNodeAttribute(ISessionObject parent, string name, Dictionary<T, string> displayStrings,
                                           Func<T, string> toStringValueRepresentation, Func<string, T> parseEnum)
             : base(parent, name, displayStrings, false)
         {

@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
         }
 
-        public EnumXmlNodeAttribute(IAttributeContainer parent, string name, Dictionary<T, string> displayStrings,
+        public EnumXmlNodeAttribute(ISessionObject parent, string name, Dictionary<T, string> displayStrings,
                                     bool initValue = true) : base(parent, name, initValue)
         {
             _displayStrings = displayStrings;

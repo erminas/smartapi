@@ -15,7 +15,6 @@
 
 using System;
 using erminas.SmartAPI.CMS.Project.Keywords;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {

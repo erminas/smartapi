@@ -19,7 +19,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
     {
         private string _value;
 
-        public StringXmlNodeAttribute(IAttributeContainer parent, string name) : base(parent, name)
+        public StringXmlNodeAttribute(ISessionObject parent, string name) : base(parent, name)
         {
         }
 

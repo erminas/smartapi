@@ -14,14 +14,30 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project;
+using erminas.SmartAPI.CMS.Project.ContentClasses;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
+    
+
     public interface IPartialRedDotObject : IRedDotObject
     {
-        //void EnsureInitialization();
         void Refresh();
+    }
+
+    public interface IPartialRedDotProjectObject : IPartialRedDotObject, IProjectObject
+    {
+    }
+
+    public interface ILanguageDependentPartialRedDotObject : IPartialRedDotProjectObject, ILanguageDependentXmlBasedObject
+    {
+        
     }
 
     /// <summary>
@@ -79,18 +95,6 @@ namespace erminas.SmartAPI.CMS
             IsInitialized = false;
         }
 
-        protected internal override T GetAttributeValue<T>(string attributeName)
-        {
-            EnsureInitialization();
-            return base.GetAttributeValue<T>(attributeName);
-        }
-
-        protected internal override void SetAttributeValue<T>(string attributeName, T value)
-        {
-            EnsureInitialization();
-            base.SetAttributeValue(attributeName, value);
-        }
-
         /// <summary>
         ///     Indicates, wether the object is already completly initialized (true) or not (false).
         /// </summary>
@@ -121,7 +125,7 @@ namespace erminas.SmartAPI.CMS
 
         #region IPartialRedDotObject Members
 
-        public void EnsureInitialization()
+        public static void EnsureInitialization()
         {
             if (!IsInitialized)
             {
@@ -133,9 +137,16 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _name); }
             internal set { base.Name = value; }
-            //    internal set { EnsureInitialization();
-            //        _name = value;
-            //    }
+        }
+
+        public sealed override XmlElement XmlElement
+        {
+            get
+            {
+                EnsureInitialization();
+                return base.XmlElement;
+            }
+            protected set { base.XmlElement = value; }
         }
 
         public virtual void Refresh()
@@ -144,10 +155,60 @@ namespace erminas.SmartAPI.CMS
             InitGuidAndName();
             LoadWholeObject();
 
-            RefreshAttributeValues();
             IsInitialized = true;
         }
 
         #endregion
+    }
+
+    internal abstract class LanguageDependentPartialRedDotProjectObject : PartialRedDotProjectObject, ILanguageDependentPartialRedDotObject
+    {
+        private readonly Dictionary<string, XmlElement>  _languageDependentXmlElements = new Dictionary<string, XmlElement>();
+
+        protected LanguageDependentPartialRedDotProjectObject(IProject project, XmlElement xmlElement)
+            : base(project, xmlElement)
+        {
+        }
+
+        protected LanguageDependentPartialRedDotProjectObject(IProject project, Guid guid)
+            : base(project, guid)
+        {
+        }
+
+        protected LanguageDependentPartialRedDotProjectObject(IProject project)
+            : base(project)
+        {
+        }
+        
+        protected readonly Dictionary<string, object> _languageDependendValues = new Dictionary<string, object>();
+
+        protected LanguageDependentValue<T> GetLanguageDependentValue<T>([CallerMemberName] string callerName = "")
+        {
+            return (LanguageDependentValue<T>)_languageDependendValues.GetOrAdd(callerName, () =>
+                CreateLanguageDependentValue<T>(callerName));
+        }
+
+        private object CreateLanguageDependentValue<T>(string callerName)
+        {
+            var attribute = GetRedDotAttributeOfCallerMember(callerName);
+            return new LanguageDependentValue<T>(this, attribute);
+        }
+
+        public XmlElement GetXmlElementForLanguage(string languageAbbreviation)
+        {
+            return _languageDependentXmlElements.GetOrAdd(languageAbbreviation, () =>
+                {
+                    using (new LanguageContext(Project.LanguageVariants[languageAbbreviation]))
+                    {
+                        return (XmlElement)RetrieveWholeObject().Clone();
+                    }
+                });
+        }
+
+        public override void Refresh()
+        {
+            _languageDependentXmlElements.Clear();
+            base.Refresh();
+        }
     }
 }

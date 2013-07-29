@@ -14,12 +14,19 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
+    public interface IXmlBasedObject
+    {
+        XmlElement XmlElement { get; }
+    }
+
     /// <summary>
     ///     Base class for all red dot objects. It contains a Guid and can be initialized with a XML node containing the guid and other attributes.
     /// </summary>
@@ -52,13 +59,8 @@ namespace erminas.SmartAPI.CMS
         ///     A copy of the XML element is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
         /// <exception cref="ArgumentNullException">thrown, if xmlElement is null</exception>
-        protected RedDotObject(ISession session, XmlElement xmlElement) : base(session, xmlElement)
+        protected RedDotObject(ISession session, XmlElement xmlElement) : base (session, xmlElement)
         {
-            if (xmlElement == null)
-            {
-                throw new ArgumentNullException("xmlElement");
-            }
-
             InitGuidAndName();
         }
 
@@ -166,7 +168,7 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         /// <param name="xmlElement"> the XML node to be converted </param>
         /// <returns> </returns>
-        protected static string GetSaveString(XmlElement xmlElement)
+        protected internal static string GetSaveString(XmlElement xmlElement)
         {
             XmlAttributeCollection attributes = xmlElement.Attributes;
             foreach (XmlAttribute curAttr in attributes)

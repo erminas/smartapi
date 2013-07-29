@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.Project
     /// <summary>
     ///     Represents a prefix or a postfix.
     /// </summary>
-    public interface ISyllable : IPartialRedDotObject, IProjectObject, IAttributeContainer
+    public interface ISyllable : IPartialRedDotObject, IProjectObject, ISessionObject
     {
     }
 

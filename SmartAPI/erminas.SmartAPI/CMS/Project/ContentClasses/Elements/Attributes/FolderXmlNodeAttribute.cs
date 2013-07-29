@@ -29,7 +29,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
         }
 
-        private FolderXmlNodeAttribute(IAttributeContainer parent, IContentClass cc, string name)
+        private FolderXmlNodeAttribute(ISessionObject parent, IContentClass cc, string name)
             : base(cc.Project.Session, parent, name)
         {
             _contentClass = cc;

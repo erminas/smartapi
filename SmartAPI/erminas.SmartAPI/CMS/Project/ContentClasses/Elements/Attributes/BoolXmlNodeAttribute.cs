@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
     {
         private bool _value;
 
-        public BoolXmlNodeAttribute(IAttributeContainer parent, string name) : base(parent, name)
+        public BoolXmlNodeAttribute(ISessionObject parent, string name) : base(parent, name)
         {
         }
 

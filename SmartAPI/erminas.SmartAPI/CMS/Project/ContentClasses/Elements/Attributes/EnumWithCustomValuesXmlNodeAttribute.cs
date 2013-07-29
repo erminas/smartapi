@@ -26,7 +26,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         {
         }
 
-        public EnumWithCustomValuesXmlNodeAttribute(IAttributeContainer parent, string name,
+        public EnumWithCustomValuesXmlNodeAttribute(ISessionObject parent, string name,
                                                     Dictionary<T, string> displayStrings)
             : base(parent, name, displayStrings)
         {

@@ -15,7 +15,6 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.Exceptions;
@@ -23,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IContentClassElement : IWorkflowAssignable, IAttributeContainer
+    public interface IContentClassElement : IWorkflowAssignable, ISessionObject
     {
         /// <summary>
         ///     Element category of the lement

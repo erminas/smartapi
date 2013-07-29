@@ -180,9 +180,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             FACTORIES.Add(attributeName, factory);
         }
 
-        protected abstract RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name);
+        protected abstract RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name);
 
-        internal static IRDAttribute CreateAttribute(IAttributeContainer element, string attributeName)
+        internal static IRDAttribute CreateAttribute(ISessionObject element, string attributeName)
         {
             try
             {
@@ -204,7 +204,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class LanguageVariantAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new LanguageVariantAttribute((ContentClassElement) element, name);
         }
@@ -212,7 +212,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class ProjectVariantAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new ProjectVariantAttribute((ContentClassElement) element, name);
         }
@@ -220,7 +220,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class InfoElementAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new InfoElementAttribute((IContentClassElement) element, name);
         }
@@ -228,7 +228,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class DateTimeFormatAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new DateTimeFormatAttribute((IContentClassElement) element, name);
         }
@@ -236,7 +236,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class LocaleAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new LocaleXmlNodeAttribute((IContentClassElement) element, name);
         }
@@ -244,7 +244,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class BoolAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new BoolXmlNodeAttribute(element, name);
         }
@@ -252,7 +252,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class StringAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new StringXmlNodeAttribute(element, name);
         }
@@ -268,7 +268,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class FolderAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new FolderXmlNodeAttribute((IContentClassElement) element, name);
         }
@@ -287,7 +287,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             _displayStrings = displayStrings;
         }
 
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new EnumXmlNodeAttribute<T>(element, name, _displayStrings);
         }
@@ -306,7 +306,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             DisplayStrings = displayStrings;
         }
 
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new EnumWithCustomValuesXmlNodeAttribute<T>(element, name, DisplayStrings);
         }
@@ -331,7 +331,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             _fromString = fromString;
         }
 
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new StringEnumXmlNodeAttribute<T>(element, name, DisplayStrings, _toString, _fromString);
         }
@@ -339,7 +339,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class ElementAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new ElementXmlNodeAttribute((ContentClassElement) element, name);
         }
@@ -347,7 +347,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class SyllableAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new SyllableXmlNodeAttribute((ContentClass) element, name);
         }
@@ -355,7 +355,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class CategoryAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new CategoryXmlNodeAttribute((ContentClass) element, name);
         }
@@ -363,7 +363,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
     internal class BuggedStringAttributeFactory : AttributeFactory
     {
-        protected override RDXmlNodeAttribute CreateAttributeInternal(IAttributeContainer element, string name)
+        protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
         {
             return new BuggedStringXmlNodeAttribute(element, name);
         }

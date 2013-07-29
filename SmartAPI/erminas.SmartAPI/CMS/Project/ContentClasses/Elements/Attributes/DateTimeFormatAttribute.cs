@@ -15,7 +15,6 @@
 
 using System.Globalization;
 using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {

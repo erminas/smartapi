@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
     {
         private EditorSettings _value;
 
-        public EditorOptionsAttribute(IAttributeContainer parent, string name) : base(parent, name, true)
+        public EditorOptionsAttribute(ISessionObject parent, string name) : base(parent, name, true)
         {
         }
 

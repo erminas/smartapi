@@ -24,7 +24,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
         private readonly ISession _session;
         private T _value;
 
-        protected AbstractGuidXmlNodeAttribute(ISession session, IAttributeContainer parent, string name)
+        protected AbstractGuidXmlNodeAttribute(ISession session, ISessionObject parent, string name)
             : base(parent, name, false)
         {
             _session = session;

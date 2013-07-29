@@ -17,7 +17,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 {
     internal class BuggedStringXmlNodeAttribute : StringXmlNodeAttribute
     {
-        public BuggedStringXmlNodeAttribute(IAttributeContainer parent, string name) : base(parent, name)
+        public BuggedStringXmlNodeAttribute(ISessionObject parent, string name) : base(parent, name)
         {
         }
 

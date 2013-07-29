@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
-    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
+    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, ISessionObject
     {
         CategoryKeywords Keywords { get; }
 
