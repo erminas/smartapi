@@ -30,7 +30,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         ExternalApplication
     }
 
-    public interface IFolder : IPartialRedDotObject, IProjectObject
+    public interface IFolder : IPartialRedDotObject, IProjectObject, IDeletable
     {
         IFiles Files { get; }
         bool IsAssetManager { get; }
@@ -140,6 +140,12 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                     _linkedFolder = project.Folders.AllIncludingSubFolders.GetByGuid(linkedFolderGuid);
                 }
             }
+        }
+
+        public void Delete()
+        {
+            const string DELETE = @"<PROJECT><FOLDER action=""delete"" guid=""{0}""/></PROJECT>";
+            Project.ExecuteRQL(DELETE.RQLFormat(this));
         }
     }
 

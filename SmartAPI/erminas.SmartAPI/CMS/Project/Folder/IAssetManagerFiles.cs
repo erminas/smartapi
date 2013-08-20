@@ -50,11 +50,20 @@ namespace erminas.SmartAPI.CMS.Project.Folder
     {
         internal AssetManagerFiles(IAssetManagerFolder folder, Caching caching) : base(folder, caching)
         {
+            RetrieveFunc = GetFiles;
         }
 
         public new IAssetManagerFolder Folder
         {
             get { return (IAssetManagerFolder) base.Folder; }
+        }
+
+        private List<IFile> GetFiles()
+        {
+            const string LIST_FILES =
+                @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" attributeguid="""" searchtext=""*"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+
+            return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
         }
 
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]

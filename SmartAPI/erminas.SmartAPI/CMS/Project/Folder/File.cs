@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Utils;
 
@@ -33,6 +35,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         string Name { get; }
 
         int ReferenceCount();
+
+        string ThumbnailPath { get; }
     }
 
     internal class File : IFile
@@ -48,13 +52,34 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         private readonly string _name;
 
         private readonly IProject _project;
+        private readonly XmlElement _xmlElement;
 
         internal File(IProject project, XmlElement xmlElement)
         {
             _project = project;
+            _xmlElement = xmlElement;
             _name = xmlElement.GetAttributeValue("name");
             var folderGuid = xmlElement.GetGuid("folderguid");
             _folder = project.Folders.AllIncludingSubFolders.GetByGuid(folderGuid);
+            if (IsAssetWithThumbnail)
+            {
+                //older versions do not contain the thumbnailpath attribute, so it has to be constructed
+                ThumbnailPath = xmlElement.GetAttributeValue("thumbnailpath") ?? CreateThumbnailPath();
+            }
+        }
+
+        private bool IsAssetWithThumbnail
+        {
+            get
+            {
+                Guid guid;
+                return _xmlElement.TryGetGuid("thumbguid", out guid);
+            }
+        }
+
+        private string CreateThumbnailPath()
+        {
+            return @"THUMBNAIL\{0}\{1}\{2}.JPG".RQLFormat(_project, _folder, _xmlElement.GetGuid("thumbguid"));
         }
 
         public File(IFolder folder, string fileName)
@@ -137,6 +162,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             XmlDocument xmlDoc = _project.ExecuteRQL(string.Format(GET_REFERENCES, _folder.Guid.ToRQLString(), _name));
             return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
+
+        public string ThumbnailPath { get; private set; }
 
         public ISession Session
         {
