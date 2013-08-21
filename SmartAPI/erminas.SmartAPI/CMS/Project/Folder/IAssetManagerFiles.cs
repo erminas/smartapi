@@ -110,10 +110,10 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public void UpdateThumbnailAndFileInformationRange(IEnumerable<string> filenames)
         {
-            const string FILE_TO_UPDATE = @"<FILE action=""update"" sourcename=""{0}""/>";
+            const string FILE_TO_UPDATE = @"<FILE action=""update"" sourcename=""{0}"" tempdir=""{1}""/>";
 
             var enumerable = filenames as IList<string> ?? filenames.ToList();
-            var rqlFiles = enumerable.Select(s => FILE_TO_UPDATE.SecureRQLFormat(s));
+            var rqlFiles = enumerable.Select(s => FILE_TO_UPDATE.SecureRQLFormat(s, Session.CurrentApplicationServer.TempDirectoryPath));
             var files = string.Join(string.Empty, rqlFiles);
 
             const string UPDATE_FILES_IN_FOLDER = @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";

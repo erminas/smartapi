@@ -2,6 +2,7 @@ SmartAPI Changelog
 
 Bugfixes:
 - Simple page search by page type now works as expected
+- Text element values were not loaded correctly under some circumstances
 
 Features:
 - Support for authentication packages
@@ -9,6 +10,7 @@ Features:
 - Support for the creation of database Asset Manager folders
 - Support for the creation of subfolders
 - Support for the deletion of folders
+- Acesss to thumbnail path information for asset manager files
 
 Optimization:
 - Removed additional page loads for access to page ids from an extended page search
