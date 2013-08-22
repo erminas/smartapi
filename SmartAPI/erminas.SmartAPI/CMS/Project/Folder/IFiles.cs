@@ -108,10 +108,10 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             const string SINGLE_FILE = @"<FILE filename=""{0}""/>";
             var files = string.Join(string.Empty, filenameList.Select(s => SINGLE_FILE.SecureRQLFormat(s)));
 
-            const string DELETE_FILES =
-                @"<PROJECT><TEMPLATE><ELEMENT folderguid=""{0}""><FILES action=""deletefiles"">{1}</FILES></ELEMENT></TEMPLATE></PROJECT>";
+            var deleteFiles = GetDeleteFilesTemplate();
+           
 
-            var xmlDoc = Project.ExecuteRQL(DELETE_FILES.RQLFormat(_folder, files));
+            var xmlDoc = Project.ExecuteRQL(deleteFiles.RQLFormat(_folder, files));
             if (!xmlDoc.IsContainingOk())
             {
                 throw new SmartAPIException(Session.ServerLogin,
@@ -119,6 +119,14 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                                                 "In folder {0}, could not delete one ore more files out of: {1}",
                                                 _folder, string.Join(", ", filenameList)));
             }
+        }
+
+        protected virtual string GetDeleteFilesTemplate()
+        {
+            const string DELETE_FILES =
+               @"<PROJECT><TEMPLATE><ELEMENT folderguid=""{0}""><FILES action=""deletefiles"">{1}</FILES></ELEMENT></TEMPLATE></PROJECT>";
+
+            return DELETE_FILES;
         }
 
         public ISession Session

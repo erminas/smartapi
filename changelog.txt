@@ -3,6 +3,7 @@ SmartAPI Changelog
 Bugfixes:
 - Simple page search by page type now works as expected
 - Text element values were not loaded correctly under some circumstances
+- Thumbnails for files in assetmanager folders are now updated as expected
 
 Features:
 - Support for authentication packages

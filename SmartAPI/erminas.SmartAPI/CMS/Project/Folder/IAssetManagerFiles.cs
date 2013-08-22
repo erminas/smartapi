@@ -66,6 +66,14 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
         }
 
+        protected override string GetDeleteFilesTemplate()
+        {
+            const string DELETE_FILES =
+               @"<MEDIA><FOLDER folderguid=""{0}""><FILES action=""deletefiles"">{1}</FILES></FOLDER></MEDIA>";
+
+            return DELETE_FILES;
+        }
+
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
         public ReadOnlyCollection<IFile> GetByAttribute(FileComparisonAttribute attribute,
                                                         FileComparisonOperator @operator, int value)
