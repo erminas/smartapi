@@ -69,7 +69,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         protected override string GetSingleFilenameTemplate()
         {
-            return @"<FILE sourcename=""{0}"" languagevariantid=""" + Project.LanguageVariants.Main.Abbreviation + @""" checkfolder=""1""/>";
+            return @"<FILE sourcename=""{0}"" deletereal=""1"" languagevariantid=""" + Project.LanguageVariants.Main.Abbreviation + @"""/>";
         }
 
         protected override string GetDeleteFilesStatement(string files)
