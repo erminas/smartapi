@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -66,12 +67,17 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
         }
 
-        protected override string GetDeleteFilesTemplate()
+        protected override string GetSingleFilenameTemplate()
+        {
+            return @"<FILE sourcename=""{0}"" languagevariantid=""" + Project.LanguageVariants.Main.Abbreviation + @""" checkfolder=""1""/>";
+        }
+
+        protected override string GetDeleteFilesStatement(string files)
         {
             const string DELETE_FILES =
-               @"<MEDIA><FOLDER folderguid=""{0}""><FILES action=""deletefiles"">{1}</FILES></FOLDER></MEDIA>";
+                 @"<MEDIA loginguid=""{0}""><FOLDER guid=""{1}"" subdirguid=""{1}"" tempdir=""{2}{0}\""><FILES action=""deletefiles"">{3}</FILES></FOLDER></MEDIA>";
 
-            return DELETE_FILES;
+            return DELETE_FILES.RQLFormat(Session.LogonGuid, Folder, SecurityElement.Escape(Session.CurrentApplicationServer.TempDirectoryPath), files);   
         }
 
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
