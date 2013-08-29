@@ -37,6 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         int ReferenceCount();
 
         string ThumbnailPath { get; }
+        Guid? ThumbnailGuid { get; }
     }
 
     internal class File : IFile
@@ -53,6 +54,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         private readonly IProject _project;
         private readonly XmlElement _xmlElement;
+        private readonly Guid? _thumbnailGuid;
 
         internal File(IProject project, XmlElement xmlElement)
         {
@@ -61,6 +63,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             _name = xmlElement.GetAttributeValue("name");
             var folderGuid = xmlElement.GetGuid("folderguid");
             _folder = project.Folders.AllIncludingSubFolders.GetByGuid(folderGuid);
+            Guid guid;
+            if (_xmlElement.TryGetGuid("thumbguid", out guid))
+            {
+                _thumbnailGuid = guid;
+            }
             if (IsAssetWithThumbnail)
             {
                 //older versions do not contain the thumbnailpath attribute, so it has to be constructed
@@ -70,16 +77,12 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         private bool IsAssetWithThumbnail
         {
-            get
-            {
-                Guid guid;
-                return _xmlElement.TryGetGuid("thumbguid", out guid);
-            }
+            get { return _thumbnailGuid != null; }
         }
 
         private string CreateThumbnailPath()
         {
-            return @"THUMBNAIL\{0}\{1}\{2}.JPG".RQLFormat(_project, _folder, _xmlElement.GetGuid("thumbguid"));
+            return @"THUMBNAIL\{0}\{1}\{2}.JPG".RQLFormat(_project, _folder, _thumbnailGuid.Value);
         }
 
         public File(IFolder folder, string fileName)
@@ -162,7 +165,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             XmlDocument xmlDoc = _project.ExecuteRQL(string.Format(GET_REFERENCES, _folder.Guid.ToRQLString(), _name));
             return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
-
+        public Guid? ThumbnailGuid { get { return _thumbnailGuid; } }
         public string ThumbnailPath { get; private set; }
 
         public ISession Session

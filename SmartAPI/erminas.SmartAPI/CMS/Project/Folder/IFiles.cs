@@ -121,14 +121,14 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         protected virtual string GetSingleFilenameTemplate()
         {
-            const string SINGLE_FILE = @"<FILE filename=""{0}"" currendirectory="""" checkfolder=""1""/>";
+            const string SINGLE_FILE = @"<FILE sourcename=""{0}"" currendirectory="""" checkfolder=""1""/>";
             return SINGLE_FILE;
         }
 
         protected virtual string GetDeleteFilesStatement(string files)
         {
             const string DELETE_FILES =
-                @"<MEDIA><FOLDER guid=""{0}""><FILES action=""deletefiles"">{1}</FILES></FOLDER></MEDIA><";
+                @"<MEDIA><FOLDER guid=""{0}""><FILES action=""deletefiles"">{1}</FILES></FOLDER></MEDIA>";
             return DELETE_FILES.RQLFormat(Folder, files);
         }
         
