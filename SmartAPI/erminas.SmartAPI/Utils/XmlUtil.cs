@@ -198,8 +198,7 @@ namespace erminas.SmartAPI.Utils
                 return false;
             }
 
-            guid = Guid.Parse(strValue);
-            return true;
+            return Guid.TryParse(strValue, out guid);
         }
     }
 }

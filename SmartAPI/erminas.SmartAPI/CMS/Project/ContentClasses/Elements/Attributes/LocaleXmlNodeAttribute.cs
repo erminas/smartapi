@@ -149,7 +149,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             var attr = (LocaleXmlNodeAttribute) o;
             string xmlNodeValue = attr.GetXmlNodeValue();
             //workaround, because sometimes the server responds with this invalid value
-            if (xmlNodeValue.Contains("EmptyBuffer"))
+            if (xmlNodeValue!= null && xmlNodeValue.Contains("EmptyBuffer"))
             {
                 xmlNodeValue = "";
             }

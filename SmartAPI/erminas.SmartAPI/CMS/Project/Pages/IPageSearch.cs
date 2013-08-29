@@ -33,9 +33,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         DateTime CreatedTo { get; set; }
         IEnumerable<IPage> Execute();
         string Headline { get; set; }
-        bool HeadlineExact { get; set; }
+        bool IsMatchingHeadlineExactly { get; set; }
         string Keyword { get; set; }
-        bool KeywordExact { get; set; }
+        bool IsMatchingKeywordExactly { get; set; }
         int MaxRecords { get; set; }
         int PageIdFrom { get; set; }
         int PageIdTo { get; set; }
@@ -67,12 +67,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var rqlXml = new XmlDocument();
             XmlElement pageElement = rqlXml.CreateElement("PAGE");
             pageElement.SetAttribute("action", "search");
-            pageElement.SetAttribute("flags", PageType.ToString());
+            pageElement.SetAttribute("flags", ((int)PageType).ToString(CultureInfo.InvariantCulture));
             pageElement.SetAttribute("maxrecords", MaxRecords.ToString(CultureInfo.InvariantCulture));
             if (Headline != null)
             {
                 pageElement.SetAttribute("headline", Headline);
-                pageElement.SetAttribute("headlinelike", HeadlineExact ? "0" : "-1");
+                pageElement.SetAttribute("headlinelike", IsMatchingHeadlineExactly ? "0" : "-1");
             }
             if (Category != null)
             {
@@ -81,7 +81,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             if (Keyword != null)
             {
                 pageElement.SetAttribute("keyword", Keyword);
-                pageElement.SetAttribute("keywordlike", KeywordExact ? "0" : "-1");
+                pageElement.SetAttribute("keywordlike", IsMatchingKeywordExactly ? "0" : "-1");
             }
             if (Text != null)
             {
@@ -118,11 +118,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public string Headline { get; set; }
 
-        public bool HeadlineExact { get; set; }
+        public bool IsMatchingHeadlineExactly { get; set; }
 
         public string Keyword { get; set; }
 
-        public bool KeywordExact { get; set; }
+        public bool IsMatchingKeywordExactly { get; set; }
         public int MaxRecords { get; set; }
 
         public int PageIdFrom { get; set; }
@@ -147,9 +147,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             TextExact = true;
             Category = null;
             Keyword = null;
-            KeywordExact = true;
+            IsMatchingKeywordExactly = true;
             Headline = null;
-            HeadlineExact = true;
+            IsMatchingHeadlineExactly = true;
             MaxRecords = DEFAULT_MAX_RECORDS;
             PageIdFrom = -1;
             PageIdTo = -1;

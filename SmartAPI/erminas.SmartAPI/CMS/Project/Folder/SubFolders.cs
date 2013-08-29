@@ -53,6 +53,12 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             get { return _folder.Session; }
         }
 
+        public new ISubFolders Refreshed()
+        {
+            Refresh();
+            return this;
+        }
+
         private List<IAssetManagerFolder> GetSubFolders()
         {
             if (((Project) Project).AllFoldersXmlDocument == null)

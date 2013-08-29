@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Administration
 {
@@ -31,7 +32,16 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public void Dispose()
         {
-            _session.SelectProject(_projectGuid);
+            try
+            {
+                _session.SelectProject(_projectGuid);
+            } catch (RQLException e)
+            {
+                if (!e.ErrorMessage.Contains("The project you have selected is no longer available"))
+                {
+                    throw;
+                }
+            }
         }
     }
 }

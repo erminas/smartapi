@@ -240,6 +240,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                         new Result(
                         new Page(_project, curPage.GetGuid(), LanguageVariantOfSearchResults)
                             {
+                                Id = curPage.GetIntAttributeValue("id").GetValueOrDefault(),
                                 Headline = curPage.GetAttributeValue("headline"),
                                 Status = ((PageState) int.Parse(curPage.GetAttributeValue("status")))
                             },

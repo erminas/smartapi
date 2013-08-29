@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.Workflows;
 using erminas.SmartAPI.Utils;
 
@@ -141,6 +142,36 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public override string ToSearchItemString()
         {
             return ToSearchItemStringInternal("specialpages", PageCategory.ToString().ToLowerInvariant(), "eq");
+        }
+    }
+
+    public class ContentClassFilter : AbstractPageSearchFilter
+    {
+        private readonly IContentClass _contentClass;
+
+        public ContentClassFilter(IContentClass contentClass)
+        {
+            _contentClass = contentClass;
+        }
+
+        public override string ToSearchItemString()
+        {
+            return ToSearchItemStringInternal("contentclassguid", _contentClass.Guid.ToRQLString(), "eq");
+        }
+    }
+
+    public class ContentClassExclusionFilter : AbstractPageSearchFilter
+    {
+        private readonly IContentClass _contentClass;
+
+        public ContentClassExclusionFilter(IContentClass contentClass)
+        {
+            _contentClass = contentClass;
+        }
+
+        public override string ToSearchItemString()
+        {
+            return ToSearchItemStringInternal("contentclassguid", _contentClass.Guid.ToRQLString(), "ne");
         }
     }
 

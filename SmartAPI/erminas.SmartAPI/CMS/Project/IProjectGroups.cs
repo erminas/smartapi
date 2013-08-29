@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -116,8 +117,9 @@ namespace erminas.SmartAPI.CMS.Project
         private List<IGroup> GetAssignedGroups()
         {
             const string LIST_GROUPS =
-                @"<ADMINISTRATION><PROJECT guid=""{0}""><GROUPS action=""list""/></PROJECT></ADMINISTRATION>";
-            var xmlDoc = Session.ExecuteRQL(LIST_GROUPS.RQLFormat(_project), RQL.IODataFormat.LogonGuidOnly);
+                @"<PROJECT><GROUPS action=""list""/></PROJECT>";
+            
+            var xmlDoc = Session.ExecuteRQLInProjectContext(LIST_GROUPS, _project.Guid);
             return
                 (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")
                  select (IGroup) new Group(Session, curGroup)).ToList();
@@ -141,8 +143,8 @@ namespace erminas.SmartAPI.CMS.Project
             var groupsPart = groupsList.Aggregate("", (s, @group) => s + SINGLE_GROUP.RQLFormat(@group));
 
             var xmlDoc = Session.ExecuteRQL(UNASSIGN_GROUPS.RQLFormat(Project, groupsPart));
-
-            if (!xmlDoc.IsContainingOk())
+            //7.5 sends empty reply
+            if (Session.ServerVersion >= new Version(9,0) && !xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
                 throw new SmartAPIException(Session.ServerLogin,

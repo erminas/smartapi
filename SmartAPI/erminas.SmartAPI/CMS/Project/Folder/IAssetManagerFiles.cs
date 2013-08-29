@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -50,11 +51,33 @@ namespace erminas.SmartAPI.CMS.Project.Folder
     {
         internal AssetManagerFiles(IAssetManagerFolder folder, Caching caching) : base(folder, caching)
         {
+            RetrieveFunc = GetFiles;
         }
 
         public new IAssetManagerFolder Folder
         {
             get { return (IAssetManagerFolder) base.Folder; }
+        }
+
+        private List<IFile> GetFiles()
+        {
+            const string LIST_FILES =
+                @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" attributeguid="""" searchtext=""*"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+
+            return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
+        }
+
+        protected override string GetSingleFilenameTemplate()
+        {
+            return @"<FILE sourcename=""{0}"" deletereal=""1"" languagevariantid=""" + Project.LanguageVariants.Main.Abbreviation + @"""/>";
+        }
+
+        protected override string GetDeleteFilesStatement(string files)
+        {
+            const string DELETE_FILES =
+                 @"<MEDIA loginguid=""{0}""><FOLDER guid=""{1}"" subdirguid=""{1}"" tempdir=""{2}{0}\""><FILES action=""deletefiles"">{3}</FILES></FOLDER></MEDIA>";
+
+            return DELETE_FILES.RQLFormat(Session.LogonGuid, Folder, SecurityElement.Escape(Session.CurrentApplicationServer.TempDirectoryPath), files);   
         }
 
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
@@ -101,10 +124,10 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public void UpdateThumbnailAndFileInformationRange(IEnumerable<string> filenames)
         {
-            const string FILE_TO_UPDATE = @"<FILE action=""update"" sourcename=""{0}""/>";
+            const string FILE_TO_UPDATE = @"<FILE action=""update"" sourcename=""{0}"" tempdir=""{1}""/>";
 
             var enumerable = filenames as IList<string> ?? filenames.ToList();
-            var rqlFiles = enumerable.Select(s => FILE_TO_UPDATE.SecureRQLFormat(s));
+            var rqlFiles = enumerable.Select(s => FILE_TO_UPDATE.SecureRQLFormat(s, Session.CurrentApplicationServer.TempDirectoryPath));
             var files = string.Join(string.Empty, rqlFiles);
 
             const string UPDATE_FILES_IN_FOLDER = @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";

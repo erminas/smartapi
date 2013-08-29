@@ -205,9 +205,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
             }
             parent.RegisterAttribute(this);
         }
-
-        #region IRDAttribute Members
-
+        
         public abstract void Assign(IRDAttribute o);
 
         public string Description
@@ -249,9 +247,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                             ? null
                             : xmlNodeValue);
         }
-
-        #endregion
-
+        
         public override int GetHashCode()
         {
             return Name.GetHashCode();

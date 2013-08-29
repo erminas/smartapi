@@ -554,7 +554,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             {
                 List<IKeyword> keywordsToAssign =
                     PreassignedKeywords.Select(
-                        x => targetCC.Project.Categories.GetByName(x.Category.Name).CategoryKeywords.GetByName(x.Name))
+                        x => targetCC.Project.Categories.GetByName(x.Category.Name).Keywords.GetByName(x.Name))
                                        .ToList();
                 targetCC.PreassignedKeywords.Set(keywordsToAssign);
             } catch (Exception e)

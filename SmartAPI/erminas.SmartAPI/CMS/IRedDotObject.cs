@@ -62,8 +62,6 @@ namespace erminas.SmartAPI.CMS
             InitGuidAndName();
         }
 
-        #region IRedDotObject Members
-
         public Guid Guid
         {
             get
@@ -89,8 +87,6 @@ namespace erminas.SmartAPI.CMS
             get { return _name; }
             internal set { _name = value; }
         }
-
-        #endregion
 
         /// <summary>
         ///     Two RedDotObjects are considered equal, if their guids are equal.

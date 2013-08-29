@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.Folder;
+using erminas.SmartAPI.CMS.Project.Publication;
+using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project
@@ -68,6 +70,44 @@ namespace erminas.SmartAPI.CMS.Project
     {
         IRDEnumerable<IFolder> AllIncludingSubFolders { get; }
         IRDEnumerable<IAssetManagerFolder> AssetManagerFolders { get; }
+        void CreateFolder(DatabaseAssetFolderConfiguration config);
+    }
+
+    public abstract class AssetFolderConfiguration
+    {
+        public AssetFolderConfiguration(string name)
+        {
+            Name = name;
+        }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public bool AreAttributesMandatory { get; set; }
+        public bool IsPublishingPersonalizationAttributes { get; set; }
+        public bool IsFolderNotAvailableInEditor { get; set; }
+        public IPublicationFolder PublicationFolder { get; set; }
+        public int MaximumNumberOfAssetsDisplayed { get; set; }
+    }
+
+    public class DatabaseAssetFolderConfiguration : AssetFolderConfiguration
+    {
+        public DatabaseAssetFolderConfiguration(string name)
+            : base(name)
+        {
+        }
+    }
+
+    public class FileAssetFolderConfiguration : AssetFolderConfiguration
+    {
+        public string Path { get; set; }
+        public bool IsVersioningActive { get; set; }
+        public FileAssetFolderConfiguration(string folderName, string path)
+            : base(folderName)
+        {
+            Path = path;
+        }
+        public string UserName { get; set; }
+        public string UserPassword { get; set; }
+        public bool IsTransmittingCredentials { get; set; }
     }
 
     internal class Folders : NameIndexedRDList<IFolder>, IFolders
@@ -95,6 +135,14 @@ namespace erminas.SmartAPI.CMS.Project
         public IRDEnumerable<IAssetManagerFolder> AssetManagerFolders
         {
             get { return this.Where(folder => folder is IAssetManagerFolder).Cast<IAssetManagerFolder>().ToRDEnumerable(); }
+        }
+
+        public void CreateFolder(DatabaseAssetFolderConfiguration config)
+        {
+            const string CREATE_FOLDER =
+                @"<PROJECT><FOLDER shared=""0"" name=""{0}"" description=""{1}"" foldertype=""0"" catalog=""1"" savetype=""0"" action=""addnew"" webfolder=""{2}"" exportfolder="""" obligatoryattributes=""{3}"" personalization=""{4}"" maxlistcount=""{5}"" hideintexteditor=""{6}""></FOLDER></PROJECT>";
+
+            Project.ExecuteRQL(CREATE_FOLDER.SecureRQLFormat(config.Name, config.Description, config.PublicationFolder, config.AreAttributesMandatory, config.IsPublishingPersonalizationAttributes, config.MaximumNumberOfAssetsDisplayed, config.IsFolderNotAvailableInEditor));
         }
 
         public IFolder GetByGuidIncludingSubFolders(Guid folderGuid)

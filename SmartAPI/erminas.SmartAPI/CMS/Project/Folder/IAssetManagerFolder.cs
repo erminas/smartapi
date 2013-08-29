@@ -14,6 +14,8 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
+using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Folder
@@ -59,11 +61,32 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         }
 
         public ISubFolders SubFolders { get; private set; }
+        public void CreateSubfolder(string name, string description, string filesystemDirectoryName)
+        {
+            if (ParentFolder != null)
+            {
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Can not create subfolder in another subfolder ({0}).", this));
+            }
+
+            const string CREATE_SUBFOLDER =
+                @"<FOLDER guid=""{0}""><SUBFOLDER action=""addnew"" name=""{1}"" dirname=""{2}"" description=""{3}"" /></FOLDER>";
+
+            Project.ExecuteRQL(CREATE_SUBFOLDER.SecureRQLFormat(this, name, filesystemDirectoryName, description));
+        }
+
+        public bool IsDatabaseFolder { get { return StorageType == AssetManagerFolderStorageType.Database; } }
+        public bool IsFileSystemFolder { get { return StorageType == AssetManagerFolderStorageType.FileSystem; } }
+        public AssetManagerFolderStorageType StorageType { get { return (AssetManagerFolderStorageType) XmlElement.GetIntAttributeValue("savetype").GetValueOrDefault(); } }
 
         public override FolderType Type
         {
             get { return FolderType.AssetManager; }
         }
+    }
+
+    public enum AssetManagerFolderStorageType
+    {
+        Database=0, FileSystem=2
     }
 
     public interface IAssetManagerFolder : IFolder
@@ -73,5 +96,9 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         bool IsSubFolder { get; }
         IAssetManagerFolder ParentFolder { get; }
         ISubFolders SubFolders { get; }
+        void CreateSubfolder(string name, string description, string filesystemDirectoryName);
+        bool IsDatabaseFolder { get; }
+        bool IsFileSystemFolder { get; }
+        AssetManagerFolderStorageType StorageType { get; }
     }
 }
