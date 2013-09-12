@@ -71,8 +71,39 @@
     <Compile Include="CMS\Administration\ServerManagementContext.cs" />
     <Compile Include="CMS\Administration\IUsers.cs" />
     <Compile Include="CMS\AbstractAttributeContainer.cs" />
+    <Compile Include="CMS\Converter\AbstractGuidElementConverter.cs" />
+    <Compile Include="CMS\Converter\CategoryConverter.cs" />
+    <Compile Include="CMS\Converter\ContentClassElementConverter.cs" />
+    <Compile Include="CMS\Converter\ContentClassFolderConverter.cs" />
+    <Compile Include="CMS\Converter\ConverterHelper.cs" />
+    <Compile Include="CMS\Converter\DatabaseConnectionConverter.cs" />
+    <Compile Include="CMS\Converter\DateTimeFormatConverter.cs" />
+    <Compile Include="CMS\Converter\EditorSettingsConverter.cs" />
+    <Compile Include="CMS\Converter\ElementReferenceConverter.cs" />
+    <Compile Include="CMS\Converter\ExampleFileConverter.cs" />
+    <Compile Include="CMS\Converter\FolderConverter.cs" />
+    <Compile Include="CMS\Converter\InfoElementConverter.cs" />
+    <Compile Include="CMS\Converter\LanguageVariantConverter.cs" />
+    <Compile Include="CMS\Converter\LocaleConverter.cs" />
+    <Compile Include="CMS\Converter\ProjectVariantConverter.cs" />
+    <Compile Include="CMS\Converter\SrcFileConverter.cs" />
+    <Compile Include="CMS\Converter\StringEnumConverter.cs" />
+    <Compile Include="CMS\Converter\SyllableConverter.cs" />
+    <Compile Include="CMS\Converter\EnumConverter.cs" />
+    <Compile Include="CMS\Converter\TextContentConverter.cs" />
+    <Compile Include="CMS\Converter\XslFileConverter.cs" />
+    <Compile Include="CMS\IAttributeConverter.cs" />
+    <Compile Include="CMS\ILanguageDependentValue.cs" />
     <Compile Include="CMS\Project\Authorizations\IAuthorizationPackage.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\BuggedStringXmlNodeAttribute.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\BrowseAlignment.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\FileSizeUnit.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\Frameborder.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\HtmlTarget.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\ListType.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\MediaConversionMode.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\Scrolling.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\SpecialDataFieldFormat.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\SpecialDataFieldFormatUtils.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClassEditableAreaSettings.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClassVersion.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClassVersions.cs" />
@@ -108,9 +139,6 @@
     <Compile Include="CMS\Project\ISyllables.cs" />
     <Compile Include="CMS\Project\IUserProjects.cs" />
     <Compile Include="CMS\Project\Keywords\ICategories.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\CategoryXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\ElementReferenceAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\StringEnumXmlNodeAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\BasicAlignment.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContentClassContentElement.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IExtendedContentClassContentElement.cs" />
@@ -163,6 +191,7 @@
     <Compile Include="CMS\Project\RedDotProjectObject.cs" />
     <Compile Include="CMS\Project\Workflows\IWorkflowActions.cs" />
     <Compile Include="CMS\RedDotAttribute.cs" />
+    <Compile Include="CMS\RedDotAttributeDescriptionUtils.cs" />
     <Compile Include="CMS\VersionAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IWorkflowPreassignable.cs" />
     <Compile Include="Exceptions\BrokenContentClassFolderSharingException.cs" />
@@ -180,29 +209,7 @@
     <Compile Include="CMS\Project\ContentClasses\Elements\AltType.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IAnchor.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IArea.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\AbstractGuidXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\AttributeFactory.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\BoolXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\DatabaseConnectionXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\DateTimeFormatAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\DelegatingAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\EditorOptionsAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\ElementXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\EnumWithCustomValuesXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\EnumXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\FolderXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\InfoElementAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\IntXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\IRDAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\LanguageVariantAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\LocaleXmlNodeAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\OptionListSelectionAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\ProjectVariantAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\RDXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\ReadOnlyAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\StringXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\SyllableXmlNodeAttribute.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\TextContentAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IBackground.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IBrowse.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContainer.cs" />
@@ -377,6 +384,7 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <Import Project="..\..\..\..\..\git\packages\Microsoft.Bcl.Build.1.0.7\tools\Microsoft.Bcl.Build.targets" />

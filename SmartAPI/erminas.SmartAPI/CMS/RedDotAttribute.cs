@@ -1,90 +1,40 @@
-﻿using System;
+﻿// SmartAPI - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Globalization;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
-    public interface ILanguageDependentValue<T>
-    {
-        T ForCurrentLanguage { get; set; }
-        T ForMainLanguage { get; set; }
-        T this[ILanguageVariant languageVariant] { get; set; }
-        T this[string languageAbbreviation] { get; set; }
-    }
-
-    internal class LanguageDependentValue<T> : ILanguageDependentValue<T>
-    {
-        private readonly ILanguageDependentPartialRedDotObject _parent;
-        private readonly RedDotAttribute _attribute;
-
-        public LanguageDependentValue(ILanguageDependentPartialRedDotObject parent, RedDotAttribute attribute)
-        {
-            _parent = parent;
-            _attribute = attribute;
-        }
-
-        public T ForCurrentLanguage
-        {
-            get { return this[_parent.Project.LanguageVariants.Current]; }
-            set { this[_parent.Project.LanguageVariants.Current] = value; }
-        }
-
-        public T ForMainLanguage
-        {
-            get { return this[_parent.Project.LanguageVariants.Main]; }
-            set { this[_parent.Project.LanguageVariants.Main] = value; }
-        }
-
-        public T this[ILanguageVariant languageVariant]
-        {
-            get { return this[languageVariant.Abbreviation]; }
-            set { this[languageVariant.Abbreviation] = value; }
-        }
-
-        public T this[string languageAbbreviation]
-        {
-            get { 
-                var xmlElement = _parent.GetXmlElementForLanguage(languageAbbreviation);
-                return _attribute.ReadFrom<T>(xmlElement);
-            }
-            set
-            {
-                var xmlElement = _parent.GetXmlElementForLanguage(languageAbbreviation);
-                _attribute.WriteTo(xmlElement, value);
-            }
-        }
-    }
-
-    public interface IConverter<T>
-    {
-        T ConvertFrom(XmlElement element, RedDotAttribute attribute);
-        void WriteTo(XmlElement element, RedDotAttribute attribute, T value);
-    }
-
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class RedDotAttribute : Attribute
     {
         public readonly string ElementName;
-        private object _converterInstance;
+        private IAttributeConvertBase _converterInstance;
         private Type _converterType;
         private string _description;
+        private bool _isReadOnly;
         private Type _targetType;
 
         public RedDotAttribute(string elementName)
         {
             ElementName = elementName;
-        }
-
-        public T ReadFrom<T>(XmlElement element)
-        {
-            Type type = typeof (T);
-            return _converterInstance != null
-                       ? GetCustomConversion<T>(element, type)
-                       : GetDefaultConversion<T>(element, type);
         }
 
         public Type ConverterType
@@ -99,8 +49,9 @@ namespace erminas.SmartAPI.CMS
                 }
                 try
                 {
-                    _targetType = _converterType.GetInterface(typeof (IConverter<object>).Name).GetGenericArguments()[0];
-                    _converterInstance = value.GetConstructor(new Type[0]).Invoke(new object[0]);
+                    _targetType =
+                        _converterType.GetInterface(typeof (IAttributeConverter<object>).Name).GetGenericArguments()[0];
+                    _converterInstance = (IAttributeConvertBase) value.GetConstructor(new Type[0]).Invoke(new object[0]);
                     _converterType = value;
                 } catch (Exception e)
                 {
@@ -110,17 +61,38 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
+        public string DependsOn { get; set; }
+
         public string Description
         {
-            get { return _description ?? RDXmlNodeAttribute.ELEMENT_DESCRIPTION[ElementName]; }
+            get { return _description ?? RedDotAttributeDescription.GetDescriptionForElement(ElementName); }
             set { _description = value; }
         }
 
-        public void WriteTo<T>(XmlElement element, T value)
+        public bool IsReadOnly
         {
+            get { return _converterInstance != null ? _converterInstance.IsReadOnly || _isReadOnly : _isReadOnly; }
+            set { _isReadOnly = value; }
+        }
+
+        public T ReadFrom<T>(IProjectObject sourceProject, XmlElement element)
+        {
+            Type type = typeof (T);
+            return _converterInstance != null
+                       ? GetCustomConversion<T>(sourceProject, element, type)
+                       : GetDefaultConversion<T>(element, type);
+        }
+
+        public void WriteTo<T>(IProjectObject targetProject, XmlElement element, T value)
+        {
+            if (IsReadOnly)
+            {
+                throw new SmartAPIException((string) null,
+                                            string.Format("Cannot write to read only attribute {0}", Description));
+            }
             if (_converterInstance != null)
             {
-                SetWithCustomConversion(element, value);
+                SetWithCustomConversion(targetProject, element, value);
             }
             else
             {
@@ -128,7 +100,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private T GetCustomConversion<T>(XmlElement element, Type type)
+        private T GetCustomConversion<T>(IProjectObject sourceProject, XmlElement element, Type type)
         {
             if (_targetType != type)
             {
@@ -136,7 +108,7 @@ namespace erminas.SmartAPI.CMS
                     string.Format("Converter type does not match Convert<T> call for element {0}", ElementName));
             }
 
-            return ((IConverter<T>) _converterInstance).ConvertFrom(element, this);
+            return ((IAttributeConverter<T>) _converterInstance).ConvertFrom(sourceProject, element, this);
         }
 
         private T GetDefaultConversion<T>(XmlElement element, Type type)
@@ -159,10 +131,10 @@ namespace erminas.SmartAPI.CMS
 
         private bool IsConverterType(Type value)
         {
-            return value.GetInterface(typeof (IConverter<object>).Name) == null;
+            return value.GetInterface(typeof (IAttributeConverter<object>).Name) == null;
         }
 
-        private void SetWithCustomConversion<T>(XmlElement element, T value)
+        private void SetWithCustomConversion<T>(IProjectObject targetProject, XmlElement element, T value)
         {
             if (typeof (T) != _targetType)
             {
@@ -171,7 +143,7 @@ namespace erminas.SmartAPI.CMS
                                   _targetType.Name, ElementName, typeof (T).Name));
             }
 
-            ((IConverter<T>) _converterInstance).WriteTo(element, this, value);
+            ((IAttributeConverter<T>) _converterInstance).WriteTo(targetProject, element, this, value);
         }
 
         private void SetWithDefaultConversion<T>(XmlElement element, T value)

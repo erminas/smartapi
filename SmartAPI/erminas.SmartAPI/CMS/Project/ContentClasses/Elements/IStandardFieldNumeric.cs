@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,12 +14,12 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldNumeric : IStandardFieldNonDate
     {
+        [RedDot("eltmaxsize")]
         int? MaxCharacterCount { get; set; }
     }
 
@@ -28,17 +28,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal StandardFieldNumeric(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltmaxsize");
         }
 
         public int? MaxCharacterCount
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,14 +14,19 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardField : IExtendedContentClassContentElement
     {
+        [RedDot("eltparentelementguid", ConverterType = typeof (ContentClassElementConverter))]
         IContentClassElement ChildElementOf { get; set; }
+
+        [RedDot("eltdefaultvalue")]
         string DefaultValue { get; set; }
+
+        [RedDot("eltrdexample")]
         string Sample { get; set; }
     }
 
@@ -29,28 +34,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         protected StandardField(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltrdexample", /*"eltparentelementname",*/ "eltparentelementguid");
-// ReSharper disable ObjectCreationAsStatement
-            new StringXmlNodeAttribute(this, "eltdefaultvalue");
-// ReSharper restore ObjectCreationAsStatement
         }
 
         public IContentClassElement ChildElementOf
         {
-            get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
-            set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
+            get { return GetAttributeValue<IContentClassElement>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string DefaultValue
         {
-            get { return GetAttributeValue<string>("eltdefaultvalue"); }
-            set { SetAttributeValue("eltdefaultvalue", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string Sample
         {
-            get { return GetAttributeValue<string>("eltrdexample"); }
-            set { SetAttributeValue("eltrdexample", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

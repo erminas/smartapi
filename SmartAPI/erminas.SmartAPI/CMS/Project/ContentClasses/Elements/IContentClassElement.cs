@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -16,13 +16,12 @@
 using System;
 using System.Globalization;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IContentClassElement : IWorkflowAssignable, ISessionObject
+    public interface IContentClassElement : IWorkflowAssignable, ILanguageDependentXmlBasedObject
     {
         /// <summary>
         ///     Element category of the lement
@@ -32,7 +31,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// <summary>
         ///     Save element on the server. Saves only the attributes!
         /// </summary>
-        void Commit();
+        void CommitInCurrentLanguage();
+
+        void CommitInLanguage(string languageAbbreviation);
 
         IContentClass ContentClass { get; set; }
 
@@ -75,7 +76,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     /// <remarks>
     ///     For every attribute/property that can be compared and/or saved there has to be an <see cref="IRDAttribute" /> created and registered, so that the comparison/assignement can be made independent of the element type.
     /// </remarks>
-    internal abstract class ContentClassElement : RedDotProjectObject, IContentClassElement
+    internal abstract class ContentClassElement : LanguageDependentPartialRedDotProjectObject, IContentClassElement
     {
         private const string LANGUAGEVARIANTID = "languagevariantid";
         private ILanguageVariant _languageVariant;
@@ -83,7 +84,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         protected ContentClassElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
         {
-            CreateAttributes("eltname", LANGUAGEVARIANTID);
+            // CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
             LoadXml();
         }
@@ -96,13 +97,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// <summary>
         ///     Save element on the server. Saves only the attributes!
         /// </summary>
-        public virtual void Commit()
+        public virtual void CommitInCurrentLanguage()
+        {
+            CommitInLanguage(Project.LanguageVariants.Current.Abbreviation);
+        }
+
+        public virtual void CommitInLanguage(string abbreviation)
         {
             //RQL for committing changes
             //One parameter: xml representation of the element, containing an attribute "action" with value "save"
             const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
             var node = (XmlElement) XmlElement.Clone();
-            using (new LanguageContext(LanguageVariant))
+            using (new LanguageContext(Project.LanguageVariants[abbreviation]))
             {
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
@@ -150,21 +156,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// </remarks>
         public IContentClassElement CopyToContentClass(IContentClass contentClass)
         {
-            ContentClassElement newContentClassElement = CreateElement(contentClass, Type);
-            foreach (IRDAttribute attr in Attributes)
-            {
-                IRDAttribute newAttr = newContentClassElement.Attributes.First(x => x.Name == attr.Name);
-                try
-                {
-                    newAttr.Assign(attr);
-                } catch (Exception e)
-                {
-                    throw new SmartAPIException(Session.ServerLogin,
-                                                string.Format(
-                                                    "Unable to assign attribute {0} of element {1} of content class {2} in project {3}",
-                                                    attr.Name, Name, contentClass.Name, contentClass.Project.Name), e);
-                }
-            }
+            var newContentClassElement = CreateElement(contentClass, Type);
+            var assign = new AttributeAssignment();
+            assign.AssignAllRedDotAttributesForLanguage(this, newContentClassElement,
+                                                        Project.LanguageVariants.Current.Abbreviation);
 
             var node = (XmlElement) newContentClassElement.XmlElement.Clone();
             node.Attributes.RemoveNamedItem("guid");
@@ -211,6 +206,22 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         ///     TypeId of the element.
         /// </summary>
         public ElementType Type { get; private set; }
+
+        protected override void LoadWholeObject()
+        {
+            //TODO sealed?
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            return GetRQLRepresentation(Project, Guid);
+        }
+
+        internal static IContentClassElement CreateElement(IContentClass contentClass, Guid elementGuid)
+        {
+            var xmlElement = GetRQLRepresentation(contentClass.Project, elementGuid);
+            return CreateElement(contentClass, xmlElement);
+        }
 
         /// <summary>
         ///     Create an element out of its XML representation (uses the attribute "elttype") to determine the element type and create the appropriate object.
@@ -309,6 +320,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             element.Attributes.Append(guidAttr);
 
             return CreateElement(contentClass, element);
+        }
+
+        private static XmlElement GetRQLRepresentation(IProject project, Guid ccElementGuid)
+        {
+            const string LOAD_ELEMENT = @"<TEMPLATE><ELEMENT action=""load"" guid=""{0}""/></TEMPLATE>";
+            return project.ExecuteRQL(LOAD_ELEMENT.RQLFormat(ccElementGuid)).GetSingleElement("ELEMENT");
         }
 
         private void LoadXml()

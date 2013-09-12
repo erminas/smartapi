@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 

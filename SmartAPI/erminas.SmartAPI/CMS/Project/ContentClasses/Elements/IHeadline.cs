@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,18 +19,27 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IHeadline : IContentClassElement
     {
+        [RedDot("eltrddescription")]
         string Description { get; set; }
+
+        [RedDot("eltdirectedit")]
         bool IsDirectEditActivated { get; set; }
+
+        [RedDot("eltdragdrop")]
         bool IsDragAndDropActivated { get; set; }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        [RedDot("eltlanguageindependent")]
         bool IsLanguageIndependent { get; set; }
 
+        [RedDot("eltdonothtmlencode")]
         bool IsNotConvertingCharactersToHtml { get; set; }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        [RedDot("eltignoreworkflow")]
         bool IsNotRelevantForWorklow { get; set; }
 
+        [RedDot("elthideinform")]
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -38,8 +47,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Headline(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltdonothtmlencode", "elthideinform",
-                             "eltrddescription", "eltdirectedit", "eltdragdrop");
         }
 
         public override ContentClassCategory Category
@@ -49,20 +56,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public string Description
         {
-            get { return GetAttributeValue<string>("eltrddescription"); }
-            set { SetAttributeValue("eltrddescription", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDirectEditActivated
         {
-            get { return GetAttributeValue<bool>("eltdirectedit"); }
-            set { SetAttributeValue("eltdirectedit", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDragAndDropActivated
         {
-            get { return GetAttributeValue<bool>("eltdragdrop"); }
-            set { SetAttributeValue("eltdragdrop", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
@@ -71,19 +78,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get
             {
                 VersionVerifier.EnsureVersion(ContentClass.Project.Session);
-                return GetAttributeValue<bool>("eltlanguageindependent");
+                return GetAttributeValue<bool>();
             }
             set
             {
                 VersionVerifier.EnsureVersion(ContentClass.Project.Session);
-                SetAttributeValue("eltlanguageindependent", value);
+                SetAttributeValue(value);
             }
         }
 
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
-            set { SetAttributeValue("eltdonothtmlencode", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
@@ -92,19 +99,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get
             {
                 VersionVerifier.EnsureVersion(ContentClass.Project.Session);
-                return GetAttributeValue<bool>("eltignoreworkflow");
+                return GetAttributeValue<bool>();
             }
             set
             {
                 VersionVerifier.EnsureVersion(ContentClass.Project.Session);
-                SetAttributeValue("eltignoreworkflow", value);
+                SetAttributeValue(value);
             }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

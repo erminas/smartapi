@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,7 +15,7 @@
 
 using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -30,9 +30,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         MatchingImages
     }
 
+    [EnumConversionHelper]
     public static class HitListTypeUtils
     {
-        public static HitListType ToHitListType(string value)
+        public static HitListType ToHitListType(this string value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -70,14 +71,31 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     public interface IHitList : IList
     {
+        [RedDot("eltalign", ConverterType = typeof (StringEnumConverter<BasicAlignment>))]
         BasicAlignment Align { get; set; }
+
+        [RedDot("eltalt")]
         string AltText { get; set; }
+
+        [RedDot("eltborder")]
         string Border { get; set; }
+
+        [RedDot("elthspace")]
         string HSpace { get; set; }
+
+        [RedDot("elthittype", ConverterType = typeof (StringEnumConverter<HitListType>))]
         HitListType HitListType { get; set; }
+
+        [RedDot("eltpresetalt")]
         bool IsAltPreassignedAutomatically { get; set; }
+
+        [RedDot("eltsupplement")]
         string Supplement { get; set; }
+
+        [RedDot("eltusermap")]
         string Usemap { get; set; }
+
+        [RedDot("eltvspace")]
         string VSpace { get; set; }
     }
 
@@ -85,35 +103,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal HitList(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("elthittype", "eltborder", "eltvspace", "elthspace", "eltusermap", "eltsupplement",
-                             "eltalt");
-
-// ReSharper disable ObjectCreationAsStatement
-            new BoolXmlNodeAttribute(this, "eltpresetalt");
-            new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,
-                                                           BasicAlignmentUtils.ToBasicAlignment);
-// ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("eltalign", ConverterType = typeof (StringEnumConverter<BasicAlignment>))]
         public BasicAlignment Align
         {
-            get { return ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value; }
-            set { ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value = value; }
+            get { return GetAttributeValue<BasicAlignment>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string AltText
         {
-            get { return GetAttributeValue<string>("eltalt"); }
-            set { SetAttributeValue("eltalt", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string Border
         {
-            get { return GetAttributeValue<string>("eltborder"); }
-            set { SetAttributeValue("eltborder", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public override void Commit()
+        public override void CommitInCurrentLanguage()
         {
             using (new LanguageContext(LanguageVariant))
             {
@@ -126,13 +137,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public string HSpace
         {
-            get { return GetAttributeValue<string>("elthspace"); }
-            set { SetAttributeValue("elthspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public HitListType HitListType
         {
-            get { return ((StringEnumXmlNodeAttribute<HitListType>) GetAttribute("elthittype")).Value; }
+            get { return GetAttributeValue<HitListType>(); }
             set
             {
                 if (value == HitListType.NotSet)
@@ -140,32 +151,32 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     throw new ArgumentException(string.Format("Hit list type cannot be set to {0} by the user",
                                                               HitListType.NotSet));
                 }
-                ((StringEnumXmlNodeAttribute<HitListType>) GetAttribute("elthittype")).Value = value;
+                SetAttributeValue(value);
             }
         }
 
         public bool IsAltPreassignedAutomatically
         {
-            get { return GetAttributeValue<bool>("eltpresetalt"); }
-            set { SetAttributeValue("eltpresetalt", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string Supplement
         {
-            get { return GetAttributeValue<string>("eltsupplement"); }
-            set { SetAttributeValue("eltsupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string Usemap
         {
-            get { return GetAttributeValue<string>("eltusermap"); }
-            set { SetAttributeValue("eltusermap", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string VSpace
         {
-            get { return GetAttributeValue<string>("eltvspace"); }
-            set { SetAttributeValue("eltvspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

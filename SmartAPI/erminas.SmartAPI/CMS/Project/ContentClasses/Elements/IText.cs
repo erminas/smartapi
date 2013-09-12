@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,104 +13,90 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IText : IExtendedContentClassContentElement
     {
+        [RedDot("eltdefaulttextguid", ConverterType = typeof (DefaultTextConverter))]
         string DefaultValue { get; set; }
+
+        [RedDot("eltcrlftobr")]
         bool IsCrlfConvertedToBr { get; set; }
+
+        [RedDot("eltdirectedit")]
         bool IsDirectEditActivated { get; set; }
+
+        [RedDot("eltdragdrop")]
         bool IsDragAndDropActivated { get; set; }
+
+        [RedDot("eltdeactivatetextfilter")]
         bool IsTextFilterDeactivated { get; set; }
+
+        [RedDot("eltwholetext")]
         bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
+
+        [RedDot("eltmaxsize")]
         int? MaxCharacterCount { get; set; }
+
+        [RedDot("eltrdexampleguid", ConverterType = typeof (SampleTextConverter))]
         string SampleValue { get; set; }
     }
 
     internal abstract class Text : ExtendedContentClassContentElement, IText
     {
-        private readonly TextContentAttribute _defaultText;
-        private readonly TextContentAttribute _exampleText;
-        private readonly StringXmlNodeAttribute _maxSizeAttribute;
-
         protected Text(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltcrlftobr", "eltdeactivatetextfilter", "eltmaxsize", "eltwholetext", "eltdirectedit",
-                             "eltdragdrop");
-
-            _defaultText = new TextContentAttribute(this, TextContentAttribute.TextType.Default, "eltdefaulttextguid");
-            _exampleText = new TextContentAttribute(this, TextContentAttribute.TextType.Sample, "eltrdexampleguid");
-
-            _maxSizeAttribute = (StringXmlNodeAttribute) Attributes.First(x => x.Name == "eltmaxsize");
-        }
-
-        public override void Commit()
-        {
-            _defaultText.Commit();
-            _exampleText.Commit();
-            base.Commit();
         }
 
         public string DefaultValue
         {
-            get { return ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text; }
-            set { ((TextContentAttribute) GetAttribute("eltdefaulttextguid")).Text = value; }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsCrlfConvertedToBr
         {
-            get { return GetAttributeValue<bool>("eltcrlftobr"); }
-            set { SetAttributeValue("eltcrlftobr", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDirectEditActivated
         {
-            get { return GetAttributeValue<bool>("eltdirectedit"); }
-            set { SetAttributeValue("eltdirectedit", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDragAndDropActivated
         {
-            get { return GetAttributeValue<bool>("eltdragdrop"); }
-            set { SetAttributeValue("eltdragdrop", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsTextFilterDeactivated
         {
-            get { return GetAttributeValue<bool>("eltdeactivatetextfilter"); }
-            set { SetAttributeValue("eltdeactivatetextfilter", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
-            get { return GetAttributeValue<bool>("eltwholetext"); }
-            set { SetAttributeValue("eltwholetext", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public int? MaxCharacterCount
         {
-            get { return string.IsNullOrEmpty(_maxSizeAttribute.Value) ? (int?) null : int.Parse(_maxSizeAttribute.Value); }
-            set
-            {
-                if (value.HasValue)
-                {
-                    _maxSizeAttribute.Value = value.ToString();
-                }
-                else
-                {
-                    throw new ArgumentNullException("value");
-                }
-            }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string SampleValue
         {
-            get { return ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text; }
-            set { ((TextContentAttribute) GetAttribute("eltrdexampleguid")).Text = value; }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

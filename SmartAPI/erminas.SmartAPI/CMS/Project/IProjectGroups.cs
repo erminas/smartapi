@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -115,9 +115,8 @@ namespace erminas.SmartAPI.CMS.Project
 
         private List<IGroup> GetAssignedGroups()
         {
-            const string LIST_GROUPS =
-                @"<PROJECT><GROUPS action=""list""/></PROJECT>";
-            
+            const string LIST_GROUPS = @"<PROJECT><GROUPS action=""list""/></PROJECT>";
+
             var xmlDoc = Session.ExecuteRQLInProjectContext(LIST_GROUPS, _project.Guid);
             return
                 (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")

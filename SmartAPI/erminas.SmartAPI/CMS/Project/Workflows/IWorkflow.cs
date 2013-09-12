@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    public interface IWorkflow : IPartialRedDotObject, IProjectObject, IDeletable
+    public interface IWorkflow : IPartialRedDotObject, IProjectObject, IDeletable, IXmlBasedObject
     {
         IWorkflowActions Actions { get; }
         bool CanBeInherited { get; }

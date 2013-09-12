@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,13 +19,26 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IArea : IWorkflowAssignments, IContentClassPreassignable
     {
+        [RedDot("eltcoords")]
         string Coords { get; set; }
+
         bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+
+        [RedDot("eltonlyhrefvalue")]
         bool IsOnlyPathAndFilenameInserted { get; set; }
+
+        [RedDot("eltxhtmlcompliant")]
         bool IsSyntaxConformingToXHtml { get; set; }
+
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
+
+        [RedDot("eltshape")]
         string Shape { get; set; }
+
+        [RedDot("eltsupplement")]
         string Supplement { get; set; }
+
+        [RedDot("elttarget")]
         string Target { get; set; }
     }
 
@@ -35,8 +48,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         internal Area(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltxhtmlcompliant", "eltsupplement", "eltonlyhrefvalue", "eltshape", "elttarget",
-                             "eltcoords");
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
         }
@@ -48,8 +59,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public string Coords
         {
-            get { return GetAttributeValue<string>("eltcoords"); }
-            set { SetAttributeValue("eltcoords", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -60,14 +71,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
-            set { SetAttributeValue("eltonlyhrefvalue", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
-            set { SetAttributeValue("eltxhtmlcompliant", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
@@ -81,21 +92,21 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         //TODO use enum instead
         public string Shape
         {
-            get { return GetAttributeValue<string>("eltshape"); }
-            set { SetAttributeValue("eltshape", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string Supplement
         {
-            get { return GetAttributeValue<string>("eltsupplement"); }
-            set { SetAttributeValue("eltsupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         //TODO use enum instead
         public string Target
         {
-            get { return GetAttributeValue<string>("elttarget"); }
-            set { SetAttributeValue("elttarget", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

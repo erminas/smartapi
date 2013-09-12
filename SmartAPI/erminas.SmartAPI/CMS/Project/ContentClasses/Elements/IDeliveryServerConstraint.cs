@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,10 +19,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IDeliveryServerConstraint : IContentClassElement
     {
+        [RedDot("eltrequired")]
         bool IsEditingMandatory { get; set; }
+
+        [RedDot("eltinvisibleinclient")]
         bool IsHiddenInProjectStructure { get; set; }
+
+        [RedDot("eltlanguageindependent")]
         bool IsLanguageIndependent { get; set; }
+
+        [RedDot("eltignoreworkflow")]
         bool IsNotRelevantForWorklow { get; set; }
+
+        [RedDot("elthideinform")]
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -31,8 +40,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal DeliveryServerConstraint(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "eltinvisibleinclient",
-                             "elthideinform");
         }
 
         public override ContentClassCategory Category
@@ -42,32 +49,32 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public bool IsEditingMandatory
         {
-            get { return GetAttributeValue<bool>("eltrequired"); }
-            set { SetAttributeValue("eltrequired", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsHiddenInProjectStructure
         {
-            get { return GetAttributeValue<bool>("eltinvisibleinclient"); }
-            set { SetAttributeValue("eltinvisibleinclient", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsLanguageIndependent
         {
-            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
-            set { SetAttributeValue("eltlanguageindependent", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsNotRelevantForWorklow
         {
-            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
-            set { SetAttributeValue("eltignoreworkflow", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

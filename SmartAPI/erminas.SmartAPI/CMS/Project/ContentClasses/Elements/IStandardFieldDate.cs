@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -16,15 +16,21 @@
 using System;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldDate : IStandardField
     {
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
         IDateTimeFormat DateFormat { get; set; }
+
         bool IsUserDefinedDateFormat { get; }
+
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
         ISystemLocale Locale { get; set; }
+
+        [RedDot("eltformatting")]
         string UserDefinedDateFormat { get; set; }
     }
 
@@ -32,16 +38,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal StandardFieldDate(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }
 
         public IDateTimeFormat DateFormat
         {
-            get
-            {
-                return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value ??
-                       DateTimeFormat.USER_DEFINED_DATE_FORMAT;
-            }
+            get { return GetAttributeValue<IDateTimeFormat>() ?? DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
             set
             {
                 if (!value.IsDateFormat)
@@ -49,25 +50,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     throw new ArgumentException(string.Format(
                         "DateTimeFormat {1} with type id {0} is not a date format", value.TypeId, value.Name));
                 }
-                ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value;
+                SetAttributeValue(value);
             }
         }
 
         public bool IsUserDefinedDateFormat
         {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value == null; }
+            get { return DateFormat == DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
         }
 
         public ISystemLocale Locale
         {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
+            get { return GetAttributeValue<ISystemLocale>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string UserDefinedDateFormat
         {
-            get { return GetAttributeValue<string>("eltformatting"); }
-            set { SetAttributeValue("eltformatting", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

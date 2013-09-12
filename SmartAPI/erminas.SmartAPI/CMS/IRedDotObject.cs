@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,8 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -59,35 +57,9 @@ namespace erminas.SmartAPI.CMS
         ///     A copy of the XML element is created and the <see cref="Guid" /> gets initialized with the "guid" attribute value of the XML node.
         /// </remarks>
         /// <exception cref="ArgumentNullException">thrown, if xmlElement is null</exception>
-        protected RedDotObject(ISession session, XmlElement xmlElement) : base (session, xmlElement)
+        protected RedDotObject(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             InitGuidAndName();
-        }
-
-        public Guid Guid
-        {
-            get
-            {
-                if (XmlElement != null && _guid.Equals(Guid.Empty))
-                {
-                    InitIfPresent(ref _guid, "guid", GuidConvert);
-                }
-                return _guid;
-            }
-            internal set
-            {
-                if (XmlElement != null)
-                {
-                    XmlElement.Attributes["guid"].Value = value.ToRQLString();
-                }
-                _guid = value;
-            }
-        }
-
-        public virtual string Name
-        {
-            get { return _name; }
-            internal set { _name = value; }
         }
 
         /// <summary>
@@ -110,6 +82,26 @@ namespace erminas.SmartAPI.CMS
             return _guid.GetHashCode();
         }
 
+        public Guid Guid
+        {
+            get
+            {
+                if (XmlElement != null && _guid.Equals(Guid.Empty))
+                {
+                    InitIfPresent(ref _guid, "guid", GuidConvert);
+                }
+                return _guid;
+            }
+            internal set
+            {
+                if (XmlElement != null)
+                {
+                    XmlElement.Attributes["guid"].Value = value.ToRQLString();
+                }
+                _guid = value;
+            }
+        }
+
         /// <summary>
         ///     Convert a string to a guid, e.g. for <see cref="InitIfPresent{T}" />
         /// </summary>
@@ -118,9 +110,39 @@ namespace erminas.SmartAPI.CMS
             return new Guid(str);
         }
 
+        public virtual string Name
+        {
+            get { return _name; }
+            internal set { _name = value; }
+        }
+
         public override string ToString()
         {
             return Name + " (" + Guid.ToRQLString() + ")";
+        }
+
+        /// <summary>
+        ///     Get the string representation of the current object, which is needed in RQL to create/change a RedDotObject on the server. Adds an attribute "action" with value "save" to an XML node, replaces all attribute values which are null or empty with
+        ///     <see
+        ///         cref="RQL.SESSIONKEY_PLACEHOLDER" />
+        ///     and returns the string representation of the resulting node. The replacement of empty attributes is necessary for RQL to actually set the attributes to an empty value instead of ignoring the attribute. Note that the node itself gets modified, so use a copy, if changes must not be made.
+        /// </summary>
+        /// <param name="xmlElement"> the XML node to be converted </param>
+        /// <returns> </returns>
+        protected internal static string GetSaveString(XmlElement xmlElement)
+        {
+            XmlAttributeCollection attributes = xmlElement.Attributes;
+            foreach (XmlAttribute curAttr in attributes)
+            {
+                if (string.IsNullOrEmpty(curAttr.Value))
+                {
+                    curAttr.Value = RQL.SESSIONKEY_PLACEHOLDER;
+                }
+            }
+
+            xmlElement.AddAttribute("action", "save");
+
+            return xmlElement.NodeToString();
         }
 
         /// <summary>
@@ -160,34 +182,10 @@ namespace erminas.SmartAPI.CMS
             variable = converter(value);
         }
 
-        /// <summary>
-        ///     Get the string representation of the current object, which is needed in RQL to create/change a RedDotObject on the server. Adds an attribute "action" with value "save" to an XML node, replaces all attribute values which are null or empty with
-        ///     <see
-        ///         cref="RQL.SESSIONKEY_PLACEHOLDER" />
-        ///     and returns the string representation of the resulting node. The replacement of empty attributes is necessary for RQL to actually set the attributes to an empty value instead of ignoring the attribute. Note that the node itself gets modified, so use a copy, if changes must not be made.
-        /// </summary>
-        /// <param name="xmlElement"> the XML node to be converted </param>
-        /// <returns> </returns>
-        protected internal static string GetSaveString(XmlElement xmlElement)
-        {
-            XmlAttributeCollection attributes = xmlElement.Attributes;
-            foreach (XmlAttribute curAttr in attributes)
-            {
-                if (string.IsNullOrEmpty(curAttr.Value))
-                {
-                    curAttr.Value = RQL.SESSIONKEY_PLACEHOLDER;
-                }
-            }
-
-            xmlElement.AddAttribute("action", "save");
-
-            return xmlElement.NodeToString();
-        }
-
         protected void InitGuidAndName()
         {
             InitIfPresent(ref _guid, "guid", GuidConvert);
-            InitIfPresent(ref _name, "name", x => x);
+            //InitIfPresent(ref _name, "name", x => x);
         }
 
         /// <summary>
@@ -221,6 +219,7 @@ namespace erminas.SmartAPI.CMS
     public interface IRedDotObject
     {
         Guid Guid { get; }
+
         string Name { get; }
     }
 }

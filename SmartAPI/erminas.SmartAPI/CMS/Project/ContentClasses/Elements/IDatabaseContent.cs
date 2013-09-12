@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,54 +15,12 @@
 
 using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public enum ListType
-    {
-        None = 0,
-        Supplement,
-        DisplayAsLink
-    }
-
-    public static class ListTypeUtils
-    {
-        public static ListType ToListType(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return ListType.None;
-            }
-            switch (value.ToUpperInvariant())
-            {
-                case "ISSUPPLEMENT":
-                    return ListType.Supplement;
-                case "LINKSINTEXT":
-                    return ListType.DisplayAsLink;
-                default:
-                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof (ListType).Name, value));
-            }
-        }
-
-        public static string ToRQLString(this ListType type)
-        {
-            switch (type)
-            {
-                case ListType.None:
-                    return "";
-                case ListType.Supplement:
-                    return "issupplement";
-                case ListType.DisplayAsLink:
-                    return "linksintext";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (ListType).Name, type));
-            }
-        }
-    }
-
     public interface IDatabaseContent : IContentClassElement
     {
         BasicAlignment Align { get; set; }
@@ -75,12 +33,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         string Border { get; set; }
         string DataFieldForBinayData { get; set; }
         string DataFieldName { get; set; }
-        string DataFieldType { get; set; }
         IDatabaseConnection DatabaseConnection { get; set; }
         string HSpace { get; set; }
         bool IsListEntry { get; set; }
         ListType ListType { get; set; }
         IFolder PublicationFolder { get; set; }
+        SpecialDataFieldFormat SpecialDataFieldFormat { get; set; }
         string Supplement { get; set; }
         string TableName { get; set; }
         string UserDefinedFormat { get; set; }
@@ -89,57 +47,31 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     internal class DatabaseContent : ContentClassElement, IDatabaseContent
     {
-        #region StaticAttributeInit
-
-        static DatabaseContent()
-        {
-            AttributeFactory.AddFactory("eltdatabasename", new DatabaseConnectionAttributeFactory());
-            AttributeFactory.AddFactory("eltcolumniotype", new StringAttributeFactory());
-        }
-
-        private class DatabaseConnectionAttributeFactory : AttributeFactory
-        {
-            protected override RDXmlNodeAttribute CreateAttributeInternal(ISessionObject element, string name)
-            {
-                return new DatabaseConnectionXmlNodeAttribute((ContentClassElement) element, name);
-            }
-        }
-
-        #endregion
-
         internal DatabaseContent(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltislistentry", "eltlisttype", "eltdatabasename", "elttablename", "eltcolumnname",
-                             "eltcolumniotype", "eltrelatedfolderguid", "eltformatting", "eltbincolumnname", "eltborder",
-                             "eltvspace", "elthspace", "eltsupplement", "eltalt");
-// ReSharper disable ObjectCreationAsStatement
-            new StringEnumXmlNodeAttribute<BasicAlignment>(this, "eltalign", BasicAlignmentUtils.ToRQLString,
-                                                           // ReSharper restore ObjectCreationAsStatement
-                                                           BasicAlignmentUtils.ToBasicAlignment);
-
             //We need to add eltsrc with sessionkey, because otherwise eltalt won't get stored (setting alt through the smart tree doesn't work for that reason).
             XmlElement.SetAttributeValue("eltsrc", RQL.SESSIONKEY_PLACEHOLDER);
         }
 
+        [RedDot("eltalign", ConverterType = typeof (StringEnumConverter<BasicAlignment>))]
         public BasicAlignment Align
         {
-            get { return ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value; }
-            set { ((StringEnumXmlNodeAttribute<BasicAlignment>) GetAttribute("eltalign")).Value = value; }
+            get { return GetAttributeValue<BasicAlignment>(); }
+            set { SetAttributeValue(value); }
         }
 
-        /// <summary>
-        ///     The alt text. While for RedDot Versions 9/10/11 the alt text doesn't get set through the smart tree (alt always remains empty), this method actually works.
-        /// </summary>
+        [RedDot("eltalt")]
         public string AltText
         {
-            get { return GetAttributeValue<string>("eltalt"); }
-            set { SetAttributeValue("eltalt", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltborder")]
         public string Border
         {
-            get { return GetAttributeValue<string>("eltborder"); }
-            set { SetAttributeValue("eltborder", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public override ContentClassCategory Category
@@ -147,86 +79,106 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltbincolumnname")]
         public string DataFieldForBinayData
         {
-            get { return GetAttributeValue<string>("eltbincolumnname"); }
-            set { SetAttributeValue("eltbincolumnname", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltcolumnname")]
         public string DataFieldName
         {
-            get { return GetAttributeValue<string>("eltcolumnname"); }
-            set { SetAttributeValue("eltcolumnname", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
-        //todo implement as enum/special type
-        public string DataFieldType
-        {
-            get { return GetAttributeValue<string>("eltcolumniotype"); }
-            set { SetAttributeValue("eltcolumniotype", value); }
-        }
-
+        [RedDot("eltdatabasename", ConverterType = typeof (DatabaseConnectionConverter))]
         public IDatabaseConnection DatabaseConnection
         {
-            get { return ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value; }
-            set { ((DatabaseConnectionXmlNodeAttribute) GetAttribute("eltdatabasename")).Value = value; }
+            get { return GetAttributeValue<IDatabaseConnection>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthspace")]
         public string HSpace
         {
-            get { return GetAttributeValue<string>("elthspace"); }
-            set { SetAttributeValue("elthspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltislistentry")]
         public bool IsListEntry
         {
-            get { return GetAttributeValue<bool>("eltislistentry"); }
-            set { SetAttributeValue("eltislistentry", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlisttype", ConverterType = typeof (StringEnumConverter<ListType>))]
         public ListType ListType
         {
-            get { return ((StringEnumXmlNodeAttribute<ListType>) GetAttribute("eltlisttype")).Value; }
+            get { return GetAttributeValue<ListType>(); }
             set
             {
                 if (value == ListType.None)
                 {
                     throw new ArgumentException(
                         string.Format("It is not possible to reset the {0} to {1}, once it was set.",
-                                      RDXmlNodeAttribute.ELEMENT_DESCRIPTION["eltlisttype"], ListType.None));
+                                      RedDotAttributeDescription.GetDescriptionForElement("eltlisttype"), ListType.None));
                 }
-                ((StringEnumXmlNodeAttribute<ListType>) GetAttribute("eltlisttype")).Value = value;
+                SetAttributeValue(ListType);
             }
         }
 
+        [RedDot("eltrelatedfolderguid", ConverterType = typeof (FolderConverter))]
         public IFolder PublicationFolder
         {
-            get { return GetAttributeValue<IFolder>("eltrelatedfolderguid"); }
-            set { SetAttributeValue("eltrelatedfolderguid", value); }
+            get { return GetAttributeValue<IFolder>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltcolumniotype", ConverterType = typeof (StringEnumConverter<SpecialDataFieldFormat>))]
+        public SpecialDataFieldFormat SpecialDataFieldFormat
+        {
+            get { return GetAttributeValue<SpecialDataFieldFormat>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltsupplement")]
         public string Supplement
         {
-            get { return GetAttributeValue<string>("eltsupplement"); }
-            set { SetAttributeValue("eltsupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elttablename")]
         public string TableName
         {
-            get { return GetAttributeValue<string>("elttablename"); }
-            set { SetAttributeValue("elttablename", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltformatting")]
         public string UserDefinedFormat
         {
-            get { return GetAttributeValue<string>("eltformatting"); }
-            set { SetAttributeValue("eltformatting", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltvspace")]
         public string VSpace
         {
-            get { return GetAttributeValue<string>("eltvspace"); }
-            set { SetAttributeValue("eltvspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            var element = base.RetrieveWholeObject();
+            //We need to add eltsrc with sessionkey, because otherwise eltalt won't get stored (setting alt through the smart tree doesn't work for that reason).
+            element.SetAttributeValue("eltsrc", RQL.SESSIONKEY_PLACEHOLDER);
+
+            return element;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,67 +13,19 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-
-    #region MediaConversionMode
-
-    public enum MediaConversionMode
-    {
-        NoConversion = 0,
-        Pdf,
-        Html
-    }
-
-    public static class MediaConversionModeUtils
-    {
-        public static MediaConversionMode ToMediaConversionMode(string value)
-        {
-            switch (value.ToUpperInvariant())
-            {
-                case "NO":
-                    return MediaConversionMode.NoConversion;
-                case "PDF":
-                    return MediaConversionMode.Pdf;
-                case "HTML":
-                    return MediaConversionMode.Html;
-                default:
-                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof (MediaConversionMode).Name, value));
-            }
-        }
-
-        public static string ToRQLString(this MediaConversionMode mode)
-        {
-            switch (mode)
-            {
-                case MediaConversionMode.NoConversion:
-                    return "NO";
-                case MediaConversionMode.Pdf:
-                    return "PDF";
-                case MediaConversionMode.Html:
-                    return "HTML";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (MediaConversionMode).Name, mode));
-            }
-        }
-    }
-
-    #endregion
-
     public interface IMedia : IContentClassElement, ICanBeRequiredForEditing
     {
         int? AutomaticMaximumScalingHeight { get; set; }
         int? AutomaticMaximumScalingWidth { get; set; }
         int? ColorDepthInBit { get; set; }
-        new void Commit();
+        new void CommitInCurrentLanguage();
+        new void CommitInLanguage(string languageAbbreviation);
         MediaConversionMode ConversionModeForSelectedDocuments { get; set; }
 
         /// <summary>
@@ -81,7 +33,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         /// </summary>
         string EligibleSuffixes { get; set; }
 
+        IFolder Folder { get; set; }
+
         bool IsConvertingOnlyNonWebCompatibleFiles { get; set; }
+        bool IsDragAndDropActivated { get; set; }
         bool IsLanguageIndependent { get; set; }
         bool IsLinkNotAutomaticallyRemoved { get; set; }
         bool IsNotRelevantForWorklow { get; set; }
@@ -101,36 +56,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Media(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "elthideinform",
-                             "eltsuffixes", "eltdonotremove", "eltconvert", "eltmaxsize", "eltcompression",
-                             "elttargetformat", "eltonlynonwebsources", "eltmaxpicwidth", "eltmaxpicheight",
-                             "eltpicwidth", "eltpicheight", "eltpicdepth", "eltfilename", "eltdragdrop", "eltrdexample",
-                             "eltrdexamplesubdirguid", "eltsrc", "eltfolderguid", "eltsrcsubdirguid");
-// ReSharper disable ObjectCreationAsStatement
-            new StringEnumXmlNodeAttribute<MediaConversionMode>(this, "eltconvertmode",
-                                                                MediaConversionModeUtils.ToRQLString,
-                                                                MediaConversionModeUtils.ToMediaConversionMode);
-// ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("eltmaxpicheight")]
         public int? AutomaticMaximumScalingHeight
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxpicheight")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxpicheight")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltmaxpicwidth")]
         public int? AutomaticMaximumScalingWidth
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxpicwidth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxpicwidth")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
         public override ContentClassCategory Category
@@ -138,165 +77,142 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltpicdepth")]
         public int? ColorDepthInBit
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicdepth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltpicdepth")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltconvertmode", ConverterType = typeof (StringEnumConverter<MediaConversionMode>))]
         public MediaConversionMode ConversionModeForSelectedDocuments
         {
-            get { return ((StringEnumXmlNodeAttribute<MediaConversionMode>) GetAttribute("eltconvertmode")).Value; }
-            set { ((StringEnumXmlNodeAttribute<MediaConversionMode>) GetAttribute("eltconvertmode")).Value = value; }
+            get { return GetAttributeValue<MediaConversionMode>(); }
+            set { SetAttributeValue(value); }
         }
 
-        /// <summary>
-        ///     All eligible suffixes separated by ";"
-        /// </summary>
-        // todo use list<string> instead
+        [RedDot("eltsuffixes")]
         public string EligibleSuffixes
         {
-            get { return GetAttributeValue<string>("eltsuffixes"); }
-            set { SetAttributeValue("eltsuffixes", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
+        public IFolder Folder { get; set; }
+
+        [RedDot("eltonlynonwebsources")]
         public bool IsConvertingOnlyNonWebCompatibleFiles
         {
-            get { return GetAttributeValue<bool>("eltonlynonwebsources"); }
-            set { SetAttributeValue("eltonlynonwebsources", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdragdrop")]
+        public bool IsDragAndDropActivated
+        {
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
-            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
-            set { SetAttributeValue("eltlanguageindependent", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdonotremove")]
         public bool IsLinkNotAutomaticallyRemoved
         {
-            get { return GetAttributeValue<bool>("eltdonotremove"); }
-            set { SetAttributeValue("eltdonotremove", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
-            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
-            set { SetAttributeValue("eltignoreworkflow", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltconvert")]
         public bool IsScaledOrConverted
         {
-            get { return GetAttributeValue<bool>("eltconvert"); }
-            set { SetAttributeValue("eltconvert", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltmaxsize")]
         public int? MaxFileSizeInKB
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltmaxsize")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltcompression")]
         public string Quality
         {
-            get { return GetAttributeValue<string>("eltcompression"); }
-            set { SetAttributeValue("eltcompression", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfilename")]
         public string RequiredNamePattern
         {
-            get { return GetAttributeValue<string>("eltfilename"); }
-            set { SetAttributeValue("eltfilename", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltpicheight")]
         public int? RequiredPictureHeight
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicheight")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltpicheight")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltpicwidth")]
         public int? RequiredPictureWidth
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltpicwidth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltpicwidth")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("__examplefile", ConverterType = typeof (ExampleFileConverter), DependsOn = "eltfolderguid")]
         public IFile SampleFile
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value.Name;
-                ((FolderXmlNodeAttribute) GetAttribute("eltrdexamplesubdirguid")).Value = value.Folder;
-            }
+            get { return GetAttributeValue<IFile>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
         public IFile SrcFile
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltfolderguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value != null ? value.Name : "";
-                if (value != null)
-                {
-                    ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value.Folder;
-                }
-            }
+            get { return GetAttributeValue<IFile>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elttargetformat", ConverterType = typeof (StringEnumConverter<TargetFormat>))]
         public TargetFormat TargetFormat
         {
-            get { return ((StringEnumXmlNodeAttribute<TargetFormat>) GetAttribute("elttargetformat")).Value; }
-            set { ((StringEnumXmlNodeAttribute<TargetFormat>) GetAttribute("elttargetformat")).Value = value; }
+            get { return GetAttributeValue<TargetFormat>(); }
+            set { SetAttributeValue(value); }
         }
 
         #region ICanBeRequiredForEditing Members
 
+        [RedDot("eltrequired")]
         public bool IsEditingMandatory
         {
-            get { return GetAttributeValue<bool>("eltrequired"); }
-            set { SetAttributeValue("eltrequired", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         #endregion

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -29,7 +29,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         void DisconnectFromLinkForLanguages(IEnumerable<ILanguageVariant> languageVariants);
         void DisconnectFromLinkForLanguages(params string[] languageVariants);
         IWorkflowAssignable ElementPreassignedTo { get; }
-        void EnsureInitialization();
         IEnumerable<ILanguageVariant> LanguageVariantsPreassignedTo { get; }
     }
 
@@ -157,7 +156,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _workflow.Session; }
         }
 
-        public XmlElement XmlNode
+        public XmlElement XmlElement
         {
             get { return _workflow.XmlElement; }
             set { _workflow.XmlElement = value; }

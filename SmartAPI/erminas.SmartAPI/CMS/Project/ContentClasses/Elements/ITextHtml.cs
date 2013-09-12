@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,7 +15,6 @@
 
 using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -66,15 +65,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal TextHtml(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             //TODO checken, ob die werte in editoroptions nicht invertiert enthalten sind
-// ReSharper disable ObjectCreationAsStatement
-            new EditorOptionsAttribute(this, "elteditoroptions");
-// ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("elteditoroptions")]
         public EditorSettings TextEditorSettings
         {
-            get { return ((EditorOptionsAttribute) GetAttribute("elteditoroptions")).Value; }
-            set { ((EditorOptionsAttribute) GetAttribute("elteditoroptions")).Value = value; }
+            get { return GetAttributeValue<EditorSettings>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

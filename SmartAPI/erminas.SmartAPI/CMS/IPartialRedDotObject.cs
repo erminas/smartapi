@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project;
@@ -24,10 +23,9 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
-    
-
     public interface IPartialRedDotObject : IRedDotObject
     {
+        void EnsureInitialization();
         void Refresh();
     }
 
@@ -35,9 +33,9 @@ namespace erminas.SmartAPI.CMS
     {
     }
 
-    public interface ILanguageDependentPartialRedDotObject : IPartialRedDotProjectObject, ILanguageDependentXmlBasedObject
+    public interface ILanguageDependentPartialRedDotObject : IPartialRedDotProjectObject,
+                                                             ILanguageDependentXmlBasedObject
     {
-        
     }
 
     /// <summary>
@@ -125,7 +123,7 @@ namespace erminas.SmartAPI.CMS
 
         #region IPartialRedDotObject Members
 
-        public static void EnsureInitialization()
+        public void EnsureInitialization()
         {
             if (!IsInitialized)
             {
@@ -139,16 +137,6 @@ namespace erminas.SmartAPI.CMS
             internal set { base.Name = value; }
         }
 
-        public sealed override XmlElement XmlElement
-        {
-            get
-            {
-                EnsureInitialization();
-                return base.XmlElement;
-            }
-            protected set { base.XmlElement = value; }
-        }
-
         public virtual void Refresh()
         {
             XmlElement = (XmlElement) RetrieveWholeObject().Clone();
@@ -158,40 +146,54 @@ namespace erminas.SmartAPI.CMS
             IsInitialized = true;
         }
 
+        public override sealed XmlElement XmlElement
+        {
+            get
+            {
+                EnsureInitialization();
+                return base.XmlElement;
+            }
+            protected internal set { base.XmlElement = value; }
+        }
+
+        protected override sealed T GetAttributeValue<T>([CallerMemberName] string callerName = "")
+        {
+            EnsureInitialization();
+// ReSharper disable ExplicitCallerInfoArgument
+            return base.GetAttributeValue<T>(callerName);
+// ReSharper restore ExplicitCallerInfoArgument
+        }
+
+        protected override sealed void SetAttributeValue<T>(T value, [CallerMemberName] string callerName = "")
+        {
+            EnsureInitialization();
+// ReSharper disable ExplicitCallerInfoArgument
+            base.SetAttributeValue(value, callerName);
+// ReSharper restore ExplicitCallerInfoArgument
+        }
+
         #endregion
     }
 
-    internal abstract class LanguageDependentPartialRedDotProjectObject : PartialRedDotProjectObject, ILanguageDependentPartialRedDotObject
+    internal abstract class LanguageDependentPartialRedDotProjectObject : PartialRedDotProjectObject,
+                                                                          ILanguageDependentPartialRedDotObject
     {
-        private readonly Dictionary<string, XmlElement>  _languageDependentXmlElements = new Dictionary<string, XmlElement>();
+        protected readonly Dictionary<string, object> _languageDependendValues = new Dictionary<string, object>();
+
+        private readonly Dictionary<string, XmlElement> _languageDependentXmlElements =
+            new Dictionary<string, XmlElement>();
 
         protected LanguageDependentPartialRedDotProjectObject(IProject project, XmlElement xmlElement)
             : base(project, xmlElement)
         {
         }
 
-        protected LanguageDependentPartialRedDotProjectObject(IProject project, Guid guid)
-            : base(project, guid)
+        protected LanguageDependentPartialRedDotProjectObject(IProject project, Guid guid) : base(project, guid)
         {
         }
 
-        protected LanguageDependentPartialRedDotProjectObject(IProject project)
-            : base(project)
+        protected LanguageDependentPartialRedDotProjectObject(IProject project) : base(project)
         {
-        }
-        
-        protected readonly Dictionary<string, object> _languageDependendValues = new Dictionary<string, object>();
-
-        protected LanguageDependentValue<T> GetLanguageDependentValue<T>([CallerMemberName] string callerName = "")
-        {
-            return (LanguageDependentValue<T>)_languageDependendValues.GetOrAdd(callerName, () =>
-                CreateLanguageDependentValue<T>(callerName));
-        }
-
-        private object CreateLanguageDependentValue<T>(string callerName)
-        {
-            var attribute = GetRedDotAttributeOfCallerMember(callerName);
-            return new LanguageDependentValue<T>(this, attribute);
         }
 
         public XmlElement GetXmlElementForLanguage(string languageAbbreviation)
@@ -200,7 +202,7 @@ namespace erminas.SmartAPI.CMS
                 {
                     using (new LanguageContext(Project.LanguageVariants[languageAbbreviation]))
                     {
-                        return (XmlElement)RetrieveWholeObject().Clone();
+                        return (XmlElement) RetrieveWholeObject().Clone();
                     }
                 });
         }
@@ -209,6 +211,29 @@ namespace erminas.SmartAPI.CMS
         {
             _languageDependentXmlElements.Clear();
             base.Refresh();
+        }
+
+        public XmlElement XmlElementForCurrentLanguage
+        {
+            get { return GetXmlElementForLanguage(Project.LanguageVariants.Current.Abbreviation); }
+        }
+
+        public XmlElement XmlElementForMainLanguage
+        {
+            get { return GetXmlElementForLanguage(Project.LanguageVariants.Main.Abbreviation); }
+        }
+
+        protected LanguageDependentValue<T> GetLanguageDependentValue<T>([CallerMemberName] string callerName = "")
+        {
+            return
+                (LanguageDependentValue<T>)
+                _languageDependendValues.GetOrAdd(callerName, () => CreateLanguageDependentValue<T>(callerName));
+        }
+
+        private object CreateLanguageDependentValue<T>(string callerName)
+        {
+            var attribute = GetRedDotAttributeOfCallerMember(callerName);
+            return new LanguageDependentValue<T>(this, attribute);
         }
     }
 }

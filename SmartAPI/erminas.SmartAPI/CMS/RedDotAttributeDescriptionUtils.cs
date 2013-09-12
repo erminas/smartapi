@@ -1,28 +1,23 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
-//  
-// Copyright (C) 2013 erminas GbR
-// 
-// This program is free software: you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free Software Foundation,
-// either version 3 of the License, or (at your option) any later version.
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License along with this program.
-// If not, see <http://www.gnu.org/licenses/>.
-
+﻿using System;
 using System.Collections.Generic;
-using log4net;
+using System.Linq;
+using System.Text;
 
-namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
+namespace erminas.SmartAPI.CMS
 {
-    internal abstract class RDXmlNodeAttribute : IRDAttribute
+    public static class RedDotAttributeDescription
     {
-        #region ElementDescriptions
+        public static string GetDescriptionForElement(string name)
+        {
+            return ELEMENT_DESCRIPTION[name];
+        }
 
-        public static readonly Dictionary<string, string> ELEMENT_DESCRIPTION = new Dictionary<string, string>
+        public static bool TryGetDescriptionForElement(string name, out string description)
+        {
+            return ELEMENT_DESCRIPTION.TryGetValue(name, out description);
+        }
+
+        private static readonly Dictionary<string, string> ELEMENT_DESCRIPTION = new Dictionary<string, string>
             {
                 {"adoptheadlinetoalllanguages", "Changing headline is effective for all language variants"},
                 {"eltname", "Name"},
@@ -73,14 +68,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {"eltxhtmlcompliant", "Syntax which conforms to XHTML in the preview and SmartEdit"},
                 {"eltdefaultsuffix", "Default Suffix"},
                 {"elttargetcontainerguid", "HtmlTarget container"},
-                //TODO
                 {"elttargetcontainertype", "HtmlTarget container type"},
-                //TODO
                 {"eltautoborder", "Automatically insert border into Page"},
                 {"eltautowidth", "Automatically insert width into Page"},
                 {"eltautoheight", "Automatically insert height into Page"},
                 {"eltpresetalt", "Alt - Requirement"},
-                // --> enum
                 {"eltconvert", "Scaling/Conversion"},
                 {"eltfontclass", "Font class"},
                 {"eltfontsize", "Font size"},
@@ -105,27 +97,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {"prefixguid", "Default prefix of this page"},
                 {"eltalign", "Align"},
                 {"eltonlynonwebsources", "Convert only non-Web compatible files"},
-                //TODO
                 {"eltwidth", "Width"},
-                //HTML
                 {"eltheight", "Height"},
-                //HTML
                 {"eltborder", "Border"},
-                //HTML
                 {"eltalt", "Alt"},
                 {"elteditoroptions", "Editor options"},
-                //TODO combined enum
                 {"eltsrc", "SRC"},
                 {"eltvspace", "VSpace"},
                 {"elthspace", "HSpace"},
                 {"eltusermap", "Usemap"},
                 {"eltsupplement", "Supplement"},
-                //Option List
                 {"eltlanguagedependentvalue", "Values dependent on language variant"},
                 {"eltlanguagedependentname", "Names dependent on language variant"},
                 {"eltorderby", "Sort mode"},
                 {"eltoptionlistdata", "Entries"},
-                //...
                 {"eltcolumnname", "Column"},
                 {"elttablename", "Table"},
                 {"eltbincolumnname", "Data field for binary data"},
@@ -133,8 +118,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {"eltisreffield", "Reference field"},
                 {"eltislistentry", "Hit List"},
                 {"eltlisttype", "List TypeId"},
-                //->string
-            
                 {"eltcategorytype", "Category TypeId"},
                 {"eltdirectedit", "Activate DirectEdit"},
                 {"eltformatno", "DateTimeFormat"},
@@ -168,107 +151,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
                 {"eltlanguagevariantguid", "Language Variant"},
                 {"elttemplateguid", "Content class"},
                 {"eltprojectguid", "Project"},
-                //project content -> element
-                //{"eltlanguagevariantid",""},
-                                                                                                               
-                //{"eltrefelementguid",""},
-                //{"eltrefelementtype",""},
                 {"eltconvertmode", "Convert selected documents"},
                 {"ignoreglobalworkflow", "Not relevant for global content workflow"},
                 {"keywordrequired", "Keyword required"},
                 {"requiredcategory", "Keyword required from category"},
                 {"selectinnewpage", "Available via the shortcut menu in SmartEdit"}
-                //{"",""},
-                //{"",""},
-                //{"",""},
-                //{"",""},
-                //{"",""},
             };
-
-        #endregion
-
-        protected readonly ISessionObject Parent;
-
-        protected RDXmlNodeAttribute(ISessionObject parent, string name, bool initValue = true)
-        {
-            Parent = parent;
-            Name = name;
-
-            if (initValue)
-            {
-                string attr = parent.XmlElement.GetAttributeValue(name);
-                if (attr != null && attr != RQL.SESSIONKEY_PLACEHOLDER && attr != ("#" + Parent.Session.SessionKey))
-                {
-                    UpdateValue(attr);
-                }
-            }
-            parent.RegisterAttribute(this);
-        }
-        
-        public abstract void Assign(IRDAttribute o);
-
-        public string Description
-        {
-            get
-            {
-                string desc;
-                bool hasValue = ELEMENT_DESCRIPTION.TryGetValue(Name, out desc);
-                if (!hasValue)
-                {
-                    LogManager.GetLogger("DESCRIPTION").Debug("no description value for " + Name);
-                }
-                return hasValue ? desc : Name;
-            }
-        }
-
-        public abstract object DisplayObject { get; }
-
-        public override bool Equals(object o)
-        {
-            var attr = o as RDXmlNodeAttribute;
-            if (attr == null || !attr.Name.Equals(Name))
-            {
-                return false;
-            }
-            string v = GetXmlNodeValue();
-            string ov = attr.GetXmlNodeValue();
-            return string.IsNullOrEmpty(v) ? string.IsNullOrEmpty(ov) : GetXmlNodeValue() == attr.GetXmlNodeValue();
-        }
-
-        public abstract bool IsAssignableFrom(IRDAttribute o, out string reason);
-        public string Name { get; private set; }
-
-        public void Refresh()
-        {
-            string xmlNodeValue = GetXmlNodeValue();
-
-            UpdateValue(string.IsNullOrEmpty(xmlNodeValue) || xmlNodeValue == RQL.SESSIONKEY_PLACEHOLDER
-                            ? null
-                            : xmlNodeValue);
-        }
-        
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
-        public virtual string GetXmlNodeValue()
-        {
-            string value = Parent.XmlElement.GetAttributeValue(Name);
-            return string.IsNullOrEmpty(value) ? null : value;
-        }
-
-        protected virtual void SetValue(string value)
-        {
-            UpdateValue(value);
-            SetXmlNodeValue(value);
-        }
-
-        protected virtual void SetXmlNodeValue(string value)
-        {
-            Parent.XmlElement.SetAttributeValue(Name, string.IsNullOrEmpty(value) ? RQL.SESSIONKEY_PLACEHOLDER : value);
-        }
-
-        protected abstract void UpdateValue(string value);
     }
 }

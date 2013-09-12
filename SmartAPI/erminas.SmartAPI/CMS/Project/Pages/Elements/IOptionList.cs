@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -26,8 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     public interface IOptionList : IValueElement<IOptionListEntry>
     {
         bool HasDefaultValue { get; }
-        string ValueString { get; }
         IRDEnumerable<IOptionListEntry> PossibleValues { get; }
+        string ValueString { get; }
     }
 
     public interface IOptionListEntry : IRedDotObject
@@ -63,8 +63,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
         }
 
-        internal OptionList(IProject project, XmlElement xmlElement)
-            : base(project, xmlElement)
+        internal OptionList(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             if (xmlElement.GetElementsByTagName("SELECTIONS").Count != 1)
             {
@@ -94,7 +93,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             get { return Value != null && string.IsNullOrEmpty(XmlElement.GetAttributeValue("value")); }
         }
 
-        public IRDEnumerable<IOptionListEntry> PossibleValues { get { return LazyLoad(ref _entries).ToRDEnumerable(); } }
+        public IRDEnumerable<IOptionListEntry> PossibleValues
+        {
+            get { return LazyLoad(ref _entries).ToRDEnumerable(); }
+        }
 
         public IOptionListEntry Value
         {
@@ -134,7 +136,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             XmlNodeList elements = XmlElement.GetElementsByTagName("SELECTION");
             _entries =
                 (from XmlElement curElement in elements
-                 select (IOptionListEntry)new OptionListEntry(defaultGuid, curElement)).ToList();
+                 select (IOptionListEntry) new OptionListEntry(defaultGuid, curElement)).ToList();
 
             Guid selectedGuid;
             _value = XmlElement.TryGetGuid("value", out selectedGuid)

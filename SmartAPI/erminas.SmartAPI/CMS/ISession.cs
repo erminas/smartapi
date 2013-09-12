@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -1050,6 +1050,13 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                                           : "WebService/RQLWebService.svc");
         }
 
+        private static bool IsProjectUnavailbaleException(Exception e)
+        {
+            return
+                e.Message.Contains(
+                    "The project you have selected is no longer available. Please select a different project via the Main Menu.");
+        }
+
         private void LoadSelectedProject(XmlDocument xmlDoc)
         {
             var lastModule = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/USER/LASTMODULES/MODULE[@last='1']");
@@ -1066,8 +1073,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     SelectProject(Guid.Parse(projectStr));
                 } catch (SmartAPIException e)
                 {
-                    if (IsProjectUnavailbaleException(e) || (e.InnerException != null &&
-                        IsProjectUnavailbaleException(e.InnerException)))
+                    if (IsProjectUnavailbaleException(e) ||
+                        (e.InnerException != null && IsProjectUnavailbaleException(e.InnerException)))
                     {
                         SelectedProjectGuid = Guid.Empty;
                     }
@@ -1077,12 +1084,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     }
                 }
             }
-        }
-
-        private static bool IsProjectUnavailbaleException(Exception e)
-        {
-            return e.Message.Contains(
-                "The project you have selected is no longer available. Please select a different project via the Main Menu.");
         }
 
         private void Login(Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector)

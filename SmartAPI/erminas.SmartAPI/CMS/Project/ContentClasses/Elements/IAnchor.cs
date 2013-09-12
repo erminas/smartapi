@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,85 +13,52 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public enum HtmlTarget
-    {
-        None = 0,
-        Blank,
-        Parent,
-        Top,
-        Self
-    }
-
-    public static class HtmlTargetUtils
-    {
-        public static HtmlTarget ToHtmlTarget(this string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return HtmlTarget.None;
-            }
-            switch (value.ToUpperInvariant())
-            {
-                case "_BLANK":
-                    return HtmlTarget.Blank;
-                case "_PARENT":
-                    return HtmlTarget.Parent;
-                case "_TOP":
-                    return HtmlTarget.Top;
-                case "_SELF":
-                    return HtmlTarget.Self;
-                default:
-                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof (HtmlTarget).Name, value));
-            }
-        }
-
-        public static string ToRQLString(this HtmlTarget value)
-        {
-            switch (value)
-            {
-                case HtmlTarget.None:
-                    return string.Empty;
-                case HtmlTarget.Blank:
-                    return "_blank";
-                case HtmlTarget.Parent:
-                    return "_parent";
-                case HtmlTarget.Top:
-                    return "_top";
-                case HtmlTarget.Self:
-                    return "_self";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HtmlTarget).Name, value));
-            }
-        }
-    }
-
     public interface IAnchor : IWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable
     {
-        new void Commit();
+        new void CommitInCurrentLanguage();
+
+        new void CommitInLanguage(string languageAbbreviation);
+
         string Description { get; set; }
+
         string ExampleText { get; set; }
+
         HtmlTarget HtmlTarget { get; set; }
+
         bool IsCrlfConvertedToBr { get; set; }
+
         bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+
         bool IsDynamic { get; set; }
+
         bool IsLanguageIndependent { get; set; }
+
         bool IsLinkNotAutomaticallyRemoved { get; set; }
+
         bool IsNotConvertingCharactersToHtml { get; set; }
+
         bool IsNotRelevantForWorklow { get; set; }
+
         bool IsOnlyPathAndFilenameInserted { get; set; }
+
         bool IsSyntaxConformingToXHtml { get; set; }
+
         bool IsTransferingContentOfFollowingPages { get; set; }
+
         ILanguageVariant LanguageVariantToSwitchTo { get; set; }
+
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
+
         IProjectVariant ProjectVariantToSwitchTo { get; set; }
+
         string Supplement { get; set; }
+
+        string Value { get; set; }
     }
 
     internal class Anchor : AbstractWorkflowAssignments, IAnchor
@@ -100,14 +67,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         protected Anchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltisdynamic", "eltextendedlist", "eltdonotremove",
-                             "eltxhtmlcompliant", "eltdonothtmlencode", "eltlanguageindependent",
-                             "eltlanguagevariantguid", "eltprojectvariantguid", "eltcrlftobr", "eltonlyhrefvalue",
-                             "eltrequired", "eltsupplement", "eltrdexample", "eltrdexamplesubdirguid",
-                             "eltrddescription", "elttarget");
-// ReSharper disable ObjectCreationAsStatement
-            new StringXmlNodeAttribute(this, "eltvalue");
-// ReSharper restore ObjectCreationAsStatement
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
         }
@@ -117,28 +76,32 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Structural; }
         }
 
+        [RedDot("eltrddescription")]
         public string Description
         {
-            get { return GetAttributeValue<string>("eltrddescription"); }
-            set { SetAttributeValue("eltrddescription", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltrdexample")]
         public string ExampleText
         {
-            get { return GetAttributeValue<string>("eltrdexample"); }
-            set { SetAttributeValue("eltrdexample", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elttarget", ConverterType = typeof (StringEnumConverter<HtmlTarget>))]
         public HtmlTarget HtmlTarget
         {
-            get { return ((StringEnumXmlNodeAttribute<HtmlTarget>) GetAttribute("elttarget")).Value; }
-            set { ((StringEnumXmlNodeAttribute<HtmlTarget>) GetAttribute("elttarget")).Value = value; }
+            get { return GetAttributeValue<HtmlTarget>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltcrlftobr")]
         public bool IsCrlfConvertedToBr
         {
-            get { return GetAttributeValue<bool>("eltcrlftobr"); }
-            set { SetAttributeValue("eltcrlftobr", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -147,64 +110,74 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
         }
 
+        [RedDot("eltisdynamic")]
         public bool IsDynamic
         {
-            get { return GetAttributeValue<bool>("eltisdynamic"); }
-            set { SetAttributeValue("eltisdynamic", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltrequired")]
         public bool IsEditingMandatory
         {
-            get { return GetAttributeValue<bool>("eltrequired"); }
-            set { SetAttributeValue("eltrequired", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
-            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
-            set { SetAttributeValue("eltlanguageindependent", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdonotremove")]
         public bool IsLinkNotAutomaticallyRemoved
         {
-            get { return GetAttributeValue<bool>("eltdonotremove"); }
-            set { SetAttributeValue("eltdonotremove", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
-            set { SetAttributeValue("eltdonothtmlencode", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
-            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
-            set { SetAttributeValue("eltignoreworkflow", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltonlyhrefvalue")]
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
-            set { SetAttributeValue("eltonlyhrefvalue", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltxhtmlcompliant")]
         public bool IsSyntaxConformingToXHtml
         {
-            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
-            set { SetAttributeValue("eltxhtmlcompliant", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltextendedlist")]
         public bool IsTransferingContentOfFollowingPages
         {
-            get { return GetAttributeValue<bool>("eltextendedlist"); }
-            set { SetAttributeValue("eltextendedlist", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguagevariantguid", ConverterType = typeof (LanguageVariantConverter))]
         public ILanguageVariant LanguageVariantToSwitchTo
         {
-            get { return ((LanguageVariantAttribute) GetAttribute("eltlanguagevariantguid")).Value; }
-            set { ((LanguageVariantAttribute) GetAttribute("eltlanguagevariantguid")).Value = value; }
+            get { return GetAttributeValue<ILanguageVariant>(); }
+            set { SetAttributeValue(value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
@@ -215,16 +188,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _targetContainerPreassignment.TargetContainer = value; }
         }
 
+        [RedDot("eltprojectvariantguid", ConverterType = typeof (ProjectVariantConverter))]
         public IProjectVariant ProjectVariantToSwitchTo
         {
-            get { return ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value; }
-            set { ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value = value; }
+            get { return GetAttributeValue<IProjectVariant>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltsupplement")]
         public string Supplement
         {
-            get { return GetAttributeValue<string>("eltsupplement"); }
-            set { SetAttributeValue("eltsupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltvalue")]
+        public string Value
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

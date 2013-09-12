@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -106,10 +106,9 @@ namespace erminas.SmartAPI.CMS.Project
 
     public interface IProject : IPartialRedDotObject, ISessionObject
     {
-        IAuthorizationPackages AuthorizationPackages { get; }
-
         //IClipboard Clipboard { get; }
         IProjectGroups AssignedGroups { get; }
+        IAuthorizationPackages AuthorizationPackages { get; }
         ICategories Categories { get; }
 
         /// <summary>
@@ -258,8 +257,8 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         //public IClipboard Clipboard { get; private set; }
-        public IAuthorizationPackages AuthorizationPackages { get; private set; }
         public IProjectGroups AssignedGroups { get; private set; }
+        public IAuthorizationPackages AuthorizationPackages { get; private set; }
 
         public ICategories Categories { get; private set; }
 

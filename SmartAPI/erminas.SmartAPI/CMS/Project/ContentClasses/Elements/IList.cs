@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,14 +19,32 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IList : IWorkflowAssignments, IContentClassPreassignable
     {
+        [RedDot("eltfontclass")]
         string FontClass { get; set; }
+
+        [RedDot("eltfontcolor")]
         string FontColor { get; set; }
+
+        [RedDot("eltfontface")]
         string FontFace { get; set; }
+
+        [RedDot("eltfontsize")]
         string FontSize { get; set; }
+
         bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+
+        [RedDot("eltfontbold")]
         bool IsFontBold { get; set; }
+
+        [RedDot("eltonlyhrefvalue")]
         bool IsOnlyPathAndFilenameInserted { get; set; }
+
+        [RedDot("eltxhtmlcompliant")]
         bool IsSyntaxConformingToXHtml { get; set; }
+
+        [RedDot("eltextendedlist")]
+        bool IsTransferingElementContentOfFollowingPages { get; set; }
+
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
     }
 
@@ -36,8 +54,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         internal List(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltextendedlist", "eltfontclass", "eltfontsize", "eltfontbold", "eltonlyhrefvalue",
-                             "eltxhtmlcompliant", "eltfontface", "eltfontcolor");
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
@@ -49,26 +65,26 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public string FontClass
         {
-            get { return GetAttributeValue<string>("eltfontclass"); }
-            set { SetAttributeValue("eltfontclass", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string FontColor
         {
-            get { return GetAttributeValue<string>("eltfontcolor"); }
-            set { SetAttributeValue("eltfontcolor", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string FontFace
         {
-            get { return GetAttributeValue<string>("eltfontface"); }
-            set { SetAttributeValue("eltfontface", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public string FontSize
         {
-            get { return GetAttributeValue<string>("eltfontsize"); }
-            set { SetAttributeValue("eltfontsize", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -79,20 +95,26 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         public bool IsFontBold
         {
-            get { return GetAttributeValue<bool>("eltfontbold"); }
-            set { SetAttributeValue("eltfontbold", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
-            set { SetAttributeValue("eltonlyhrefvalue", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsSyntaxConformingToXHtml
         {
-            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
-            set { SetAttributeValue("eltxhtmlcompliant", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        public bool IsTransferingElementContentOfFollowingPages
+        {
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }

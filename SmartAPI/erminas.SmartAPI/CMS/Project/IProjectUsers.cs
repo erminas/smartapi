@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,7 +19,6 @@ using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Exceptions;
-using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project
@@ -120,7 +119,7 @@ namespace erminas.SmartAPI.CMS.Project
             try
             {
                 const string GET_USERS = @"<PROJECT><USERS action=""list""/></PROJECT>";
-                var xmlDoc = Session.ExecuteRQLInProjectContext(GET_USERS,_project.Guid);
+                var xmlDoc = Session.ExecuteRQLInProjectContext(GET_USERS, _project.Guid);
                 var xmlNodes = xmlDoc.GetElementsByTagName("USER");
 
                 return (from XmlElement node in xmlNodes

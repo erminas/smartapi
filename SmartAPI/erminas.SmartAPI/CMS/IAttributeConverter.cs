@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,24 +13,19 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
+using System.Xml;
+using erminas.SmartAPI.CMS.Project;
+
+namespace erminas.SmartAPI.CMS
 {
-    /// <summary>
-    ///     Interface for attribute objects.
-    /// </summary>
-    public interface IRDAttribute
+    public interface IAttributeConvertBase
     {
-        void Assign(IRDAttribute o);
-        string Description { get; }
-        object DisplayObject { get; }
-        bool Equals(object o);
-        bool IsAssignableFrom(IRDAttribute o, out string reason);
+        bool IsReadOnly { get; }
+    }
 
-        /// <summary>
-        ///     Name of the attribute, usually the name of an XML attribute
-        /// </summary>
-        string Name { get; }
-
-        void Refresh();
+    public interface IAttributeConverter<T> : IAttributeConvertBase
+    {
+        T ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute);
+        void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value);
     }
 }

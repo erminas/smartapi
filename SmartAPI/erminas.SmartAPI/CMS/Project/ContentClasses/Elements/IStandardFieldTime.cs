@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,15 +15,21 @@
 
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldTime : IStandardFieldNonDate
     {
         bool IsUserDefinedTimeFormat { get; }
+
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
         ISystemLocale Locale { get; set; }
+
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
         IDateTimeFormat TimeFormat { get; set; }
+
+        [RedDot("eltformatting")]
         string UserDefinedTimeFormat { get; set; }
     }
 
@@ -31,34 +37,29 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal StandardFieldTime(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }
 
         public bool IsUserDefinedTimeFormat
         {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value == null; }
+            get { return TimeFormat == DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
         }
 
         public ISystemLocale Locale
         {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
+            get { return GetAttributeValue<ISystemLocale>(); }
+            set { SetAttributeValue(value); }
         }
 
         public IDateTimeFormat TimeFormat
         {
-            get
-            {
-                return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value ??
-                       DateTimeFormat.USER_DEFINED_TIME_FORMAT;
-            }
-            set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
+            get { return GetAttributeValue<IDateTimeFormat>() ?? DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
+            set { SetAttributeValue(value); }
         }
 
         public string UserDefinedTimeFormat
         {
-            get { return GetAttributeValue<string>("eltformatting"); }
-            set { SetAttributeValue("eltformatting", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

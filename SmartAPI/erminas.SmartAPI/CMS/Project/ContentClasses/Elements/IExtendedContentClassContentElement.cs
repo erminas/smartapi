@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,7 +20,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IExtendedContentClassContentElement : IContentClassContentElement
     {
         string Description { get; set; }
+
         string EndTagForAutomaticProcessing { get; set; }
+
         string StartTagForAutomaticProcessing { get; set; }
     }
 
@@ -30,25 +32,27 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         protected ExtendedContentClassContentElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltbeginmark", "eltendmark", "eltrddescription");
         }
 
+        [RedDot("eltrddescription")]
         public string Description
         {
-            get { return GetAttributeValue<string>("eltrddescription"); }
-            set { SetAttributeValue("eltrddescription", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltendmark")]
         public string EndTagForAutomaticProcessing
         {
-            get { return GetAttributeValue<string>("eltendmark"); }
-            set { SetAttributeValue("eltendmark", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltbeginmark")]
         public string StartTagForAutomaticProcessing
         {
-            get { return GetAttributeValue<string>("eltbeginmark"); }
-            set { SetAttributeValue("eltbeginmark", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

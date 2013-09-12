@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -324,7 +324,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var query = REPLACE_CC.RQLFormat(this, isReplacingAll, ContentClass, replacement, mappedStr + unmappedStr);
 
             Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
-            
+
             _contentClass = null;
             _ccGuid = default(Guid);
         }

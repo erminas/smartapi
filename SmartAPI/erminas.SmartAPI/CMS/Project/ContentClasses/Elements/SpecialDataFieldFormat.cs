@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,21 +13,12 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
+namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    internal class BuggedStringXmlNodeAttribute : StringXmlNodeAttribute
+    public enum SpecialDataFieldFormat
     {
-        public BuggedStringXmlNodeAttribute(ISessionObject parent, string name) : base(parent, name)
-        {
-        }
-
-        protected override void SetValue(string value)
-        {
-            if (value.Contains("EmptyBuffer"))
-            {
-                value = null;
-            }
-            base.SetValue(value);
-        }
+        UserDefined,
+        HTML,
+        Image
     }
 }

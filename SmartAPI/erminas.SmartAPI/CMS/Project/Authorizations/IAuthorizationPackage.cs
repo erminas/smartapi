@@ -1,9 +1,22 @@
-﻿using System;
+﻿// SmartAPI - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
-using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
@@ -49,7 +62,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
     //}
 
     /// <summary>
-    /// indexed by group name
+    ///     indexed by group name
     /// </summary>
     public interface IGroupAuthorizations : IIndexedCachedList<string, IGroupAuthorization>
     {
@@ -57,7 +70,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
     }
 
     /// <summary>
-    /// indexed by user name
+    ///     indexed by user name
     /// </summary>
     public interface IUserAuthorizations : IIndexedCachedList<string, IUserAuthorization>
     {
@@ -67,26 +80,27 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
     public interface IAuthorizationPackage : IRedDotObject, IProjectObject
     {
         void Commit();
+        IGroupAuthorizations GroupAuthorizations { get; }
+
         /// <summary>
-        /// same as setting Name and Commit();
+        ///     same as setting Name and Commit();
         /// </summary>
         void Rename(string newName);
+
         int Type { get; }
-        IGroupAuthorizations GroupAuthorizations { get; }
         IUserAuthorizations UserAuthorizations { get; }
     }
 
     public interface IAuthorizationPackages : IProjectObject
     {
-        void CreateGlobal(string name);
+        void CreateDetailForElement(IPageElement pageElement, string name);
+        void CreateDetailForElement(IContentClassElement element, string name);
         void CreateDetailForLink(ILinkElement link, string name);
         void CreateDetailForLink(IContentClassElement element, string name);
         void CreateDetailForPage(IPage page, string name);
-        void CreateDetailForElement(IPageElement pageElement, string name);
-        void CreateDetailForElement(IContentClassElement element, string name);
-
-        IIndexedCachedList<string, IAuthorizationPackage> ForLinks { get; }
+        void CreateGlobal(string name);
         IIndexedCachedList<string, IAuthorizationPackage> ForElements { get; }
+        IIndexedCachedList<string, IAuthorizationPackage> ForLinks { get; }
         IIndexedCachedList<string, IAuthorizationPackage> ForPages { get; }
         IIndexedCachedList<string, IAuthorizationPackage> Standard { get; }
     }
@@ -98,15 +112,15 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         DetailedLink = 2,
         DetailedElement = 4,
         DetailedAssetManagerAttribute = 8,
-        ContentClass=16,
+        ContentClass = 16,
         ProjectVariant = 32,
-        Folder=64,
-        LanguageVariant=128
+        Folder = 64,
+        LanguageVariant = 128
     }
 
     internal class AuthorizationPackages : IAuthorizationPackages
     {
-        public AuthorizationPackages(IProject project) 
+        public AuthorizationPackages(IProject project)
         {
             Project = project;
             ForLinks = new NameIndexedRDList<IAuthorizationPackage>(GetForLinks, Caching.Enabled);
@@ -115,43 +129,16 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             Standard = new NameIndexedRDList<IAuthorizationPackage>(GetStandard, Caching.Enabled);
         }
 
-        private List<IAuthorizationPackage> GetStandard()
+        public void CreateDetailForElement(IPageElement pageElement, string name)
         {
-            return GetAuthorizationPackages(AuthorizationType.Standard);
+            CreateDetail("ELEMENT", pageElement, name, AuthorizationType.DetailedElement);
+            ForElements.InvalidateCache();
         }
 
-        private List<IAuthorizationPackage> GetForPages()
+        public void CreateDetailForElement(IContentClassElement element, string name)
         {
-            return GetAuthorizationPackages(AuthorizationType.DetailedPage);
-        }
-
-        private List<IAuthorizationPackage> GetForElements()
-        {
-            return GetAuthorizationPackages(AuthorizationType.DetailedElement);
-        }
-
-        private List<IAuthorizationPackage> GetForLinks()
-        {
-            return GetAuthorizationPackages(AuthorizationType.DetailedLink);
-        }
-
-        private List<IAuthorizationPackage> GetAuthorizationPackages(AuthorizationType type)
-        {
-            const string LIST_PACKAGES = @"<AUTHORIZATION><AUTHORIZATIONS action=""list"" type=""{0}""/></AUTHORIZATION>";
-            var xmlDoc = Project.ExecuteRQL(LIST_PACKAGES.RQLFormat((int)type));
-
-            return
-                (from XmlElement curelement in xmlDoc.GetElementsByTagName("AUTHORIZATION")
-                 select (IAuthorizationPackage) new AuthorizationPackage(Project, curelement)).ToList();
-        }
-
-        public ISession Session { get { return Project.Session; } }
-        public IProject Project { get; private set; }
-        public void CreateGlobal(string name)
-        {
-            const string CREATE = @"<AUTHORIZATION><AUTHORIZATIONPACKET action=""addnew"" name=""{0}""/></AUTHORIZATION>";
-            var answer = Project.ExecuteRQL(CREATE.RQLFormat(name));
-            CheckAnswer(name, answer);
+            CreateDetail("ELEMENT", element, name, AuthorizationType.DetailedElement);
+            ForElements.InvalidateCache();
         }
 
         public void CreateDetailForLink(ILinkElement link, string name)
@@ -160,17 +147,38 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             ForLinks.InvalidateCache();
         }
 
-        private void CreateDetail(string elementtype, IRedDotObject obj, string name, AuthorizationType type)
+        public void CreateDetailForLink(IContentClassElement element, string name)
+        {
+            CreateDetail("LINK", element, name, AuthorizationType.DetailedLink);
+            ForLinks.InvalidateCache();
+            ;
+        }
+
+        public void CreateDetailForPage(IPage page, string name)
+        {
+            CreateDetail("PAGE", page, name, AuthorizationType.DetailedPage);
+            ForPages.InvalidateCache();
+        }
+
+        public void CreateGlobal(string name)
         {
             const string CREATE =
-                @"<AUTHORIZATION><{0} guid=""{1}><AUTHORIZATIONPACKET action=""addnew"" name=""{2}"" guid="" type=""{3}""/></{0}></AUTHORIZATION>";
-
-            string query = CREATE.RQLFormat(elementtype, obj, name, (int)type);
-
-            var answer = Project.ExecuteRQL(query);
+                @"<AUTHORIZATION><AUTHORIZATIONPACKET action=""addnew"" name=""{0}""/></AUTHORIZATION>";
+            var answer = Project.ExecuteRQL(CREATE.RQLFormat(name));
             CheckAnswer(name, answer);
-            Standard.InvalidateCache();
         }
+
+        public IIndexedCachedList<string, IAuthorizationPackage> ForElements { get; private set; }
+        public IIndexedCachedList<string, IAuthorizationPackage> ForLinks { get; private set; }
+        public IIndexedCachedList<string, IAuthorizationPackage> ForPages { get; private set; }
+        public IProject Project { get; private set; }
+
+        public ISession Session
+        {
+            get { return Project.Session; }
+        }
+
+        public IIndexedCachedList<string, IAuthorizationPackage> Standard { get; private set; }
 
         private void CheckAnswer(string name, XmlDocument answer)
         {
@@ -189,34 +197,47 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             }
         }
 
-        public void CreateDetailForLink(IContentClassElement element, string name)
+        private void CreateDetail(string elementtype, IRedDotObject obj, string name, AuthorizationType type)
         {
-            CreateDetail("LINK", element, name, AuthorizationType.DetailedLink);
-            ForLinks.InvalidateCache(); ;
+            const string CREATE =
+                @"<AUTHORIZATION><{0} guid=""{1}><AUTHORIZATIONPACKET action=""addnew"" name=""{2}"" guid="" type=""{3}""/></{0}></AUTHORIZATION>";
+
+            string query = CREATE.RQLFormat(elementtype, obj, name, (int) type);
+
+            var answer = Project.ExecuteRQL(query);
+            CheckAnswer(name, answer);
+            Standard.InvalidateCache();
         }
 
-        public void CreateDetailForPage(IPage page, string name)
+        private List<IAuthorizationPackage> GetAuthorizationPackages(AuthorizationType type)
         {
-            CreateDetail("PAGE", page, name, AuthorizationType.DetailedPage);
-            ForPages.InvalidateCache();
+            const string LIST_PACKAGES =
+                @"<AUTHORIZATION><AUTHORIZATIONS action=""list"" type=""{0}""/></AUTHORIZATION>";
+            var xmlDoc = Project.ExecuteRQL(LIST_PACKAGES.RQLFormat((int) type));
+
+            return (from XmlElement curelement in xmlDoc.GetElementsByTagName("AUTHORIZATION")
+                    select (IAuthorizationPackage) new AuthorizationPackage(Project, curelement)).ToList();
         }
 
-        public void CreateDetailForElement(IPageElement pageElement, string name)
+        private List<IAuthorizationPackage> GetForElements()
         {
-            CreateDetail("ELEMENT", pageElement, name, AuthorizationType.DetailedElement);
-            ForElements.InvalidateCache();
+            return GetAuthorizationPackages(AuthorizationType.DetailedElement);
         }
 
-        public void CreateDetailForElement(IContentClassElement element, string name)
+        private List<IAuthorizationPackage> GetForLinks()
         {
-            CreateDetail("ELEMENT", element, name, AuthorizationType.DetailedElement);
-            ForElements.InvalidateCache();
+            return GetAuthorizationPackages(AuthorizationType.DetailedLink);
         }
 
-        public IIndexedCachedList<string, IAuthorizationPackage> ForLinks { get; private set; }
-        public IIndexedCachedList<string, IAuthorizationPackage> ForElements { get; private set; }
-        public IIndexedCachedList<string, IAuthorizationPackage> ForPages { get; private set; }
-        public IIndexedCachedList<string, IAuthorizationPackage> Standard { get; private set; }
+        private List<IAuthorizationPackage> GetForPages()
+        {
+            return GetAuthorizationPackages(AuthorizationType.DetailedPage);
+        }
+
+        private List<IAuthorizationPackage> GetStandard()
+        {
+            return GetAuthorizationPackages(AuthorizationType.Standard);
+        }
     }
 
     internal class AuthorizationPackage : RedDotProjectObject, IAuthorizationPackage
@@ -230,9 +251,12 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
 
         public void Commit()
         {
-            const string SAVE_NAME = @"<AUTHORIZATION><AUTHORIZATIONPACKET action=""save"" guid=""{0}"" name=""{1}""/></AUTHORIZATION>";
+            const string SAVE_NAME =
+                @"<AUTHORIZATION><AUTHORIZATIONPACKET action=""save"" guid=""{0}"" name=""{1}""/></AUTHORIZATION>";
             Project.ExecuteRQL(SAVE_NAME.RQLFormat(this, Name));
         }
+
+        public IGroupAuthorizations GroupAuthorizations { get; private set; }
 
         public void Rename(string newName)
         {
@@ -242,7 +266,6 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
 
         public int Type { get; private set; }
 
-        public IGroupAuthorizations GroupAuthorizations { get; private set; }
         public IUserAuthorizations UserAuthorizations { get; private set; }
     }
 
@@ -250,10 +273,16 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
     {
         private readonly IAuthorizationPackage _package;
 
-        public GroupAuthorizations(IAuthorizationPackage package, Caching caching) : base(authorization => authorization.Group.Name, caching)
+        public GroupAuthorizations(IAuthorizationPackage package, Caching caching)
+            : base(authorization => authorization.Group.Name, caching)
         {
             _package = package;
             RetrieveFunc = GetAuthorizations;
+        }
+
+        public IGroupAuthorization CreateFor(IGroup @group)
+        {
+            return new GroupAuthorizationRights(_package, group);
         }
 
         private List<IGroupAuthorization> GetAuthorizations()
@@ -265,16 +294,8 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
 
             IGroup curGroup = null;
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("GROUP")
-                    where  _package.Project.AssignedGroups.TryGetByGuid(curElement.GetGuid(), out curGroup)
-                    select
-                        (IGroupAuthorization)
-                        new GroupAuthorizationRights(_package, curGroup,
-                                                     curElement)).ToList();
-        }
-
-        public IGroupAuthorization CreateFor(IGroup @group)
-        {
-            return new GroupAuthorizationRights(_package, group);
+                    where _package.Project.AssignedGroups.TryGetByGuid(curElement.GetGuid(), out curGroup)
+                    select (IGroupAuthorization) new GroupAuthorizationRights(_package, curGroup, curElement)).ToList();
         }
     }
 
@@ -289,6 +310,11 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             RetrieveFunc = GetAuthorizations;
         }
 
+        public IUserAuthorization CreateFor(IUser @group)
+        {
+            return new UserAuthorizationRights(_package, group);
+        }
+
         private List<IUserAuthorization> GetAuthorizations()
         {
             const string LOAD_AUTH =
@@ -299,15 +325,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             IUserProjectAssignment curUser = null;
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("USER")
                     where _package.Project.Users.TryGetByUserGuid(curElement.GetGuid(), out curUser)
-                    select
-                        (IUserAuthorization)
-                        new UserAuthorizationRights(_package, curUser.User,
-                                                     curElement)).ToList();
-        }
-
-        public IUserAuthorization CreateFor(IUser @group)
-        {
-            return new UserAuthorizationRights(_package, group);
+                    select (IUserAuthorization) new UserAuthorizationRights(_package, curUser.User, curElement)).ToList();
         }
     }
 
@@ -316,8 +334,8 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         IAuthorizationPackage AuthorizationPackage { get; }
 
         void Commit();
-        int DeniedAssetManagerFolderRights { get; set; }
         int DeniedAssetManagerAttributeRights { get; set; }
+        int DeniedAssetManagerFolderRights { get; set; }
         int DeniedContentClassRights { get; set; }
 
         int DeniedElementRights { get; set; }
@@ -326,9 +344,9 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         int DeniedProjectOrLanguageVariantRights { get; set; }
 
         int DeniedStructuralElementRights { get; set; }
-        int GrantedAssetManagerFolderRights { get; set; }
 
         int GrantedAssetManagerAttributeRights { get; set; }
+        int GrantedAssetManagerFolderRights { get; set; }
 
         int GrantedContentClassRights { get; set; }
         int GrantedElementRights { get; set; }
@@ -402,23 +420,22 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             _package = package;
         }
 
-
         public IAuthorizationPackage AuthorizationPackage
         {
             get { return _package; }
         }
 
         public abstract void Commit();
-        public int DeniedAssetManagerFolderRights { get; set; }
         public int DeniedAssetManagerAttributeRights { get; set; }
+        public int DeniedAssetManagerFolderRights { get; set; }
         public int DeniedContentClassRights { get; set; }
         public int DeniedElementRights { get; set; }
         public int DeniedGlobalRights { get; set; }
         public int DeniedPageRights { get; set; }
         public int DeniedProjectOrLanguageVariantRights { get; set; }
         public int DeniedStructuralElementRights { get; set; }
-        public int GrantedAssetManagerFolderRights { get; set; }
         public int GrantedAssetManagerAttributeRights { get; set; }
+        public int GrantedAssetManagerFolderRights { get; set; }
         public int GrantedContentClassRights { get; set; }
         public int GrantedElementRights { get; set; }
         public int GrantedGlobalRights { get; set; }
@@ -463,7 +480,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
                                                       DeniedStructuralElementRights, DeniedElementRights,
                                                       DeniedGlobalRights, DeniedAssetManagerAttributeRights,
                                                       DeniedContentClassRights, DeniedProjectOrLanguageVariantRights,
-                                                      DeniedAssetManagerFolderRights );
+                                                      DeniedAssetManagerFolderRights);
 
             Project.ExecuteRQL(query);
         }
@@ -471,11 +488,8 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         public IUser User { get; private set; }
     }
 
-
     internal class GroupAuthorizationRights : AuthorizationRights, IGroupAuthorization
     {
-        public IGroup Group { get; private set; }
-
         public GroupAuthorizationRights(IAuthorizationPackage package, IGroup group, XmlElement element)
             : base(package, element)
         {
@@ -493,18 +507,19 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
                 @"<AUTHORIZATION><AUTHORIZATIONPACKET action=""save"" guid=""{0}""><GROUPS><GROUP guid=""{1}"" right1=""{2}"" right2=""{3}"" right3=""{4}"" right4=""{5}"" right5=""{6}"" right6=""{7}"" right7=""{8}"" right8=""{9}"" deny1=""{10}"" deny2=""{11}"" deny3=""{12}"" deny4=""{13}"" deny5=""{14}"" deny6=""{15}"" deny7=""{16}"" deny8=""{17}""/></GROUPS></AUTHORIZATIONPACKET></AUTHORIZATION>";
 
             string query = SAVE_GROUP_RIGHTS.RQLFormat(AuthorizationPackage, Group, GrantedPageRights,
-                                                      GrantedStructuralElementRights, GrantedElementRights,
-                                                      GrantedGlobalRights, GrantedAssetManagerAttributeRights,
-                                                      GrantedContentClassRights, GrantedProjectOrLanguageVariantRights,
-                                                      GrantedAssetManagerFolderRights, DeniedPageRights,
-                                                      DeniedStructuralElementRights, DeniedElementRights,
-                                                      DeniedGlobalRights, DeniedAssetManagerAttributeRights,
-                                                      DeniedContentClassRights, DeniedProjectOrLanguageVariantRights,
-                                                      DeniedAssetManagerFolderRights);
+                                                       GrantedStructuralElementRights, GrantedElementRights,
+                                                       GrantedGlobalRights, GrantedAssetManagerAttributeRights,
+                                                       GrantedContentClassRights, GrantedProjectOrLanguageVariantRights,
+                                                       GrantedAssetManagerFolderRights, DeniedPageRights,
+                                                       DeniedStructuralElementRights, DeniedElementRights,
+                                                       DeniedGlobalRights, DeniedAssetManagerAttributeRights,
+                                                       DeniedContentClassRights, DeniedProjectOrLanguageVariantRights,
+                                                       DeniedAssetManagerFolderRights);
 
             Project.ExecuteRQL(query);
         }
 
+        public IGroup Group { get; private set; }
     }
 
     //public interface IAuthorizations<T> : IRDList<T> where T : class, IRedDotObject
