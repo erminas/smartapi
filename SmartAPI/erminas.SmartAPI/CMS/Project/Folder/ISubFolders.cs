@@ -111,6 +111,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             get { return ParentFolder.Session; }
         }
 
+        ISubFolders ISubFolders.Refreshed()
+        {
+            return this;
+        }
+
         public bool TryGet(string name, out IAssetManagerFolder obj)
         {
             obj = null;
@@ -199,5 +204,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
     public interface ISubFolders : IIndexedRDList<string, IAssetManagerFolder>, IProjectObject
     {
         IAssetManagerFolder ParentFolder { get; }
+        new ISubFolders Refreshed();
     }
 }

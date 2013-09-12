@@ -94,6 +94,7 @@
     <Compile Include="CMS\Converter\XslFileConverter.cs" />
     <Compile Include="CMS\IAttributeConverter.cs" />
     <Compile Include="CMS\ILanguageDependentValue.cs" />
+    <Compile Include="CMS\IApplicationServer.cs" />
     <Compile Include="CMS\Project\Authorizations\IAuthorizationPackage.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\BrowseAlignment.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\FileSizeUnit.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="CMS\Project\ContentClasses\ILanguageDependentXmlBasedObject.cs" />
     <Compile Include="CMS\Project\Folder\IAssetManagerFiles.cs" />
     <Compile Include="CMS\Project\Folder\IAssetManagerFolder.cs" />
+    <Compile Include="CMS\Project\Folder\IContentClassFolderSharing.cs" />
     <Compile Include="CMS\Project\Folder\IFiles.cs" />
     <Compile Include="CMS\Project\Folder\ISubFolders.cs" />
     <Compile Include="CMS\Project\Folder\SubFolders.cs" />
@@ -279,7 +281,7 @@
     <Compile Include="CMS\Project\Publication\IPublicationFolder.cs" />
     <Compile Include="CMS\Project\ISyllable.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClassElementList.cs" />
-    <Compile Include="CMS\Project\Folder\File.cs" />
+    <Compile Include="CMS\Project\Folder\IFile.cs" />
     <Compile Include="CMS\Project\Folder\IFolder.cs" />
     <Compile Include="CMS\Project\Keywords\IKeyword.cs" />
     <Compile Include="CMS\Project\ILanguageVariant.cs" />
@@ -291,7 +293,7 @@
     <Compile Include="CMS\Project\Publication\IPublicationTarget.cs" />
     <Compile Include="CMS\ISession.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClass.cs" />
-    <Compile Include="CMS\Project\Folder\ContentClassFolder.cs" />
+    <Compile Include="CMS\Project\Folder\IContentClassFolder.cs" />
     <Compile Include="CMS\Project\ContentClasses\ITemplateVariant.cs" />
     <Compile Include="CMS\Administration\IUser.cs" />
     <Compile Include="CMS\Project\Workflows\IWorkflow.cs" />
@@ -306,6 +308,7 @@
     </Compile>
     <Compile Include="Utils\CachedCollections\CachingContext.cs" />
     <Compile Include="Utils\CachedCollections\IRDEnumerable.cs" />
+    <Compile Include="Utils\CachedCollections\PartialRedDotObjectExtension.cs" />
     <Compile Include="Utils\CachedCollections\RDListExtensions.cs" />
     <Compile Include="Utils\CollectionExtensions.cs" />
     <Compile Include="Utils\CachedCollections\ICached.cs" />

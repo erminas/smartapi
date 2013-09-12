@@ -37,6 +37,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         protected Text(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
+            IsInitialized = false;
         }
 
         public override void Commit()

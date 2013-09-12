@@ -14,10 +14,11 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    public interface IPageDefinition : IRedDotObject, IProjectObject
+    public interface IPageDefinition : IRedDotObject, IProjectObject, IDeletable
     {
         IContentClass ContentClass { get; }
         string Description { get; }
@@ -47,6 +48,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private void LoadXml()
         {
             InitIfPresent(ref _description, "description", x => x);
+        }
+
+        public void Delete()
+        {
+            const string DELETE =
+                @"<TEMPLATE guid=""{0}""><PAGEDEFINITION action=""delete"" guid=""{1}"" name=""{2}""/></TEMPLATE>";
+
+            Project.ExecuteRQL(DELETE.RQLFormat(_contentClass, this, Name));
         }
     }
 }

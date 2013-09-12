@@ -1,11 +1,23 @@
 SmartAPI Changelog
 
+2013-08-29: Version 0.9.9.2 (1.0RC3)
+------------------------------------
+Features:
+- Preliminary-Support for authentication packages
+- Support for reading and writing OptionList values on pages
+- Support for the creation of database Asset Manager folders
+- Support for the creation of subfolders
+- Support for the deletion of folders
+- Acesss to thumbnail path information for asset manager files
+
 Bugfixes:
 - Simple page search by page type now works as expected
+- Text element values were not loaded correctly under some circumstances
+- Thumbnails for files in assetmanager folders are now updated as expected
+- Deletion of files in asset manager folders now work
 
-Features:
-- Support for authentication packages
-- Support for reading and writing OptionList values on pages
+Optimization:
+- Removed additional page loads for access to page ids from an extended page search
 
 API:
 - Object model for option list entries

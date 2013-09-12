@@ -68,7 +68,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public void Refresh()
         {
-            List = null;
+            InvalidateCache();
             if (IsCachingEnabled)
             {
                 EnsureListIsLoaded();

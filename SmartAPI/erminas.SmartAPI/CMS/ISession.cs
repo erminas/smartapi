@@ -96,6 +96,8 @@ namespace erminas.SmartAPI.CMS
     {
         IRDList<IApplicationServer> ApplicationServers { get; }
 
+        IApplicationServer CurrentApplicationServer { get; }
+
         /// <summary>
         ///     The asynchronous processes running on the server. The list is _NOT_ cached by default.
         /// </summary>
@@ -338,6 +340,7 @@ namespace erminas.SmartAPI.CMS
                 "(Management Server.*&nbsp;|CMS Version )\\d+(\\.\\d+)*&nbsp;Build&nbsp;(\\d+\\.\\d+\\.\\d+\\.\\d+)");
 
         private static readonly ILog LOG = LogManager.GetLogger("Session");
+        private ApplicationServer _currentApplicationServer;
 
         private IUser _currentUser;
 
@@ -377,7 +380,7 @@ namespace erminas.SmartAPI.CMS
             _sessionKeyStr = sessionKey;
 
             InitConnection();
-            var sessionInfo = GetUserSessionInfoElement();
+            XmlElement sessionInfo = GetUserSessionInfoElement();
             SelectedProjectGuid = sessionInfo.GetGuid("projectguid");
             SelectProject(projectGuid);
         }
@@ -405,14 +408,14 @@ namespace erminas.SmartAPI.CMS
                 @"<ADMINISTRATION><PROJECT action=""addnew"" projectname=""{0}"" databaseserverguid=""{1}"" editorialserverguid=""{2}"" databasename=""{3}""
 versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{7}"" name=""{8}"" /></LANGUAGEVARIANTS><USERS><USER action=""assign"" guid=""{6}""/></USERS></PROJECT></ADMINISTRATION>";
 
-            var result =
+            XmlDocument result =
                 ParseRQLResult(
                     ExecuteRQLRaw(
                         CREATE_PROJECT.RQLFormat(projectName, dbServer, appServer, databaseName, (int) useVersioning,
                                                  (int) type, user, language.LanguageAbbreviation, language.Language),
                         RQL.IODataFormat.SessionKeyAndLogonGuid));
 
-            var guidStr = result.InnerText;
+            string guidStr = result.InnerText;
             Guid projectGuid;
             if (!Guid.TryParse(guidStr, out projectGuid))
             {
@@ -421,6 +424,21 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
             Projects.InvalidateCache();
             return new Project.Project(this, projectGuid);
+        }
+
+        public IApplicationServer CurrentApplicationServer
+        {
+            get
+            {
+                if (_currentApplicationServer == null)
+                {
+                    const string LOAD_APPLICATIONSERVER =
+                        @"<ADMINISTRATION><EDITORIALSERVER action=""check""/></ADMINISTRATION>";
+                    XmlDocument reply = ExecuteRQL(LOAD_APPLICATIONSERVER, RQL.IODataFormat.Plain);
+                    _currentApplicationServer = new ApplicationServer(this, reply.GetSingleElement("EDITORIALSERVER").GetGuid("serverguid"));
+                }
+                return _currentApplicationServer;
+            }
         }
 
         /// <summary>
@@ -461,7 +479,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
         public XmlDocument ExecuteRQL(string query, RQL.IODataFormat format)
         {
-            var result = ExecuteRQLRaw(query, format);
+            string result = ExecuteRQLRaw(query, format);
             return ParseRQLResult(result);
         }
 
@@ -482,14 +500,14 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         public XmlDocument ExecuteRQLInProjectContext(string query, Guid projectGuid)
         {
             SelectProject(projectGuid);
-            var result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyAndLogonGuid);
+            string result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyAndLogonGuid);
             return ParseRQLResult(result);
         }
 
         public XmlDocument ExecuteRQLInProjectContextAndEmbeddedInProjectElement(string query, Guid projectGuid)
         {
             SelectProject(projectGuid);
-            var result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyInProjectElement);
+            string result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyInProjectElement);
             return ParseRQLResult(result);
         }
 
@@ -688,8 +706,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
         public void SendMailFromSystemAccount(EMail mail)
         {
-            var server = ApplicationServers.First();
-            var fromAddress = server.From;
+            IApplicationServer server = ApplicationServers.First();
+            string fromAddress = server.From;
 
             SendEmail(fromAddress, mail);
         }
@@ -782,7 +800,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
             //wait for the async process to spawn first and then wait until it is done
 
-            var start = DateTime.Now;
+            DateTime start = DateTime.Now;
             var retryEvery50ms = new TimeSpan(0, 0, 0, 0, 50);
             AsynchronousProcesses.WaitFor(pred, maxWait, retryEvery50ms);
 
@@ -827,9 +845,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
         private static string ExtractMessagesWithInnerExceptions(Exception e)
         {
-            var curException = e;
+            Exception curException = e;
             var builder = new StringBuilder();
-            var linePrefix = "";
+            string linePrefix = "";
             while (curException != null)
             {
                 builder.Append(linePrefix);
@@ -846,9 +864,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         {
             const string LIST_APPLICATION_SERVERS =
                 @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
-            var xmlDoc = ExecuteRQL(LIST_APPLICATION_SERVERS);
+            XmlDocument xmlDoc = ExecuteRQL(LIST_APPLICATION_SERVERS);
 
-            var editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
+            XmlNodeList editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
             return (from XmlElement curServer in editorialServers
                     select
                         (IApplicationServer)
@@ -862,14 +880,14 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         private List<IAsynchronousProcess> GetAsynchronousProcesses()
         {
             const string LIST_PROCESSES = @"<ADMINISTRATION><ASYNCQUEUE action=""list"" project=""""/></ADMINISTRATION>";
-            var xmlDoc = ExecuteRQL(LIST_PROCESSES);
+            XmlDocument xmlDoc = ExecuteRQL(LIST_PROCESSES);
             return (from XmlElement curProcess in xmlDoc.GetElementsByTagName("ASYNCQUEUE")
                     select (IAsynchronousProcess) new AsynchronousProcess(this, curProcess)).ToList();
         }
 
         private IUser GetCurrentUser()
         {
-            var userElement = GetUserSessionInfoElement();
+            XmlElement userElement = GetUserSessionInfoElement();
 
             return new User(this, userElement.GetGuid()) {Name = userElement.GetName()};
         }
@@ -880,9 +898,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             {
                 const string LIST_DATABASE_SERVERS =
                     @"<ADMINISTRATION><DATABASESERVERS action=""list"" /></ADMINISTRATION>";
-                var xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS, RQL.IODataFormat.SessionKeyAndLogonGuid);
+                XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS, RQL.IODataFormat.SessionKeyAndLogonGuid);
 
-                var xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
+                XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
                 return
                     (from XmlElement curNode in xmlNodes select (IDatabaseServer) new DatabaseServer(this, curNode))
                         .ToList();
@@ -892,8 +910,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         private List<IDialogLocale> GetDialogLocales()
         {
             const string LOAD_DIALOG_LANGUAGES = @"<DIALOG action=""listlanguages"" orderby=""2""/>";
-            var resultStr = ExecuteRQLRaw(LOAD_DIALOG_LANGUAGES, RQL.IODataFormat.LogonGuidOnly);
-            var xmlDoc = ParseRQLResult(resultStr);
+            string resultStr = ExecuteRQLRaw(LOAD_DIALOG_LANGUAGES, RQL.IODataFormat.LogonGuidOnly);
+            XmlDocument xmlDoc = ParseRQLResult(resultStr);
 
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("LIST")
                     select (IDialogLocale) new DialogLocale(this, curElement)).ToList();
@@ -916,7 +934,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         private List<IGroup> GetGroups()
         {
             const string LIST_GROUPS = @"<ADMINISTRATION><GROUPS action=""list""/></ADMINISTRATION>";
-            var xmlDoc = ExecuteRQL(LIST_GROUPS, RQL.IODataFormat.LogonGuidOnly);
+            XmlDocument xmlDoc = ExecuteRQL(LIST_GROUPS, RQL.IODataFormat.LogonGuidOnly);
             return
                 (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")
                  select (IGroup) new Group(this, curGroup)).ToList();
@@ -967,12 +985,12 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         private List<IModule> GetModules()
         {
             const string LIST_MODULES = @"<ADMINISTRATION><MODULES action=""list"" /></ADMINISTRATION>";
-            var xmlDoc = ExecuteRQL(LIST_MODULES);
+            XmlDocument xmlDoc = ExecuteRQL(LIST_MODULES);
 
             //we need to create an intermediate list, because the XmlNodeList returned by GetElementsByTagName gets changed in the linq/ToList() expression.
             //the change to the list occurs due to the cloning on the XmlElements in Module->AbstractAttributeContainer c'tor.
             //i have no idea why that changes the list as the same approach works without a problem everywhere else without the need for the intermediate list.
-            var moduleElements = xmlDoc.GetElementsByTagName("MODULE").OfType<XmlElement>().ToList();
+            List<XmlElement> moduleElements = xmlDoc.GetElementsByTagName("MODULE").OfType<XmlElement>().ToList();
             return (from XmlElement curModule in moduleElements select (IModule) new Module(this, curModule)).ToList();
         }
 
@@ -1090,7 +1108,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         {
             InitConnection();
 
-            var xmlDoc = GetLoginResponse();
+            XmlDocument xmlDoc = GetLoginResponse();
 
             CheckLoginResponse(xmlDoc, sessionReplacementSelector);
 
@@ -1243,7 +1261,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     return result;
                 } catch (Exception e)
                 {
-                    var msg = ExtractMessagesWithInnerExceptions(e);
+                    string msg = ExtractMessagesWithInnerExceptions(e);
                     LOG.Error(msg);
                     LOG.Debug(e.StackTrace);
                     throw;
@@ -1286,12 +1304,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         LiveProject = 0
     }
 
-    public interface IApplicationServer : IPartialRedDotObject
-    {
-        string From { get; }
-        string IpAddress { get; }
-    }
-
     internal static class VersionVerifier
     {
         internal static void EnsureVersion(ISession session)
@@ -1332,53 +1344,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                                         .First()
                                         .Validate(session.ServerLogin, session.ServerVersion, info.Name);
             }
-        }
-    }
-
-    internal class ApplicationServer : PartialRedDotObject, IApplicationServer
-    {
-        private string _from;
-        private string _ipAddress;
-
-        public ApplicationServer(Session session, Guid guid) : base(session, guid)
-        {
-        }
-
-        internal ApplicationServer(Session session, XmlElement element) : base(session, element)
-        {
-            LoadXml();
-        }
-
-        public string From
-        {
-            get { return LazyLoad(ref _from); }
-            internal set { _from = value; }
-        }
-
-        public string IpAddress
-        {
-            get { return LazyLoad(ref _ipAddress); }
-            internal set { _ipAddress = value; }
-        }
-
-        protected override void LoadWholeObject()
-        {
-            LoadXml();
-        }
-
-        protected override XmlElement RetrieveWholeObject()
-        {
-            const string LOAD_APPLICATION_SERVER =
-                @"<ADMINISTRATION><EDITORIALSERVER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-
-            XmlDocument xmlDoc = Session.ExecuteRQL(LOAD_APPLICATION_SERVER.RQLFormat(this));
-            return xmlDoc.GetSingleElement("EDITORIALSERVER");
-        }
-
-        private void LoadXml()
-        {
-            _from = XmlElement.GetAttributeValue("adress");
-            _ipAddress = XmlElement.GetAttributeValue("ip");
         }
     }
 }

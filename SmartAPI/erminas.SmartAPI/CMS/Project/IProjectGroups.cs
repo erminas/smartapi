@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -141,8 +142,8 @@ namespace erminas.SmartAPI.CMS.Project
             var groupsPart = groupsList.Aggregate("", (s, @group) => s + SINGLE_GROUP.RQLFormat(@group));
 
             var xmlDoc = Session.ExecuteRQL(UNASSIGN_GROUPS.RQLFormat(Project, groupsPart));
-
-            if (!xmlDoc.IsContainingOk())
+            //7.5 sends empty reply
+            if (Session.ServerVersion >= new Version(9,0) && !xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
                 throw new SmartAPIException(Session.ServerLogin,
