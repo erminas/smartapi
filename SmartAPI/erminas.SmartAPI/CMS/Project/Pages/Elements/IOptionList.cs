@@ -131,15 +131,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         private void LoadXml()
         {
             Guid defaultGuid;
-            XmlElement.TryGetGuid("eltdefaultselectionguid", out defaultGuid);
+            _xmlElement.TryGetGuid("eltdefaultselectionguid", out defaultGuid);
 
-            XmlNodeList elements = XmlElement.GetElementsByTagName("SELECTION");
+            XmlNodeList elements = _xmlElement.GetElementsByTagName("SELECTION");
             _entries =
                 (from XmlElement curElement in elements
                  select (IOptionListEntry) new OptionListEntry(defaultGuid, curElement)).ToList();
 
             Guid selectedGuid;
-            _value = XmlElement.TryGetGuid("value", out selectedGuid)
+            _value = _xmlElement.TryGetGuid("value", out selectedGuid)
                          ? _entries.FirstOrDefault(entry => entry.Guid == selectedGuid)
                          : _entries.FirstOrDefault(entry => entry.IsDefault);
         }

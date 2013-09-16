@@ -79,13 +79,13 @@ namespace erminas.SmartAPI.CMS.Administration
         private void LoadXml()
         {
             Guid userGuid;
-            if (XmlElement.TryGetGuid("user", out userGuid))
+            if (_xmlElement.TryGetGuid("user", out userGuid))
             {
                 User = new User(Session, userGuid) {Name = XmlElement.GetAttributeValue("username")};
             }
 
             Guid projectGuid;
-            if (XmlElement.TryGetGuid("project", out projectGuid))
+            if (_xmlElement.TryGetGuid("project", out projectGuid))
             {
                 Project = new Project.Project(Session, projectGuid) {Name = XmlElement.GetAttributeValue("projectname")};
             }

@@ -22,15 +22,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldDate : IStandardField
     {
-        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
+        
         IDateTimeFormat DateFormat { get; set; }
 
         bool IsUserDefinedDateFormat { get; }
 
-        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
+        
         ISystemLocale Locale { get; set; }
 
-        [RedDot("eltformatting")]
+        
         string UserDefinedDateFormat { get; set; }
     }
 
@@ -39,7 +39,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         internal StandardFieldDate(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
-
+        [RedDot("eltformatno", ConverterType = typeof(DateTimeFormatConverter))]
         public IDateTimeFormat DateFormat
         {
             get { return GetAttributeValue<IDateTimeFormat>() ?? DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
@@ -58,13 +58,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return DateFormat == DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
         }
-
+        [RedDot("eltlcid", ConverterType = typeof(LocaleConverter))]
         public ISystemLocale Locale
         {
             get { return GetAttributeValue<ISystemLocale>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltformatting")]
         public string UserDefinedDateFormat
         {
             get { return GetAttributeValue<string>(); }

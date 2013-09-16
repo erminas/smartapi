@@ -19,30 +19,33 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IList : IWorkflowAssignments, IContentClassPreassignable
     {
-        [RedDot("eltfontclass")]
+        
         string FontClass { get; set; }
 
-        [RedDot("eltfontcolor")]
+        
         string FontColor { get; set; }
 
-        [RedDot("eltfontface")]
+        
         string FontFace { get; set; }
 
-        [RedDot("eltfontsize")]
+        
         string FontSize { get; set; }
 
+        /// <summary>
+        /// WARNING: RedDot "forgets" this setting, if no target container is selected
+        /// </summary>
         bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
 
-        [RedDot("eltfontbold")]
+        
         bool IsFontBold { get; set; }
 
-        [RedDot("eltonlyhrefvalue")]
+        
         bool IsOnlyPathAndFilenameInserted { get; set; }
 
-        [RedDot("eltxhtmlcompliant")]
+        
         bool IsSyntaxConformingToXHtml { get; set; }
 
-        [RedDot("eltextendedlist")]
+        
         bool IsTransferingElementContentOfFollowingPages { get; set; }
 
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
@@ -62,25 +65,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ContentClassCategory.Structural; }
         }
-
+        [RedDot("eltfontclass")]
         public string FontClass
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltfontcolor")]
         public string FontColor
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltfontface")]
         public string FontFace
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltfontsize")]
         public string FontSize
         {
             get { return GetAttributeValue<string>(); }
@@ -92,25 +95,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
             set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
         }
-
+        [RedDot("eltfontbold")]
         public bool IsFontBold
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltonlyhrefvalue")]
         public bool IsOnlyPathAndFilenameInserted
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltxhtmlcompliant")]
         public bool IsSyntaxConformingToXHtml
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltextendedlist")]
         public bool IsTransferingElementContentOfFollowingPages
         {
             get { return GetAttributeValue<bool>(); }

@@ -330,8 +330,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         private void LoadXml()
         {
-            _name = XmlElement.GetAttributeValue("eltname");
-            Type = (ElementType) XmlElement.GetIntAttributeValue("elttype").GetValueOrDefault();
+            _name = _xmlElement.GetAttributeValue("eltname");
+            Type = (ElementType) _xmlElement.GetIntAttributeValue("elttype").GetValueOrDefault();
         }
     }
 

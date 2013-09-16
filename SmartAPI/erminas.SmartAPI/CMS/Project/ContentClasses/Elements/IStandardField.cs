@@ -20,13 +20,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardField : IExtendedContentClassContentElement
     {
-        [RedDot("eltparentelementguid", ConverterType = typeof (ContentClassElementConverter))]
+        
         IContentClassElement ChildElementOf { get; set; }
 
-        [RedDot("eltdefaultvalue")]
+        
         string DefaultValue { get; set; }
 
-        [RedDot("eltrdexample")]
+        
         string Sample { get; set; }
     }
 
@@ -35,19 +35,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         protected StandardField(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
-
+        [RedDot("eltparentelementguid", ConverterType = typeof(ContentClassElementConverter))]
         public IContentClassElement ChildElementOf
         {
             get { return GetAttributeValue<IContentClassElement>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltdefaultvalue")]
         public string DefaultValue
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltrdexample")]
         public string Sample
         {
             get { return GetAttributeValue<string>(); }

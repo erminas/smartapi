@@ -160,7 +160,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         void AddRange(IEnumerable<FileSource> sources);
         IFolder Folder { get; }
         ReadOnlyCollection<IFile> GetByNamePattern(string searchText);
-
         void Remove(string filename);
         void RemoveForcibly(string filename);
         void RemoveRange(IEnumerable<string> filenames);

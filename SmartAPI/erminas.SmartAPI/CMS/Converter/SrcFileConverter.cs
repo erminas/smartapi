@@ -128,9 +128,23 @@ namespace erminas.SmartAPI.CMS.Converter
         private static void SetFromSameProject(XmlElement element, IFile value)
         {
             var folderGuid = element.GetGuid(ELTFOLDERGUID);
+
+            var topLevelFolder = value.Folder;
+            if (value.Folder.IsAssetManager)
+            {
+                var assetFolder = (IAssetManagerFolder)value.Folder;
+                if (assetFolder.IsSubFolder)
+                {
+                    topLevelFolder = assetFolder.ParentFolder;
+                }
+            }
+            if (topLevelFolder.Guid != folderGuid)
+            {
+                element.SetAttributeValue(ELTFOLDERGUID, topLevelFolder.Guid.ToRQLString());
+            }
 //TODO at least cms 7.5 stores undefined as value, maybe "" is allowed, too, try this out
             element.SetAttributeValue(ELTSRCSUBDIRGUID,
-                                      value.Folder.Guid == folderGuid ? "undefined" : value.Folder.Guid.ToRQLString());
+                                      topLevelFolder.Guid == folderGuid ? "undefined" : value.Folder.Guid.ToRQLString());
 
             element.SetAttributeValue(ELTSRC, value.Name);
         }

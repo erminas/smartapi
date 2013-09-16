@@ -99,7 +99,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
-        public IFolder Folder { get; set; }
+        public IFolder Folder
+        {
+            get { return GetAttributeValue<IFolder>(); }
+            set { SetAttributeValue(value); }
+        }
 
         [RedDot("eltonlynonwebsources")]
         public bool IsConvertingOnlyNonWebCompatibleFiles

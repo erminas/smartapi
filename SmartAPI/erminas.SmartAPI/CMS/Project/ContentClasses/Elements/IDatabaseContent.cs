@@ -114,7 +114,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        [RedDot("eltlisttype", ConverterType = typeof (StringEnumConverter<ListType>))]
+        [RedDot("eltlisttype", ConverterType = typeof(StringEnumConverter<ListType>))]
         public ListType ListType
         {
             get { return GetAttributeValue<ListType>(); }
@@ -126,7 +126,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                         string.Format("It is not possible to reset the {0} to {1}, once it was set.",
                                       RedDotAttributeDescription.GetDescriptionForElement("eltlisttype"), ListType.None));
                 }
-                SetAttributeValue(ListType);
+                SetAttributeValue(value);
             }
         }
 
@@ -141,7 +141,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public SpecialDataFieldFormat SpecialDataFieldFormat
         {
             get { return GetAttributeValue<SpecialDataFieldFormat>(); }
-            set { SetAttributeValue(value); }
+            set
+            {
+                SpecialDataFieldFormatUtils.EnsureValueIsSupportedByServerVersion(this, value);
+                SetAttributeValue(value);
+            }
         }
 
         [RedDot("eltsupplement")]

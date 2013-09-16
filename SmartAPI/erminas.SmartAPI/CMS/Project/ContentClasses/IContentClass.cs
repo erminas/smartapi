@@ -52,7 +52,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Description
         /// </summary>
-        [RedDot("description")]
         string Description { get; set; }
 
         /// <summary>
@@ -65,21 +64,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Folder that contains the content class.
         /// </summary>
-        [RedDot("folderguid", ConverterType = typeof (ContentClassFolderConverter), Description = "Content Class Folder"
-            )]
         IContentClassFolder Folder { get; }
 
-        [RedDot("selectinnewpage")]
+        
         bool IsAvailableViaTheShortcutMenuInSmartEdit { get; set; }
 
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
-        [RedDot("adoptheadlinetoalllanguages")]
         bool IsChangingHeadlineEffectiveForAllLanguageVariants { get; set; }
 
-        [RedDot("keywordrequired")]
+        
         bool IsKeywordRequired { get; set; }
 
-        [RedDot("ignoreglobalworkflow")]
+        
         bool IsNotRelevantForGlobalContentWorkflow { get; set; }
 
         IPageDefinitions PageDefinitions { get; }
@@ -92,18 +88,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Default prefix for pages.
         /// </summary>
-        [RedDot("praefixguid", ConverterType = typeof (SyllableConverter))]
         ISyllable Prefix { get; }
 
         IProjectVariantAssignments ProjectVariantAssignments { get; }
 
-        [RedDot("requiredcategory", ConverterType = typeof (CategoryConverter))]
         ICategory RequiredKeywordCategory { get; set; }
 
         /// <summary>
         ///     Default suffix for pages.
         /// </summary>
-        [RedDot("suffixguid", ConverterType = typeof (SyllableConverter))]
         ISyllable Suffix { get; }
 
         ITemplateVariants TemplateVariants { get; }
@@ -119,10 +112,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     /// </summary>
     internal class ContentClass : PartialRedDotProjectObject, IContentClass
     {
-        private IContentClassFolder _folder;
-        private Syllable _prefix;
-        private Syllable _suffix;
-
         internal ContentClass(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             Init();
@@ -234,6 +223,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Description
         /// </summary>
+        [RedDot("description")]
         public string Description
         {
             get { return GetAttributeValue<string>(); }
@@ -252,11 +242,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Folder that contains the content class.
         /// </summary>
+        [RedDot("folderguid", ConverterType = typeof(ContentClassFolderConverter), Description = "Content Class Folder"
+            )]
         public IContentClassFolder Folder
         {
             get { return GetAttributeValue<IContentClassFolder>(); }
         }
 
+        [RedDot("selectinnewpage")]
         public bool IsAvailableViaTheShortcutMenuInSmartEdit
         {
             get { return GetAttributeValue<bool>(); }
@@ -264,6 +257,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         }
 
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        [RedDot("adoptheadlinetoalllanguages")]
         public bool IsChangingHeadlineEffectiveForAllLanguageVariants
         {
             get
@@ -278,12 +272,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
+        [RedDot("keywordrequired")]
         public bool IsKeywordRequired
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("ignoreglobalworkflow")]
         public bool IsNotRelevantForGlobalContentWorkflow
         {
             get { return GetAttributeValue<bool>(); }
@@ -310,6 +306,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Default prefix for pages.
         /// </summary>
+        [RedDot("praefixguid", ConverterType = typeof (SyllableConverter))]
         public ISyllable Prefix
         {
             get { return GetAttributeValue<ISyllable>(); }
@@ -317,6 +314,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         public IProjectVariantAssignments ProjectVariantAssignments { get; private set; }
 
+        [RedDot("requiredcategory", ConverterType = typeof(CategoryConverter))]
         public ICategory RequiredKeywordCategory
         {
             get { return GetAttributeValue<ICategory>(); }
@@ -335,9 +333,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Default suffix for pages.
         /// </summary>
+        [RedDot("suffixguid", ConverterType = typeof(SyllableConverter))]
         public ISyllable Suffix
         {
-            get { return LazyLoad(ref _suffix); }
+            get { return GetAttributeValue<ISyllable>(); }
         }
 
         public ITemplateVariants TemplateVariants { get; private set; }

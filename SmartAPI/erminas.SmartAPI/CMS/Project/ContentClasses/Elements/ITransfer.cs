@@ -19,10 +19,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface ITransfer : IContentClassElement
     {
-        [RedDot("eltdonothtmlencode")]
         bool IsNotConvertingCharactersToHtml { get; set; }
 
-        [RedDot("elthideinform")]
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -37,12 +35,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
             get { return GetAttributeValue<bool>(); }

@@ -76,7 +76,7 @@ namespace erminas.SmartAPI.CMS.Converter
 
             if (ConverterHelper.AreFromTheSameProject(parent, value))
             {
-                SetFromSameProject(element, value);
+                SetFromSameProject(parent, element, value);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace erminas.SmartAPI.CMS.Converter
             return folder;
         }
 
-        private static void SetFilename(IProjectObject parent, IFile value, IFolder ownFolder)
+        private static void SetFilename(IProjectObject parent, IFile value, XmlElement element, IFolder ownFolder)
         {
             var ownFile = ownFolder.Files.GetByNamePattern(value.Name).SingleOrDefault();
             if (ownFile == null)
@@ -119,11 +119,27 @@ namespace erminas.SmartAPI.CMS.Converter
                                             string.Format("No file with name {0} found in folder {1} of project {2}",
                                                           value.Name, ownFolder.Name, parent.Project));
             }
+            element.SetAttributeValue(ELTSRC, value.Name);
         }
 
-        private static void SetFromSameProject(XmlElement element, IFile value)
+        private static void SetFromSameProject(IProjectObject parent , XmlElement element, IFile value)
         {
             var folderGuid = element.GetGuid(ELTFOLDERGUID);
+            var topLevelFolder = value.Folder;
+            if (value.Folder.IsAssetManager)
+            {
+                var assetFolder = (IAssetManagerFolder) value.Folder;
+                if (assetFolder.IsSubFolder)
+                {
+                    topLevelFolder = assetFolder.ParentFolder;
+                }
+            }
+
+            if (topLevelFolder.Guid != folderGuid)
+            {
+                throw new SmartAPIException(parent.Session.ServerLogin, string.Format("Cannot set sample file '{0}', because it isn't in the current folder branch '{1}/'", value, parent.Project.Folders.GetByGuid(folderGuid).Name));
+            }
+
             //TODO at least cms 7.5 stores undefined as value, maybe "" is allowed, too, try this out
             element.SetAttributeValue(ELTSRCSUBDIRGUID,
                                       value.Folder.Guid == folderGuid ? "undefined" : value.Folder.Guid.ToRQLString());
@@ -154,7 +170,7 @@ namespace erminas.SmartAPI.CMS.Converter
 
                 var ownSubFolder = folder.SubFolders.GetByName(value.Folder.Name);
                 element.SetAttributeValue(ELTSRCSUBDIRGUID, ownSubFolder.Guid.ToRQLString());
-                SetFilename(parent, value, ownSubFolder);
+                SetFilename(parent, value, element, ownSubFolder);
             }
             else
             {
@@ -182,7 +198,7 @@ namespace erminas.SmartAPI.CMS.Converter
             }
 
             element.SetAttributeValue(ELTSRCSUBDIRGUID, ownFolder.Guid.ToRQLString());
-            SetFilename(parent, value, ownFolder);
+            SetFilename(parent, value, element, ownFolder);
         }
     }
 }

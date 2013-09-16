@@ -157,7 +157,7 @@ namespace erminas.SmartAPI.CMS
     internal abstract class AbstractAttributeContainer : ISessionObject, IXmlBasedObject
     {
         private readonly ISession _session;
-        private XmlElement _xmlElement;
+        protected XmlElement _xmlElement;
 
         internal AbstractAttributeContainer(ISession session)
         {

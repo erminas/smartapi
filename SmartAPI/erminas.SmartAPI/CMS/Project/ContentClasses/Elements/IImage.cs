@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
@@ -132,7 +133,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return new List<string>();
                 }
-                return suffixes.Split(';');
+                return suffixes.Split(';').Where(s => !string.IsNullOrEmpty(s)).ToList();
             }
             set { EligibleSuffixes = value == null ? null : string.Join(";", value); }
         }

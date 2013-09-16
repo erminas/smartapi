@@ -60,7 +60,7 @@ namespace erminas.SmartAPI.CMS.Converter
                 } catch (Exception e)
                 {
                     throw new SmartAPIException(parent.Session.ServerLogin,
-                                                string.Format("Could not set {0} text", Type.ToString().ToLower()), e);
+                                                string.Format("Could not set {0} text for {1}", Type.ToString().ToLower(), parent), e);
                 }
             }
         }

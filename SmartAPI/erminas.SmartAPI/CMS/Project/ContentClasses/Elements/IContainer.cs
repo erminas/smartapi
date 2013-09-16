@@ -19,13 +19,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IContainer : IWorkflowAssignments, IContentClassPreassignable
     {
-        [RedDot("eltisdynamic")]
+        
         bool IsDynamic { get; set; }
 
-        [RedDot("eltistargetcontainer")]
+        
         bool IsTargetContainer { get; set; }
 
-        [RedDot("eltextendedlist")]
+        
         bool IsTransferingContentOfFollowingPages { get; set; }
     }
 
@@ -40,19 +40,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ContentClassCategory.Structural; }
         }
-
+        [RedDot("eltisdynamic")]
         public bool IsDynamic
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltistargetcontainer")]
         public bool IsTargetContainer
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltextendedlist")]
         public bool IsTransferingContentOfFollowingPages
         {
             get { return GetAttributeValue<bool>(); }

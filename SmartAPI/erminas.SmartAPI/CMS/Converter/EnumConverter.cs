@@ -45,7 +45,7 @@ namespace erminas.SmartAPI.CMS.Converter
 
         public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value)
         {
-            element.SetAttributeValue(attribute.ElementName, value.ToString(CultureInfo.InvariantCulture));
+            element.SetAttributeValue(attribute.ElementName, value.ToInt32(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture));
         }
     }
 }

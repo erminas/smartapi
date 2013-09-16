@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Converter
                 return null;
             }
 
-            return stringValue == "-1" ? ArbitraryCategory.INSTANCE : base.ConvertFrom(parent, element, attribute);
+            return stringValue == "-1" ? null : base.ConvertFrom(parent, element, attribute);
         }
 
         public override void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute,

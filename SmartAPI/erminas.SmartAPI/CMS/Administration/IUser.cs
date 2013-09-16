@@ -300,21 +300,15 @@ namespace erminas.SmartAPI.CMS.Administration
             InitIfPresent(ref _maxLevel, "maxlevel", int.Parse);
             InitIfPresent(ref _maxSessionCount, "maxlogin", int.Parse);
             InitIfPresent(ref _preferredEditor, "preferrededitor", int.Parse);
-
-            _fullname = XmlElement.GetAttributeValue("fullname");
-            _description = XmlElement.GetAttributeValue("description");
-            _email = XmlElement.GetAttributeValue("email");
-
-            XmlElement.TryGetGuid("accountsystemguid", out _accountSystemGuid);
-
+            _fullname = _xmlElement.GetAttributeValue("fullname");
+            _description = _xmlElement.GetAttributeValue("description");
+            _email = _xmlElement.GetAttributeValue("email");
+            _xmlElement.TryGetGuid("accountsystemguid", out _accountSystemGuid);
             InitIfPresent(ref _userInterfaceLanguage, "userlanguage", Session.DialogLocales.Get);
             InitIfPresent(ref _locale, "lcid", s => Session.Locales[int.Parse(s)]);
             InitIfPresent(ref _isScrolling, "treeautoscroll", BoolConvert);
-
-            _loginDate = XmlElement.GetOADate("logindate").GetValueOrDefault();
-
+            _loginDate = _xmlElement.GetOADate("logindate").GetValueOrDefault();
             InitIfPresent(ref _invertDirectEdit, "invertdirectedit", StringConversion.ToEnum<DirectEditActivation>);
-
             InitIfPresent(ref _isPasswordChangeableByCurrentUser, "disablepassword", x => !BoolConvert(x));
             InitIfPresent(ref _userPofileChangeRestrictions, "userlimits",
                           StringConversion.ToEnum<UserPofileChangeRestrictions>);

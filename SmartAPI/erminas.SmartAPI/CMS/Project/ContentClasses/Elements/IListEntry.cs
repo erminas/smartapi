@@ -21,22 +21,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IListEntry : IContentClassElement
     {
-        [RedDot("eltendmark")]
         string EndTagForAutomaticProcessing { get; set; }
 
-        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
         IFolder Folder { get; set; }
 
-        [RedDot("elthideinform")]
         bool IsNotUsedInForm { get; set; }
 
-        [RedDot("eltinvisibleinpage")]
         bool IsNotVisibleOnPublishedPage { get; set; }
 
-        [RedDot("eltwholetext")]
         bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
 
-        [RedDot("eltbeginmark")]
         string StartTagForAutomaticProcessing { get; set; }
     }
 
@@ -51,36 +45,42 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltendmark")]
         public string EndTagForAutomaticProcessing
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
         public IFolder Folder
         {
             get { return GetAttributeValue<IFolder>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinpage")]
         public bool IsNotVisibleOnPublishedPage
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltwholetext")]
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltbeginmark")]
         public string StartTagForAutomaticProcessing
         {
             get { return GetAttributeValue<string>(); }

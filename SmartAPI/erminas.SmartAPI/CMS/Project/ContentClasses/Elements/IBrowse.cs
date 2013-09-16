@@ -46,6 +46,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         bool IsLanguageIndependent { get; set; }
         bool IsOnlyPathAndFilenameInserted { get; set; }
         bool IsSyntaxConformingToXHtml { get; set; }
+        IFolder Folder { get; set; }
         IFile SampleImage { get; set; }
         IFile SrcFile { get; set; }
         string Supplement { get; set; }

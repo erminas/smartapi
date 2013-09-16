@@ -40,7 +40,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Meta; }
         }
 
-        [RedDot("eltformatno", ConverterType = typeof (DateTimeConverter))]
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
         public IDateTimeFormat DateTimeFormat
         {
             get { return GetAttributeValue<IDateTimeFormat>(); }

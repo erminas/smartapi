@@ -23,13 +23,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         bool IsUserDefinedTimeFormat { get; }
 
-        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
+        
         ISystemLocale Locale { get; set; }
 
-        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
+        
         IDateTimeFormat TimeFormat { get; set; }
 
-        [RedDot("eltformatting")]
+        
         string UserDefinedTimeFormat { get; set; }
     }
 
@@ -43,19 +43,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return TimeFormat == DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
         }
-
+        [RedDot("eltlcid", ConverterType = typeof(LocaleConverter))]
         public ISystemLocale Locale
         {
             get { return GetAttributeValue<ISystemLocale>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltformatno", ConverterType = typeof(DateTimeFormatConverter))]
         public IDateTimeFormat TimeFormat
         {
             get { return GetAttributeValue<IDateTimeFormat>() ?? DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltformatting")]
         public string UserDefinedTimeFormat
         {
             get { return GetAttributeValue<string>(); }

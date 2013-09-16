@@ -103,7 +103,7 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            _email = XmlElement.GetAttributeValue("email");
+            _email = _xmlElement.GetAttributeValue("email");
         }
     }
 }

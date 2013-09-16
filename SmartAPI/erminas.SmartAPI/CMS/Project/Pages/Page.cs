@@ -530,7 +530,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             _releaseStatus = ReleaseStatusFromFlags();
 
-            _checkinDate = XmlElement.GetOADate("checkindate").GetValueOrDefault();
+            _checkinDate = _xmlElement.GetOADate("checkindate").GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
             InitIfPresent(ref _releaseDate, "releasedate", XmlUtil.ToOADate);

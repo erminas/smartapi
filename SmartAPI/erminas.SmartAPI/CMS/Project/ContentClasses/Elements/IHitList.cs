@@ -21,81 +21,24 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
 
-    #region HitListType
-
-    public enum HitListType
-    {
-        NotSet = 0,
-        MatchingTexts,
-        MatchingImages
-    }
-
-    [EnumConversionHelper]
-    public static class HitListTypeUtils
-    {
-        public static HitListType ToHitListType(this string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return HitListType.NotSet;
-            }
-            switch (value.ToUpperInvariant())
-            {
-                case "GRAFIK":
-                    return HitListType.MatchingImages;
-                case "TEXT":
-                    return HitListType.MatchingTexts;
-                default:
-                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof (HitListType).Name, value));
-            }
-        }
-
-        public static string ToRQLString(this HitListType value)
-        {
-            switch (value)
-            {
-                case HitListType.NotSet:
-                    return string.Empty;
-                case HitListType.MatchingImages:
-                    return "Grafik";
-                case HitListType.MatchingTexts:
-                    return "Text";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}", typeof (HitListType).Name, value));
-            }
-        }
-    }
-
-    #endregion
-
     public interface IHitList : IList
     {
-        [RedDot("eltalign", ConverterType = typeof (StringEnumConverter<BasicAlignment>))]
         BasicAlignment Align { get; set; }
 
-        [RedDot("eltalt")]
         string AltText { get; set; }
 
-        [RedDot("eltborder")]
         string Border { get; set; }
 
-        [RedDot("elthspace")]
         string HSpace { get; set; }
 
-        [RedDot("elthittype", ConverterType = typeof (StringEnumConverter<HitListType>))]
         HitListType HitListType { get; set; }
 
-        [RedDot("eltpresetalt")]
         bool IsAltPreassignedAutomatically { get; set; }
 
-        [RedDot("eltsupplement")]
         string Supplement { get; set; }
 
-        [RedDot("eltusermap")]
         string Usemap { get; set; }
 
-        [RedDot("eltvspace")]
         string VSpace { get; set; }
     }
 
@@ -112,12 +55,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltalt")]
         public string AltText
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltborder")]
         public string Border
         {
             get { return GetAttributeValue<string>(); }
@@ -135,12 +80,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             }
         }
 
+        [RedDot("elthspace")]
         public string HSpace
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthittype", ConverterType = typeof (StringEnumConverter<HitListType>))]
         public HitListType HitListType
         {
             get { return GetAttributeValue<HitListType>(); }
@@ -155,24 +102,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             }
         }
 
+        [RedDot("eltpresetalt")]
         public bool IsAltPreassignedAutomatically
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltsupplement")]
         public string Supplement
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltusermap")]
         public string Usemap
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltvspace")]
         public string VSpace
         {
             get { return GetAttributeValue<string>(); }

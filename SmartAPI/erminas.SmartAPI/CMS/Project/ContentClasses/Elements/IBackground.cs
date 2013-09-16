@@ -21,25 +21,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IBackground : IContentClassElement
     {
-        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
         IFolder Folder { get; set; }
 
-        [RedDot("eltdragdrop")]
         bool IsDragAndDropActivated { get; set; }
 
-        [RedDot("eltinvisibleinclient")]
         bool IsHiddenInProjectStructure { get; set; }
 
-        [RedDot("eltlanguageindependent")]
         bool IsLanguageIndependent { get; set; }
 
-        [RedDot("eltignoreworkflow")]
         bool IsNotRelevantForWorklow { get; set; }
 
-        [RedDot("elthideinform")]
         bool IsNotUsedInForm { get; set; }
 
-        [RedDot("__file", ConverterType = typeof (SrcFileConverter))]
         IFile SrcFile { get; set; }
     }
 
@@ -54,42 +47,49 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
         public IFolder Folder
         {
             get { return GetAttributeValue<IFolder>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinclient")]
         public bool IsHiddenInProjectStructure
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("__file", ConverterType = typeof (SrcFileConverter))]
         public IFile SrcFile
         {
             get { return GetAttributeValue<IFile>(); }

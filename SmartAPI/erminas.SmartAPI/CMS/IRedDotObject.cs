@@ -86,7 +86,7 @@ namespace erminas.SmartAPI.CMS
         {
             get
             {
-                if (XmlElement != null && _guid.Equals(Guid.Empty))
+                if (_guid.Equals(Guid.Empty) && _xmlElement != null)
                 {
                     InitIfPresent(ref _guid, "guid", GuidConvert);
                 }
@@ -94,9 +94,9 @@ namespace erminas.SmartAPI.CMS
             }
             internal set
             {
-                if (XmlElement != null)
+                if (_xmlElement != null)
                 {
-                    XmlElement.Attributes["guid"].Value = value.ToRQLString();
+                    _xmlElement.Attributes["guid"].Value = value.ToRQLString();
                 }
                 _guid = value;
             }
@@ -173,7 +173,7 @@ namespace erminas.SmartAPI.CMS
         /// <param name="converter"> </param>
         protected void EnsuredInit<T>(ref T variable, string attributeName, Func<string, T> converter)
         {
-            string value = XmlElement.GetAttributeValue(attributeName);
+            string value = _xmlElement.GetAttributeValue(attributeName);
             if (string.IsNullOrEmpty(value))
             {
                 throw new SmartAPIException(Session.ServerLogin,
@@ -185,7 +185,7 @@ namespace erminas.SmartAPI.CMS
         protected void InitGuidAndName()
         {
             InitIfPresent(ref _guid, "guid", GuidConvert);
-            //InitIfPresent(ref _name, "name", x => x);
+            InitIfPresent(ref _name, "name", x => x);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace erminas.SmartAPI.CMS
         /// <param name="converter"> a function that converts the string value of the XML attribute to the actual type of the variable </param>
         protected void InitIfPresent<T>(ref T variable, string attributeName, Func<string, T> converter)
         {
-            string value = XmlElement.GetAttributeValue(attributeName);
+            string value = _xmlElement.GetAttributeValue(attributeName);
             if (!string.IsNullOrEmpty(value))
             {
                 variable = converter(value);

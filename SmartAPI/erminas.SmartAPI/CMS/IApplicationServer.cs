@@ -82,8 +82,8 @@ namespace erminas.SmartAPI.CMS
 
         private void LoadXml()
         {
-            _from = XmlElement.GetAttributeValue("adress");
-            _ipAddress = XmlElement.GetAttributeValue("ip");
+            _from = _xmlElement.GetAttributeValue("adress");
+            _ipAddress = _xmlElement.GetAttributeValue("ip");
         }
     }
 

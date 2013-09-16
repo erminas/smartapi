@@ -23,21 +23,21 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
     public interface IContentClassEditableAreaSettings : IProjectObject, IXmlBasedObject, ICached
     {
-        [RedDot("bordercolor")]
+        
         string BorderColor { get; set; }
 
-        [RedDot("borderstyle")]
+        
         string BorderStyle { get; set; }
 
-        [RedDot("borderwidth")]
+        
         string BorderWidth { get; set; }
 
         void Commit();
 
-        [RedDot("usedefaultrangesettings")]
+        
         bool IsUsingBorderDefinitionFromProjectSetting { get; set; }
 
-        [RedDot("showpagerange")]
+        
         bool IsUsingBordersToHighlightPages { get; set; }
     }
 
@@ -52,19 +52,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             _parent = parent;
         }
-
+        [RedDot("bordercolor")]
         public string BorderColor
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("borderstyle")]
         public string BorderStyle
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("borderwidth")]
         public string BorderWidth
         {
             get { return GetAttributeValue<string>(); }
@@ -89,13 +89,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             XmlElement = null;
         }
-
+        [RedDot("usedefaultrangesettings")]
         public bool IsUsingBorderDefinitionFromProjectSetting
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("showpagerange")]
         public bool IsUsingBordersToHighlightPages
         {
             get { return GetAttributeValue<bool>(); }

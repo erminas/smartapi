@@ -91,7 +91,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         {
             const string FOLDER_GUID = "folderguid";
             Guid tmpGuid;
-            _publicationFolder = XmlElement.TryGetGuid(FOLDER_GUID, out tmpGuid)
+            _publicationFolder = _xmlElement.TryGetGuid(FOLDER_GUID, out tmpGuid)
                                      ? new PublicationFolder(PublicationSetting.PublicationPackage.Project, tmpGuid)
                                      : null;
         }

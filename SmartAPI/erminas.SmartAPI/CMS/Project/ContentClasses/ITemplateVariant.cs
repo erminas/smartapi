@@ -23,51 +23,6 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
 
-    #region PdfOrientation
-
-    public enum PdfOrientation
-    {
-        Default = 0,
-        Portrait,
-        Landscape
-    }
-
-    public static class PdfOrientationUtils
-    {
-        public static PdfOrientation ToPdfOrientation(this string value)
-        {
-            switch (value.ToUpperInvariant())
-            {
-                case "DEFAULT":
-                    return PdfOrientation.Default;
-                case "PORTRAIT":
-                    return PdfOrientation.Portrait;
-                case "LANDSCAPE":
-                    return PdfOrientation.Landscape;
-                default:
-                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof (PdfOrientation).Name, value));
-            }
-        }
-
-        public static string ToRQLString(this PdfOrientation value)
-        {
-            switch (value)
-            {
-                case PdfOrientation.Default:
-                    return "default";
-                case PdfOrientation.Portrait:
-                    return "portrait";
-                case PdfOrientation.Landscape:
-                    return "landscape";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (PdfOrientationUtils).Name, value));
-            }
-        }
-    }
-
-    #endregion
 
     //TODO templatevariant auf attributes umstellen
     public interface ITemplateVariant : IPartialRedDotObject, IProjectObject, IDeletable
@@ -108,8 +63,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Description of the template
         /// </summary>
         string Description { get; }
-
-        void EnsureInitialization();
 
         string FileExtension { get; }
         IRedDotObject Handle { get; }
@@ -231,8 +184,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
             throw new SmartAPIException(Session.ServerLogin, errorMsg);
         }
-
-        //TODO mit reddotobjecthandle ersetzen
 
         /// <summary>
         ///     Timestamp of the creation of the template
@@ -378,9 +329,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         private void LoadXml()
         {
-            if (!String.IsNullOrEmpty(XmlElement.InnerText))
+            if (!String.IsNullOrEmpty(_xmlElement.InnerText))
             {
-                _data = XmlElement.InnerText;
+                _data = _xmlElement.InnerText;
             }
             InitIfPresent(ref _creationDate, "createdate", XmlUtil.ToOADate);
             InitIfPresent(ref _changeDate, "changeddate", XmlUtil.ToOADate);
@@ -389,13 +340,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                           x =>
                           new User(ContentClass.Project.Session, Guid.Parse(x))
                               {
-                                  Name = XmlElement.GetAttributeValue("createusername")
+                                  Name = _xmlElement.GetAttributeValue("createusername")
                               });
             InitIfPresent(ref _changeUser, "changeduserguid",
                           x =>
                           new User(ContentClass.Project.Session, Guid.Parse(x))
                               {
-                                  Name = XmlElement.GetAttributeValue("changedusername")
+                                  Name = _xmlElement.GetAttributeValue("changedusername")
                               });
             InitIfPresent(ref _fileExtension, "fileextension", x => x);
             InitIfPresent(ref _pdfOrientation, "pdforientation", PdfOrientationUtils.ToPdfOrientation);
@@ -403,13 +354,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             InitIfPresent(ref _noStartEndMarkers, "nostartendmarkers", BoolConvert);
             InitIfPresent(ref _isLocked, "lock", BoolConvert);
             InitIfPresent(ref _hasContainerPageReference, "containerpagereference", BoolConvert);
-            if (BoolConvert(XmlElement.GetAttributeValue("draft")))
+            if (BoolConvert(_xmlElement.GetAttributeValue("draft")))
             {
                 _status = TemplateVariantState.Draft;
             }
             else
             {
-                _status = BoolConvert(XmlElement.GetAttributeValue("waitforrelease"))
+                _status = BoolConvert(_xmlElement.GetAttributeValue("waitforrelease"))
                               ? TemplateVariantState.WaitsForRelease
                               : TemplateVariantState.Released;
             }

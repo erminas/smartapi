@@ -20,28 +20,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IText : IExtendedContentClassContentElement
     {
-        [RedDot("eltdefaulttextguid", ConverterType = typeof (DefaultTextConverter))]
         string DefaultValue { get; set; }
 
-        [RedDot("eltcrlftobr")]
         bool IsCrlfConvertedToBr { get; set; }
 
-        [RedDot("eltdirectedit")]
         bool IsDirectEditActivated { get; set; }
 
-        [RedDot("eltdragdrop")]
         bool IsDragAndDropActivated { get; set; }
 
-        [RedDot("eltdeactivatetextfilter")]
         bool IsTextFilterDeactivated { get; set; }
 
-        [RedDot("eltwholetext")]
         bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
 
-        [RedDot("eltmaxsize")]
         int? MaxCharacterCount { get; set; }
 
-        [RedDot("eltrdexampleguid", ConverterType = typeof (SampleTextConverter))]
         string SampleValue { get; set; }
     }
 
@@ -51,48 +43,56 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
         }
 
+        [RedDot("eltdefaulttextguid", ConverterType = typeof (DefaultTextConverter))]
         public string DefaultValue
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltcrlftobr")]
         public bool IsCrlfConvertedToBr
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdirectedit")]
         public bool IsDirectEditActivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdeactivatetextfilter")]
         public bool IsTextFilterDeactivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltwholetext")]
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltmaxsize")]
         public int? MaxCharacterCount
         {
             get { return GetAttributeValue<int?>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltrdexampleguid", ConverterType = typeof (SampleTextConverter))]
         public string SampleValue
         {
             get { return GetAttributeValue<string>(); }

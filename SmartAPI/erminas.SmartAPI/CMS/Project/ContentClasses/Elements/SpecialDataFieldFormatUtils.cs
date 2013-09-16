@@ -18,43 +18,5 @@ using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    [EnumConversionHelper]
-    public static class SpecialDataFieldFormatUtils
-    {
-        public static string ToRQLString(this SpecialDataFieldFormat value)
-        {
-            switch (value)
-            {
-                case SpecialDataFieldFormat.UserDefined:
-                    return "no";
-                case SpecialDataFieldFormat.HTML:
-                    return "HTML";
-                case SpecialDataFieldFormat.Image:
-                    return "Image";
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof (SpecialDataFieldFormat).Name, value));
-            }
-        }
-
-        public static SpecialDataFieldFormat ToSpecialDataFieldFormat(this string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return SpecialDataFieldFormat.UserDefined;
-            }
-            switch (value.ToUpperInvariant())
-            {
-                case "NO":
-                    return SpecialDataFieldFormat.UserDefined;
-                case "HTML":
-                    return SpecialDataFieldFormat.HTML;
-                case "IMAGE":
-                    return SpecialDataFieldFormat.Image;
-                default:
-                    throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
-                                                              typeof (SpecialDataFieldFormat).Name, value));
-            }
-        }
-    }
+   
 }

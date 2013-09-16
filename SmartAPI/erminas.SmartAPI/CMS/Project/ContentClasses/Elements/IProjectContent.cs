@@ -20,16 +20,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IProjectContent : IContentClassElement
     {
-        [RedDot("eltislistentry")]
         bool IsHitList { get; set; }
 
-        [RedDot("eltinvisibleinpage")]
         bool IsNotVisibleOnPublishedPage { get; set; }
 
-        [RedDot("eltisreffield")]
         bool IsReferenceField { get; set; }
 
-        [RedDot("__elementreference", ConverterType = typeof (ElementReferenceConverter))]
         IContentClassElement ReferencedElement { get; set; }
     }
 
@@ -44,24 +40,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltislistentry")]
         public bool IsHitList
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinpage")]
         public bool IsNotVisibleOnPublishedPage
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltisreffield")]
         public bool IsReferenceField
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("__elementreference", ConverterType = typeof (ElementReferenceConverter))]
         public IContentClassElement ReferencedElement
         {
             get { return GetAttributeValue<IContentClassElement>(); }

@@ -19,27 +19,27 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IHeadline : IContentClassElement
     {
-        [RedDot("eltrddescription")]
+        
         string Description { get; set; }
 
-        [RedDot("eltdirectedit")]
+        
         bool IsDirectEditActivated { get; set; }
 
-        [RedDot("eltdragdrop")]
+        
         bool IsDragAndDropActivated { get; set; }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
-        [RedDot("eltlanguageindependent")]
+        
         bool IsLanguageIndependent { get; set; }
 
-        [RedDot("eltdonothtmlencode")]
+        
         bool IsNotConvertingCharactersToHtml { get; set; }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
-        [RedDot("eltignoreworkflow")]
+        
         bool IsNotRelevantForWorklow { get; set; }
 
-        [RedDot("elthideinform")]
+        
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -53,19 +53,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ContentClassCategory.Content; }
         }
-
+        [RedDot("eltrddescription")]
         public string Description
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltdirectedit")]
         public bool IsDirectEditActivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
-
+        [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {
             get { return GetAttributeValue<bool>(); }
@@ -73,6 +73,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
             get
@@ -86,7 +87,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 SetAttributeValue(value);
             }
         }
-
+        [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
             get { return GetAttributeValue<bool>(); }
@@ -94,6 +95,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
             get
@@ -107,7 +109,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 SetAttributeValue(value);
             }
         }
-
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
             get { return GetAttributeValue<bool>(); }

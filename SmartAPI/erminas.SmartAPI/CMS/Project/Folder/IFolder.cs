@@ -128,7 +128,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         private void LoadXml()
         {
             Guid linkedProjectGuid;
-            if (XmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
+            if (_xmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
             {
                 var project = Project.Session.Projects.GetByGuid(linkedProjectGuid);
 
@@ -136,7 +136,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                 // in that case do not try to set the linked folder
                 if (project != null)
                 {
-                    var linkedFolderGuid = XmlElement.GetGuid("linkedfolderguid");
+                    var linkedFolderGuid = _xmlElement.GetGuid("linkedfolderguid");
                     _linkedFolder = project.Folders.AllIncludingSubFolders.GetByGuid(linkedFolderGuid);
                 }
             }

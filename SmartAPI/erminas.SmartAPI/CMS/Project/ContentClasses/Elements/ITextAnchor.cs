@@ -19,19 +19,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface ITextAnchor : IAnchor
     {
-        [RedDot("eltfontclass")]
         string FontClass { get; set; }
 
-        [RedDot("eltfontcolor")]
         string FontColor { get; set; }
 
-        [RedDot("eltfontface")]
         string FontFace { get; set; }
 
-        [RedDot("eltfontsize")]
         string FontSize { get; set; }
 
-        [RedDot("eltfontbold")]
         bool IsFontBold { get; set; }
     }
 
@@ -41,30 +36,35 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
         }
 
+        [RedDot("eltfontclass")]
         public string FontClass
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontcolor")]
         public string FontColor
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontface")]
         public string FontFace
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontsize")]
         public string FontSize
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontbold")]
         public bool IsFontBold
         {
             get { return GetAttributeValue<bool>(); }

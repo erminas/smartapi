@@ -15,6 +15,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
@@ -49,8 +50,13 @@ namespace erminas.SmartAPI.CMS
                 }
                 try
                 {
-                    _targetType =
-                        _converterType.GetInterface(typeof (IAttributeConverter<object>).Name).GetGenericArguments()[0];
+                    var interfaceType =
+                        value.GetInterfaces()
+                                      .First(
+                                          type =>
+                                          type.IsGenericType &&
+                                          type.GetGenericTypeDefinition() == typeof (IAttributeConverter<>));
+                    _targetType = interfaceType.GetGenericArguments()[0];
                     _converterInstance = (IAttributeConvertBase) value.GetConstructor(new Type[0]).Invoke(new object[0]);
                     _converterType = value;
                 } catch (Exception e)
@@ -129,9 +135,9 @@ namespace erminas.SmartAPI.CMS
                                                               ElementName, type.Name));
         }
 
-        private bool IsConverterType(Type value)
+        private static bool IsConverterType(Type value)
         {
-            return value.GetInterface(typeof (IAttributeConverter<object>).Name) == null;
+            return value.GetInterfaces().Any(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IAttributeConverter<>));
         }
 
         private void SetWithCustomConversion<T>(IProjectObject targetProject, XmlElement element, T value)

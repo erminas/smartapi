@@ -109,6 +109,7 @@
     <Compile Include="CMS\Project\ContentClasses\IContentClassVersion.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClassVersions.cs" />
     <Compile Include="CMS\Project\ContentClasses\ILanguageDependentXmlBasedObject.cs" />
+    <Compile Include="CMS\Project\ContentClasses\PdfOrientation.cs" />
     <Compile Include="CMS\Project\Folder\IAssetManagerFiles.cs" />
     <Compile Include="CMS\Project\Folder\IAssetManagerFolder.cs" />
     <Compile Include="CMS\Project\Folder\IContentClassFolderSharing.cs" />

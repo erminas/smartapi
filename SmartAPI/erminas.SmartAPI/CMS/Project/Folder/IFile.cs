@@ -175,7 +175,16 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public override string ToString()
         {
-            return _folder != null ? _folder.Name + "/" + Name : "";
+            string path = "";
+            if (_folder is IAssetManagerFolder)
+            {
+                var assetFolder = (IAssetManagerFolder) _folder;
+                if (assetFolder.IsSubFolder)
+                {
+                    path = assetFolder.ParentFolder.Name + "/";
+                }
+            }
+            return _folder != null ? path + _folder.Name + "/" + Name : "";
         }
 
         protected bool Equals(File other)
