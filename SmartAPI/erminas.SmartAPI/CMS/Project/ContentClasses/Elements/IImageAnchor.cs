@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         ImageAlignment Align { get; set; }
 
-        string AltText { get; set; }
+        ILanguageDependentValue<string> AltText { get; }
 
         string Border { get; set; }
 
@@ -43,7 +43,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         bool IsWidthAutomaticallyInsertedIntoPage { get; set; }
 
-        IFile SrcFile { get; set; }
+        ILanguageDependentValue<IFile> SrcFile { get; }
 
         string Usemap { get; set; }
 
@@ -66,10 +66,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltalt")]
-        public string AltText
+        public ILanguageDependentValue<string> AltText
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
         [RedDot("eltborder")]
@@ -136,11 +135,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
-        public IFile SrcFile
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get { return GetAttributeValue<IFile>(); }
-
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
         [RedDot("eltusermap")]

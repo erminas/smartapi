@@ -20,7 +20,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IText : IExtendedContentClassContentElement
     {
-        string DefaultValue { get; set; }
+        ILanguageDependentValue<string> DefaultValue { get; }
 
         bool IsCrlfConvertedToBr { get; set; }
 
@@ -34,7 +34,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         int? MaxCharacterCount { get; set; }
 
-        string SampleValue { get; set; }
+        ILanguageDependentValue<string> SampleValue { get; }
     }
 
     internal abstract class Text : ExtendedContentClassContentElement, IText
@@ -44,10 +44,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltdefaulttextguid", ConverterType = typeof (DefaultTextConverter))]
-        public string DefaultValue
+        public ILanguageDependentValue<string> DefaultValue
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
         [RedDot("eltcrlftobr")]
@@ -93,10 +92,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltrdexampleguid", ConverterType = typeof (SampleTextConverter))]
-        public string SampleValue
+        public ILanguageDependentValue<string> SampleValue
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
     }
 }

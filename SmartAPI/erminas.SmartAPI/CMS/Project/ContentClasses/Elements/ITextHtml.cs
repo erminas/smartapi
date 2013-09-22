@@ -68,7 +68,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             //TODO checken, ob die werte in editoroptions nicht invertiert enthalten sind
         }
 
-        [RedDot("elteditoroptions", ConverterType = typeof(EnumConverter<EditorSettings>))]
+        [RedDot("elteditoroptions", ConverterType = typeof (EnumConverter<EditorSettings>))]
         public EditorSettings TextEditorSettings
         {
             get { return GetAttributeValue<EditorSettings>(); }

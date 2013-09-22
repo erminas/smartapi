@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public abstract class TextContentConverter : IAttributeConverter<string>
+    internal abstract class TextContentConverter : IAttributeConverter<string>
     {
         public string ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -38,7 +38,7 @@ namespace erminas.SmartAPI.CMS.Converter
 
         public bool IsReadOnly { get; private set; }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, string value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute, string value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -50,9 +50,11 @@ namespace erminas.SmartAPI.CMS.Converter
                                 ? element.GetGuid(attribute.ElementName)
                                 : Guid.Empty;
 
+                var languageVariantName = element.GetAttributeValue("languagevariantid");
+                var languageVariant = parent.Project.LanguageVariants[languageVariantName];
                 try
                 {
-                    Guid textGuid = parent.Project.SetTextContent(guid, parent.Project.LanguageVariants.Current,
+                    Guid textGuid = parent.Project.SetTextContent(guid, languageVariant,
                                                                   ((int) Type).ToString(CultureInfo.InvariantCulture),
                                                                   value);
 
@@ -60,7 +62,8 @@ namespace erminas.SmartAPI.CMS.Converter
                 } catch (Exception e)
                 {
                     throw new SmartAPIException(parent.Session.ServerLogin,
-                                                string.Format("Could not set {0} text for {1}", Type.ToString().ToLower(), parent), e);
+                                                string.Format("Could not set {0} text for {1} in language {2}",
+                                                              Type.ToString().ToLower(), parent, languageVariantName), e);
                 }
             }
         }
@@ -74,7 +77,7 @@ namespace erminas.SmartAPI.CMS.Converter
         }
     }
 
-    public class DefaultTextConverter : TextContentConverter
+    internal class DefaultTextConverter : TextContentConverter
     {
         protected override TextType Type
         {
@@ -82,7 +85,7 @@ namespace erminas.SmartAPI.CMS.Converter
         }
     }
 
-    public class SampleTextConverter : TextContentConverter
+    internal class SampleTextConverter : TextContentConverter
     {
         protected override TextType Type
         {

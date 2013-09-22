@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public abstract class AbstractGuidElementConverter<T> : IAttributeConverter<T>
+    internal abstract class AbstractGuidElementConverter<T> : IAttributeConverter<T>
         where T : class, IRedDotObject, IProjectObject
     {
         public virtual T ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
@@ -43,7 +43,8 @@ namespace erminas.SmartAPI.CMS.Converter
             get { return false; }
         }
 
-        public virtual void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value)
+        public virtual void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
+                                    T value)
         {
             if (parent == null)
             {
@@ -82,6 +83,7 @@ namespace erminas.SmartAPI.CMS.Converter
 
         protected abstract T GetFromGuid(IProjectObject parent, XmlElement element, RedDotAttribute attribute, Guid guid);
 
-        protected abstract T GetFromName(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value);
+        protected abstract T GetFromName(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
+                                         T value);
     }
 }

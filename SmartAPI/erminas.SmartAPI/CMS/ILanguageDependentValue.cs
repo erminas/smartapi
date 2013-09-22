@@ -15,27 +15,79 @@
 
 using System.Linq;
 using erminas.SmartAPI.CMS.Project;
+using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS
 {
+    public interface ILanguageDependentValueBase
+    {
+        IPartialRedDotProjectObject Parent { get; }
+    }
+
+    public interface ILanguageDependentReadValue<out T> : ILanguageDependentValueBase
+    {
+        T ForCurrentLanguage { get; }
+        T ForMainLanguage { get; }
+        T this[ILanguageVariant languageVariant] { get; }
+        T this[string languageAbbreviation] { get; }
+    }
+
+    public interface ILanguageDependentValue<T> : ILanguageDependentReadValue<T>
+    {
+        T ForAllLanguages { set; }
+        new T ForCurrentLanguage { get; set; }
+        new T ForMainLanguage { get; set; }
+        new T this[ILanguageVariant languageVariant] { get; set; }
+        new T this[string languageAbbreviation] { get; set; }
+        void SetAllLanguagesFrom(ILanguageDependentValue<T> other);
+    }
+
+    internal abstract class AbstractLanguageDependendReadValue<T> : ILanguageDependentReadValue<T>
+    {
+        protected AbstractLanguageDependendReadValue(IPartialRedDotProjectObject parent)
+        {
+            Parent = parent;
+        }
+
+        public T ForCurrentLanguage
+        {
+            get { return this[Parent.Project.LanguageVariants.Current]; }
+        }
+
+        public T ForMainLanguage
+        {
+            get { return this[Parent.Project.LanguageVariants.Main]; }
+        }
+
+        public T this[ILanguageVariant languageVariant]
+        {
+            get { return this[languageVariant.Abbreviation]; }
+        }
+
+        public abstract T this[string languageAbbreviation] { get; }
+        public IPartialRedDotProjectObject Parent { get; private set; }
+    }
+
     internal class LanguageDependentValue<T> : ILanguageDependentValue<T>
     {
         private readonly RedDotAttribute _attribute;
-        private readonly ILanguageDependentPartialRedDotObject _parent;
+        private readonly IPartialRedDotProjectObject _parent;
 
-        public LanguageDependentValue(ILanguageDependentPartialRedDotObject parent, RedDotAttribute attribute)
+        public LanguageDependentValue(IPartialRedDotProjectObject parent, RedDotAttribute attribute)
         {
             _parent = parent;
             _attribute = attribute;
         }
 
-        public void AssignForAllLanguages(ILanguageDependentValue<T> value)
+        public T ForAllLanguages
         {
-            CheckLanguageVariantCompatibility(value);
-            foreach (var language in Parent.Project.LanguageVariants)
+            set
             {
-                this[language] = value[language];
+                foreach (var curLanguage in _parent.Project.LanguageVariants)
+                {
+                    this[curLanguage] = value;
+                }
             }
         }
 
@@ -57,23 +109,32 @@ namespace erminas.SmartAPI.CMS
             set { this[languageVariant.Abbreviation] = value; }
         }
 
-        public T this[string languageAbbreviation]
+        public virtual T this[string languageAbbreviation]
         {
             get
             {
-                var xmlElement = _parent.GetXmlElementForLanguage(languageAbbreviation);
+                var xmlElement = ((ILanguageDependentXmlBasedObject) _parent).GetElementForLanguage(languageAbbreviation);
                 return _attribute.ReadFrom<T>(_parent, xmlElement);
             }
             set
             {
-                var xmlElement = _parent.GetXmlElementForLanguage(languageAbbreviation);
-                _attribute.WriteTo(_parent, xmlElement, value);
+                var element = ((ILanguageDependentXmlBasedObject) _parent).GetElementForLanguage(languageAbbreviation);
+                _attribute.WriteTo(_parent, element, value);
             }
         }
 
-        public ILanguageDependentPartialRedDotObject Parent
+        public IPartialRedDotProjectObject Parent
         {
             get { return _parent; }
+        }
+
+        public void SetAllLanguagesFrom(ILanguageDependentValue<T> value)
+        {
+            CheckLanguageVariantCompatibility(value);
+            foreach (var language in Parent.Project.LanguageVariants)
+            {
+                this[language] = value[language];
+            }
         }
 
         private void CheckLanguageVariantCompatibility(ILanguageDependentValue<T> value)
@@ -91,19 +152,5 @@ namespace erminas.SmartAPI.CMS
                                                 "Unable to assign values for all languages from project {0} to project {1} as the language variants are incompatible"));
             }
         }
-    }
-
-    public interface ILanguageDependentValueBase
-    {
-        ILanguageDependentPartialRedDotObject Parent { get; }
-    }
-
-    public interface ILanguageDependentValue<T> : ILanguageDependentValueBase
-    {
-        void AssignForAllLanguages(ILanguageDependentValue<T> value);
-        T ForCurrentLanguage { get; set; }
-        T ForMainLanguage { get; set; }
-        T this[ILanguageVariant languageVariant] { get; set; }
-        T this[string languageAbbreviation] { get; set; }
     }
 }

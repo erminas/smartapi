@@ -479,9 +479,9 @@ namespace erminas.SmartAPI.CMS.Project
         {
             if (Session.CurrentUser.ModuleAssignment.IsServerManager)
             {
-                return ((Project) Session.Projects.GetByGuid(Guid)).XmlElement;
+                return ((Project) Session.ServerManager.Projects.GetByGuid(Guid)).XmlElement;
             }
-            return ((Project) Session.ProjectsForCurrentUser.GetByGuid(Guid)).XmlElement;
+            return ((Project) Session.ServerManager.Projects.ForCurrentUser.GetByGuid(Guid)).XmlElement;
         }
 
         internal XmlDocument AllFoldersXmlDocument { get; set; }

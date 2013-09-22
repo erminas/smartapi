@@ -68,11 +68,11 @@ namespace erminas.SmartAPI.CMS.Converter
             }
 
             IContentClassElement otherElement;
-            if (!otherContentClass.Elements[""].TryGetByName(cc.Name, out otherElement))
+            if (!otherContentClass.Elements.TryGetByName(cc.Name, out otherElement))
             {
                 throw new SmartAPIException(otherProject.Session.ServerLogin,
                                             string.Format(
-                                                "Missing element {4} for content class {0} in  folder {1} for project {2}",
+                                                "Missing element {3} for content class {0} in  folder {1} for project {2}",
                                                 cc.ContentClass.Name, folderName, otherProject, cc.Name));
             }
 

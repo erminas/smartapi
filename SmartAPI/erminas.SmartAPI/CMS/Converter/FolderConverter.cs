@@ -22,7 +22,7 @@ using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class FolderConverter : AbstractGuidElementConverter<IFolder>
+    internal class FolderConverter : AbstractGuidElementConverter<IFolder>
     {
         protected override IFolder GetFromGuid(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
                                                Guid guid)
@@ -30,8 +30,8 @@ namespace erminas.SmartAPI.CMS.Converter
             return parent.Project.Folders.AllIncludingSubFolders.First(folder => folder.Guid == guid);
         }
 
-        protected override IFolder GetFromName(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
-                                               IFolder value)
+        protected override IFolder GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
+                                               RedDotAttribute attribute, IFolder value)
         {
             var folders = parent.Project.Folders.AllIncludingSubFolders;
             var folder = folders.FirstOrDefault(folder1 => folder1.Name == value.Name);

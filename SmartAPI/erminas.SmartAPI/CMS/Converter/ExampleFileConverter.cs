@@ -23,27 +23,27 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class ExampleFileConverter : IAttributeConverter<IFile>
+    internal class ExampleFileConverter : IAttributeConverter<IFile>
     {
         private const string ELTSRC = "eltrdexample";
         private const string ELTFOLDERGUID = "eltfolderguid";
         private const string ELTSRCSUBDIRGUID = "eltrdexamplesubdirguid";
 
-        public IFile ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
+        public IFile ConvertFrom(IProjectObject parent, XmlElement readElement, RedDotAttribute attribute)
         {
             if (parent == null)
             {
                 throw new SmartAPIInternalException("Parent project object may not be null for ExampleFileConverter");
             }
 
-            var fileName = element.GetAttributeValue(ELTSRC);
+            var fileName = readElement.GetAttributeValue(ELTSRC);
 
             if (string.IsNullOrEmpty(fileName))
             {
                 return null;
             }
 
-            var folder = GetFolder(parent, element);
+            var folder = GetFolder(parent, readElement);
 
             return new File(folder, fileName);
         }
@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Converter
             get { return false; }
         }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, IFile value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute, IFile value)
         {
             if (parent == null)
             {
@@ -92,25 +92,26 @@ namespace erminas.SmartAPI.CMS.Converter
             }
         }
 
-        private static void ClearFile(XmlElement element)
+        private static void ClearFile(IXmlReadWriteWrapper element)
         {
             element.SetAttributeValue(ELTSRCSUBDIRGUID, null);
             element.SetAttributeValue(ELTSRC, null);
         }
 
-        private static IFolder GetFolder(IProjectObject parent, XmlElement element)
+        private static IFolder GetFolder(IProjectObject parent, XmlElement readElement)
         {
             Guid folderGuid;
-            if (!element.TryGetGuid(ELTSRCSUBDIRGUID, out folderGuid))
+            if (!readElement.TryGetGuid(ELTSRCSUBDIRGUID, out folderGuid))
             {
-                folderGuid = element.GetGuid(ELTFOLDERGUID);
+                folderGuid = readElement.GetGuid(ELTFOLDERGUID);
             }
 
             var folder = parent.Project.Folders.AllIncludingSubFolders.GetByGuid(folderGuid);
             return folder;
         }
 
-        private static void SetFilename(IProjectObject parent, IFile value, XmlElement element, IFolder ownFolder)
+        private static void SetFilename(IProjectObject parent, IFile value, IXmlReadWriteWrapper element,
+                                        IFolder ownFolder)
         {
             var ownFile = ownFolder.Files.GetByNamePattern(value.Name).SingleOrDefault();
             if (ownFile == null)
@@ -122,7 +123,7 @@ namespace erminas.SmartAPI.CMS.Converter
             element.SetAttributeValue(ELTSRC, value.Name);
         }
 
-        private static void SetFromSameProject(IProjectObject parent , XmlElement element, IFile value)
+        private static void SetFromSameProject(IProjectObject parent, IXmlReadWriteWrapper element, IFile value)
         {
             var folderGuid = element.GetGuid(ELTFOLDERGUID);
             var topLevelFolder = value.Folder;
@@ -137,7 +138,10 @@ namespace erminas.SmartAPI.CMS.Converter
 
             if (topLevelFolder.Guid != folderGuid)
             {
-                throw new SmartAPIException(parent.Session.ServerLogin, string.Format("Cannot set sample file '{0}', because it isn't in the current folder branch '{1}/'", value, parent.Project.Folders.GetByGuid(folderGuid).Name));
+                throw new SmartAPIException(parent.Session.ServerLogin,
+                                            string.Format(
+                                                "Cannot set sample file '{0}', because it isn't in the current folder branch '{1}/'",
+                                                value, parent.Project.Folders.GetByGuid(folderGuid).Name));
             }
 
             //TODO at least cms 7.5 stores undefined as value, maybe "" is allowed, too, try this out
@@ -147,7 +151,8 @@ namespace erminas.SmartAPI.CMS.Converter
             element.SetAttributeValue(ELTSRC, value.Name);
         }
 
-        private static void SetValuesFromAssetManagerFolder(IProjectObject parent, XmlElement element, IFile value)
+        private static void SetValuesFromAssetManagerFolder(IProjectObject parent, IXmlReadWriteWrapper element,
+                                                            IFile value)
         {
             var assetFolder = (IAssetManagerFolder) value.Folder;
             var folderGuid = element.GetGuid(ELTFOLDERGUID);
@@ -185,7 +190,7 @@ namespace erminas.SmartAPI.CMS.Converter
             }
         }
 
-        private static void SetValuesFromTopLevelFolder(IProjectObject parent, XmlElement element, IFile value,
+        private static void SetValuesFromTopLevelFolder(IProjectObject parent, IXmlReadWriteWrapper element, IFile value,
                                                         IFolder ownFolder)
         {
             var folderGuid = element.GetGuid(ELTFOLDERGUID);

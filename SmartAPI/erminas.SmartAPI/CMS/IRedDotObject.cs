@@ -20,11 +20,6 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
-    public interface IXmlBasedObject
-    {
-        XmlElement XmlElement { get; }
-    }
-
     /// <summary>
     ///     Base class for all red dot objects. It contains a Guid and can be initialized with a XML node containing the guid and other attributes.
     /// </summary>

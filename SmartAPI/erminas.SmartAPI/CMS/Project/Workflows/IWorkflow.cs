@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Workflows
 {
-    public interface IWorkflow : IPartialRedDotObject, IProjectObject, IDeletable, IXmlBasedObject
+    public interface IWorkflow : IPartialRedDotObject, IProjectObject, IDeletable
     {
         IWorkflowActions Actions { get; }
         bool CanBeInherited { get; }

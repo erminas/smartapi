@@ -16,7 +16,7 @@
 using System;
 using System.Xml;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     public interface IDatabaseServer : IPartialRedDotObject
     {
@@ -67,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Administration
 
         protected override XmlElement RetrieveWholeObject()
         {
-            return ((DatabaseServer) Session.DatabaseServers.GetByGuid(Guid)).XmlElement;
+            return ((DatabaseServer) Session.ServerManager.DatabaseServers.GetByGuid(Guid)).XmlElement;
         }
 
         private void LoadXml()

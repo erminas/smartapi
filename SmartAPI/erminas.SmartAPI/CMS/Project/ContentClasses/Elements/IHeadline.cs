@@ -19,27 +19,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IHeadline : IContentClassElement
     {
-        
-        string Description { get; set; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
 
-        
         bool IsDirectEditActivated { get; set; }
 
-        
         bool IsDragAndDropActivated { get; set; }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
-        
         bool IsLanguageIndependent { get; set; }
 
-        
         bool IsNotConvertingCharactersToHtml { get; set; }
 
         [VersionIsLessThan(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
-        
         bool IsNotRelevantForWorklow { get; set; }
 
-        
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -53,18 +46,21 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ContentClassCategory.Content; }
         }
+
         [RedDot("eltrddescription")]
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltdirectedit")]
         public bool IsDirectEditActivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {
@@ -87,6 +83,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 SetAttributeValue(value);
             }
         }
+
         [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
@@ -109,6 +106,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 SetAttributeValue(value);
             }
         }
+
         [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {

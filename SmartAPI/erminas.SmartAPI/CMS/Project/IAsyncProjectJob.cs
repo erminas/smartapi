@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 
 namespace erminas.SmartAPI.CMS.Project
 {
@@ -52,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project
             Session = session;
             EmailReceipient = Session.CurrentUser;
             IsSendingEmailOnCompletion = true;
-            Server = Session.ApplicationServers.First();
+            Server = Session.ServerManager.ApplicationServers.First();
         }
 
         public string EmailMessage { get; set; }

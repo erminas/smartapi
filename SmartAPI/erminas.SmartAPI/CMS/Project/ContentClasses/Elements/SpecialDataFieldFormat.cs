@@ -22,6 +22,34 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     [EnumConversionHelper]
     public static class SpecialDataFieldFormatUtils
     {
+        public static void EnsureValueIsSupportedByServerVersion(IProjectObject obj, SpecialDataFieldFormat value)
+        {
+            var serverVersion = obj.Session.ServerVersion;
+            switch (value)
+            {
+                case SpecialDataFieldFormat.DefaultUserDefined:
+                case SpecialDataFieldFormat.DefaultHTML:
+                case SpecialDataFieldFormat.DefaultImage:
+                    return;
+                case SpecialDataFieldFormat.TextUserDefined:
+                case SpecialDataFieldFormat.DateUserDefined:
+                case SpecialDataFieldFormat.CurrencyUserDefined:
+                    var version = new Version(11, 0);
+                    if (serverVersion < version)
+                    {
+                        throw new SmartAPIException(obj.Session.ServerLogin,
+                                                    string.Format(
+                                                        "Cannot set {0} to value {1} for server versions older than {2}",
+                                                        RedDotAttributeDescription.GetDescriptionForElement(
+                                                            "eltcolumniotype"), value.ToString(), version));
+                    }
+                    return;
+                default:
+                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
+                                                              typeof (SpecialDataFieldFormat).Name, value));
+            }
+        }
+
         public static string ToRQLString(this SpecialDataFieldFormat value)
         {
             switch (value)
@@ -68,30 +96,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 default:
                     throw new ArgumentException(string.Format("Cannot convert string value {1} to {0}",
                                                               typeof (SpecialDataFieldFormat).Name, value));
-            }
-        }
-
-        public static void EnsureValueIsSupportedByServerVersion(IProjectObject obj, SpecialDataFieldFormat value)
-        {
-            var serverVersion = obj.Session.ServerVersion;
-            switch (value)
-            {
-                case SpecialDataFieldFormat.DefaultUserDefined:
-                case SpecialDataFieldFormat.DefaultHTML:
-                case SpecialDataFieldFormat.DefaultImage:
-                    return;
-                case SpecialDataFieldFormat.TextUserDefined:
-                case SpecialDataFieldFormat.DateUserDefined:
-                case SpecialDataFieldFormat.CurrencyUserDefined:
-                    var version = new Version(11, 0);
-                    if (serverVersion < version)
-                    {
-                        throw new SmartAPIException(obj.Session.ServerLogin, string.Format("Cannot set {0} to value {1} for server versions older than {2}", RedDotAttributeDescription.GetDescriptionForElement("eltcolumniotype"), value.ToString(), version));
-                    }
-                    return;
-                default:
-                    throw new ArgumentException(string.Format("Unknown {0} value: {1}",
-                                                              typeof(SpecialDataFieldFormat).Name, value));
             }
         }
     }

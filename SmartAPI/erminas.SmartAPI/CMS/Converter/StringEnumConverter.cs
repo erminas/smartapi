@@ -25,7 +25,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Converter
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class EnumConversionHelperAttribute : Attribute
+    internal class EnumConversionHelperAttribute : Attribute
     {
     }
 
@@ -103,7 +103,7 @@ namespace erminas.SmartAPI.CMS.Converter
         }
     }
 
-    public class StringEnumConverter<T> : IAttributeConverter<T> where T : struct, IConvertible
+    internal class StringEnumConverter<T> : IAttributeConverter<T> where T : struct, IConvertible
     {
         public T ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -113,9 +113,9 @@ namespace erminas.SmartAPI.CMS.Converter
 
         public bool IsReadOnly { get; set; }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper writeElement, RedDotAttribute attribute, T value)
         {
-            element.SetAttributeValue(attribute.ElementName, StringEnumConversionRegistry.ConvertToRQLString(value));
+            writeElement.SetAttributeValue(attribute.ElementName, StringEnumConversionRegistry.ConvertToRQLString(value));
         }
     }
 }

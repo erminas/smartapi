@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class InfoElementConverter : IAttributeConverter<IInfoAttribute>
+    internal class InfoElementConverter : IAttributeConverter<IInfoAttribute>
     {
         public IInfoAttribute ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -39,7 +39,8 @@ namespace erminas.SmartAPI.CMS.Converter
 
         public bool IsReadOnly { get; set; }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, IInfoAttribute value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
+                            IInfoAttribute value)
         {
             if (parent == null)
             {

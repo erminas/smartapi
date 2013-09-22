@@ -116,8 +116,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                         new ContentClass(Element.ContentClass.Project, curContentClass.GetGuid())
                             {
                                 Name = curContentClass.GetName(),
-                                Description = curContentClass.GetAttributeValue("description")
-                            }).ToList();
+                                DescriptionInCurrentDisplayLanguage = curContentClass.GetAttributeValue("description")
+                            })
+                .ToList();
         }
 
         private List<IPageDefinition> ExtractPageDefinitions(XmlNodeList pageDefinitions)

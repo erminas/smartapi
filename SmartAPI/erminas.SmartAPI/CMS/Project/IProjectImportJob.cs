@@ -18,6 +18,7 @@ using System.Linq;
 using System.Security;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -49,14 +50,14 @@ namespace erminas.SmartAPI.CMS.Project
     {
         private readonly string _newProjectName;
 
-        internal ProjectImportJob(Session session, string newProjectName, string importFolder) : base(session)
+        internal ProjectImportJob(ISession session, string newProjectName, string importFolder) : base(session)
         {
             _newProjectName = newProjectName;
             ProjectType = NewProjectType.TestProject;
-            DatabaseServer = Session.DatabaseServers.First();
+            DatabaseServer = Session.ServerManager.DatabaseServers.First();
             DatabaseName = _newProjectName;
             ImportFolder = importFolder;
-            ImportServer = Session.ApplicationServers.First();
+            ImportServer = Session.ServerManager.ApplicationServers.First();
             EmailSubject = "Project import completed";
             EmailMessage = "Project import completed";
         }
@@ -95,11 +96,11 @@ namespace erminas.SmartAPI.CMS.Project
 
             Func<bool> hasImportProcessOrProjectIsAlreadyImported =
                 () =>
-                hasImportProcess(Session.AsynchronousProcesses.Refreshed()) ||
-                Session.Projects.Refreshed().ContainsName(ProjectName);
+                hasImportProcess(Session.ServerManager.AsynchronousProcesses.Refreshed()) ||
+                Session.ServerManager.Projects.Refreshed().ContainsName(ProjectName);
             Wait.For(hasImportProcessOrProjectIsAlreadyImported, maxWait, retryEverySecond);
 
-            if (Session.Projects.ContainsName(ProjectName))
+            if (Session.ServerManager.Projects.ContainsName(ProjectName))
             {
                 return;
             }
@@ -107,7 +108,8 @@ namespace erminas.SmartAPI.CMS.Project
             TimeSpan timeLeft = maxWait - (DateTime.Now - start);
             timeLeft = timeLeft.TotalMilliseconds > 0 ? timeLeft : new TimeSpan(0, 0, 0);
 
-            Session.AsynchronousProcesses.WaitFor(list => !hasImportProcess(list), timeLeft, retryEverySecond);
+            Session.ServerManager.AsynchronousProcesses.WaitFor(list => !hasImportProcess(list), timeLeft,
+                                                                retryEverySecond);
         }
 
         public UserGroupAndAssignments UserGroupAndAssignmentsSettings { get; set; }

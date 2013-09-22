@@ -23,7 +23,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class SrcFileConverter : IAttributeConverter<IFile>
+    internal class SrcFileConverter : IAttributeConverter<IFile>
     {
         private const string ELTSRC = "eltsrc";
         private const string ELTFOLDERGUID = "eltfolderguid";
@@ -53,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Converter
             get { return false; }
         }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, IFile value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute, IFile value)
         {
             if (parent == null)
             {
@@ -68,7 +68,7 @@ namespace erminas.SmartAPI.CMS.Converter
 
             if (ConverterHelper.AreFromTheSameProject(parent, value))
             {
-                SetFromSameProject(element, value);
+                SetFromSameProject(parent, element, value);
             }
             else
             {
@@ -84,7 +84,7 @@ namespace erminas.SmartAPI.CMS.Converter
             }
         }
 
-        private static void ClearFile(XmlElement element)
+        private static void ClearFile(IXmlReadWriteWrapper element)
         {
             element.SetAttributeValue(ELTSRCSUBDIRGUID, null);
             element.SetAttributeValue(ELTSRC, null);
@@ -114,7 +114,8 @@ namespace erminas.SmartAPI.CMS.Converter
             return ownTopLevelFolder;
         }
 
-        private static void SetFilename(IProjectObject parent, IFile value, IFolder ownFolder)
+        private static void SetFilename(IProjectObject parent, IFile value, IFolder ownFolder,
+                                        IXmlReadWriteWrapper writeElement)
         {
             var ownFile = ownFolder.Files.GetByNamePattern(value.Name).SingleOrDefault();
             if (ownFile == null)
@@ -123,16 +124,18 @@ namespace erminas.SmartAPI.CMS.Converter
                                             string.Format("No file with name {0} found in folder {1} of project {2}",
                                                           value.Name, ownFolder.Name, parent.Project));
             }
+
+            writeElement.SetAttributeValue(ELTSRC, ownFile.Name);
         }
 
-        private static void SetFromSameProject(XmlElement element, IFile value)
+        private static void SetFromSameProject(IProjectObject parent, IXmlReadWriteWrapper element, IFile value)
         {
             var folderGuid = element.GetGuid(ELTFOLDERGUID);
 
             var topLevelFolder = value.Folder;
             if (value.Folder.IsAssetManager)
             {
-                var assetFolder = (IAssetManagerFolder)value.Folder;
+                var assetFolder = (IAssetManagerFolder) value.Folder;
                 if (assetFolder.IsSubFolder)
                 {
                     topLevelFolder = assetFolder.ParentFolder;
@@ -140,7 +143,11 @@ namespace erminas.SmartAPI.CMS.Converter
             }
             if (topLevelFolder.Guid != folderGuid)
             {
-                element.SetAttributeValue(ELTFOLDERGUID, topLevelFolder.Guid.ToRQLString());
+                throw new SmartAPIException(parent.Session.ServerLogin,
+                                            string.Format(
+                                                "Cannot set src file '{0}', because it isn't in the current folder branch '{1}/'",
+                                                value, parent.Project.Folders.GetByGuid(folderGuid).Name));
+                //element.SetAttributeValue(ELTFOLDERGUID, topLevelFolder.Guid.ToRQLString());
             }
 //TODO at least cms 7.5 stores undefined as value, maybe "" is allowed, too, try this out
             element.SetAttributeValue(ELTSRCSUBDIRGUID,
@@ -149,7 +156,8 @@ namespace erminas.SmartAPI.CMS.Converter
             element.SetAttributeValue(ELTSRC, value.Name);
         }
 
-        private static void SetValuesFromAssetManagerFolder(IProjectObject parent, XmlElement element, IFile value)
+        private static void SetValuesFromAssetManagerFolder(IProjectObject parent, IXmlReadWriteWrapper element,
+                                                            IFile value)
         {
             var assetFolder = (IAssetManagerFolder) value.Folder;
             var ownFolder = GetTopLevelFolder(parent, assetFolder);
@@ -164,22 +172,22 @@ namespace erminas.SmartAPI.CMS.Converter
             }
         }
 
-        private static void SetValuesFromSubFolder(IProjectObject parent, XmlElement element, IFile value,
+        private static void SetValuesFromSubFolder(IProjectObject parent, IXmlReadWriteWrapper writeElement, IFile value,
                                                    IAssetManagerFolder ownFolder)
         {
             ownFolder = ownFolder.SubFolders.GetByName(value.Folder.Name);
-            element.SetAttributeValue(ELTSRCSUBDIRGUID, ownFolder.Guid.ToRQLString());
-            SetFilename(parent, value, ownFolder);
+            writeElement.SetAttributeValue(ELTSRCSUBDIRGUID, ownFolder.Guid.ToRQLString());
+            SetFilename(parent, value, ownFolder, writeElement);
         }
 
-        private static void SetValuesFromTopLevelFolder(IProjectObject parent, XmlElement element, IFile value,
+        private static void SetValuesFromTopLevelFolder(IProjectObject parent, IXmlReadWriteWrapper element, IFile value,
                                                         IFolder ownFolder)
         {
             var folderGuid = element.GetGuid(ELTFOLDERGUID);
             element.SetAttributeValue(ELTSRCSUBDIRGUID,
                                       ownFolder.Guid == folderGuid ? "undefined" : ownFolder.Guid.ToRQLString());
 
-            SetFilename(parent, value, ownFolder);
+            SetFilename(parent, value, ownFolder, element);
         }
     }
 }

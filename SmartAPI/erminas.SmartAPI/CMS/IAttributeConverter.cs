@@ -18,14 +18,14 @@ using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.CMS
 {
-    public interface IAttributeConvertBase
+    internal interface IAttributeConvertBase
     {
         bool IsReadOnly { get; }
     }
 
-    public interface IAttributeConverter<T> : IAttributeConvertBase
+    internal interface IAttributeConverter<T> : IAttributeConvertBase
     {
         T ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute);
-        void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value);
+        void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute, T value);
     }
 }

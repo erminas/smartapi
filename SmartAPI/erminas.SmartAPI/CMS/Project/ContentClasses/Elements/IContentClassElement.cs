@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IContentClassElement : IWorkflowAssignable, ILanguageDependentXmlBasedObject
+    public interface IContentClassElement : IWorkflowAssignable, IPartialRedDotProjectObject
     {
         /// <summary>
         ///     Element category of the lement
@@ -60,11 +60,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         IContentClassElement CopyToContentClass(IContentClass contentClass);
 
         /// <summary>
-        ///     Language variant of the element.
-        /// </summary>
-        ILanguageVariant LanguageVariant { get; }
-
-        /// <summary>
         ///     TypeId of the element.
         /// </summary>
         ElementType Type { get; }
@@ -78,9 +73,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     /// </remarks>
     internal abstract class ContentClassElement : LanguageDependentPartialRedDotProjectObject, IContentClassElement
     {
-        private const string LANGUAGEVARIANTID = "languagevariantid";
-        private ILanguageVariant _languageVariant;
-
         protected ContentClassElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
         {
@@ -107,9 +99,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             //RQL for committing changes
             //One parameter: xml representation of the element, containing an attribute "action" with value "save"
             const string COMMIT_ELEMENT = "<TEMPLATE><ELEMENTS>{0}</ELEMENTS></TEMPLATE>";
-            var node = (XmlElement) XmlElement.Clone();
+
             using (new LanguageContext(Project.LanguageVariants[abbreviation]))
             {
+                var node = GetElementForLanguage(abbreviation).MergedElement;
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
                                                     RqlType.SessionKeyInProject);
@@ -185,19 +178,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             newContentClassElement.Guid = resultElementNode.GetGuid();
 
             return newContentClassElement;
-        }
-
-        /// <summary>
-        ///     Language variant of the element (a separate instance exists for every language variant on the server).
-        /// </summary>
-        public ILanguageVariant LanguageVariant
-        {
-            get
-            {
-                return _languageVariant ??
-                       (_languageVariant =
-                        ContentClass.Project.LanguageVariants[XmlElement.GetAttributeValue(LANGUAGEVARIANTID)]);
-            }
         }
 
         //public new string Name { get { return base.Name; } set { base.Name = value; } }

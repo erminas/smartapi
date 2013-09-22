@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -21,23 +22,18 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    public interface IContentClassEditableAreaSettings : IProjectObject, IXmlBasedObject, ICached
+    public interface IContentClassEditableAreaSettings : IProjectObject, ICached
     {
-        
         string BorderColor { get; set; }
 
-        
         string BorderStyle { get; set; }
 
-        
         string BorderWidth { get; set; }
 
         void Commit();
 
-        
         bool IsUsingBorderDefinitionFromProjectSetting { get; set; }
 
-        
         bool IsUsingBordersToHighlightPages { get; set; }
     }
 
@@ -52,29 +48,45 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             _parent = parent;
         }
+
         [RedDot("bordercolor")]
         public string BorderColor
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("borderstyle")]
         public string BorderStyle
         {
-            get { return GetAttributeValue<string>(); }
+            get
+            {
+                EnsureInitialization();
+                return GetAttributeValue<string>();
+            }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("borderwidth")]
         public string BorderWidth
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get
+            {
+                EnsureInitialization();
+                return GetAttributeValue<string>();
+            }
+            set
+            {
+                EnsureInitialization();
+                SetAttributeValue(value);
+            }
         }
 
         public void Commit()
         {
+            EnsureInitialization();
             const string SAVE_CC_SETTINGS = @"<TEMPLATE guid=""{0}"">{1}</TEMPLATE>";
-            var query = SAVE_CC_SETTINGS.RQLFormat(_parent, RedDotObject.GetSaveString((XmlElement) XmlElement.Clone()));
+            var query = SAVE_CC_SETTINGS.RQLFormat(_parent, RedDotObject.GetSaveString(_readWriteWrapper.MergedElement));
 
             var result = _parent.Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
 
@@ -89,12 +101,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             XmlElement = null;
         }
+
         [RedDot("usedefaultrangesettings")]
         public bool IsUsingBorderDefinitionFromProjectSetting
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("showpagerange")]
         public bool IsUsingBordersToHighlightPages
         {
@@ -117,6 +131,26 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             get { return base.XmlElement ?? (XmlElement = RetrieveWholeObject()); }
             protected internal set { base.XmlElement = value; }
+        }
+
+        protected override T GetAttributeValue<T>([CallerMemberName] string callerName = "")
+        {
+            EnsureInitialization();
+            return base.GetAttributeValue<T>(callerName);
+        }
+
+        protected override void SetAttributeValue<T>(T value, [CallerMemberName] string callerName = "")
+        {
+            EnsureInitialization();
+            base.SetAttributeValue(value, callerName);
+        }
+
+        private void EnsureInitialization()
+        {
+            if (_readWriteWrapper == null)
+            {
+                Refresh();
+            }
         }
 
         private XmlElement RetrieveWholeObject()

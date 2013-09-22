@@ -24,9 +24,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         new void CommitInLanguage(string languageAbbreviation);
 
-        string Description { get; set; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
 
-        string ExampleText { get; set; }
+        ILanguageDependentValue<string> ExampleText { get; }
 
         HtmlTarget HtmlTarget { get; set; }
 
@@ -77,17 +77,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltrddescription")]
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
 
         [RedDot("eltrdexample")]
-        public string ExampleText
+        public ILanguageDependentValue<string> ExampleText
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
         [RedDot("elttarget", ConverterType = typeof (StringEnumConverter<HtmlTarget>))]

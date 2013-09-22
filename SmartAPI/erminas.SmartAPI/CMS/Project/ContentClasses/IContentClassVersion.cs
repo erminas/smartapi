@@ -16,6 +16,7 @@
 using System;
 using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.Folder;
+using erminas.SmartAPI.CMS.ServerManagement;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
@@ -32,7 +33,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Description text
         /// </summary>
-        string Description { get; }
+        string DescriptionInCurrentDisplayLanguage { get; }
 
         IContentClassFolder Folder { get; }
         IUser User { get; }

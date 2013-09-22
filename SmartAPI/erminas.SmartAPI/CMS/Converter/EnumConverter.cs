@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class EnumConverter<T> : IAttributeConverter<T> where T : struct, IConvertible
+    internal class EnumConverter<T> : IAttributeConverter<T> where T : struct, IConvertible
     {
         public T ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -41,11 +41,15 @@ namespace erminas.SmartAPI.CMS.Converter
             return (T) Enum.Parse(typeof (T), strValue, IGNORE_CASE);
         }
 
-        public bool IsReadOnly { get; set; }
-
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, T value)
+        public bool IsReadOnly
         {
-            element.SetAttributeValue(attribute.ElementName, value.ToInt32(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture));
+            get { return false; }
+        }
+
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute, T value)
+        {
+            element.SetAttributeValue(attribute.ElementName,
+                                      value.ToInt32(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture));
         }
     }
 }

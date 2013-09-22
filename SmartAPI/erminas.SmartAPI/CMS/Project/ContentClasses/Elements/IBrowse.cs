@@ -38,17 +38,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Appearance Appearance { get; set; }
         string Border { get; set; }
         string DefaultValue { get; set; }
-        string Description { get; set; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
         Direction Direction { get; set; }
+        IFolder Folder { get; set; }
         string HSpace { get; set; }
         string Height { get; set; }
         bool IsAltPreassignedAutomatically { get; set; }
         bool IsLanguageIndependent { get; set; }
         bool IsOnlyPathAndFilenameInserted { get; set; }
         bool IsSyntaxConformingToXHtml { get; set; }
-        IFolder Folder { get; set; }
-        IFile SampleImage { get; set; }
-        IFile SrcFile { get; set; }
+        ILanguageDependentValue<IFile> SampleImage { get; }
+        ILanguageDependentValue<IFile> SrcFile { get; }
         string Supplement { get; set; }
         string Usemap { get; set; }
         string VSpace { get; set; }
@@ -102,7 +102,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltrddescription")]
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
@@ -165,17 +165,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("__examplefile", ConverterType = typeof (ExampleFileConverter), DependsOn = "eltfolderguid")]
-        public IFile SampleImage
+        public ILanguageDependentValue<IFile> SampleImage
         {
-            get { return GetAttributeValue<IFile>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
         [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
-        public IFile SrcFile
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get { return GetAttributeValue<IFile>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
         [RedDot("eltsupplement")]

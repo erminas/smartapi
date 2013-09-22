@@ -69,6 +69,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             _workflowAssignments.InvalidateCache();
         }
 
+        public override void Refresh()
+        {
+            InvalidateCache();
+            base.Refresh();
+        }
+
         public void SetContentWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants)
         {
             _workflowAssignments.SetContentWorkflow(workflow, languageVariants);

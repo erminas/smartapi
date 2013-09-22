@@ -19,7 +19,7 @@ using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class LanguageVariantConverter : AbstractGuidElementConverter<ILanguageVariant>
+    internal class LanguageVariantConverter : AbstractGuidElementConverter<ILanguageVariant>
     {
         protected override ILanguageVariant GetFromGuid(IProjectObject parent, XmlElement element,
                                                         RedDotAttribute attribute, Guid guid)
@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Converter
             return parent.Project.LanguageVariants.GetByGuid(guid);
         }
 
-        protected override ILanguageVariant GetFromName(IProjectObject parent, XmlElement element,
+        protected override ILanguageVariant GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
                                                         RedDotAttribute attribute, ILanguageVariant value)
         {
             return parent.Project.LanguageVariants.GetByName(value.Name);

@@ -20,14 +20,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardField : IExtendedContentClassContentElement
     {
-        
         IContentClassElement ChildElementOf { get; set; }
 
-        
-        string DefaultValue { get; set; }
+        ILanguageDependentValue<string> DefaultValue { get; }
 
-        
-        string Sample { get; set; }
+        ILanguageDependentValue<string> Sample { get; }
     }
 
     internal class StandardField : ExtendedContentClassContentElement, IStandardField
@@ -35,23 +32,24 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         protected StandardField(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
         }
-        [RedDot("eltparentelementguid", ConverterType = typeof(ContentClassElementConverter))]
+
+        [RedDot("eltparentelementguid", ConverterType = typeof (ContentClassElementConverter))]
         public IContentClassElement ChildElementOf
         {
             get { return GetAttributeValue<IContentClassElement>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltdefaultvalue")]
-        public string DefaultValue
+        public ILanguageDependentValue<string> DefaultValue
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
+
         [RedDot("eltrdexample")]
-        public string Sample
+        public ILanguageDependentValue<string> Sample
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
     }
 }

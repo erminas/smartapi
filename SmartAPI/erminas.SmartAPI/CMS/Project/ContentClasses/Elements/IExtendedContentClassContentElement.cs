@@ -19,7 +19,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IExtendedContentClassContentElement : IContentClassContentElement
     {
-        string Description { get; set; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
 
         string EndTagForAutomaticProcessing { get; set; }
 
@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltrddescription")]
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }

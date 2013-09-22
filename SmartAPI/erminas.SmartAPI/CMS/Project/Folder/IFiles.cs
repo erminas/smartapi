@@ -105,8 +105,9 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             {
                 return;
             }
-            
-            var files = string.Join(string.Empty, filenameList.Select(s => GetSingleFilenameTemplate().SecureRQLFormat(s)));
+
+            var files = string.Join(string.Empty,
+                                    filenameList.Select(s => GetSingleFilenameTemplate().SecureRQLFormat(s)));
             var deleteFiles = GetDeleteFilesStatement(files);
 
             var xmlDoc = Project.ExecuteRQL(deleteFiles);
@@ -119,10 +120,9 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             }
         }
 
-        protected virtual string GetSingleFilenameTemplate()
+        public ISession Session
         {
-            const string SINGLE_FILE = @"<FILE sourcename=""{0}"" currendirectory="""" checkfolder=""1""/>";
-            return SINGLE_FILE;
+            get { return Folder.Session; }
         }
 
         protected virtual string GetDeleteFilesStatement(string files)
@@ -131,10 +131,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                 @"<MEDIA><FOLDER guid=""{0}""><FILES action=""deletefiles"">{1}</FILES></FOLDER></MEDIA>";
             return DELETE_FILES.RQLFormat(Folder, files);
         }
-        
-        public ISession Session
+
+        protected virtual string GetSingleFilenameTemplate()
         {
-            get { return Folder.Session; }
+            const string SINGLE_FILE = @"<FILE sourcename=""{0}"" currendirectory="""" checkfolder=""1""/>";
+            return SINGLE_FILE;
         }
 
         protected List<IFile> RetrieveFiles(string rqlString)

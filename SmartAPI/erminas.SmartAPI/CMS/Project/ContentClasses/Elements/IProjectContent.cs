@@ -26,6 +26,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         bool IsReferenceField { get; set; }
 
+        ILanguageDependentValue<ILanguageVariant> LanguageVariantOfReferencedElement { get; }
+
         IContentClassElement ReferencedElement { get; set; }
     }
 
@@ -59,6 +61,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltlanguagevariantid", ConverterType = typeof (LanguageVariantConverter))]
+        public ILanguageDependentValue<ILanguageVariant> LanguageVariantOfReferencedElement
+        {
+            get { return GetAttributeValue<ILanguageDependentValue<ILanguageVariant>>(); }
         }
 
         [RedDot("__elementreference", ConverterType = typeof (ElementReferenceConverter))]

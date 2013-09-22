@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration.Language;
 using erminas.SmartAPI.CMS.Converter;
@@ -21,16 +23,35 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldTime : IStandardFieldNonDate
     {
-        bool IsUserDefinedTimeFormat { get; }
+        bool IsUserDefinedTimeFormat(string languageAbbreviation);
 
-        
-        ISystemLocale Locale { get; set; }
+        ILanguageDependentValue<ISystemLocale> Locale { get; }
 
-        
-        IDateTimeFormat TimeFormat { get; set; }
+        ILanguageDependentValue<IDateTimeFormat> TimeFormat { get; }
 
-        
-        string UserDefinedTimeFormat { get; set; }
+        ILanguageDependentValue<string> UserDefinedTimeFormat { get; }
+    }
+
+    internal class LanguageDependendTimeFormat : LanguageDependentValue<IDateTimeFormat>
+    {
+        public LanguageDependendTimeFormat(IPartialRedDotProjectObject parent, RedDotAttribute attribute)
+            : base(parent, attribute)
+        {
+        }
+
+        public override IDateTimeFormat this[string languageAbbreviation]
+        {
+            get { return base[languageAbbreviation] ?? DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
+            set
+            {
+                if (!value.IsTimeFormat)
+                {
+                    throw new ArgumentException(string.Format(
+                        "DateTimeFormat {1} with type id {0} is not a time format", value.TypeId, value.Name));
+                }
+                base[languageAbbreviation] = value;
+            }
+        }
     }
 
     internal class StandardFieldTime : StandardFieldNonDate, IStandardFieldTime
@@ -39,27 +60,33 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
         }
 
-        public bool IsUserDefinedTimeFormat
+        public bool IsUserDefinedTimeFormat(string languageAbbreviation)
         {
-            get { return TimeFormat == DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
+            return TimeFormat[languageAbbreviation] == DateTimeFormat.USER_DEFINED_TIME_FORMAT;
         }
-        [RedDot("eltlcid", ConverterType = typeof(LocaleConverter))]
-        public ISystemLocale Locale
+
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
+        public ILanguageDependentValue<ISystemLocale> Locale
         {
-            get { return GetAttributeValue<ISystemLocale>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<ISystemLocale>>(); }
         }
-        [RedDot("eltformatno", ConverterType = typeof(DateTimeFormatConverter))]
-        public IDateTimeFormat TimeFormat
+
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
+        public ILanguageDependentValue<IDateTimeFormat> TimeFormat
         {
-            get { return GetAttributeValue<IDateTimeFormat>() ?? DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
-            set { SetAttributeValue(value); }
+            get
+            {
+                var redDotAttribute =
+                    (RedDotAttribute)
+                    GetType().GetProperty("TimeFormat").GetCustomAttributes(typeof (RedDotAttribute), false).Single();
+                return new LanguageDependendTimeFormat(this, redDotAttribute);
+            }
         }
+
         [RedDot("eltformatting")]
-        public string UserDefinedTimeFormat
+        public ILanguageDependentValue<string> UserDefinedTimeFormat
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
     }
 }

@@ -79,35 +79,36 @@ namespace erminas.SmartAPI.CMS.Project
         {
             Name = name;
         }
-        public string Name { get; set; }
-        public string Description { get; set; }
+
         public bool AreAttributesMandatory { get; set; }
-        public bool IsPublishingPersonalizationAttributes { get; set; }
+        public string Description { get; set; }
         public bool IsFolderNotAvailableInEditor { get; set; }
-        public IPublicationFolder PublicationFolder { get; set; }
+        public bool IsPublishingPersonalizationAttributes { get; set; }
         public int MaximumNumberOfAssetsDisplayed { get; set; }
+        public string Name { get; set; }
+        public IPublicationFolder PublicationFolder { get; set; }
     }
 
     public class DatabaseAssetFolderConfiguration : AssetFolderConfiguration
     {
-        public DatabaseAssetFolderConfiguration(string name)
-            : base(name)
+        public DatabaseAssetFolderConfiguration(string name) : base(name)
         {
         }
     }
 
     public class FileAssetFolderConfiguration : AssetFolderConfiguration
     {
-        public string Path { get; set; }
-        public bool IsVersioningActive { get; set; }
-        public FileAssetFolderConfiguration(string folderName, string path)
-            : base(folderName)
+        public FileAssetFolderConfiguration(string folderName, string path) : base(folderName)
         {
             Path = path;
         }
+
+        public bool IsTransmittingCredentials { get; set; }
+        public bool IsVersioningActive { get; set; }
+        public string Path { get; set; }
+
         public string UserName { get; set; }
         public string UserPassword { get; set; }
-        public bool IsTransmittingCredentials { get; set; }
     }
 
     internal class Folders : NameIndexedRDList<IFolder>, IFolders
@@ -142,7 +143,11 @@ namespace erminas.SmartAPI.CMS.Project
             const string CREATE_FOLDER =
                 @"<PROJECT><FOLDER shared=""0"" name=""{0}"" description=""{1}"" foldertype=""0"" catalog=""1"" savetype=""0"" action=""addnew"" webfolder=""{2}"" exportfolder="""" obligatoryattributes=""{3}"" personalization=""{4}"" maxlistcount=""{5}"" hideintexteditor=""{6}""></FOLDER></PROJECT>";
 
-            Project.ExecuteRQL(CREATE_FOLDER.SecureRQLFormat(config.Name, config.Description, config.PublicationFolder, config.AreAttributesMandatory, config.IsPublishingPersonalizationAttributes, config.MaximumNumberOfAssetsDisplayed, config.IsFolderNotAvailableInEditor));
+            Project.ExecuteRQL(CREATE_FOLDER.SecureRQLFormat(config.Name, config.Description, config.PublicationFolder,
+                                                             config.AreAttributesMandatory,
+                                                             config.IsPublishingPersonalizationAttributes,
+                                                             config.MaximumNumberOfAssetsDisplayed,
+                                                             config.IsFolderNotAvailableInEditor));
         }
 
         public IFolder GetByGuidIncludingSubFolders(Guid folderGuid)

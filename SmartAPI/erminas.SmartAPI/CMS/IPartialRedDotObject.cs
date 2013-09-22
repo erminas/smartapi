@@ -33,10 +33,11 @@ namespace erminas.SmartAPI.CMS
     {
     }
 
-    public interface ILanguageDependentPartialRedDotObject : IPartialRedDotProjectObject,
-                                                             ILanguageDependentXmlBasedObject
-    {
-    }
+    //public interface ILanguageDependentPartialRedDotObject : IPartialRedDotProjectObject,
+    //                                                         ILanguageDependentXmlBasedObject
+    //{
+
+    //}
 
     /// <summary>
     ///     Base class for all RedDotObject that can be initialized with a guid only and then retrieve other information on demand.
@@ -153,7 +154,11 @@ namespace erminas.SmartAPI.CMS
                 EnsureInitialization();
                 return base.XmlElement;
             }
-            protected internal set { base.XmlElement = value; }
+            protected internal set
+            {
+                base.XmlElement = value;
+                _readWriteWrapper = new XmlReadWriteWrapper(_xmlElement, new Dictionary<string, string>());
+            }
         }
 
         protected override sealed T GetAttributeValue<T>([CallerMemberName] string callerName = "")
@@ -176,12 +181,18 @@ namespace erminas.SmartAPI.CMS
     }
 
     internal abstract class LanguageDependentPartialRedDotProjectObject : PartialRedDotProjectObject,
-                                                                          ILanguageDependentPartialRedDotObject
+                                                                          ILanguageDependentXmlBasedObject
     {
-        protected readonly Dictionary<string, object> _languageDependendValues = new Dictionary<string, object>();
+        //protected readonly Dictionary<string, object> _languageDependendValues = new Dictionary<string, object>();
 
-        private readonly Dictionary<string, XmlElement> _languageDependentXmlElements =
-            new Dictionary<string, XmlElement>();
+        //private readonly Dictionary<string, XmlElement> _languageDependentWriteXmlElements =
+        //    new Dictionary<string, XmlElement>();
+
+        //private readonly Dictionary<string, XmlElement> _languageDependentXmlElements =
+        //    new Dictionary<string, XmlElement>();
+
+        private readonly Dictionary<string, XmlReadWriteWrapper> _languageDepdentXmlElements =
+            new Dictionary<string, XmlReadWriteWrapper>();
 
         protected LanguageDependentPartialRedDotProjectObject(IProject project, XmlElement xmlElement)
             : base(project, xmlElement)
@@ -196,44 +207,45 @@ namespace erminas.SmartAPI.CMS
         {
         }
 
-        public XmlElement GetXmlElementForLanguage(string languageAbbreviation)
+        public IXmlReadWriteWrapper GetElementForLanguage(string languageAbbreviation)
         {
-            return _languageDependentXmlElements.GetOrAdd(languageAbbreviation, () =>
+            var element = _languageDepdentXmlElements.GetOrAdd(languageAbbreviation, () =>
                 {
                     using (new LanguageContext(Project.LanguageVariants[languageAbbreviation]))
                     {
-                        return (XmlElement) RetrieveWholeObject().Clone();
+                        var read = (XmlElement) RetrieveWholeObject().Clone();
+                        return new XmlReadWriteWrapper(read, _readWriteWrapper.WrittenValues);
                     }
                 });
+
+            return element;
         }
 
         public override void Refresh()
         {
-            _languageDependentXmlElements.Clear();
+            _languageDepdentXmlElements.Clear();
             base.Refresh();
         }
 
-        public XmlElement XmlElementForCurrentLanguage
-        {
-            get { return GetXmlElementForLanguage(Project.LanguageVariants.Current.Abbreviation); }
-        }
+        //public XmlElement XmlElementForCurrentLanguage
+        //{
+        //    get { return GetXmlElementForLanguage(Project.LanguageVariants.Current.Abbreviation); }
+        //}
 
-        public XmlElement XmlElementForMainLanguage
-        {
-            get { return GetXmlElementForLanguage(Project.LanguageVariants.Main.Abbreviation); }
-        }
+        //public XmlElement XmlElementForMainLanguage
+        //{
+        //    get { return GetXmlElementForLanguage(Project.LanguageVariants.Main.Abbreviation); }
+        //}
 
-        protected LanguageDependentValue<T> GetLanguageDependentValue<T>([CallerMemberName] string callerName = "")
-        {
-            return
-                (LanguageDependentValue<T>)
-                _languageDependendValues.GetOrAdd(callerName, () => CreateLanguageDependentValue<T>(callerName));
-        }
+        //private static XmlElement GetWriteMergedIntoRead(XmlElement writeElement, XmlElement readElement)
+        //{
+        //    var mergedElement = (XmlElement) readElement.Clone();
+        //    foreach (XmlAttribute curAttribute in writeElement.Attributes)
+        //    {
+        //        mergedElement.SetAttributeValue(curAttribute.Name, curAttribute.Value);
+        //    }
 
-        private object CreateLanguageDependentValue<T>(string callerName)
-        {
-            var attribute = GetRedDotAttributeOfCallerMember(callerName);
-            return new LanguageDependentValue<T>(this, attribute);
-        }
+        //    return mergedElement;
+        //}
     }
 }

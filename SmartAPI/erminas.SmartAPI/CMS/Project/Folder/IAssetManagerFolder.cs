@@ -39,6 +39,20 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             Files = new AssetManagerFiles(this, Caching.Enabled);
         }
 
+        public void CreateSubfolder(string name, string description, string filesystemDirectoryName)
+        {
+            if (ParentFolder != null)
+            {
+                throw new SmartAPIException(Session.ServerLogin,
+                                            string.Format("Can not create subfolder in another subfolder ({0}).", this));
+            }
+
+            const string CREATE_SUBFOLDER =
+                @"<FOLDER guid=""{0}""><SUBFOLDER action=""addnew"" name=""{1}"" dirname=""{2}"" description=""{3}"" /></FOLDER>";
+
+            Project.ExecuteRQL(CREATE_SUBFOLDER.SecureRQLFormat(this, name, filesystemDirectoryName, description));
+        }
+
         public new IAssetManagerFiles Files
         {
             get { return (IAssetManagerFiles) base.Files; }
@@ -48,6 +62,16 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         public override bool IsAssetManager
         {
             get { return true; }
+        }
+
+        public bool IsDatabaseFolder
+        {
+            get { return StorageType == AssetManagerFolderStorageType.Database; }
+        }
+
+        public bool IsFileSystemFolder
+        {
+            get { return StorageType == AssetManagerFolderStorageType.FileSystem; }
         }
 
         public bool IsSubFolder
@@ -60,23 +84,12 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             get { return _parentFolder; }
         }
 
-        public ISubFolders SubFolders { get; private set; }
-        public void CreateSubfolder(string name, string description, string filesystemDirectoryName)
+        public AssetManagerFolderStorageType StorageType
         {
-            if (ParentFolder != null)
-            {
-                throw new SmartAPIException(Session.ServerLogin, string.Format("Can not create subfolder in another subfolder ({0}).", this));
-            }
-
-            const string CREATE_SUBFOLDER =
-                @"<FOLDER guid=""{0}""><SUBFOLDER action=""addnew"" name=""{1}"" dirname=""{2}"" description=""{3}"" /></FOLDER>";
-
-            Project.ExecuteRQL(CREATE_SUBFOLDER.SecureRQLFormat(this, name, filesystemDirectoryName, description));
+            get { return (AssetManagerFolderStorageType) XmlElement.GetIntAttributeValue("savetype").GetValueOrDefault(); }
         }
 
-        public bool IsDatabaseFolder { get { return StorageType == AssetManagerFolderStorageType.Database; } }
-        public bool IsFileSystemFolder { get { return StorageType == AssetManagerFolderStorageType.FileSystem; } }
-        public AssetManagerFolderStorageType StorageType { get { return (AssetManagerFolderStorageType) XmlElement.GetIntAttributeValue("savetype").GetValueOrDefault(); } }
+        public ISubFolders SubFolders { get; private set; }
 
         public override FolderType Type
         {
@@ -86,19 +99,19 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
     public enum AssetManagerFolderStorageType
     {
-        Database=0, FileSystem=2
+        Database = 0,
+        FileSystem = 2
     }
 
     public interface IAssetManagerFolder : IFolder
     {
-        new IAssetManagerFiles Files { get; }
-
-        bool IsSubFolder { get; }
-        IAssetManagerFolder ParentFolder { get; }
-        ISubFolders SubFolders { get; }
         void CreateSubfolder(string name, string description, string filesystemDirectoryName);
+        new IAssetManagerFiles Files { get; }
         bool IsDatabaseFolder { get; }
         bool IsFileSystemFolder { get; }
+        bool IsSubFolder { get; }
+        IAssetManagerFolder ParentFolder { get; }
         AssetManagerFolderStorageType StorageType { get; }
+        ISubFolders SubFolders { get; }
     }
 }

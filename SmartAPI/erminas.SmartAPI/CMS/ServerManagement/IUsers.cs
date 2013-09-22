@@ -20,21 +20,28 @@ using System.Xml;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     public interface IUsers : IIndexedRDList<String, IUser>
     {
         IUser Create(string name, string password);
+
+        /// <summary>
+        ///     The currently connected user.
+        /// </summary>
+        IUser Current { get; }
     }
 
     internal class Users : NameIndexedRDList<IUser>, IUsers
     {
-        private readonly ISession _session;
+        private readonly Session _session;
+        private readonly Lazy<IUser> _user;
 
-        internal Users(ISession session, Caching caching) : base(caching)
+        internal Users(Session session, Caching caching) : base(caching)
         {
             _session = session;
             RetrieveFunc = GetUsers;
+            _user = new Lazy<IUser>(GetCurrentUser);
         }
 
         public IUser Create(string name, string password)
@@ -45,6 +52,18 @@ namespace erminas.SmartAPI.CMS.Administration
                                                             _session.StandardLocale.LanguageAbbreviation));
             Refresh();
             return this[name];
+        }
+
+        public IUser Current
+        {
+            get { return _user.Value; }
+        }
+
+        private IUser GetCurrentUser()
+        {
+            var userElement = _session.GetUserSessionInfoElement();
+
+            return new User(_session, userElement.GetGuid()) {Name = userElement.GetName()};
         }
 
         private List<IUser> GetUsers()

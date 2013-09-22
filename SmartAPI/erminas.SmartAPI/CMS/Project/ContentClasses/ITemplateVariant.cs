@@ -17,13 +17,12 @@ using System;
 using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-
-
     //TODO templatevariant auf attributes umstellen
     public interface ITemplateVariant : IPartialRedDotObject, IProjectObject, IDeletable
     {

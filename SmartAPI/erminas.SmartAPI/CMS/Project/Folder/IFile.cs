@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Utils;
 
@@ -36,8 +35,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         int ReferenceCount();
 
-        string ThumbnailPath { get; }
         Guid? ThumbnailGuid { get; }
+        string ThumbnailPath { get; }
     }
 
     internal class File : IFile
@@ -53,8 +52,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         private readonly string _name;
 
         private readonly IProject _project;
-        private readonly XmlElement _xmlElement;
         private readonly Guid? _thumbnailGuid;
+        private readonly XmlElement _xmlElement;
 
         internal File(IProject project, XmlElement xmlElement)
         {
@@ -73,16 +72,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                 //older versions do not contain the thumbnailpath attribute, so it has to be constructed
                 ThumbnailPath = xmlElement.GetAttributeValue("thumbnailpath") ?? CreateThumbnailPath();
             }
-        }
-
-        private bool IsAssetWithThumbnail
-        {
-            get { return _thumbnailGuid != null; }
-        }
-
-        private string CreateThumbnailPath()
-        {
-            return @"THUMBNAIL\{0}\{1}\{2}.JPG".RQLFormat(_project, _folder, _thumbnailGuid.Value);
         }
 
         public File(IFolder folder, string fileName)
@@ -165,13 +154,18 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             XmlDocument xmlDoc = _project.ExecuteRQL(string.Format(GET_REFERENCES, _folder.Guid.ToRQLString(), _name));
             return xmlDoc.GetElementsByTagName("REFERENCE").Count;
         }
-        public Guid? ThumbnailGuid { get { return _thumbnailGuid; } }
-        public string ThumbnailPath { get; private set; }
 
         public ISession Session
         {
             get { return Project.Session; }
         }
+
+        public Guid? ThumbnailGuid
+        {
+            get { return _thumbnailGuid; }
+        }
+
+        public string ThumbnailPath { get; private set; }
 
         public override string ToString()
         {
@@ -190,6 +184,16 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         protected bool Equals(File other)
         {
             return Equals(_folder, other._folder) && string.Equals(_name, other._name);
+        }
+
+        private string CreateThumbnailPath()
+        {
+            return @"THUMBNAIL\{0}\{1}\{2}.JPG".RQLFormat(_project, _folder, _thumbnailGuid.Value);
+        }
+
+        private bool IsAssetWithThumbnail
+        {
+            get { return _thumbnailGuid != null; }
         }
     }
 }

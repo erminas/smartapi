@@ -16,7 +16,7 @@
 using System;
 using erminas.SmartAPI.Exceptions;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     internal class ServerManagementContext : IDisposable
     {

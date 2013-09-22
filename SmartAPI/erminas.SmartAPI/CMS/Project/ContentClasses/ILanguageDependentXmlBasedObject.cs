@@ -13,14 +13,10 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Xml;
-
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    public interface ILanguageDependentXmlBasedObject : IXmlBasedObject, IProjectObject
+    internal interface ILanguageDependentXmlBasedObject : IProjectObject
     {
-        XmlElement GetXmlElementForLanguage(string languageAbbreviation);
-        XmlElement XmlElementForCurrentLanguage { get; }
-        XmlElement XmlElementForMainLanguage { get; }
+        IXmlReadWriteWrapper GetElementForLanguage(string languageAbbreviation);
     }
 }

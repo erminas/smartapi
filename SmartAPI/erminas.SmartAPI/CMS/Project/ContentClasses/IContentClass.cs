@@ -22,6 +22,7 @@ using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.CMS.Project.Keywords;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -52,7 +53,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Description
         /// </summary>
-        string Description { get; set; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
 
         /// <summary>
         ///     EditableAreaSettings of the content class The settings get cached. To refresh the settings call <see cref="Refresh" />
@@ -66,16 +67,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// </summary>
         IContentClassFolder Folder { get; }
 
-        
         bool IsAvailableViaTheShortcutMenuInSmartEdit { get; set; }
 
         [VersionIsGreaterThanOrEqual(9, 0, 0, 41, VersionName = "Version 9 Hotfix 5")]
         bool IsChangingHeadlineEffectiveForAllLanguageVariants { get; set; }
 
-        
         bool IsKeywordRequired { get; set; }
 
-        
         bool IsNotRelevantForGlobalContentWorkflow { get; set; }
 
         IPageDefinitions PageDefinitions { get; }
@@ -135,7 +133,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 return;
             }
 
-            var query = GetSaveString((XmlElement) XmlElement.Clone());
+            var query = GetSaveString(_readWriteWrapper.MergedElement);
             Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
         }
 
@@ -163,7 +161,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     {
                         IContentClassElement curTargetContentClassElement;
                         languageVariant.Select();
-                        var curSourceContentClassElement = this[languageVariant.Abbreviation, curElementName];
+                        var curSourceContentClassElement = Elements[curElementName];
                         if (createdElements.TryGetValue(curElementName, out curTargetContentClassElement))
                         {
                             targetLanguageVariant.Select();
@@ -224,7 +222,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         ///     Description
         /// </summary>
         [RedDot("description")]
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
@@ -242,7 +240,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Folder that contains the content class.
         /// </summary>
-        [RedDot("folderguid", ConverterType = typeof(ContentClassFolderConverter), Description = "Content Class Folder"
+        [RedDot("folderguid", ConverterType = typeof (ContentClassFolderConverter), Description = "Content Class Folder"
             )]
         public IContentClassFolder Folder
         {
@@ -286,16 +284,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             set { SetAttributeValue(value); }
         }
 
-        /// <summary>
-        ///     Get an element by language/element name
-        /// </summary>
-        /// <param name="language"> Language Id of language variant </param>
-        /// <param name="elementName"> Name of the element </param>
-        public IContentClassElement this[string language, string elementName]
-        {
-            get { return Elements[language][elementName]; }
-        }
-
         public IPageDefinitions PageDefinitions { get; private set; }
 
         /// <summary>
@@ -314,7 +302,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         public IProjectVariantAssignments ProjectVariantAssignments { get; private set; }
 
-        [RedDot("requiredcategory", ConverterType = typeof(CategoryConverter))]
+        [RedDot("requiredcategory", ConverterType = typeof (CategoryConverter))]
         public ICategory RequiredKeywordCategory
         {
             get { return GetAttributeValue<ICategory>(); }
@@ -333,7 +321,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// <summary>
         ///     Default suffix for pages.
         /// </summary>
-        [RedDot("suffixguid", ConverterType = typeof(SyllableConverter))]
+        [RedDot("suffixguid", ConverterType = typeof (SyllableConverter))]
         public ISyllable Suffix
         {
             get { return GetAttributeValue<ISyllable>(); }
@@ -394,9 +382,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 XmlElement templateDescription = templateDescriptions.AddElement("TEMPLATEDESCRIPTION");
                 templateDescription.AddAttribute("dialoglanguageid", languageVariant.Abbreviation);
                 templateDescription.AddAttribute("name", Name);
-                if (!string.IsNullOrEmpty(Description))
+                if (!string.IsNullOrEmpty(DescriptionInCurrentDisplayLanguage))
                 {
-                    templateDescription.AddAttribute("description", Description);
+                    templateDescription.AddAttribute("description", DescriptionInCurrentDisplayLanguage);
                 }
             }
         }
@@ -419,7 +407,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         private void CopyAllElementsToCC(IContentClass targetCC)
         {
-            CopyElementsToContentClass(targetCC, Elements.Names.ToArray());
+            CopyElementsToContentClass(targetCC, Elements.Select(element => element.Name).ToArray());
         }
 
         private void CopyAttributesToCC(IContentClass targetCC)
@@ -510,7 +498,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             PreassignedKeywords = new PreassignedKeywords(this, Caching.Enabled);
             PageDefinitions = new PageDefinitions(this, Caching.Enabled);
             TemplateVariants = new TemplateVariants(this, Caching.Enabled);
-            Elements = new ContentClassElements(this);
+            Elements = new ContentClassElements(this, Caching.Enabled);
             ProjectVariantAssignments = new ProjectVariantAssignments(this, Caching.Enabled);
             EditableAreaSettings = new CCEditableAreaSettings(this);
         }
@@ -547,7 +535,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             /// <summary>
             ///     Description text
             /// </summary>
-            public string Description
+            public string DescriptionInCurrentDisplayLanguage
             {
                 get { return XmlElement.GetAttributeValue("description"); }
             }
@@ -568,7 +556,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                     string userGuid = XmlElement.GetAttributeValue("userguid");
                     return string.IsNullOrEmpty(userGuid)
                                ? null
-                               : _user = ContentClass.Project.Session.GetUser(GuidConvert(userGuid));
+                               : _user =
+                                 ContentClass.Project.Session.ServerManager.Users.GetByGuid(GuidConvert(userGuid));
                 }
             }
 

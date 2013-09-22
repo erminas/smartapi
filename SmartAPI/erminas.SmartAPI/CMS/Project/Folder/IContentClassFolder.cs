@@ -103,12 +103,12 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                 }
                 if (Session.CurrentUser.ModuleAssignment.IsServerManager)
                 {
-                    IProject project = Session.Projects.GetByGuid(sharedProjectGuid);
+                    IProject project = Session.ServerManager.Projects.GetByGuid(sharedProjectGuid);
                     return GetSharedFromFolder(project, sharedFolderGuid);
                 }
-                if (Session.ProjectsForCurrentUser.ContainsGuid(sharedProjectGuid))
+                if (Session.ServerManager.Projects.ForCurrentUser.ContainsGuid(sharedProjectGuid))
                 {
-                    IProject project = Session.ProjectsForCurrentUser.GetByGuid(sharedProjectGuid);
+                    IProject project = Session.ServerManager.Projects.ForCurrentUser.GetByGuid(sharedProjectGuid);
                     return GetSharedFromFolder(project, sharedFolderGuid);
                 }
                 var sharedProject = new Project(Session, sharedProjectGuid);

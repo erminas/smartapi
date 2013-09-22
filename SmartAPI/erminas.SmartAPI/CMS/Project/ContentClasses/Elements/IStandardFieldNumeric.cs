@@ -19,7 +19,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldNumeric : IStandardFieldNonDate
     {
-        
         int? MaxCharacterCount { get; set; }
     }
 
@@ -29,6 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             : base(contentClass, xmlElement)
         {
         }
+
         [RedDot("eltmaxsize")]
         public int? MaxCharacterCount
         {

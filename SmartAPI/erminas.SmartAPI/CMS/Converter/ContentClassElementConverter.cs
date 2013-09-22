@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
@@ -22,7 +21,7 @@ using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class ContentClassElementConverter : AbstractGuidElementConverter<IContentClassElement>
+    internal class ContentClassElementConverter : AbstractGuidElementConverter<IContentClassElement>
     {
         protected override IContentClassElement GetFromGuid(IProjectObject parent, XmlElement element,
                                                             RedDotAttribute attribute, Guid guid)
@@ -33,12 +32,12 @@ namespace erminas.SmartAPI.CMS.Converter
             }
 
             var parentCcElement = (IContentClassElement) parent;
-            return
-                parentCcElement.ContentClass.Elements[parentCcElement.LanguageVariant.Abbreviation].FirstOrDefault(
-                    x => x.Guid.Equals(guid));
+
+            IContentClassElement result;
+            return parentCcElement.ContentClass.Elements.TryGetByGuid(guid, out result) ? result : null;
         }
 
-        protected override IContentClassElement GetFromName(IProjectObject parent, XmlElement element,
+        protected override IContentClassElement GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
                                                             RedDotAttribute attribute, IContentClassElement value)
         {
             return ConverterHelper.GetEquivalentContentClassElementFromOtherProject(value, parent.Project);

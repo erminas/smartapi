@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Web;
 using System.Xml;
 using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.Utils;
@@ -33,21 +32,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IOptionList : IContentClassContentElement
     {
         IContentClassElement ChildElementOf { get; set; }
-        string DefaultValueString { get; set; }
-        string Description { get; set; }
+        ILanguageDependentValue<string> DefaultValueString { get; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
 
         IEnumerable<IOptionListSelection> Entries { get; }
 
-        /// <summary>
-        ///     The entries as xml string as provided by RQL.
-        ///     In a future version a Entries property giving access to an object model of the entries might get added.
-        /// </summary>
-        string EntriesAsString { get; set; }
+        //string EntriesAsString { get; set; }
 
         bool HasLanguageDependendNames { get; set; }
         bool HasLanguageDependendValues { get; set; }
         bool IsAllowingOtherValues { get; set; }
-        string SampleText { get; set; }
+        ILanguageDependentValue<string> SampleText { get; }
         SortMode SortMode { get; set; }
     }
 
@@ -120,7 +115,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         internal OptionList(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-          
+            if (xmlElement.SelectSingleNode(@"//SELECTIONS") == null)
+            {
+                IsInitialized = false;
+            }
 // ReSharper disable ObjectCreationAsStatement
             //TODO neu implementieren:
             //new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
@@ -134,15 +132,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        public string DefaultValueString
+        [RedDot(ELTDEFAULTVALUE)]
+        public ILanguageDependentValue<string> DefaultValueString
         {
-            get { return XmlElement.GetAttributeValue(ELTDEFAULTVALUE); }
-
-            set { XmlElement.SetAttributeValue(ELTDEFAULTVALUE, value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
         [RedDot("eltrddescription")]
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
@@ -152,18 +149,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get
             {
-                var doc = new XmlDocument();
-                doc.LoadXml(HttpUtility.HtmlDecode(EntriesAsString));
-                return (from XmlElement curEntry in doc.GetElementsByTagName("SELECTION")
+                EnsureInitialization();
+                return (from XmlElement curEntry in _xmlElement.GetElementsByTagName("SELECTION")
                         select (IOptionListSelection) new OptionListSelection(this, curEntry)).ToList().AsReadOnly();
             }
         }
 
-        public string EntriesAsString
-        {
-            get { return XmlElement.GetAttributeValue("eltoptionlistdata"); }
-            set { XmlElement.SetAttributeValue("eltoptionlistdata", value); }
-        }
+        //[RedDot("eltoptionlistdata")]
+        //public string EntriesAsString
+        //{
+        //    get { return GetAttributeValue<string>(); }
+        //    set { SetAttributeValue(value); }
+        //}
 
         [RedDot("eltlanguagedependentname")]
         public bool HasLanguageDependendNames
@@ -187,10 +184,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("eltrdexample")]
-        public string SampleText
+        public ILanguageDependentValue<string> SampleText
         {
-            get { return GetAttributeValue<string>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
         [RedDot("eltorderby", ConverterType = typeof (EnumConverter<SortMode>))]
@@ -198,6 +194,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return GetAttributeValue<SortMode>(); }
             set { SetAttributeValue(value); }
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_OBJECT =
+                @"<TEMPLATE><ELEMENT action=""load"" guid=""{0}""><SELECTIONS action=""load"" guid=""{0}""/></ELEMENT></TEMPLATE>";
+
+            return
+                Project.ExecuteRQL(LOAD_OBJECT.RQLFormat(this), RqlType.SessionKeyInProject).GetSingleElement("ELEMENT");
         }
     }
 }

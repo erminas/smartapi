@@ -19,19 +19,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IDeliveryServerConstraint : IContentClassElement
     {
-        [RedDot("eltrequired")]
         bool IsEditingMandatory { get; set; }
 
-        [RedDot("eltinvisibleinclient")]
         bool IsHiddenInProjectStructure { get; set; }
 
-        [RedDot("eltlanguageindependent")]
         bool IsLanguageIndependent { get; set; }
 
-        [RedDot("eltignoreworkflow")]
         bool IsNotRelevantForWorklow { get; set; }
 
-        [RedDot("elthideinform")]
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -47,30 +42,35 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltrequired")]
         public bool IsEditingMandatory
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinclient")]
         public bool IsHiddenInProjectStructure
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
             get { return GetAttributeValue<bool>(); }

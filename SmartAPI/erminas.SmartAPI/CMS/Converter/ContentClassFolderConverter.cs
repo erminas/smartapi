@@ -21,7 +21,7 @@ using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class ContentClassFolderConverter : AbstractGuidElementConverter<IContentClassFolder>
+    internal class ContentClassFolderConverter : AbstractGuidElementConverter<IContentClassFolder>
     {
         public override bool IsReadOnly
         {
@@ -36,7 +36,7 @@ namespace erminas.SmartAPI.CMS.Converter
                       .First(folder => folder.Guid == guid);
         }
 
-        protected override IContentClassFolder GetFromName(IProjectObject parent, XmlElement element,
+        protected override IContentClassFolder GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
                                                            RedDotAttribute attribute, IContentClassFolder value)
         {
             throw new NotImplementedException();

@@ -67,9 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CMS\Administration\IAsynchronousProcess.cs" />
-    <Compile Include="CMS\Administration\ServerManagementContext.cs" />
-    <Compile Include="CMS\Administration\IUsers.cs" />
+    <Compile Include="CMS\ServerManagement\IAsynchronousProcess.cs" />
+    <Compile Include="CMS\ServerManagement\ServerManagementContext.cs" />
+    <Compile Include="CMS\ServerManagement\IUsers.cs" />
     <Compile Include="CMS\AbstractAttributeContainer.cs" />
     <Compile Include="CMS\Converter\AbstractGuidElementConverter.cs" />
     <Compile Include="CMS\Converter\CategoryConverter.cs" />
@@ -92,17 +92,24 @@
     <Compile Include="CMS\Converter\EnumConverter.cs" />
     <Compile Include="CMS\Converter\TextContentConverter.cs" />
     <Compile Include="CMS\Converter\XslFileConverter.cs" />
+    <Compile Include="CMS\ServerManagement\IApplicationServers.cs" />
     <Compile Include="CMS\IAttributeConverter.cs" />
+    <Compile Include="CMS\ServerManagement\IDatabaseServers.cs" />
+    <Compile Include="CMS\ServerManagement\IGroups.cs" />
     <Compile Include="CMS\ILanguageDependentValue.cs" />
-    <Compile Include="CMS\IApplicationServer.cs" />
+    <Compile Include="CMS\ServerManagement\IApplicationServer.cs" />
+    <Compile Include="CMS\ServerManagement\IProjects.cs" />
+    <Compile Include="CMS\ServerManagement\IServerManager.cs" />
     <Compile Include="CMS\Project\Authorizations\IAuthorizationPackage.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\BrowseAlignment.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\FileSizeUnit.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Frameborder.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\HitListType.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\HtmlTarget.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\ListType.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\MediaConversionMode.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Scrolling.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\Shape.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\SpecialDataFieldFormat.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\SpecialDataFieldFormatUtils.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClassEditableAreaSettings.cs" />
@@ -118,7 +125,7 @@
     <Compile Include="CMS\Project\Folder\SubFolders.cs" />
     <Compile Include="CMS\Project\IClipboard.cs" />
     <Compile Include="CMS\IDeletable.cs" />
-    <Compile Include="CMS\IGroup.cs" />
+    <Compile Include="CMS\ServerManagement\IGroup.cs" />
     <Compile Include="CMS\ISessionObject.cs" />
     <Compile Include="CMS\Project\ContentClasses\IContentClasses.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\AbstractWorkflowPreassignable.cs" />
@@ -159,7 +166,7 @@
     <Compile Include="CMS\Project\Pages\ILinkTarget.cs" />
     <Compile Include="CMS\Project\Pages\IPage.cs" />
     <Compile Include="CMS\Project\Keywords\ICategoryKeywords.cs" />
-    <Compile Include="CMS\Administration\IModule.cs" />
+    <Compile Include="CMS\ServerManagement\IModule.cs" />
     <Compile Include="CMS\Project\ContentClasses\IPageDefinition.cs" />
     <Compile Include="CMS\Project\Pages\Elements\AbstractKeywordAssignableMultiLinkElement.cs" />
     <Compile Include="CMS\Project\Pages\Elements\AbstractMediaElement.cs" />
@@ -189,14 +196,15 @@
     <Compile Include="CMS\Project\IProjectExportJob.cs" />
     <Compile Include="CMS\Project\IRecycleBin.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\TargetContainerPreassignment.cs" />
-    <Compile Include="CMS\Administration\IUserModuleAssignment.cs" />
-    <Compile Include="CMS\Administration\IUserProjectAssignment.cs" />
+    <Compile Include="CMS\ServerManagement\IUserModuleAssignment.cs" />
+    <Compile Include="CMS\ServerManagement\IUserProjectAssignment.cs" />
     <Compile Include="CMS\Project\RedDotProjectObject.cs" />
     <Compile Include="CMS\Project\Workflows\IWorkflowActions.cs" />
     <Compile Include="CMS\RedDotAttribute.cs" />
     <Compile Include="CMS\RedDotAttributeDescriptionUtils.cs" />
     <Compile Include="CMS\VersionAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IWorkflowPreassignable.cs" />
+    <Compile Include="CMS\IXmlReadWriteWrapper.cs" />
     <Compile Include="Exceptions\BrokenContentClassFolderSharingException.cs" />
     <Compile Include="Exceptions\InvalidServerVersionException.cs" />
     <Compile Include="Exceptions\MissingElementValueException.cs" />
@@ -212,14 +220,13 @@
     <Compile Include="CMS\Project\ContentClasses\Elements\AltType.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IAnchor.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IArea.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\Attributes\OptionListSelectionAttribute.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IBackground.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IBrowse.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IContainer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IDatabaseContent.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IFrame.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IHeadline.cs" />
-    <Compile Include="CMS\Project\ContentClasses\Elements\HitList.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\IHitList.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IImage.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IImageAnchor.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\IInfoAttribute.cs" />
@@ -245,8 +252,8 @@
     <Compile Include="CMS\Project\ContentClasses\Elements\ITextHtml.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\ITransfer.cs" />
     <Compile Include="CMS\Project\IDatabaseConnection.cs" />
-    <Compile Include="CMS\Administration\Language\DateTimeFormat.cs" />
-    <Compile Include="CMS\Administration\IDatabaseServer.cs" />
+    <Compile Include="CMS\DateTimeFormat.cs" />
+    <Compile Include="CMS\ServerManagement\IDatabaseServer.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\ElementType.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationFolderSetting.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationSetting.cs" />
@@ -278,7 +285,7 @@
     <Compile Include="CMS\Project\Pages\Elements\ITextHtml.cs" />
     <Compile Include="CMS\Project\Pages\IPageSearchFilter.cs" />
     <Compile Include="CMS\IPartialRedDotObject.cs" />
-    <Compile Include="CMS\Administration\Language\Locales.cs" />
+    <Compile Include="CMS\Locales.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationFolder.cs" />
     <Compile Include="CMS\Project\ISyllable.cs" />
     <Compile Include="CMS\Project\ContentClasses\ContentClassElementList.cs" />
@@ -296,12 +303,12 @@
     <Compile Include="CMS\Project\ContentClasses\IContentClass.cs" />
     <Compile Include="CMS\Project\Folder\IContentClassFolder.cs" />
     <Compile Include="CMS\Project\ContentClasses\ITemplateVariant.cs" />
-    <Compile Include="CMS\Administration\IUser.cs" />
+    <Compile Include="CMS\ServerManagement\IUser.cs" />
     <Compile Include="CMS\Project\Workflows\IWorkflow.cs" />
     <Compile Include="CMS\Project\Workflows\IWorkflowAction.cs" />
     <Compile Include="Exceptions\SmartAPIException.cs" />
     <Compile Include="Exceptions\SmartAPIInternalException.cs" />
-    <Compile Include="CMS\Administration\EMail.cs" />
+    <Compile Include="CMS\ServerManagement\EMail.cs" />
     <Compile Include="Service References\OldService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

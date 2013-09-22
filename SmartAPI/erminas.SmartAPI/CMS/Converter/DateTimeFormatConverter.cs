@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class DateTimeFormatConverter : IAttributeConverter<IDateTimeFormat>
+    internal class DateTimeFormatConverter : IAttributeConverter<IDateTimeFormat>
     {
         public IDateTimeFormat ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -43,9 +43,13 @@ namespace erminas.SmartAPI.CMS.Converter
                 ((IContentClassElement) parent).ContentClass.Project.Session.Locales[lcid].DateTimeFormats[type.Value];
         }
 
-        public bool IsReadOnly { get; private set; }
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, IDateTimeFormat value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
+                            IDateTimeFormat value)
         {
             element.SetAttributeValue(attribute.ElementName, value.TypeId.ToString(CultureInfo.InvariantCulture));
         }

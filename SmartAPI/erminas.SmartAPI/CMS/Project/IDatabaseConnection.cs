@@ -16,6 +16,7 @@
 using System;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
@@ -35,7 +36,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     Description of the database connection
         /// </summary>
-        string Description { get; }
+        string DescriptionInCurrentDisplayLanguage { get; }
     }
 
     /// <summary>
@@ -75,7 +76,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     Description of the database connection
         /// </summary>
-        public string Description
+        public string DescriptionInCurrentDisplayLanguage
         {
             get { return LazyLoad(ref _description); }
         }

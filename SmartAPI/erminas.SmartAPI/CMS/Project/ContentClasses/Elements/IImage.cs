@@ -38,7 +38,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         IList<string> EligibleSuffixesList { get; set; }
 
-        IFile ExampleFile { get; set; }
         IFolder Folder { get; set; }
         string HSpace { get; set; }
         string HtmlHeight { get; set; }
@@ -54,7 +53,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         string RequiredNamePattern { get; set; }
         int? RequiredPictureHeight { get; set; }
         int? RequiredPictureWidth { get; set; }
-        IFile SrcFile { get; set; }
+        ILanguageDependentValue<IFile> SampleImage { get; }
+        ILanguageDependentValue<IFile> SrcFile { get; }
         string Supplement { get; set; }
         TargetFormat TargetFormat { get; set; }
         string Usemap { get; set; }
@@ -136,13 +136,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 return suffixes.Split(';').Where(s => !string.IsNullOrEmpty(s)).ToList();
             }
             set { EligibleSuffixes = value == null ? null : string.Join(";", value); }
-        }
-
-        [RedDot("__examplefile", ConverterType = typeof (ExampleFileConverter), DependsOn = "eltfolderguid")]
-        public IFile ExampleFile
-        {
-            get { return GetAttributeValue<IFile>(); }
-            set { SetAttributeValue(value); }
         }
 
         [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
@@ -250,11 +243,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
-        public IFile SrcFile
+        [RedDot("__examplefile", ConverterType = typeof (ExampleFileConverter), DependsOn = "eltfolderguid")]
+        public ILanguageDependentValue<IFile> SampleImage
         {
-            get { return GetAttributeValue<IFile>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
+        }
+
+        [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
+        public ILanguageDependentValue<IFile> SrcFile
+        {
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
         [RedDot("eltsupplement")]

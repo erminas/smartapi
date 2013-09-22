@@ -16,15 +16,13 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Xml;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class RedDotAttribute : Attribute
+    internal class RedDotAttribute : Attribute
     {
         public readonly string ElementName;
         private IAttributeConvertBase _converterInstance;
@@ -52,10 +50,9 @@ namespace erminas.SmartAPI.CMS
                 {
                     var interfaceType =
                         value.GetInterfaces()
-                                      .First(
-                                          type =>
-                                          type.IsGenericType &&
-                                          type.GetGenericTypeDefinition() == typeof (IAttributeConverter<>));
+                             .First(
+                                 type =>
+                                 type.IsGenericType && type.GetGenericTypeDefinition() == typeof (IAttributeConverter<>));
                     _targetType = interfaceType.GetGenericArguments()[0];
                     _converterInstance = (IAttributeConvertBase) value.GetConstructor(new Type[0]).Invoke(new object[0]);
                     _converterType = value;
@@ -81,7 +78,7 @@ namespace erminas.SmartAPI.CMS
             set { _isReadOnly = value; }
         }
 
-        public T ReadFrom<T>(IProjectObject sourceProject, XmlElement element)
+        public T ReadFrom<T>(IProjectObject sourceProject, IXmlReadWriteWrapper element)
         {
             Type type = typeof (T);
             return _converterInstance != null
@@ -89,7 +86,7 @@ namespace erminas.SmartAPI.CMS
                        : GetDefaultConversion<T>(element, type);
         }
 
-        public void WriteTo<T>(IProjectObject targetProject, XmlElement element, T value)
+        public void WriteTo<T>(IProjectObject targetProject, IXmlReadWriteWrapper element, T value)
         {
             if (IsReadOnly)
             {
@@ -106,7 +103,7 @@ namespace erminas.SmartAPI.CMS
             }
         }
 
-        private T GetCustomConversion<T>(IProjectObject sourceProject, XmlElement element, Type type)
+        private T GetCustomConversion<T>(IProjectObject sourceProject, IXmlReadWriteWrapper element, Type type)
         {
             if (_targetType != type)
             {
@@ -114,10 +111,10 @@ namespace erminas.SmartAPI.CMS
                     string.Format("Converter type does not match Convert<T> call for element {0}", ElementName));
             }
 
-            return ((IAttributeConverter<T>) _converterInstance).ConvertFrom(sourceProject, element, this);
+            return ((IAttributeConverter<T>) _converterInstance).ConvertFrom(sourceProject, element.MergedElement, this);
         }
 
-        private T GetDefaultConversion<T>(XmlElement element, Type type)
+        private T GetDefaultConversion<T>(IXmlReadWriteWrapper element, Type type)
         {
             if (type == typeof (string))
             {
@@ -125,7 +122,7 @@ namespace erminas.SmartAPI.CMS
             }
             if (type == typeof (bool))
             {
-                return (T) (object) element.GetBoolAttributeValue(ElementName).GetValueOrDefault();
+                return (T) (object) element.GetBoolAttributeValue(ElementName);
             }
             if (type == typeof (int?))
             {
@@ -137,10 +134,13 @@ namespace erminas.SmartAPI.CMS
 
         private static bool IsConverterType(Type value)
         {
-            return value.GetInterfaces().Any(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IAttributeConverter<>));
+            return
+                value.GetInterfaces()
+                     .Any(
+                         type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof (IAttributeConverter<>));
         }
 
-        private void SetWithCustomConversion<T>(IProjectObject targetProject, XmlElement element, T value)
+        private void SetWithCustomConversion<T>(IProjectObject targetProject, IXmlReadWriteWrapper element, T value)
         {
             if (typeof (T) != _targetType)
             {
@@ -152,7 +152,7 @@ namespace erminas.SmartAPI.CMS
             ((IAttributeConverter<T>) _converterInstance).WriteTo(targetProject, element, this, value);
         }
 
-        private void SetWithDefaultConversion<T>(XmlElement element, T value)
+        private void SetWithDefaultConversion<T>(IXmlReadWriteWrapper element, T value)
         {
             Type type = typeof (T);
             if (type == typeof (string))

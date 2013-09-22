@@ -22,7 +22,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class CategoryConverter : AbstractGuidElementConverter<ICategory>
+    internal class CategoryConverter : AbstractGuidElementConverter<ICategory>
     {
         private const string ARBITRARY_CATEGORY_VALUE = "-1";
 
@@ -38,7 +38,7 @@ namespace erminas.SmartAPI.CMS.Converter
             return stringValue == "-1" ? null : base.ConvertFrom(parent, element, attribute);
         }
 
-        public override void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
+        public override void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
                                      ICategory value)
         {
             CheckReadOnly(parent.Project, attribute);
@@ -62,8 +62,8 @@ namespace erminas.SmartAPI.CMS.Converter
             return parent.Project.Categories.TryGetByGuid(guid, out result) ? result : null;
         }
 
-        protected override ICategory GetFromName(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
-                                                 ICategory value)
+        protected override ICategory GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
+                                                 RedDotAttribute attribute, ICategory value)
         {
             ICategory category;
             if (!parent.Project.Categories.TryGetByName(value.Name, out category))

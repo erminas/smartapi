@@ -1,22 +1,24 @@
-﻿using System;
+﻿// SmartAPI - .Net programmatic access to RedDot servers
+//  
+// Copyright (C) 2013 erminas GbR
+// 
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace erminas.SmartAPI.CMS
 {
     public static class RedDotAttributeDescription
     {
-        public static string GetDescriptionForElement(string name)
-        {
-            return ELEMENT_DESCRIPTION[name];
-        }
-
-        public static bool TryGetDescriptionForElement(string name, out string description)
-        {
-            return ELEMENT_DESCRIPTION.TryGetValue(name, out description);
-        }
-
         private static readonly Dictionary<string, string> ELEMENT_DESCRIPTION = new Dictionary<string, string>
             {
                 {"adoptheadlinetoalllanguages", "Changing headline is effective for all language variants"},
@@ -157,5 +159,15 @@ namespace erminas.SmartAPI.CMS
                 {"requiredcategory", "Keyword required from category"},
                 {"selectinnewpage", "Available via the shortcut menu in SmartEdit"}
             };
+
+        public static string GetDescriptionForElement(string name)
+        {
+            return ELEMENT_DESCRIPTION[name];
+        }
+
+        public static bool TryGetDescriptionForElement(string name, out string description)
+        {
+            return ELEMENT_DESCRIPTION.TryGetValue(name, out description);
+        }
     }
 }

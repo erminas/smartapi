@@ -114,7 +114,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        [RedDot("eltlisttype", ConverterType = typeof(StringEnumConverter<ListType>))]
+        [RedDot("eltlisttype", ConverterType = typeof (StringEnumConverter<ListType>))]
         public ListType ListType
         {
             get { return GetAttributeValue<ListType>(); }

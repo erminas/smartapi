@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Administration.Language;
 using erminas.SmartAPI.CMS.Converter;
@@ -22,27 +23,41 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldDate : IStandardField
     {
-        
-        IDateTimeFormat DateFormat { get; set; }
+        ILanguageDependentValue<IDateTimeFormat> DateFormat { get; }
 
-        bool IsUserDefinedDateFormat { get; }
+        ILanguageDependentReadValue<bool> IsUserDefinedDateFormat { get; }
 
-        
-        ISystemLocale Locale { get; set; }
+        ILanguageDependentValue<ISystemLocale> Locale { get; }
 
-        
-        string UserDefinedDateFormat { get; set; }
+        ILanguageDependentValue<string> UserDefinedDateFormat { get; set; }
     }
 
-    internal class StandardFieldDate : StandardField, IStandardFieldDate
+    internal class IsUserDefinedDateFromatValue : AbstractLanguageDependendReadValue<bool>
     {
-        internal StandardFieldDate(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        public IsUserDefinedDateFromatValue(IStandardFieldDate date) : base(date)
         {
         }
-        [RedDot("eltformatno", ConverterType = typeof(DateTimeFormatConverter))]
-        public IDateTimeFormat DateFormat
+
+        public override bool this[string languageAbbreviation]
         {
-            get { return GetAttributeValue<IDateTimeFormat>() ?? DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
+            get
+            {
+                return ((IStandardFieldDate) Parent).DateFormat[languageAbbreviation] ==
+                       DateTimeFormat.USER_DEFINED_DATE_FORMAT;
+            }
+        }
+    }
+
+    internal class LanguageDependendDateFormat : LanguageDependentValue<IDateTimeFormat>
+    {
+        public LanguageDependendDateFormat(IPartialRedDotProjectObject parent, RedDotAttribute attribute)
+            : base(parent, attribute)
+        {
+        }
+
+        public override IDateTimeFormat this[string languageAbbreviation]
+        {
+            get { return base[languageAbbreviation] ?? DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
             set
             {
                 if (!value.IsDateFormat)
@@ -50,24 +65,46 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     throw new ArgumentException(string.Format(
                         "DateTimeFormat {1} with type id {0} is not a date format", value.TypeId, value.Name));
                 }
-                SetAttributeValue(value);
+                base[languageAbbreviation] = value;
+            }
+        }
+    }
+
+    internal class StandardFieldDate : StandardField, IStandardFieldDate
+    {
+        internal StandardFieldDate(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
+        {
+        }
+
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
+        public ILanguageDependentValue<IDateTimeFormat> DateFormat
+        {
+            get
+            {
+                return new LanguageDependendDateFormat(this,
+                                                       (RedDotAttribute)
+                                                       GetType()
+                                                           .GetProperty("DateFormat")
+                                                           .GetCustomAttributes(typeof (RedDotAttribute), false)
+                                                           .Single());
             }
         }
 
-        public bool IsUserDefinedDateFormat
+        public ILanguageDependentReadValue<bool> IsUserDefinedDateFormat
         {
-            get { return DateFormat == DateTimeFormat.USER_DEFINED_DATE_FORMAT; }
+            get { return new IsUserDefinedDateFromatValue(this); }
         }
-        [RedDot("eltlcid", ConverterType = typeof(LocaleConverter))]
-        public ISystemLocale Locale
+
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
+        public ILanguageDependentValue<ISystemLocale> Locale
         {
-            get { return GetAttributeValue<ISystemLocale>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<ISystemLocale>>(); }
         }
+
         [RedDot("eltformatting")]
-        public string UserDefinedDateFormat
+        public ILanguageDependentValue<string> UserDefinedDateFormat
         {
-            get { return GetAttributeValue<string>(); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
             set { SetAttributeValue(value); }
         }
     }

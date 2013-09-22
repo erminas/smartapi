@@ -19,7 +19,7 @@ using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class DatabaseConnectionConverter : AbstractGuidElementConverter<IDatabaseConnection>
+    internal class DatabaseConnectionConverter : AbstractGuidElementConverter<IDatabaseConnection>
     {
         protected override IDatabaseConnection GetFromGuid(IProjectObject parent, XmlElement element,
                                                            RedDotAttribute attribute, Guid guid)
@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Converter
             return parent.Project.DatabaseConnections.GetByGuid(guid);
         }
 
-        protected override IDatabaseConnection GetFromName(IProjectObject parent, XmlElement element,
+        protected override IDatabaseConnection GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
                                                            RedDotAttribute attribute, IDatabaseConnection value)
         {
             return parent.Project.DatabaseConnections.GetByName(value.Name);

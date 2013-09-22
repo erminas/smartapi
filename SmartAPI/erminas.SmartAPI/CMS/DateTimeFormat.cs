@@ -29,6 +29,7 @@ namespace erminas.SmartAPI.CMS.Administration.Language
         bool IsDateFormat { get; }
         bool IsDateTimeFormat { get; }
         bool IsTimeFormat { get; }
+        bool IsUserDefined { get; }
 
         /// <summary>
         ///     Name of the format
@@ -91,6 +92,15 @@ namespace erminas.SmartAPI.CMS.Administration.Language
             {
                 //Nothing can be combined with time formats.
                 return _formatTypes == DateTimeFormatTypes.Time;
+            }
+        }
+
+        public bool IsUserDefined
+        {
+            get
+            {
+                return this == USER_DEFINED_DATE_FORMAT || this == USER_DEFINED_DATE_TIME_FORMAT ||
+                       this == USER_DEFINED_TIME_FORMAT;
             }
         }
 

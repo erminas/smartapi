@@ -27,15 +27,13 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
-using erminas.SmartAPI.CMS.Administration;
-using erminas.SmartAPI.CMS.Administration.Language;
 using erminas.SmartAPI.CMS.Project;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.RedDotCmsXmlServer;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 using log4net;
-using Module = erminas.SmartAPI.CMS.Administration.Module;
 
 namespace erminas.SmartAPI.CMS
 {
@@ -94,34 +92,7 @@ namespace erminas.SmartAPI.CMS
 
     public interface ISession : IDisposable
     {
-        IRDList<IApplicationServer> ApplicationServers { get; }
-
-        IApplicationServer CurrentApplicationServer { get; }
-
-        /// <summary>
-        ///     The asynchronous processes running on the server. The list is _NOT_ cached by default.
-        /// </summary>
-        /// <remarks>
-        ///     Caching is disabled by default.
-        /// </remarks>
-        IRDList<IAsynchronousProcess> AsynchronousProcesses { get; }
-
-        IProjectImportJob CreateProjectImportJob(string newProjectName, string importPath);
-
-        IProject CreateProjectMsSql(string projectName, IApplicationServer appServer, IDatabaseServer dbServer,
-                                    string databaseName, ISystemLocale language, CreatedProjectType type,
-                                    UseVersioning useVersioning, IUser user);
-
-        /// <summary>
-        ///     The currently connected user.
-        /// </summary>
         IUser CurrentUser { get; }
-
-        /// <summary>
-        ///     All database servers on the server.
-        /// </summary>
-        IIndexedRDList<string, IDatabaseServer> DatabaseServers { get; }
-
         IndexedCachedList<string, IDialogLocale> DialogLocales { get; }
 
         XmlDocument ExecuteRQL(string query, RQL.IODataFormat format);
@@ -152,21 +123,6 @@ namespace erminas.SmartAPI.CMS
         string ExecuteRQLRaw(string query, RQL.IODataFormat ioDataFormat);
 
         /// <summary>
-        ///     Get a project by Guid. The difference between new Project(Session, Guid) and this is that this uses a cached list of all projects to retrieve the project, while new Project() leads to a complete (albeit lazy) reload of all the project information.
-        /// </summary>
-        /// <param name="guid"> Guid of the project </param>
-        /// <returns> Project with Guid guid </returns>
-        /// <exception cref="Exception">Thrown if no project with Guid==guid could be found</exception>
-        IProject GetProject(Guid guid);
-
-        /// <summary>
-        ///     Get all projects a specific user has access to
-        /// </summary>
-        /// <param name="userGuid"> Guid of the user </param>
-        /// <returns> All projects the user with Guid==userGuid has access to </returns>
-        List<IProject> GetProjectsForUser(Guid userGuid);
-
-        /// <summary>
         ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
@@ -177,32 +133,11 @@ namespace erminas.SmartAPI.CMS
         string GetTextContent(Guid projectGuid, ILanguageVariant lang, Guid elementGuid, string typeString);
 
         /// <summary>
-        ///     Get user by guid. The difference to new User(..., Guid) is that this method immmediatly checks wether the user exists.
-        /// </summary>
-        /// <param name="guid"> Guid of the user </param>
-        /// <exception cref="Exception">Thrown, if no user with Guid==guid could be found</exception>
-        IUser GetUser(Guid guid);
-
-        IIndexedRDList<string, IGroup> Groups { get; }
-
-        /// <summary>
         ///     All locales, indexed by LCID. The list is cached by default.
         /// </summary>
         IIndexedCachedList<int, ISystemLocale> Locales { get; }
 
         Guid LogonGuid { get; }
-
-        /// <summary>
-        ///     All available CMS modules (e.g. SmartTree, SmartEdit, Tasks ...), indexed by ModuleType. The list is cached by default.
-        /// </summary>
-        IndexedRDList<ModuleType, IModule> Modules { get; }
-
-        /// <summary>
-        ///     All projects on the server.
-        /// </summary>
-        IIndexedRDList<string, IProject> Projects { get; }
-
-        NameIndexedRDList<IProject> ProjectsForCurrentUser { get; }
 
         /// <summary>
         ///     Select a project. Subsequent queries will be executed in the context of this project.
@@ -222,8 +157,6 @@ namespace erminas.SmartAPI.CMS
         /// </summary>
         IProject SelectedProject { get; set; }
 
-        Guid SelectedProjectGuid { get; }
-
         void SendMailFromCurrentUserAccount(EMail mail);
         void SendMailFromSystemAccount(EMail mail);
 
@@ -231,6 +164,8 @@ namespace erminas.SmartAPI.CMS
         ///     Login information of the session
         /// </summary>
         ServerLogin ServerLogin { get; }
+
+        IServerManager ServerManager { get; }
 
         Version ServerVersion { get; }
 
@@ -249,14 +184,13 @@ namespace erminas.SmartAPI.CMS
                             string content);
 
         ISystemLocale StandardLocale { get; }
-        IUsers Users { get; }
 
         /// <summary>
         ///     Waits for an asynchronous process to finish.
         ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
         ///     The async processes get checked every second, for other retry periods, use
         ///     <see
-        ///         cref="WaitForAsyncProcess(System.TimeSpan,System.TimeSpan,System.Predicate{erminas.SmartAPI.CMS.Administration.AsynchronousProcess})" />
+        ///         cref="WaitForAsyncProcess(System.TimeSpan,System.TimeSpan,System.Predicate{ServerManagement.ServerManager.AsynchronousProcess})" />
         ///     instead.
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
@@ -340,27 +274,16 @@ namespace erminas.SmartAPI.CMS
                 "(Management Server.*&nbsp;|CMS Version )\\d+(\\.\\d+)*&nbsp;Build&nbsp;(\\d+\\.\\d+\\.\\d+\\.\\d+)");
 
         private static readonly ILog LOG = LogManager.GetLogger("Session");
-        private ApplicationServer _currentApplicationServer;
-
-        private IUser _currentUser;
 
         private string _loginGuidStr;
         private string _sessionKeyStr;
 
         private Session()
         {
-            Groups = new NameIndexedRDList<IGroup>(GetGroups, Caching.Enabled);
-            Projects = new NameIndexedRDList<IProject>(GetProjects, Caching.Enabled);
-            DatabaseServers = new NameIndexedRDList<IDatabaseServer>(GetDatabaseServers, Caching.Enabled);
-            Users = new Users(this, Caching.Enabled);
-            Modules = new IndexedRDList<ModuleType, IModule>(GetModules, x => x.Type, Caching.Enabled);
-            ApplicationServers = new RDList<IApplicationServer>(GetApplicationServers, Caching.Enabled);
+            ServerManager = new ServerManager(this);
             Locales = new IndexedCachedList<int, ISystemLocale>(GetLocales, x => x.LCID, Caching.Enabled);
             DialogLocales = new IndexedCachedList<string, IDialogLocale>(GetDialogLocales, x => x.LanguageAbbreviation,
                                                                          Caching.Enabled);
-            ProjectsForCurrentUser = new NameIndexedRDList<IProject>(() => GetProjectsForUser(CurrentUser.Guid),
-                                                                     Caching.Enabled);
-            AsynchronousProcesses = new RDList<IAsynchronousProcess>(GetAsynchronousProcesses, Caching.Disabled);
         }
 
         public Session(ServerLogin login,
@@ -385,8 +308,6 @@ namespace erminas.SmartAPI.CMS
             SelectProject(projectGuid);
         }
 
-        public IRDList<IApplicationServer> ApplicationServers { get; private set; }
-
         /// <summary>
         ///     The asynchronous processes running on the server. The list is _NOT_ cached by default.
         /// </summary>
@@ -395,65 +316,10 @@ namespace erminas.SmartAPI.CMS
         /// </remarks>
         public IRDList<IAsynchronousProcess> AsynchronousProcesses { get; private set; }
 
-        public IProjectImportJob CreateProjectImportJob(string newProjectName, string importPath)
-        {
-            return new ProjectImportJob(this, newProjectName, importPath);
-        }
-
-        public IProject CreateProjectMsSql(string projectName, IApplicationServer appServer, IDatabaseServer dbServer,
-                                           string databaseName, ISystemLocale language, CreatedProjectType type,
-                                           UseVersioning useVersioning, IUser user)
-        {
-            const string CREATE_PROJECT =
-                @"<ADMINISTRATION><PROJECT action=""addnew"" projectname=""{0}"" databaseserverguid=""{1}"" editorialserverguid=""{2}"" databasename=""{3}""
-versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{7}"" name=""{8}"" /></LANGUAGEVARIANTS><USERS><USER action=""assign"" guid=""{6}""/></USERS></PROJECT></ADMINISTRATION>";
-
-            XmlDocument result =
-                ParseRQLResult(
-                    ExecuteRQLRaw(
-                        CREATE_PROJECT.RQLFormat(projectName, dbServer, appServer, databaseName, (int) useVersioning,
-                                                 (int) type, user, language.LanguageAbbreviation, language.Language),
-                        RQL.IODataFormat.SessionKeyAndLogonGuid));
-
-            string guidStr = result.InnerText;
-            Guid projectGuid;
-            if (!Guid.TryParse(guidStr, out projectGuid))
-            {
-                throw new SmartAPIException(ServerLogin, string.Format("Could not create project {0}", projectName));
-            }
-
-            Projects.InvalidateCache();
-            return new Project.Project(this, projectGuid);
-        }
-
-        public IApplicationServer CurrentApplicationServer
-        {
-            get
-            {
-                if (_currentApplicationServer == null)
-                {
-                    const string LOAD_APPLICATIONSERVER =
-                        @"<ADMINISTRATION><EDITORIALSERVER action=""check""/></ADMINISTRATION>";
-                    XmlDocument reply = ExecuteRQL(LOAD_APPLICATIONSERVER, RQL.IODataFormat.Plain);
-                    _currentApplicationServer = new ApplicationServer(this, reply.GetSingleElement("EDITORIALSERVER").GetGuid("serverguid"));
-                }
-                return _currentApplicationServer;
-            }
-        }
-
-        /// <summary>
-        ///     The currently connected user.
-        /// </summary>
         public IUser CurrentUser
         {
-            get { return _currentUser ?? (_currentUser = GetCurrentUser()); }
-            private set { _currentUser = value; }
+            get { return ServerManager.Users.Current; }
         }
-
-        /// <summary>
-        ///     All database servers on the server.
-        /// </summary>
-        public IIndexedRDList<string, IDatabaseServer> DatabaseServers { get; private set; }
 
         public IndexedCachedList<string, IDialogLocale> DialogLocales { get; private set; }
 
@@ -480,7 +346,7 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         public XmlDocument ExecuteRQL(string query, RQL.IODataFormat format)
         {
             string result = ExecuteRQLRaw(query, format);
-            return ParseRQLResult(result);
+            return ParseRQLResult(this, result);
         }
 
         public XmlDocument ExecuteRQL(string query)
@@ -501,14 +367,14 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         {
             SelectProject(projectGuid);
             string result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyAndLogonGuid);
-            return ParseRQLResult(result);
+            return ParseRQLResult(this, result);
         }
 
         public XmlDocument ExecuteRQLInProjectContextAndEmbeddedInProjectElement(string query, Guid projectGuid)
         {
             SelectProject(projectGuid);
             string result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyInProjectElement);
-            return ParseRQLResult(result);
+            return ParseRQLResult(this, result);
         }
 
         public string ExecuteRQLRaw(string query, RQL.IODataFormat ioDataFormat)
@@ -543,37 +409,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         }
 
         /// <summary>
-        ///     Get a project by Guid. The difference between new Project(Session, Guid) and this is that this uses a cached list of all projects to retrieve the project, while new Project() leads to a complete (albeit lazy) reload of all the project information.
-        /// </summary>
-        /// <param name="guid"> Guid of the project </param>
-        /// <returns> Project with Guid guid </returns>
-        /// <exception cref="Exception">Thrown if no project with Guid==guid could be found</exception>
-        public IProject GetProject(Guid guid)
-        {
-            IProject project = Projects.FirstOrDefault(x => x.Guid.Equals(guid));
-            if (project == null)
-            {
-                throw new SmartAPIException(ServerLogin, "No Project with Guid {0} found.".RQLFormat(guid));
-            }
-
-            return project;
-        }
-
-        /// <summary>
-        ///     Get all projects a specific user has access to
-        /// </summary>
-        /// <param name="userGuid"> Guid of the user </param>
-        /// <returns> All projects the user with Guid==userGuid has access to </returns>
-        public List<IProject> GetProjectsForUser(Guid userGuid)
-        {
-            const string LIST_PROJECTS_FOR_USER =
-                @"<ADMINISTRATION><USER guid=""{0}""><PROJECTS action=""list"" extendedinfo=""1""/></USER></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(String.Format(LIST_PROJECTS_FOR_USER, userGuid.ToRQLString()));
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("PROJECT");
-            return (from XmlElement curNode in xmlNodes select (IProject) new Project.Project(this, curNode)).ToList();
-        }
-
-        /// <summary>
         ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
@@ -593,25 +428,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         }
 
         /// <summary>
-        ///     Get user by guid. The difference to new User(..., Guid) is that this method immmediatly checks wether the user exists.
-        /// </summary>
-        /// <param name="guid"> Guid of the user </param>
-        /// <exception cref="Exception">Thrown, if no user with Guid==guid could be found</exception>
-        public IUser GetUser(Guid guid)
-        {
-            const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(string.Format(LOAD_USER, guid.ToRQLString()));
-            var userElement = (XmlElement) xmlDoc.GetElementsByTagName("USER")[0];
-            if (userElement == null)
-            {
-                throw new SmartAPIException(ServerLogin, "could not load user: " + guid.ToRQLString());
-            }
-            return new User(this, Guid.Parse(userElement.GetAttributeValue("guid")));
-        }
-
-        public IIndexedRDList<string, IGroup> Groups { get; private set; }
-
-        /// <summary>
         ///     All locales, indexed by LCID. The list is cached by default.
         /// </summary>
         public IIndexedCachedList<int, ISystemLocale> Locales { get; private set; }
@@ -621,18 +437,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             get { return Guid.Parse(_loginGuidStr); }
             private set { _loginGuidStr = value.ToRQLString(); }
         }
-
-        /// <summary>
-        ///     All available CMS modules (e.g. SmartTree, SmartEdit, Tasks ...), indexed by ModuleType. The list is cached by default.
-        /// </summary>
-        public IndexedRDList<ModuleType, IModule> Modules { get; private set; }
-
-        /// <summary>
-        ///     All projects on the server.
-        /// </summary>
-        public IIndexedRDList<string, IProject> Projects { get; private set; }
-
-        public NameIndexedRDList<IProject> ProjectsForCurrentUser { get; private set; }
 
         /// <summary>
         ///     Select a project. Subsequent queries will be executed in the context of this project.
@@ -690,9 +494,9 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         {
             get
             {
-                return CurrentUser.ModuleAssignment.IsServerManager
-                           ? Projects.FirstOrDefault(x => x.Guid == SelectedProjectGuid)
-                           : ProjectsForCurrentUser.GetByGuid(SelectedProjectGuid);
+                return ServerManager.Users.Current.ModuleAssignment.IsServerManager
+                           ? ServerManager.Projects.FirstOrDefault(x => x.Guid == SelectedProjectGuid)
+                           : ServerManager.Projects.ForCurrentUser.FirstOrDefault(x => x.Guid == SelectedProjectGuid);
             }
             set { SelectProject(value); }
         }
@@ -701,12 +505,12 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
 
         public void SendMailFromCurrentUserAccount(EMail mail)
         {
-            SendEmail(CurrentUser.EMail, mail);
+            SendEmail(ServerManager.Users.Current.EMail, mail);
         }
 
         public void SendMailFromSystemAccount(EMail mail)
         {
-            IApplicationServer server = ApplicationServers.First();
+            IApplicationServer server = ServerManager.ApplicationServers.First();
             string fromAddress = server.From;
 
             SendEmail(fromAddress, mail);
@@ -716,6 +520,8 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
         ///     Login information of the session
         /// </summary>
         public ServerLogin ServerLogin { get; private set; }
+
+        public IServerManager ServerManager { get; private set; }
 
         public Version ServerVersion { get; private set; }
 
@@ -768,14 +574,12 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             get { return Locales.First(locale => locale.IsStandardLanguage); }
         }
 
-        public IUsers Users { get; private set; }
-
         /// <summary>
         ///     Waits for an asynchronous process to finish.
         ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
         ///     The async processes get checked every second, for other retry periods, use
         ///     <see
-        ///         cref="WaitForAsyncProcess(System.TimeSpan,System.TimeSpan,System.Predicate{erminas.SmartAPI.CMS.Administration.AsynchronousProcess})" />
+        ///         cref="WaitForAsyncProcess(System.TimeSpan,System.TimeSpan,System.Predicate{ServerManagement.ServerManager.AsynchronousProcess})" />
         ///     instead.
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
@@ -810,12 +614,41 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             AsynchronousProcesses.WaitFor(list => !pred(list), timeLeft, retry);
         }
 
+        internal XmlElement GetUserSessionInfoElement()
+        {
+            const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
+            string reply = ExecuteRQLRaw(SESSION_INFO.RQLFormat(_sessionKeyStr), RQL.IODataFormat.Plain);
+
+            var doc = new XmlDocument();
+            doc.LoadXml(reply);
+            return (XmlElement) doc.SelectSingleNode("/IODATA/USER");
+        }
+
         internal void LoginToServerManager()
         {
             const string LOGIN_TO_SERVER_MANAGER =
                 @"<ADMINISTRATION><MODULE action=""login"" userguid=""{0}"" projectguid=""{1}"" id=""servermanager"" /></ADMINISTRATION>";
-            ExecuteRQL(LOGIN_TO_SERVER_MANAGER.RQLFormat(CurrentUser, SelectedProjectGuid));
+            ExecuteRQL(LOGIN_TO_SERVER_MANAGER.RQLFormat(ServerManager.Users.Current, SelectedProjectGuid));
             SelectedProjectGuid = Guid.Empty;
+        }
+
+        internal static XmlDocument ParseRQLResult(ISession session, string result)
+        {
+            var xmlDoc = new XmlDocument();
+
+            if (!result.Trim().Any())
+            {
+                return xmlDoc;
+            }
+
+            try
+            {
+                xmlDoc.LoadXml(result);
+                return xmlDoc;
+            } catch (Exception e)
+            {
+                throw new SmartAPIException(session.ServerLogin, "Illegal response from server", e);
+            }
         }
 
         private static string CheckAlreadyLoggedIn(XmlElement xmlElement)
@@ -860,58 +693,11 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return builder.ToString();
         }
 
-        private List<IApplicationServer> GetApplicationServers()
-        {
-            const string LIST_APPLICATION_SERVERS =
-                @"<ADMINISTRATION><EDITORIALSERVERS action=""list""/></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_APPLICATION_SERVERS);
-
-            XmlNodeList editorialServers = xmlDoc.GetElementsByTagName("EDITORIALSERVER");
-            return (from XmlElement curServer in editorialServers
-                    select
-                        (IApplicationServer)
-                        new ApplicationServer(this, curServer.GetGuid())
-                            {
-                                Name = curServer.GetName(),
-                                IpAddress = curServer.GetAttributeValue("ip")
-                            }).ToList();
-        }
-
-        private List<IAsynchronousProcess> GetAsynchronousProcesses()
-        {
-            const string LIST_PROCESSES = @"<ADMINISTRATION><ASYNCQUEUE action=""list"" project=""""/></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PROCESSES);
-            return (from XmlElement curProcess in xmlDoc.GetElementsByTagName("ASYNCQUEUE")
-                    select (IAsynchronousProcess) new AsynchronousProcess(this, curProcess)).ToList();
-        }
-
-        private IUser GetCurrentUser()
-        {
-            XmlElement userElement = GetUserSessionInfoElement();
-
-            return new User(this, userElement.GetGuid()) {Name = userElement.GetName()};
-        }
-
-        private List<IDatabaseServer> GetDatabaseServers()
-        {
-            using (new ServerManagementContext(this))
-            {
-                const string LIST_DATABASE_SERVERS =
-                    @"<ADMINISTRATION><DATABASESERVERS action=""list"" /></ADMINISTRATION>";
-                XmlDocument xmlDoc = ExecuteRQL(LIST_DATABASE_SERVERS, RQL.IODataFormat.SessionKeyAndLogonGuid);
-
-                XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("DATABASESERVER");
-                return
-                    (from XmlElement curNode in xmlNodes select (IDatabaseServer) new DatabaseServer(this, curNode))
-                        .ToList();
-            }
-        }
-
         private List<IDialogLocale> GetDialogLocales()
         {
             const string LOAD_DIALOG_LANGUAGES = @"<DIALOG action=""listlanguages"" orderby=""2""/>";
             string resultStr = ExecuteRQLRaw(LOAD_DIALOG_LANGUAGES, RQL.IODataFormat.LogonGuidOnly);
-            XmlDocument xmlDoc = ParseRQLResult(resultStr);
+            XmlDocument xmlDoc = ParseRQLResult(this, resultStr);
 
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("LIST")
                     select (IDialogLocale) new DialogLocale(this, curElement)).ToList();
@@ -929,15 +715,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             xmlDoc.LoadXml(result);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
             return (XmlElement) (xmlNodes.Count > 0 ? xmlNodes[0] : null);
-        }
-
-        private List<IGroup> GetGroups()
-        {
-            const string LIST_GROUPS = @"<ADMINISTRATION><GROUPS action=""list""/></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_GROUPS, RQL.IODataFormat.LogonGuidOnly);
-            return
-                (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")
-                 select (IGroup) new Group(this, curGroup)).ToList();
         }
 
         private List<ISystemLocale> GetLocales()
@@ -982,27 +759,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
             return xmlDoc;
         }
 
-        private List<IModule> GetModules()
-        {
-            const string LIST_MODULES = @"<ADMINISTRATION><MODULES action=""list"" /></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_MODULES);
-
-            //we need to create an intermediate list, because the XmlNodeList returned by GetElementsByTagName gets changed in the linq/ToList() expression.
-            //the change to the list occurs due to the cloning on the XmlElements in Module->AbstractAttributeContainer c'tor.
-            //i have no idea why that changes the list as the same approach works without a problem everywhere else without the need for the intermediate list.
-            List<XmlElement> moduleElements = xmlDoc.GetElementsByTagName("MODULE").OfType<XmlElement>().ToList();
-            return (from XmlElement curModule in moduleElements select (IModule) new Module(this, curModule)).ToList();
-        }
-
-        private List<IProject> GetProjects()
-        {
-            const string LIST_PROJECTS = @"<ADMINISTRATION><PROJECTS action=""list""/></ADMINISTRATION>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PROJECTS);
-            XmlNodeList projectNodes = xmlDoc.GetElementsByTagName("PROJECT");
-            return
-                (from XmlElement curNode in projectNodes select (IProject) new Project.Project(this, curNode)).ToList();
-        }
-
         private Version GetServerVersion(string baseURL)
         {
             string versionURI = baseURL + "ioVersionInfo.asp";
@@ -1042,16 +798,6 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                                                     "Could not retrieve version info of RedDot server at " + baseURL +
                                                     "\n" + e.Message, e);
             }
-        }
-
-        private XmlElement GetUserSessionInfoElement()
-        {
-            const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
-            string reply = ExecuteRQLRaw(SESSION_INFO.RQLFormat(_sessionKeyStr), RQL.IODataFormat.Plain);
-
-            var doc = new XmlDocument();
-            doc.LoadXml(reply);
-            return (XmlElement) doc.SelectSingleNode("/IODATA/USER");
         }
 
         private void InitConnection()
@@ -1165,30 +911,11 @@ versioning=""{4}"" testproject=""{5}""><LANGUAGEVARIANTS><LANGUAGEVARIANT langua
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
                                                         "Could not login; Invalid user data");
                 }
-                CurrentUser = new User(this, Guid.Parse(((XmlElement) userNodes[0]).GetAttributeValue("guid")));
+                //ServerManager.Users.Current = new User(this, Guid.Parse(((XmlElement) userNodes[0]).GetAttributeValue("guid")));
             }
             else
             {
-                CurrentUser = new User(this, Guid.Parse(loginNode.GetAttributeValue("userguid")));
-            }
-        }
-
-        private XmlDocument ParseRQLResult(string result)
-        {
-            var xmlDoc = new XmlDocument();
-
-            if (!result.Trim().Any())
-            {
-                return xmlDoc;
-            }
-
-            try
-            {
-                xmlDoc.LoadXml(result);
-                return xmlDoc;
-            } catch (Exception e)
-            {
-                throw new SmartAPIException(ServerLogin, "Illegal response from server", e);
+                //ServerManager.Users.Current = new User(this, Guid.Parse(loginNode.GetAttributeValue("userguid")));
             }
         }
 

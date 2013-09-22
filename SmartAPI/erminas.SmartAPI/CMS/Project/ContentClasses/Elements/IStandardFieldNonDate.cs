@@ -19,10 +19,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldNonDate : IStandardField
     {
-        
         bool IsDirectEditActivated { get; set; }
 
-        
         bool IsDragAndDropActivated { get; set; }
     }
 
@@ -32,12 +30,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             : base(contentClass, xmlElement)
         {
         }
+
         [RedDot("eltdirectedit")]
         public bool IsDirectEditActivated
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {

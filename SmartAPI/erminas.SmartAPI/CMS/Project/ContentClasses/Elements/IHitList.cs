@@ -16,11 +16,9 @@
 using System;
 using System.Xml;
 using erminas.SmartAPI.CMS.Converter;
-using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-
     public interface IHitList : IList
     {
         BasicAlignment Align { get; set; }
@@ -69,15 +67,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        public override void CommitInCurrentLanguage()
+        public override void CommitInLanguage(string abbreviation)
         {
-            using (new LanguageContext(LanguageVariant))
-            {
-                //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
-                XmlElement.SetAttributeValue("eltsrc", RQL.SESSIONKEY_PLACEHOLDER);
+            var element = GetElementForLanguage(abbreviation);
+            //we need to have an eltsrc attribute with value sessionkey, otherwise eltalt won't get stored on the server oO
+            element.SetAttributeValue("eltsrc", RQL.SESSIONKEY_PLACEHOLDER);
 
-                Project.ExecuteRQL("<TEMPLATE>" + GetSaveString(XmlElement) + "</TEMPLATE>", RqlType.SessionKeyInProject);
-            }
+            base.CommitInLanguage(abbreviation);
         }
 
         [RedDot("elthspace")]

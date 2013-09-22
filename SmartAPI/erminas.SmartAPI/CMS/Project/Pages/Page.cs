@@ -307,8 +307,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 @"<PAGE action=""changetemplate"" guid=""{0}"" changeall=""{1}"" holdreferences=""1"" holdexportsettings=""1"" holdauthorizations=""1"" holdworkflow=""1""><TEMPLATE originalguid=""{2}"" changeguid=""{3}"">{4}</TEMPLATE></PAGE>";
 
             const string REPLACE_ELEMENT = @"<ELEMENT originalguid=""{0}"" changeguid=""{1}""/>";
-            var oldElements = ContentClass.Elements[Project.LanguageVariants.Main];
-            var newElements = replacement.Elements[Project.LanguageVariants.Main];
+            var oldElements = ContentClass.Elements;
+            var newElements = replacement.Elements;
 
             var unmappedElements = oldElements.Where(element => !oldToNewMapping.ContainsKey(element.Name));
             var unmappedStr = unmappedElements.Aggregate("",
@@ -620,7 +620,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             do
             {
                 Refresh();
-                if (Status == PageState.IsInRecycleBin)
+                if (!Exists || Status == PageState.IsInRecycleBin)
                 {
                     return;
                 }

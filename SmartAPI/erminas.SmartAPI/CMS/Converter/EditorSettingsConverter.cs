@@ -21,7 +21,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class EditorSettingsConverter : IAttributeConverter<EditorSettings>
+    internal class EditorSettingsConverter : IAttributeConverter<EditorSettings>
     {
         public EditorSettings ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -41,7 +41,8 @@ namespace erminas.SmartAPI.CMS.Converter
             get { return false; }
         }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, EditorSettings value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
+                            EditorSettings value)
         {
             ConverterHelper.EnsureValidProjectObject(parent);
 

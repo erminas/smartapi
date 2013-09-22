@@ -23,7 +23,7 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class XslFileConverter : IAttributeConverter<IFile>
+    internal class XslFileConverter : IAttributeConverter<IFile>
     {
         private const string ELTXSLFILE = "eltxslfile";
         private const string ELTFOLDERGUID = "eltfolderguid";
@@ -47,7 +47,7 @@ namespace erminas.SmartAPI.CMS.Converter
             get { return false; }
         }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute, IFile value)
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute, IFile value)
         {
             ConverterHelper.EnsureValidProjectObject(parent);
 
@@ -68,13 +68,13 @@ namespace erminas.SmartAPI.CMS.Converter
             SetValuesFromDifferentProjects(parent, element, attribute, value);
         }
 
-        private static void SetEmptyValues(XmlElement element)
+        private static void SetEmptyValues(IXmlReadWriteWrapper element)
         {
             element.SetAttributeValue(ELTFOLDERGUID, null);
             element.SetAttributeValue(ELTXSLFILE, null);
         }
 
-        private static void SetValuesFromDifferentProjects(IProjectObject parent, XmlElement element,
+        private static void SetValuesFromDifferentProjects(IProjectObject parent, IXmlReadWriteWrapper element,
                                                            RedDotAttribute attribute, IFile value)
         {
             IFolder ownFolder;
@@ -98,7 +98,7 @@ namespace erminas.SmartAPI.CMS.Converter
             element.SetAttributeValue(ELTXSLFILE, ownFile.Name);
         }
 
-        private static void SetValuesFromSameProject(XmlElement element, IFile value)
+        private static void SetValuesFromSameProject(IXmlReadWriteWrapper element, IFile value)
         {
             element.SetAttributeValue(ELTFOLDERGUID, value.Folder.Guid.ToRQLString());
             element.SetAttributeValue(ELTXSLFILE, value.Name);

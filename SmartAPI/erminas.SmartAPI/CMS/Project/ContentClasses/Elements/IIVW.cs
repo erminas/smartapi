@@ -19,13 +19,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IIVW : IContentClassElement
     {
-        
         string Height { get; set; }
 
-        
         string Src { get; set; }
 
-        
         string Width { get; set; }
     }
 
@@ -39,18 +36,21 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ContentClassCategory.Content; }
         }
+
         [RedDot("eltheight")]
         public string Height
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltsrc")]
         public string Src
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltwidth")]
         public string Width
         {

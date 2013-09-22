@@ -33,7 +33,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         bool IsNotUsedInForm { get; set; }
 
-        IFile SrcFile { get; set; }
+        ILanguageDependentValue<IFile> SrcFile { get; }
     }
 
     internal class Background : ContentClassElement, IBackground
@@ -90,11 +90,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("__file", ConverterType = typeof (SrcFileConverter))]
-        public IFile SrcFile
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get { return GetAttributeValue<IFile>(); }
-
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
     }
 }

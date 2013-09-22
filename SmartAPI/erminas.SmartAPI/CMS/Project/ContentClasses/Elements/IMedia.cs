@@ -47,8 +47,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         string RequiredNamePattern { get; set; }
         int? RequiredPictureHeight { get; set; }
         int? RequiredPictureWidth { get; set; }
-        IFile SampleFile { get; set; }
-        IFile SrcFile { get; set; }
+        ILanguageDependentValue<IFile> SampleFile { get; }
+        ILanguageDependentValue<IFile> SrcFile { get; }
         TargetFormat TargetFormat { get; set; }
     }
 
@@ -190,17 +190,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         }
 
         [RedDot("__examplefile", ConverterType = typeof (ExampleFileConverter), DependsOn = "eltfolderguid")]
-        public IFile SampleFile
+        public ILanguageDependentValue<IFile> SampleFile
         {
-            get { return GetAttributeValue<IFile>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
         [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
-        public IFile SrcFile
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get { return GetAttributeValue<IFile>(); }
-            set { SetAttributeValue(value); }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
         [RedDot("elttargetformat", ConverterType = typeof (StringEnumConverter<TargetFormat>))]

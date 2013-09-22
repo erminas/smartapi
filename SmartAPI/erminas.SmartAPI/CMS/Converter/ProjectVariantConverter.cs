@@ -19,7 +19,7 @@ using erminas.SmartAPI.CMS.Project;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class ProjectVariantConverter : AbstractGuidElementConverter<IProjectVariant>
+    internal class ProjectVariantConverter : AbstractGuidElementConverter<IProjectVariant>
     {
         protected override IProjectVariant GetFromGuid(IProjectObject parent, XmlElement element,
                                                        RedDotAttribute attribute, Guid guid)
@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Converter
             return parent.Project.ProjectVariants.GetByGuid(guid);
         }
 
-        protected override IProjectVariant GetFromName(IProjectObject parent, XmlElement element,
+        protected override IProjectVariant GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
                                                        RedDotAttribute attribute, IProjectVariant value)
         {
             return parent.Project.ProjectVariants.GetByName(value.Name);

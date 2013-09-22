@@ -15,7 +15,7 @@
 
 using System.Web;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     /// <summary>
     ///     EMail for sending from the RedDot server.

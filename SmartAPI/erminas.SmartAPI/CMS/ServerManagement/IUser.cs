@@ -15,13 +15,13 @@
 
 using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration.Language;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     [Flags]
     public enum UserPofileChangeRestrictions
@@ -138,7 +138,7 @@ namespace erminas.SmartAPI.CMS.Administration
             {
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete user {0}", this));
             }
-            Session.Users.InvalidateCache();
+            Session.ServerManager.Users.InvalidateCache();
         }
 
         public string Description

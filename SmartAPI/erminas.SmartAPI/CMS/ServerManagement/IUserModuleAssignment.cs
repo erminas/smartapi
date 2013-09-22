@@ -21,7 +21,7 @@ using System.Xml;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     [Flags]
     public enum ServerManagerRights
@@ -159,7 +159,7 @@ namespace erminas.SmartAPI.CMS.Administration
             }
             set
             {
-                var serverManagerModule = _user.Session.Modules[ModuleType.ServerManager];
+                var serverManagerModule = _user.Session.ServerManager.Modules[ModuleType.ServerManager];
 
                 ServerManagerRights rights = RightsWithResolvedDepenecies(value);
 
@@ -176,12 +176,12 @@ namespace erminas.SmartAPI.CMS.Administration
 
         public void SetIsModuleAssigned(ModuleType moduleType, bool assign)
         {
-            var module = _user.Session.Modules[moduleType];
+            var module = _user.Session.ServerManager.Modules[moduleType];
 
             var modulesToAssign = new List<IModule> {module};
             if (IsModuleDependentOnSmartEdit(moduleType))
             {
-                var smartEditModule = _user.Session.Modules[ModuleType.SmartEdit];
+                var smartEditModule = _user.Session.ServerManager.Modules[ModuleType.SmartEdit];
                 modulesToAssign.Add(smartEditModule);
             }
             string moduleAssignmentSubString = CreateModuleAssignmentSubString(modulesToAssign, assign);

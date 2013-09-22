@@ -17,10 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration.Language;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Administration.Language
+namespace erminas.SmartAPI.CMS
 {
     public interface ISystemLocale : ISessionObject
     {

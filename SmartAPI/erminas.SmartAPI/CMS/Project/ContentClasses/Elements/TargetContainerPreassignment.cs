@@ -21,10 +21,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     internal class TargetContainerPreassignment
     {
-        private readonly IContentClassElement _element;
+        private readonly ContentClassElement _element;
         private Pages.Elements.IContainer _cachedTargetContainer;
 
-        internal TargetContainerPreassignment(IContentClassElement element)
+        internal TargetContainerPreassignment(ContentClassElement element)
         {
             _element = element;
         }
@@ -49,11 +49,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     return _cachedTargetContainer;
                 }
-
+                //TODO fix, return null, wenn seite in sprache nicht existiert ...
                 return
                     _cachedTargetContainer =
                     (Pages.Elements.Container)
-                    PageElement.CreateElement(_element.ContentClass.Project, guid, _element.LanguageVariant);
+                    PageElement.CreateElement(_element.ContentClass.Project, guid,
+                                              _element.Project.LanguageVariants.Current);
             }
             set
             {

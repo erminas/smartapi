@@ -20,7 +20,7 @@ using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.CMS.Converter
 {
-    public class SyllableConverter : AbstractGuidElementConverter<ISyllable>
+    internal class SyllableConverter : AbstractGuidElementConverter<ISyllable>
     {
         protected override ISyllable GetFromGuid(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
                                                  Guid guid)
@@ -28,8 +28,8 @@ namespace erminas.SmartAPI.CMS.Converter
             return parent.Project.Syllables.GetByGuid(guid);
         }
 
-        protected override ISyllable GetFromName(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
-                                                 ISyllable value)
+        protected override ISyllable GetFromName(IProjectObject parent, IXmlReadWriteWrapper element,
+                                                 RedDotAttribute attribute, ISyllable value)
         {
             ISyllable output;
             if (!parent.Project.Syllables.TryGetByName(value.Name, out output))

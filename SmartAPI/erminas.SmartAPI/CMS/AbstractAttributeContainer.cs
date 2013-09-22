@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -154,9 +155,10 @@ namespace erminas.SmartAPI.CMS
         }
     }
 
-    internal abstract class AbstractAttributeContainer : ISessionObject, IXmlBasedObject
+    internal abstract class AbstractAttributeContainer : ISessionObject
     {
         private readonly ISession _session;
+        protected XmlReadWriteWrapper _readWriteWrapper;
         protected XmlElement _xmlElement;
 
         internal AbstractAttributeContainer(ISession session)
@@ -172,6 +174,7 @@ namespace erminas.SmartAPI.CMS
                 throw new SmartAPIInternalException("XmlElement is null");
             }
             _xmlElement = xmlElement;
+            _readWriteWrapper = new XmlReadWriteWrapper(_xmlElement, new Dictionary<string, string>());
         }
 
         public virtual ISession Session
@@ -182,7 +185,11 @@ namespace erminas.SmartAPI.CMS
         public virtual XmlElement XmlElement
         {
             get { return _xmlElement; }
-            protected internal set { _xmlElement = value; }
+            protected internal set
+            {
+                _xmlElement = value;
+                _readWriteWrapper = new XmlReadWriteWrapper(_xmlElement, new Dictionary<string, string>());
+            }
         }
 
         protected virtual T GetAttributeValue<T>([CallerMemberName] string callerName = "")
@@ -191,12 +198,13 @@ namespace erminas.SmartAPI.CMS
             var property = GetProperty(callerName);
             var attribute = GetRedDotAttributeOfCallerMember(callerName);
 
+            //TODO language depenece in die entsprechende klasse packen
             if (IsLanguageDependentProperty(property))
             {
                 return GetLanguageDependentProperty<T>(attribute, property);
             }
 
-            return attribute.ReadFrom<T>(project, XmlElement);
+            return attribute.ReadFrom<T>(project, _readWriteWrapper);
         }
 
         protected RedDotAttribute GetRedDotAttributeOfCallerMember(string callerName)
@@ -213,16 +221,18 @@ namespace erminas.SmartAPI.CMS
         {
             var project = this as IProjectObject;
             var attribute = GetRedDotAttributeOfCallerMember(callerName);
-            attribute.WriteTo(project, XmlElement, value);
+
+            attribute.WriteTo(project, _readWriteWrapper, value);
         }
 
         private T GetLanguageDependentProperty<T>(RedDotAttribute attribute, PropertyInfo property)
         {
             try
             {
+                var contentType = typeof (T).GetGenericArguments()[0];
+                var realType = typeof (LanguageDependentValue<>).MakeGenericType(contentType);
                 var constructor =
-                    typeof (T).GetConstructor(new[]
-                        {typeof (ILanguageDependentPartialRedDotObject), typeof (RedDotAttribute)});
+                    realType.GetConstructor(new[] {typeof (IPartialRedDotProjectObject), typeof (RedDotAttribute)});
 
 // ReSharper disable PossibleNullReferenceException
                 return (T) constructor.Invoke(new object[] {this, attribute});
@@ -244,9 +254,10 @@ namespace erminas.SmartAPI.CMS
 
         private static bool IsLanguageDependentProperty(PropertyInfo property)
         {
-            return
-                property.PropertyType.GetInterfaces()
-                        .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof (ILanguageDependentValue<>));
+            Func<Type, bool> isLanguageDependent =
+                x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof (ILanguageDependentValue<>);
+            return isLanguageDependent(property.PropertyType) ||
+                   property.PropertyType.GetInterfaces().Any(isLanguageDependent);
         }
     }
 }

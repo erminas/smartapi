@@ -15,10 +15,11 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     public enum AsynchronousProcessType
     {
@@ -62,7 +63,7 @@ namespace erminas.SmartAPI.CMS.Administration
     {
         private AsynchronousProcessType _type;
 
-        internal AsynchronousProcess(Session session, XmlElement xmlElement) : base(session, xmlElement)
+        internal AsynchronousProcess(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
             LoadXml();
         }

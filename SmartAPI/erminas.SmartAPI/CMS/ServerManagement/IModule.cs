@@ -17,7 +17,7 @@ using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     public enum ModuleType
     {

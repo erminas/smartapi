@@ -19,33 +19,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IList : IWorkflowAssignments, IContentClassPreassignable
     {
-        
         string FontClass { get; set; }
 
-        
         string FontColor { get; set; }
 
-        
         string FontFace { get; set; }
 
-        
         string FontSize { get; set; }
 
         /// <summary>
-        /// WARNING: RedDot "forgets" this setting, if no target container is selected
+        ///     WARNING: RedDot "forgets" this setting, if no target container is selected
         /// </summary>
         bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
 
-        
         bool IsFontBold { get; set; }
 
-        
         bool IsOnlyPathAndFilenameInserted { get; set; }
 
-        
         bool IsSyntaxConformingToXHtml { get; set; }
 
-        
         bool IsTransferingElementContentOfFollowingPages { get; set; }
 
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
@@ -65,24 +57,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return ContentClassCategory.Structural; }
         }
+
         [RedDot("eltfontclass")]
         public string FontClass
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltfontcolor")]
         public string FontColor
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltfontface")]
         public string FontFace
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltfontsize")]
         public string FontSize
         {
@@ -95,24 +91,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable; }
             set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
         }
+
         [RedDot("eltfontbold")]
         public bool IsFontBold
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltonlyhrefvalue")]
         public bool IsOnlyPathAndFilenameInserted
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltxhtmlcompliant")]
         public bool IsSyntaxConformingToXHtml
         {
             get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
+
         [RedDot("eltextendedlist")]
         public bool IsTransferingElementContentOfFollowingPages
         {

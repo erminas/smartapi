@@ -24,7 +24,7 @@ using erminas.SmartAPI.Utils;
 namespace erminas.SmartAPI.CMS.Converter
 {
     //TODO test with different servers etc
-    public class ElementReferenceConverter : IAttributeConverter<IContentClassElement>
+    internal class ElementReferenceConverter : IAttributeConverter<IContentClassElement>
     {
         public IContentClassElement ConvertFrom(IProjectObject parent, XmlElement element, RedDotAttribute attribute)
         {
@@ -38,15 +38,18 @@ namespace erminas.SmartAPI.CMS.Converter
 
             string langId = element.GetAttributeValue("eltlanguagevariantid");
 
-            IProject project = parent.Session.Projects.GetByGuid(projectGuid);
+            IProject project = parent.Session.ServerManager.Projects.GetByGuid(projectGuid);
             IContentClass contentClass = project.ContentClasses.GetByGuid(ccGuid);
 
-            return contentClass.Elements[langId].GetByGuid(elementGuid);
+            return contentClass.Elements.GetByGuid(elementGuid);
         }
 
-        public bool IsReadOnly { get; private set; }
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
 
-        public void WriteTo(IProjectObject parent, XmlElement element, RedDotAttribute attribute,
+        public void WriteTo(IProjectObject parent, IXmlReadWriteWrapper element, RedDotAttribute attribute,
                             IContentClassElement value)
         {
             if (parent == null)
@@ -88,11 +91,11 @@ namespace erminas.SmartAPI.CMS.Converter
 
         private static IContentClassElement GetReferencedElement(IProjectObject parent, IContentClassElement value)
         {
-            var project = parent.Project.Session.Projects[value.ContentClass.Project.Name];
+            var project = parent.Project.Session.ServerManager.Projects[value.ContentClass.Project.Name];
             return ConverterHelper.GetEquivalentContentClassElementFromOtherProject(value, project);
         }
 
-        private static void SetValuesFromOtherServer(IProjectObject parent, XmlElement element,
+        private static void SetValuesFromOtherServer(IProjectObject parent, IXmlReadWriteWrapper element,
                                                      IContentClassElement value)
         {
             try
@@ -109,17 +112,17 @@ namespace erminas.SmartAPI.CMS.Converter
             }
         }
 
-        private static void SetValuesFromSameServer(XmlElement element, IContentClassElement value)
+        private static void SetValuesFromSameServer(IXmlReadWriteWrapper element, IContentClassElement value)
         {
-            element.SetAttributeValue("eltlanguagevariantid", value.LanguageVariant.Abbreviation);
+            //element.SetAttributeValue("eltlanguagevariantid", element.GetAttributeValue());
             element.SetAttributeValue("eltelementguid", value.Guid.ToRQLString());
             element.SetAttributeValue("elttemplateguid", value.ContentClass.Guid.ToRQLString());
             element.SetAttributeValue("eltprojectguid", value.Project.Guid.ToRQLString());
         }
 
-        private static void SetValuesToNull(XmlElement element)
+        private static void SetValuesToNull(IXmlReadWriteWrapper element)
         {
-            element.SetAttributeValue("eltlanguagevariantid", null);
+            //element.SetAttributeValue("eltlanguagevariantid", null);
             element.SetAttributeValue("eltelementguid", null);
             element.SetAttributeValue("elttemplateguid", null);
             element.SetAttributeValue("eltprojectguid", null);

@@ -20,7 +20,7 @@ using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
-namespace erminas.SmartAPI.CMS.Administration
+namespace erminas.SmartAPI.CMS.ServerManagement
 {
     [Flags]
     public enum ExtendedUserRoles

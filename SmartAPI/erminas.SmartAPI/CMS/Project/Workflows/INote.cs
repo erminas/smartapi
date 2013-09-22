@@ -40,7 +40,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         private void LoadXml()
         {
             Value = _xmlElement.GetAttributeValue("value");
-            Type = (NoteType)_xmlElement.GetIntAttributeValue("type").GetValueOrDefault();
+            Type = (NoteType) _xmlElement.GetIntAttributeValue("type").GetValueOrDefault();
         }
     }
 
