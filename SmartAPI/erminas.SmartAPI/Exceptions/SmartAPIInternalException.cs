@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -18,6 +18,8 @@ using System.Runtime.Serialization;
 
 namespace erminas.SmartAPI.Exceptions
 {
+    /// Class for internal errors. If this exception occurs, it probably is related to a bug in the SmartAPI
+    /// and we would like to hear about it at https://github.com/erminas/smartapi or info@erminas.de.
     [Serializable]
     public class SmartAPIInternalException : Exception
     {

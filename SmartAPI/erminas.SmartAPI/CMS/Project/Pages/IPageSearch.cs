@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -18,9 +18,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.Workflows;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
@@ -34,8 +34,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         IEnumerable<IPage> Execute();
         string Headline { get; set; }
         bool IsMatchingHeadlineExactly { get; set; }
-        string Keyword { get; set; }
         bool IsMatchingKeywordExactly { get; set; }
+        string Keyword { get; set; }
         int MaxRecords { get; set; }
         int PageIdFrom { get; set; }
         int PageIdTo { get; set; }
@@ -67,7 +67,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var rqlXml = new XmlDocument();
             XmlElement pageElement = rqlXml.CreateElement("PAGE");
             pageElement.SetAttribute("action", "search");
-            pageElement.SetAttribute("flags", ((int)PageType).ToString(CultureInfo.InvariantCulture));
+            pageElement.SetAttribute("flags", ((int) PageType).ToString(CultureInfo.InvariantCulture));
             pageElement.SetAttribute("maxrecords", MaxRecords.ToString(CultureInfo.InvariantCulture));
             if (Headline != null)
             {
@@ -120,9 +120,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public bool IsMatchingHeadlineExactly { get; set; }
 
-        public string Keyword { get; set; }
-
         public bool IsMatchingKeywordExactly { get; set; }
+        public string Keyword { get; set; }
         public int MaxRecords { get; set; }
 
         public int PageIdFrom { get; set; }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -16,7 +16,6 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -27,17 +26,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     internal class StandardFieldUserDefined : StandardFieldNonDate, IStandardFieldUserDefined
     {
-        private readonly StringXmlNodeAttribute _regexAttribute;
-
         internal StandardFieldUserDefined(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
-            _regexAttribute = new StringXmlNodeAttribute(this, "eltverifytermregexp");
         }
 
         public Regex RegularExpression
         {
-            get { return new Regex(_regexAttribute.Value); }
+            get { return new Regex(RegexAttribute ?? ""); }
             set
             {
                 string str = value.ToString();
@@ -45,8 +41,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 {
                     throw new ArgumentException("Empty pattern not allowed for user defined standard fields.");
                 }
-                _regexAttribute.Value = str;
+                RegexAttribute = str;
             }
+        }
+
+        [RedDot("eltverifytermregexp")]
+        private string RegexAttribute
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

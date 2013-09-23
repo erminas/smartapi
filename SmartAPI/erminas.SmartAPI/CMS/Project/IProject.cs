@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,7 +19,6 @@ using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.Authorizations;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Folder;
@@ -106,10 +105,9 @@ namespace erminas.SmartAPI.CMS.Project
 
     public interface IProject : IPartialRedDotObject, ISessionObject
     {
-        IAuthorizationPackages AuthorizationPackages { get; }
-
         //IClipboard Clipboard { get; }
         IProjectGroups AssignedGroups { get; }
+        //IAuthorizationPackages AuthorizationPackages { get; }
         ICategories Categories { get; }
 
         /// <summary>
@@ -258,8 +256,8 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         //public IClipboard Clipboard { get; private set; }
-        public IAuthorizationPackages AuthorizationPackages { get; private set; }
         public IProjectGroups AssignedGroups { get; private set; }
+        //public IAuthorizationPackages AuthorizationPackages { get; private set; }
 
         public ICategories Categories { get; private set; }
 
@@ -480,9 +478,9 @@ namespace erminas.SmartAPI.CMS.Project
         {
             if (Session.CurrentUser.ModuleAssignment.IsServerManager)
             {
-                return ((Project) Session.Projects.GetByGuid(Guid)).XmlElement;
+                return ((Project) Session.ServerManager.Projects.GetByGuid(Guid)).XmlElement;
             }
-            return ((Project) Session.ProjectsForCurrentUser.GetByGuid(Guid)).XmlElement;
+            return ((Project) Session.ServerManager.Projects.ForCurrentUser.GetByGuid(Guid)).XmlElement;
         }
 
         internal XmlDocument AllFoldersXmlDocument { get; set; }
@@ -579,7 +577,7 @@ namespace erminas.SmartAPI.CMS.Project
             Keywords = new RDList<IKeyword>(GetKeywords, Caching.Enabled);
             AssignedGroups = new ProjectGroups(this, Caching.Enabled);
 
-            AuthorizationPackages = new AuthorizationPackages(this);
+            //AuthorizationPackages = new AuthorizationPackages(this);
         }
 
         private void LoadXml()

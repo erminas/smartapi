@@ -25,7 +25,7 @@ var login = new ServerLogin {Address = new Uri("http://my-reddot-server/cms"), A
 using(var session = SessionBuilder.CreateOrReplaceOldestSession(login))
 {
   // Select a project based on the name
-  var project = session.Projects.GetByName("MyProjekt");
+  var project = session.ServerManager.Projects["MyProjekt"];
  
   // Find all pages based on the Content Class "MyContentClass"
   var pageSearch = project.CreatePageSearch();

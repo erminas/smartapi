@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -17,10 +17,12 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IIVW
+    public interface IIVW : IContentClassElement
     {
         string Height { get; set; }
+
         string Src { get; set; }
+
         string Width { get; set; }
     }
 
@@ -28,7 +30,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal IVW(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltheight", "eltwidth", "eltsrc");
         }
 
         public override ContentClassCategory Category
@@ -36,22 +37,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltheight")]
         public string Height
         {
-            get { return GetAttributeValue<string>("eltheight"); }
-            set { SetAttributeValue("eltheight", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltsrc")]
         public string Src
         {
-            get { return GetAttributeValue<string>("eltsrc"); }
-            set { SetAttributeValue("eltsrc", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltwidth")]
         public string Width
         {
-            get { return GetAttributeValue<string>("eltwidth"); }
-            set { SetAttributeValue("eltwidth", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

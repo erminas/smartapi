@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -95,6 +95,12 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             Files = new Files(this, Caching.Enabled);
         }
 
+        public void Delete()
+        {
+            const string DELETE = @"<PROJECT><FOLDER action=""delete"" guid=""{0}""/></PROJECT>";
+            Project.ExecuteRQL(DELETE.RQLFormat(this));
+        }
+
         public IFiles Files { get; protected set; }
 
         public virtual bool IsAssetManager
@@ -128,24 +134,18 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         private void LoadXml()
         {
             Guid linkedProjectGuid;
-            if (XmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
+            if (_xmlElement.TryGetGuid("linkedprojectguid", out linkedProjectGuid))
             {
-                var project = Project.Session.Projects.GetByGuid(linkedProjectGuid);
+                var project = Project.Session.ServerManager.Projects.GetByGuid(linkedProjectGuid);
 
                 // project could be null if the linked project is not available (broken folder)
                 // in that case do not try to set the linked folder
                 if (project != null)
                 {
-                    var linkedFolderGuid = XmlElement.GetGuid("linkedfolderguid");
+                    var linkedFolderGuid = _xmlElement.GetGuid("linkedfolderguid");
                     _linkedFolder = project.Folders.AllIncludingSubFolders.GetByGuid(linkedFolderGuid);
                 }
             }
-        }
-
-        public void Delete()
-        {
-            const string DELETE = @"<PROJECT><FOLDER action=""delete"" guid=""{0}""/></PROJECT>";
-            Project.ExecuteRQL(DELETE.RQLFormat(this));
         }
     }
 

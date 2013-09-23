@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -307,8 +307,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 @"<PAGE action=""changetemplate"" guid=""{0}"" changeall=""{1}"" holdreferences=""1"" holdexportsettings=""1"" holdauthorizations=""1"" holdworkflow=""1""><TEMPLATE originalguid=""{2}"" changeguid=""{3}"">{4}</TEMPLATE></PAGE>";
 
             const string REPLACE_ELEMENT = @"<ELEMENT originalguid=""{0}"" changeguid=""{1}""/>";
-            var oldElements = ContentClass.Elements[Project.LanguageVariants.Main];
-            var newElements = replacement.Elements[Project.LanguageVariants.Main];
+            var oldElements = ContentClass.Elements;
+            var newElements = replacement.Elements;
 
             var unmappedElements = oldElements.Where(element => !oldToNewMapping.ContainsKey(element.Name));
             var unmappedStr = unmappedElements.Aggregate("",
@@ -324,7 +324,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var query = REPLACE_CC.RQLFormat(this, isReplacingAll, ContentClass, replacement, mappedStr + unmappedStr);
 
             Project.ExecuteRQL(query, RqlType.SessionKeyInProject);
-            
+
             _contentClass = null;
             _ccGuid = default(Guid);
         }
@@ -530,7 +530,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             _releaseStatus = ReleaseStatusFromFlags();
 
-            _checkinDate = XmlElement.GetOADate("checkindate").GetValueOrDefault();
+            _checkinDate = _xmlElement.GetOADate("checkindate").GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
             InitIfPresent(ref _releaseDate, "releasedate", XmlUtil.ToOADate);
@@ -620,7 +620,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             do
             {
                 Refresh();
-                if (Status == PageState.IsInRecycleBin)
+                if (!Exists || Status == PageState.IsInRecycleBin)
                 {
                     return;
                 }

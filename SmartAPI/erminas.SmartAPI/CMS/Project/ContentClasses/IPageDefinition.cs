@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -40,6 +40,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return _contentClass; }
         }
 
+        public void Delete()
+        {
+            const string DELETE =
+                @"<TEMPLATE guid=""{0}""><PAGEDEFINITION action=""delete"" guid=""{1}"" name=""{2}""/></TEMPLATE>";
+
+            Project.ExecuteRQL(DELETE.RQLFormat(_contentClass, this, Name));
+        }
+
         public string Description
         {
             get { return _description; }
@@ -48,14 +56,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         private void LoadXml()
         {
             InitIfPresent(ref _description, "description", x => x);
-        }
-
-        public void Delete()
-        {
-            const string DELETE =
-                @"<TEMPLATE guid=""{0}""><PAGEDEFINITION action=""delete"" guid=""{1}"" name=""{2}""/></TEMPLATE>";
-
-            Project.ExecuteRQL(DELETE.RQLFormat(_contentClass, this, Name));
         }
     }
 }

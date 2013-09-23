@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security;
-using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -57,27 +57,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         public new IAssetManagerFolder Folder
         {
             get { return (IAssetManagerFolder) base.Folder; }
-        }
-
-        private List<IFile> GetFiles()
-        {
-            const string LIST_FILES =
-                @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" attributeguid="""" searchtext=""*"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
-
-            return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
-        }
-
-        protected override string GetSingleFilenameTemplate()
-        {
-            return @"<FILE sourcename=""{0}"" deletereal=""1"" languagevariantid=""" + Project.LanguageVariants.Main.Abbreviation + @"""/>";
-        }
-
-        protected override string GetDeleteFilesStatement(string files)
-        {
-            const string DELETE_FILES =
-                 @"<MEDIA loginguid=""{0}""><FOLDER guid=""{1}"" subdirguid=""{1}"" tempdir=""{2}{0}\""><FILES action=""deletefiles"">{3}</FILES></FOLDER></MEDIA>";
-
-            return DELETE_FILES.RQLFormat(Session.LogonGuid, Folder, SecurityElement.Escape(Session.CurrentApplicationServer.TempDirectoryPath), files);   
         }
 
         [VersionIsGreaterThanOrEqual(10, VersionName = "Version 10")]
@@ -127,7 +106,10 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             const string FILE_TO_UPDATE = @"<FILE action=""update"" sourcename=""{0}"" tempdir=""{1}""/>";
 
             var enumerable = filenames as IList<string> ?? filenames.ToList();
-            var rqlFiles = enumerable.Select(s => FILE_TO_UPDATE.SecureRQLFormat(s, Session.CurrentApplicationServer.TempDirectoryPath));
+            var rqlFiles =
+                enumerable.Select(
+                    s =>
+                    FILE_TO_UPDATE.SecureRQLFormat(s, Session.ServerManager.ApplicationServers.Current.TempDirectoryPath));
             var files = string.Join(string.Empty, rqlFiles);
 
             const string UPDATE_FILES_IN_FOLDER = @"<MEDIA><FOLDER guid=""{0}"">{1}</FOLDER></MEDIA>";
@@ -139,6 +121,22 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                                                 "Could not update thumbnails/file information in folder {0} on: {1}",
                                                 Folder, string.Join(", ", enumerable)));
             }
+        }
+
+        protected override string GetDeleteFilesStatement(string files)
+        {
+            const string DELETE_FILES =
+                @"<MEDIA loginguid=""{0}""><FOLDER guid=""{1}"" subdirguid=""{1}"" tempdir=""{2}{0}\""><FILES action=""deletefiles"">{3}</FILES></FOLDER></MEDIA>";
+
+            return DELETE_FILES.RQLFormat(Session.LogonGuid, Folder,
+                                          SecurityElement.Escape(
+                                              Session.ServerManager.ApplicationServers.Current.TempDirectoryPath), files);
+        }
+
+        protected override string GetSingleFilenameTemplate()
+        {
+            return @"<FILE sourcename=""{0}"" deletereal=""1"" languagevariantid=""" +
+                   Project.LanguageVariants.Main.Abbreviation + @"""/>";
         }
 
         private static string ComparisonAttributeToString(FileComparisonAttribute attribute)
@@ -175,6 +173,14 @@ namespace erminas.SmartAPI.CMS.Project.Folder
                 default:
                     throw new ArgumentException(string.Format("Unknown comparison operator: {0}", @operator));
             }
+        }
+
+        private List<IFile> GetFiles()
+        {
+            const string LIST_FILES =
+                @"<MEDIA><FOLDER  guid=""{0}"" subdirguid=""{0}""><FILES action=""list"" view=""thumbnail"" maxfilesize=""0"" attributeguid="""" searchtext=""*"" pattern="""" startcount=""1"" orderby=""name""/></FOLDER></MEDIA>";
+
+            return RetrieveFiles(LIST_FILES.RQLFormat(Folder));
         }
     }
 }

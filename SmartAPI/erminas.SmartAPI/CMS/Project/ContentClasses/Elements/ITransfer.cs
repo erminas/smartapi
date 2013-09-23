@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,6 +20,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface ITransfer : IContentClassElement
     {
         bool IsNotConvertingCharactersToHtml { get; set; }
+
         bool IsNotUsedInForm { get; set; }
     }
 
@@ -27,7 +28,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Transfer(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltdonothtmlencode", "elthideinform");
         }
 
         public override ContentClassCategory Category
@@ -35,16 +35,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
-            set { SetAttributeValue("eltdonothtmlencode", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

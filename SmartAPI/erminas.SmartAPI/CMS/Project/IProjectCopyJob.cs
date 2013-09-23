@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Security;
-using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
@@ -44,9 +44,9 @@ namespace erminas.SmartAPI.CMS.Project
             EmailSubject = String.Format("Finished copying project ({0})", sourceProject.Name);
             EmailMessage = String.Format("Finished copying project. ({0})", sourceProject.Name);
             IDatabaseServer dbServer;
-            if (!Session.DatabaseServers.TryGetByName("localhost", out dbServer))
+            if (!Session.ServerManager.DatabaseServers.TryGetByName("localhost", out dbServer))
             {
-                dbServer = Session.DatabaseServers.First(server => server.IsCreateAllowed);
+                dbServer = Session.ServerManager.DatabaseServers.First(server => server.IsCreateAllowed);
             }
             DatabaseServer = dbServer;
         }
@@ -93,7 +93,7 @@ namespace erminas.SmartAPI.CMS.Project
             else
             {
                 var retryEverySecond = new TimeSpan(0, 0, 1);
-                Session.Projects.WaitFor(list =>
+                Session.ServerManager.Projects.WaitFor(list =>
                     {
                         IProject project;
                         return list.Refreshed().TryGetByName(NewProjectName, out project) &&

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -116,9 +117,8 @@ namespace erminas.SmartAPI.CMS.Project
 
         private List<IGroup> GetAssignedGroups()
         {
-            const string LIST_GROUPS =
-                @"<PROJECT><GROUPS action=""list""/></PROJECT>";
-            
+            const string LIST_GROUPS = @"<PROJECT><GROUPS action=""list""/></PROJECT>";
+
             var xmlDoc = Session.ExecuteRQLInProjectContext(LIST_GROUPS, _project.Guid);
             return
                 (from XmlElement curGroup in xmlDoc.GetElementsByTagName("GROUP")
@@ -144,7 +144,7 @@ namespace erminas.SmartAPI.CMS.Project
 
             var xmlDoc = Session.ExecuteRQL(UNASSIGN_GROUPS.RQLFormat(Project, groupsPart));
             //7.5 sends empty reply
-            if (Session.ServerVersion >= new Version(9,0) && !xmlDoc.IsContainingOk())
+            if (Session.ServerVersion >= new Version(9, 0) && !xmlDoc.IsContainingOk())
             {
                 var errorGroups = groupsList.Aggregate("", (s, @group) => s + @group.ToString() + ";");
                 throw new SmartAPIException(Session.ServerLogin,

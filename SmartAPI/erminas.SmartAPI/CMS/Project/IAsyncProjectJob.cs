@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 
 namespace erminas.SmartAPI.CMS.Project
 {
@@ -52,7 +52,7 @@ namespace erminas.SmartAPI.CMS.Project
             Session = session;
             EmailReceipient = Session.CurrentUser;
             IsSendingEmailOnCompletion = true;
-            Server = Session.ApplicationServers.First();
+            Server = Session.ServerManager.ApplicationServers.First();
         }
 
         public string EmailMessage { get; set; }

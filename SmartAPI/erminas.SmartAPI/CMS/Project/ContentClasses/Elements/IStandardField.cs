@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,43 +14,42 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardField : IExtendedContentClassContentElement
     {
         IContentClassElement ChildElementOf { get; set; }
-        string DefaultValue { get; set; }
-        string Sample { get; set; }
+
+        ILanguageDependentValue<string> DefaultValue { get; }
+
+        ILanguageDependentValue<string> Sample { get; }
     }
 
     internal class StandardField : ExtendedContentClassContentElement, IStandardField
     {
         protected StandardField(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltrdexample", /*"eltparentelementname",*/ "eltparentelementguid");
-// ReSharper disable ObjectCreationAsStatement
-            new StringXmlNodeAttribute(this, "eltdefaultvalue");
-// ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("eltparentelementguid", ConverterType = typeof (ContentClassElementConverter))]
         public IContentClassElement ChildElementOf
         {
-            get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
-            set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
+            get { return GetAttributeValue<IContentClassElement>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public string DefaultValue
+        [RedDot("eltdefaultvalue")]
+        public ILanguageDependentValue<string> DefaultValue
         {
-            get { return GetAttributeValue<string>("eltdefaultvalue"); }
-            set { SetAttributeValue("eltdefaultvalue", value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
-        public string Sample
+        [RedDot("eltrdexample")]
+        public ILanguageDependentValue<string> Sample
         {
-            get { return GetAttributeValue<string>("eltrdexample"); }
-            set { SetAttributeValue("eltrdexample", value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
     }
 }

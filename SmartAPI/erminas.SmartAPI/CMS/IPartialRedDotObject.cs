@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,15 +14,30 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project;
+using erminas.SmartAPI.CMS.Project.ContentClasses;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS
 {
     public interface IPartialRedDotObject : IRedDotObject
     {
-        //void EnsureInitialization();
+        void EnsureInitialization();
         void Refresh();
     }
+
+    public interface IPartialRedDotProjectObject : IPartialRedDotObject, IProjectObject
+    {
+    }
+
+    //public interface ILanguageDependentPartialRedDotObject : IPartialRedDotProjectObject,
+    //                                                         ILanguageDependentXmlBasedObject
+    //{
+
+    //}
 
     /// <summary>
     ///     Base class for all RedDotObject that can be initialized with a guid only and then retrieve other information on demand.
@@ -79,18 +94,6 @@ namespace erminas.SmartAPI.CMS
             IsInitialized = false;
         }
 
-        protected internal override T GetAttributeValue<T>(string attributeName)
-        {
-            EnsureInitialization();
-            return base.GetAttributeValue<T>(attributeName);
-        }
-
-        protected internal override void SetAttributeValue<T>(string attributeName, T value)
-        {
-            EnsureInitialization();
-            base.SetAttributeValue(attributeName, value);
-        }
-
         /// <summary>
         ///     Indicates, wether the object is already completly initialized (true) or not (false).
         /// </summary>
@@ -133,9 +136,6 @@ namespace erminas.SmartAPI.CMS
         {
             get { return LazyLoad(ref _name); }
             internal set { base.Name = value; }
-            //    internal set { EnsureInitialization();
-            //        _name = value;
-            //    }
         }
 
         public virtual void Refresh()
@@ -144,10 +144,108 @@ namespace erminas.SmartAPI.CMS
             InitGuidAndName();
             LoadWholeObject();
 
-            RefreshAttributeValues();
             IsInitialized = true;
         }
 
+        public override sealed XmlElement XmlElement
+        {
+            get
+            {
+                EnsureInitialization();
+                return base.XmlElement;
+            }
+            protected internal set
+            {
+                base.XmlElement = value;
+                _readWriteWrapper = new XmlReadWriteWrapper(_xmlElement, new Dictionary<string, string>());
+            }
+        }
+
+        protected override sealed T GetAttributeValue<T>([CallerMemberName] string callerName = "")
+        {
+            EnsureInitialization();
+// ReSharper disable ExplicitCallerInfoArgument
+            return base.GetAttributeValue<T>(callerName);
+// ReSharper restore ExplicitCallerInfoArgument
+        }
+
+        protected override sealed void SetAttributeValue<T>(T value, [CallerMemberName] string callerName = "")
+        {
+            EnsureInitialization();
+// ReSharper disable ExplicitCallerInfoArgument
+            base.SetAttributeValue(value, callerName);
+// ReSharper restore ExplicitCallerInfoArgument
+        }
+
         #endregion
+    }
+
+    internal abstract class LanguageDependentPartialRedDotProjectObject : PartialRedDotProjectObject,
+                                                                          ILanguageDependentXmlBasedObject
+    {
+        //protected readonly Dictionary<string, object> _languageDependendValues = new Dictionary<string, object>();
+
+        //private readonly Dictionary<string, XmlElement> _languageDependentWriteXmlElements =
+        //    new Dictionary<string, XmlElement>();
+
+        //private readonly Dictionary<string, XmlElement> _languageDependentXmlElements =
+        //    new Dictionary<string, XmlElement>();
+
+        private readonly Dictionary<string, XmlReadWriteWrapper> _languageDepdentXmlElements =
+            new Dictionary<string, XmlReadWriteWrapper>();
+
+        protected LanguageDependentPartialRedDotProjectObject(IProject project, XmlElement xmlElement)
+            : base(project, xmlElement)
+        {
+        }
+
+        protected LanguageDependentPartialRedDotProjectObject(IProject project, Guid guid) : base(project, guid)
+        {
+        }
+
+        protected LanguageDependentPartialRedDotProjectObject(IProject project) : base(project)
+        {
+        }
+
+        public IXmlReadWriteWrapper GetElementForLanguage(string languageAbbreviation)
+        {
+            var element = _languageDepdentXmlElements.GetOrAdd(languageAbbreviation, () =>
+                {
+                    using (new LanguageContext(Project.LanguageVariants[languageAbbreviation]))
+                    {
+                        var read = (XmlElement) RetrieveWholeObject().Clone();
+                        return new XmlReadWriteWrapper(read, _readWriteWrapper.WrittenValues);
+                    }
+                });
+
+            return element;
+        }
+
+        public override void Refresh()
+        {
+            _languageDepdentXmlElements.Clear();
+            base.Refresh();
+        }
+
+        //public XmlElement XmlElementForCurrentLanguage
+        //{
+        //    get { return GetXmlElementForLanguage(Project.LanguageVariants.Current.Abbreviation); }
+        //}
+
+        //public XmlElement XmlElementForMainLanguage
+        //{
+        //    get { return GetXmlElementForLanguage(Project.LanguageVariants.Main.Abbreviation); }
+        //}
+
+        //private static XmlElement GetWriteMergedIntoRead(XmlElement writeElement, XmlElement readElement)
+        //{
+        //    var mergedElement = (XmlElement) readElement.Clone();
+        //    foreach (XmlAttribute curAttribute in writeElement.Attributes)
+        //    {
+        //        mergedElement.SetAttributeValue(curAttribute.Name, curAttribute.Value);
+        //    }
+
+        //    return mergedElement;
+        //}
     }
 }

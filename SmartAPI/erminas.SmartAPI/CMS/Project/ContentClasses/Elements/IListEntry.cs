@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -21,10 +22,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IListEntry : IContentClassElement
     {
         string EndTagForAutomaticProcessing { get; set; }
+
         IFolder Folder { get; set; }
+
         bool IsNotUsedInForm { get; set; }
+
         bool IsNotVisibleOnPublishedPage { get; set; }
+
         bool IsUsingEntireTextIfNoMatchingTagsCanBeFound { get; set; }
+
         string StartTagForAutomaticProcessing { get; set; }
     }
 
@@ -32,8 +38,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal ListEntry(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("elthideinform", "eltinvisibleinpage", "eltbeginmark", "eltendmark", "eltwholetext",
-                             "eltfolderguid");
         }
 
         public override ContentClassCategory Category
@@ -41,40 +45,46 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltendmark")]
         public string EndTagForAutomaticProcessing
         {
-            get { return GetAttributeValue<string>("eltendmark"); }
-            set { SetAttributeValue("eltendmark", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
         public IFolder Folder
         {
-            get { return GetAttributeValue<IFolder>("eltfolderguid"); }
-            set { SetAttributeValue("eltfolderguid", value); }
+            get { return GetAttributeValue<IFolder>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinpage")]
         public bool IsNotVisibleOnPublishedPage
         {
-            get { return GetAttributeValue<bool>("eltinvisibleinpage"); }
-            set { SetAttributeValue("eltinvisibleinpage", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltwholetext")]
         public bool IsUsingEntireTextIfNoMatchingTagsCanBeFound
         {
-            get { return GetAttributeValue<bool>("eltwholetext"); }
-            set { SetAttributeValue("eltwholetext", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltbeginmark")]
         public string StartTagForAutomaticProcessing
         {
-            get { return GetAttributeValue<string>("eltbeginmark"); }
-            set { SetAttributeValue("eltbeginmark", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

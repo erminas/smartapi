@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,52 +13,79 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IStandardFieldTime : IStandardFieldNonDate
     {
-        bool IsUserDefinedTimeFormat { get; }
-        ISystemLocale Locale { get; set; }
-        IDateTimeFormat TimeFormat { get; set; }
-        string UserDefinedTimeFormat { get; set; }
+        bool IsUserDefinedTimeFormat(string languageAbbreviation);
+
+        ILanguageDependentValue<ISystemLocale> Locale { get; }
+
+        ILanguageDependentValue<IDateTimeFormat> TimeFormat { get; }
+
+        ILanguageDependentValue<string> UserDefinedTimeFormat { get; }
+    }
+
+    internal class LanguageDependendTimeFormat : LanguageDependentValue<IDateTimeFormat>
+    {
+        public LanguageDependendTimeFormat(IPartialRedDotProjectObject parent, RedDotAttribute attribute)
+            : base(parent, attribute)
+        {
+        }
+
+        public override IDateTimeFormat this[string languageAbbreviation]
+        {
+            get { return base[languageAbbreviation] ?? DateTimeFormat.USER_DEFINED_TIME_FORMAT; }
+            set
+            {
+                if (!value.IsTimeFormat)
+                {
+                    throw new ArgumentException(string.Format(
+                        "DateTimeFormat {1} with type id {0} is not a time format", value.TypeId, value.Name));
+                }
+                base[languageAbbreviation] = value;
+            }
+        }
     }
 
     internal class StandardFieldTime : StandardFieldNonDate, IStandardFieldTime
     {
         internal StandardFieldTime(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltlcid", "eltformatting", "eltformatno");
         }
 
-        public bool IsUserDefinedTimeFormat
+        public bool IsUserDefinedTimeFormat(string languageAbbreviation)
         {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value == null; }
+            return TimeFormat[languageAbbreviation] == DateTimeFormat.USER_DEFINED_TIME_FORMAT;
         }
 
-        public ISystemLocale Locale
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
+        public ILanguageDependentValue<ISystemLocale> Locale
         {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
+            get { return GetAttributeValue<ILanguageDependentValue<ISystemLocale>>(); }
         }
 
-        public IDateTimeFormat TimeFormat
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
+        public ILanguageDependentValue<IDateTimeFormat> TimeFormat
         {
             get
             {
-                return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value ??
-                       DateTimeFormat.USER_DEFINED_TIME_FORMAT;
+                var redDotAttribute =
+                    (RedDotAttribute)
+                    GetType().GetProperty("TimeFormat").GetCustomAttributes(typeof (RedDotAttribute), false).Single();
+                return new LanguageDependendTimeFormat(this, redDotAttribute);
             }
-            set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
         }
 
-        public string UserDefinedTimeFormat
+        [RedDot("eltformatting")]
+        public ILanguageDependentValue<string> UserDefinedTimeFormat
         {
-            get { return GetAttributeValue<string>("eltformatting"); }
-            set { SetAttributeValue("eltformatting", value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
     }
 }

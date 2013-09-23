@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -21,7 +21,7 @@ namespace erminas.SmartAPI.CMS.Project
     /// <summary>
     ///     Represents a prefix or a postfix.
     /// </summary>
-    public interface ISyllable : IPartialRedDotObject, IProjectObject, IAttributeContainer
+    public interface ISyllable : IPartialRedDotObject, IProjectObject, ISessionObject
     {
     }
 

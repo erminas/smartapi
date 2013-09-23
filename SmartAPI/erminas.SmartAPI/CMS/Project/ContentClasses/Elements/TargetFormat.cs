@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -25,6 +26,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Png
     }
 
+    [EnumConversionHelper]
     public static class TargetFormatUtils
     {
         public static string ToRQLString(this TargetFormat format)

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,9 +13,8 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -23,15 +22,22 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface ISiteMap : IContentClassElement
     {
         string EndOfColumn { get; set; }
+
         string EndOfLine { get; set; }
+
         string EndOfTable { get; set; }
+
         SiteMapFormat Format { get; set; }
+
         bool IsSyntaxConformingToXHtml { get; set; }
         int? MaxErrorCount { get; set; }
         int? MaxSearchDepth { get; set; }
         int? NestingLevel { get; set; }
+
         string StartOfColumn { get; set; }
+
         string StartOfLine { get; set; }
+
         string StartOfTable { get; set; }
         IFile XslStyleSheet { get; set; }
     }
@@ -40,12 +46,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal SiteMap(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltxhtmlcompliant", "eltdepth", "eltsearchdepth", "elttableopen", "elttableclose",
-                             "eltrowopen", "eltrowclose", "eltcolopen", "eltcolclose", "eltdropouts", "eltxslfile",
-                             "eltfolderguid");
-// ReSharper disable ObjectCreationAsStatement
-            new EnumXmlNodeAttribute<SiteMapFormat>(this, "eltformat");
-// ReSharper restore ObjectCreationAsStatement
         }
 
         public override ContentClassCategory Category
@@ -53,102 +53,88 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Structural; }
         }
 
+        [RedDot("eltcolclose")]
         public string EndOfColumn
         {
-            get { return GetAttributeValue<string>("eltcolclose"); }
-            set { SetAttributeValue("eltcolclose", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltrowclose")]
         public string EndOfLine
         {
-            get { return GetAttributeValue<string>("eltrowclose"); }
-            set { SetAttributeValue("eltrowclose", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elttableclose")]
         public string EndOfTable
         {
-            get { return GetAttributeValue<string>("elttableclose"); }
-            set { SetAttributeValue("elttableclose", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltformat", ConverterType = typeof (EnumConverter<SiteMapFormat>))]
         public SiteMapFormat Format
         {
-            get { return ((EnumXmlNodeAttribute<SiteMapFormat>) GetAttribute("eltformat")).Value; }
-            set { ((EnumXmlNodeAttribute<SiteMapFormat>) GetAttribute("eltformat")).Value = value; }
+            get { return GetAttributeValue<SiteMapFormat>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltxhtmlcompliant")]
         public bool IsSyntaxConformingToXHtml
         {
-            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
-            set { SetAttributeValue("eltxhtmlcompliant", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdropouts")]
         public int? MaxErrorCount
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltdropouts")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltdropouts")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltsearchdepth")]
         public int? MaxSearchDepth
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltsearchdepth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltsearchdepth")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdepth")]
         public int? NestingLevel
         {
-            get
-            {
-                string tmp = ((StringXmlNodeAttribute) GetAttribute("eltdepth")).Value;
-                return string.IsNullOrEmpty(tmp) ? (int?) null : int.Parse(tmp);
-            }
-            set { ((StringXmlNodeAttribute) GetAttribute("eltdepth")).Value = value.ToString(); }
+            get { return GetAttributeValue<int?>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltcolopen")]
         public string StartOfColumn
         {
-            get { return GetAttributeValue<string>("eltcolopen"); }
-            set { SetAttributeValue("eltcolopen", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltrowopen")]
         public string StartOfLine
         {
-            get { return GetAttributeValue<string>("eltrowopen"); }
-            set { SetAttributeValue("eltrowopen", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elttableopen")]
         public string StartOfTable
         {
-            get { return GetAttributeValue<string>("elttableopen"); }
-            set { SetAttributeValue("elttableopen", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("__xslstylesheet", ConverterType = typeof (XslFileConverter))]
         public IFile XslStyleSheet
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltfolderguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltxslfile")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltxslfile")).Value = value.Name;
-                ((FolderXmlNodeAttribute) GetAttribute("eltfolderguid")).Value = value.Folder;
-            }
+            get { return GetAttributeValue<IFile>(); }
+            set { SetAttributeValue(value); }
         }
     }
 

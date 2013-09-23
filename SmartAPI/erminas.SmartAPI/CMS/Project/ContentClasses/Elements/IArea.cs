@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,19 +14,27 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IArea : IWorkflowAssignments, IContentClassPreassignable
     {
         string Coords { get; set; }
+
         bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable { get; set; }
+
         bool IsOnlyPathAndFilenameInserted { get; set; }
+
         bool IsSyntaxConformingToXHtml { get; set; }
+
         Pages.Elements.IContainer PreassignedTargetContainer { get; set; }
-        string Shape { get; set; }
+
+        Shape Shape { get; set; }
+
         string Supplement { get; set; }
-        string Target { get; set; }
+
+        HtmlTarget Target { get; set; }
     }
 
     internal class Area : AbstractWorkflowAssignments, IArea
@@ -35,8 +43,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         internal Area(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltxhtmlcompliant", "eltsupplement", "eltonlyhrefvalue", "eltshape", "elttarget",
-                             "eltcoords");
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
         }
@@ -46,10 +52,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Structural; }
         }
 
+        [RedDot("eltcoords")]
         public string Coords
         {
-            get { return GetAttributeValue<string>("eltcoords"); }
-            set { SetAttributeValue("eltcoords", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
@@ -58,16 +65,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _targetContainerPreassignment.IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable = value; }
         }
 
+        [RedDot("eltonlyhrefvalue")]
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
-            set { SetAttributeValue("eltonlyhrefvalue", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltxhtmlcompliant")]
         public bool IsSyntaxConformingToXHtml
         {
-            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
-            set { SetAttributeValue("eltxhtmlcompliant", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
@@ -78,24 +87,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { _targetContainerPreassignment.TargetContainer = value; }
         }
 
-        //TODO use enum instead
-        public string Shape
+        [RedDot("eltshape", ConverterType = typeof (StringEnumConverter<Shape>))]
+        public Shape Shape
         {
-            get { return GetAttributeValue<string>("eltshape"); }
-            set { SetAttributeValue("eltshape", value); }
+            get { return GetAttributeValue<Shape>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltsupplement")]
         public string Supplement
         {
-            get { return GetAttributeValue<string>("eltsupplement"); }
-            set { SetAttributeValue("eltsupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
-        //TODO use enum instead
-        public string Target
+        [RedDot("elttarget", ConverterType = typeof (StringEnumConverter<HtmlTarget>))]
+        public HtmlTarget Target
         {
-            get { return GetAttributeValue<string>("elttarget"); }
-            set { SetAttributeValue("elttarget", value); }
+            get { return GetAttributeValue<HtmlTarget>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

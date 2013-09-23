@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,12 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Web;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.Utils;
-using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -33,21 +32,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IOptionList : IContentClassContentElement
     {
         IContentClassElement ChildElementOf { get; set; }
-        string DefaultValueString { get; set; }
-        string Description { get; set; }
-
-        /// <summary>
-        ///     The entries as xml string as provided by RQL.
-        ///     In a future version a Entries property giving access to an object model of the entries might get added.
-        /// </summary>
-        string EntriesAsString { get; set; }
+        ILanguageDependentValue<string> DefaultValueString { get; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
 
         IEnumerable<IOptionListSelection> Entries { get; }
+
+        //string EntriesAsString { get; set; }
 
         bool HasLanguageDependendNames { get; set; }
         bool HasLanguageDependendValues { get; set; }
         bool IsAllowingOtherValues { get; set; }
-        string SampleText { get; set; }
+        ILanguageDependentValue<string> SampleText { get; }
         SortMode SortMode { get; set; }
     }
 
@@ -67,9 +62,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     public interface IOptionListSelection : IProjectObject
     {
-        IOptionList OptionList { get; }
-        Guid Guid { get; }
         IEnumerable<IOptionListEntry> Entries { get; }
+        Guid Guid { get; }
+        IOptionList OptionList { get; }
     }
 
     internal sealed class OptionListSelection : IOptionListSelection
@@ -80,30 +75,38 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             _optionList = optionList;
             Guid = element.GetGuid();
-            Entries = (from XmlElement curEntry in element.GetElementsByTagName("ITEM")
-                       select
-                           new OptionListEntry()
-                               {
-                                   LanguageVariant = Project.LanguageVariants[curEntry.GetAttributeValue("languageid")],
-                                   Name = curEntry.GetName(),
-                                   Value = curEntry.InnerText
-                               }).ToList().AsReadOnly();
+            Entries = GetEntries(element);
         }
+
+        public IEnumerable<IOptionListEntry> Entries { get; private set; }
+        public Guid Guid { get; private set; }
 
         public IOptionList OptionList
         {
             get { return _optionList; }
         }
 
-        public Guid Guid { get; private set; }
-        public IEnumerable<IOptionListEntry> Entries { get; private set; }
-
         public IProject Project
         {
             get { return OptionList.Project; }
         }
 
-        public ISession Session { get { return OptionList.Session; } }
+        public ISession Session
+        {
+            get { return OptionList.Session; }
+        }
+
+        private ReadOnlyCollection<OptionListEntry> GetEntries(XmlElement element)
+        {
+            return (from XmlElement curEntry in element.GetElementsByTagName("ITEM")
+                    select
+                        new OptionListEntry
+                            {
+                                LanguageVariant = Project.LanguageVariants[curEntry.GetAttributeValue("languageid")],
+                                Name = curEntry.GetName(),
+                                Value = curEntry.InnerText
+                            }).ToList().AsReadOnly();
+        }
     }
 
     internal class OptionList : ContentClassContentElement, IOptionList
@@ -112,78 +115,94 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         internal OptionList(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltlanguagedependentvalue", "eltlanguagedependentname", "eltuserdefinedallowed",
-                             "eltrdexample", "eltrddescription", "eltorderby", /*"eltparentelementname",*/
-                             "eltparentelementguid");
+            if (xmlElement.SelectSingleNode(@"//SELECTIONS") == null)
+            {
+                IsInitialized = false;
+            }
 // ReSharper disable ObjectCreationAsStatement
-            new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
+            //TODO neu implementieren:
+            //new OptionListSelectionAttribute(this, "eltoptionlistdata", xmlElement);
 // ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("eltparentelementguid", ConverterType = typeof (ContentClassElementConverter))]
         public IContentClassElement ChildElementOf
         {
-            get { return ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value; }
-            set { ((ElementXmlNodeAttribute) GetAttribute("eltparentelementguid")).Value = value; }
+            get { return GetAttributeValue<IContentClassElement>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public string DefaultValueString
+        [RedDot(ELTDEFAULTVALUE)]
+        public ILanguageDependentValue<string> DefaultValueString
         {
-            get { return XmlElement.GetAttributeValue(ELTDEFAULTVALUE); }
-
-            set { XmlElement.SetAttributeValue(ELTDEFAULTVALUE, value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
-        public string Description
+        [RedDot("eltrddescription")]
+        public string DescriptionInCurrentDisplayLanguage
         {
-            get { return GetAttributeValue<string>("eltrddescription"); }
-            set { SetAttributeValue("eltrddescription", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public IEnumerable<IOptionListSelection> Entries
         {
             get
             {
-                var doc = new XmlDocument();
-                doc.LoadXml(HttpUtility.HtmlDecode(EntriesAsString));
-                return (from XmlElement curEntry in doc.GetElementsByTagName("SELECTION")
+                EnsureInitialization();
+                return (from XmlElement curEntry in _xmlElement.GetElementsByTagName("SELECTION")
                         select (IOptionListSelection) new OptionListSelection(this, curEntry)).ToList().AsReadOnly();
             }
         }
 
-        public string EntriesAsString
-        {
-            get { return XmlElement.GetAttributeValue("eltoptionlistdata"); }
-            set { XmlElement.SetAttributeValue("eltoptionlistdata", value); }
-        }
+        //[RedDot("eltoptionlistdata")]
+        //public string EntriesAsString
+        //{
+        //    get { return GetAttributeValue<string>(); }
+        //    set { SetAttributeValue(value); }
+        //}
 
+        [RedDot("eltlanguagedependentname")]
         public bool HasLanguageDependendNames
         {
-            get { return GetAttributeValue<bool>("eltlanguagedependentname"); }
-            set { SetAttributeValue("eltlanguagedependentname", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguagedependentvalue")]
         public bool HasLanguageDependendValues
         {
-            get { return GetAttributeValue<bool>("eltlanguagedependentvalue"); }
-            set { SetAttributeValue("eltlanguagedependentvalue", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltuserdefinedallowed")]
         public bool IsAllowingOtherValues
         {
-            get { return GetAttributeValue<bool>("eltuserdefinedallowed"); }
-            set { SetAttributeValue("eltuserdefinedallowed", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public string SampleText
+        [RedDot("eltrdexample")]
+        public ILanguageDependentValue<string> SampleText
         {
-            get { return GetAttributeValue<string>("eltrdexample"); }
-            set { SetAttributeValue("eltrdexample", value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
+        [RedDot("eltorderby", ConverterType = typeof (EnumConverter<SortMode>))]
         public SortMode SortMode
         {
-            get { return ((EnumXmlNodeAttribute<SortMode>) GetAttribute("eltorderby")).Value; }
-            set { ((EnumXmlNodeAttribute<SortMode>) GetAttribute("eltorderby")).Value = value; }
+            get { return GetAttributeValue<SortMode>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        protected override XmlElement RetrieveWholeObject()
+        {
+            const string LOAD_OBJECT =
+                @"<TEMPLATE><ELEMENT action=""load"" guid=""{0}""><SELECTIONS action=""load"" guid=""{0}""/></ELEMENT></TEMPLATE>";
+
+            return
+                Project.ExecuteRQL(LOAD_OBJECT.RQLFormat(this), RqlType.SessionKeyInProject).GetSingleElement("ELEMENT");
         }
     }
 }

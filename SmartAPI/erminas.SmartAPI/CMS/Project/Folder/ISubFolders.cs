@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -111,11 +111,6 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             get { return ParentFolder.Session; }
         }
 
-        ISubFolders ISubFolders.Refreshed()
-        {
-            return this;
-        }
-
         public bool TryGet(string name, out IAssetManagerFolder obj)
         {
             obj = null;
@@ -183,6 +178,11 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        ISubFolders ISubFolders.Refreshed()
+        {
+            return this;
         }
 
         IRDList<IAssetManagerFolder> IRDList<IAssetManagerFolder>.Refreshed()

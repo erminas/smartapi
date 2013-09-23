@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -21,10 +21,8 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Keywords
 {
-    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, IAttributeContainer
+    public interface ICategory : IPartialRedDotObject, IProjectObject, IDeletable, ISessionObject
     {
-        CategoryKeywords Keywords { get; }
-
         /// <summary>
         ///     Use after setting Name to rename category on the server.
         /// </summary>
@@ -42,6 +40,8 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         /// </summary>
         /// <exception cref="SmartAPIException">Thrown, if the category could not be deleted</exception>
         void DeleteForcibly();
+
+        CategoryKeywords Keywords { get; }
 
         /// <summary>
         ///     The current language variant.
@@ -62,6 +62,80 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         void Rename(string newCategoryName);
     }
 
+    internal class ArbitraryCategory : ICategory
+    {
+        public static readonly ArbitraryCategory INSTANCE = new ArbitraryCategory();
+
+        private ArbitraryCategory()
+        {
+        }
+
+        public void Commit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteForcibly()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EnsureInitialization()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Guid Guid
+        {
+            get { return Guid.Empty; }
+        }
+
+        public CategoryKeywords Keywords
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public ILanguageVariant LanguageVariant
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string Name
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IProject Project
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Refresh()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Rename(string newCategoryName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISession Session
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        void ICategory.Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IDeletable.Delete()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     /// <summary>
     ///     A category entry of a project in the RedDot server.
     /// </summary>
@@ -79,11 +153,6 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         {
             Keywords = new CategoryKeywords(this);
         }
-
-        /// <summary>
-        ///     All keywords belonging to this category, indexed by name. This list is cached by default.
-        /// </summary>
-        public CategoryKeywords Keywords { get; private set; }
 
         /// <summary>
         ///     Use after setting Name to rename category on the server.
@@ -152,6 +221,11 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
             Project.Categories.InvalidateCache();
         }
+
+        /// <summary>
+        ///     All keywords belonging to this category, indexed by name. This list is cached by default.
+        /// </summary>
+        public CategoryKeywords Keywords { get; private set; }
 
         /// <summary>
         ///     The current language variant.

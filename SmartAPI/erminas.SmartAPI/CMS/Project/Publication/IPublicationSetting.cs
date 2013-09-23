@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -110,12 +110,12 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         private void LoadXml()
         {
             ProjectVariant = ProjectVariantFactory.CreateFromGuid(PublicationPackage.Project,
-                                                                  XmlElement.GetGuid("projectvariantguid"));
+                                                                  _xmlElement.GetGuid("projectvariantguid"));
 
-            _name = XmlElement.GetAttributeValue("projectvariantname") + "/" +
-                    XmlElement.GetAttributeValue("languagevariantname");
+            _name = _xmlElement.GetAttributeValue("projectvariantname") + "/" +
+                    _xmlElement.GetAttributeValue("languagevariantname");
             LanguageVariant =
-                PublicationPackage.Project.LanguageVariants.GetByGuid(XmlElement.GetGuid("languagevariantguid"));
+                PublicationPackage.Project.LanguageVariants.GetByGuid(_xmlElement.GetGuid("languagevariantguid"));
             XmlNodeList exportTargets = (XmlElement).GetElementsByTagName("EXPORTTARGET");
             _publishingTargets = (from XmlElement curTarget in exportTargets
                                   select (IPublicationTarget) new PublicationTarget(Project, curTarget.GetGuid()))

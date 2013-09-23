@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -15,23 +15,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
+using log4net;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses
 {
-    internal class ContentClassElements : IContentClassElements
+    internal class ContentClassElements : NameIndexedRDList<IContentClassElement>, IContentClassElements
     {
+        private static readonly ILog LOGGER = LogManager.GetLogger(typeof (ContentClassElements));
         private readonly ContentClass _contentClass;
-        private Dictionary<string, IContentClassElementList> _elements;
 
-        internal ContentClassElements(ContentClass contentClass)
+        internal ContentClassElements(ContentClass contentClass, Caching caching) : base(caching)
         {
             _contentClass = contentClass;
+            RetrieveFunc = GetContentClassElements;
         }
 
         public IContentClass ContentClass
@@ -39,43 +42,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return _contentClass; }
         }
 
-        public void InvalidateCache()
-        {
-            _elements = null;
-        }
-
-        public IContentClassElementList this[string languageAbbreviation]
-        {
-            get
-            {
-                EnsureElementsAreLoaded();
-                return _elements[languageAbbreviation];
-            }
-        }
-
-        public IContentClassElementList this[ILanguageVariant languageVariant]
-        {
-            get { return this[languageVariant.Abbreviation]; }
-        }
-
-        public IEnumerable<string> Names
-        {
-            get
-            {
-                EnsureElementsAreLoaded();
-                return _elements.First().Value.Select(element => element.Name).ToList();
-            }
-        }
-
         public IProject Project
         {
             get { return _contentClass.Project; }
-        }
-
-        public void Refresh()
-        {
-            _elements = null;
-            EnsureElementsAreLoaded();
         }
 
         public void Remove(Guid guid)
@@ -103,18 +72,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         /// </remarks>
         public void Remove(string elementName)
         {
-            EnsureElementsAreLoaded();
-            foreach (ContentClassElementList curElements in _elements.Values)
+            IContentClassElement contentClassElementToRemove;
+            if (TryGetByName(elementName, out contentClassElementToRemove))
             {
-                IContentClassElement contentClassElementToRemove = curElements.FirstOrDefault(x => x.Name == elementName);
-                if (contentClassElementToRemove == null)
-                {
-                    throw new ArgumentException("Element '" + elementName + "' could not be found in content class '" +
-                                                _contentClass.Name + "'");
-                }
-                Remove(contentClassElementToRemove.Guid);
-                return;
+                throw new ArgumentException("Element '" + elementName + "' could not be found in content class '" +
+                                            _contentClass.Name + "'");
             }
+            Remove(contentClassElementToRemove.Guid);
         }
 
         public ISession Session
@@ -122,37 +86,45 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             get { return _contentClass.Session; }
         }
 
-        private void EnsureElementsAreLoaded()
+        private IContentClassElement CreateElement(XmlElement curElementNode)
         {
-            if (_elements == null)
+            try
             {
-                _elements = new Dictionary<string, IContentClassElementList>();
-                using (new LanguageContext(Project))
-                {
-                    foreach (var curLanguage in Project.LanguageVariants)
-                    {
-                        curLanguage.Select();
-                        const string LOAD_CC_ELEMENTS =
-                            @"<PROJECT><TEMPLATE action=""load"" guid=""{0}""><ELEMENTS childnodesasattributes=""1"" action=""load""/><TEMPLATEVARIANTS action=""list""/></TEMPLATE></PROJECT>";
-                        XmlDocument xmlDoc = Project.ExecuteRQL(LOAD_CC_ELEMENTS.RQLFormat(_contentClass));
+                return ContentClassElement.CreateElement(ContentClass, curElementNode);
+            } catch (Exception e)
+            {
+                var typeStr = GetElementTypeName(curElementNode);
+                var elementName = curElementNode.GetAttributeValue("eltname");
+                var str = "Could not create element '" + elementName + "' of type '" + typeStr + "'";
 
-                        var xmlNode = (XmlElement) xmlDoc.GetElementsByTagName("ELEMENTS")[0];
-                        var curElements = new ContentClassElementList(_contentClass, xmlNode);
-
-                        _elements.Add(curLanguage.Abbreviation, curElements);
-                    }
-                }
+                LOGGER.Error(str + ": " + e.Message);
+                throw new SmartAPIException(Session.ServerLogin, str, e);
             }
+        }
+
+        private List<IContentClassElement> GetContentClassElements()
+        {
+            const string LOAD_CC_ELEMENTS =
+                @"<PROJECT><TEMPLATE action=""load"" guid=""{0}""><ELEMENTS childnodesasattributes=""1"" action=""load""/><TEMPLATEVARIANTS action=""list""/></TEMPLATE></PROJECT>";
+            var xmlDoc = _contentClass.Project.ExecuteRQL(LOAD_CC_ELEMENTS.RQLFormat(_contentClass));
+
+            var elementChildren = xmlDoc.GetElementsByTagName("ELEMENT");
+            return (from XmlElement curElementNode in elementChildren select CreateElement(curElementNode)).ToList();
+        }
+
+        private static string GetElementTypeName(XmlElement curElementNode)
+        {
+            var elttypeStr = curElementNode.GetAttributeValue("elttype") ??
+                             ((int) ElementType.None).ToString(CultureInfo.InvariantCulture);
+            int typeValue;
+            var typeStr = int.TryParse(elttypeStr, out typeValue) ? ((ElementType) typeValue).ToString() : "unknown";
+            return typeStr;
         }
     }
 
-    public interface IContentClassElements : ICached, IProjectObject
+    public interface IContentClassElements : IProjectObject, IIndexedRDList<string, IContentClassElement>
     {
         IContentClass ContentClass { get; }
-
-        IContentClassElementList this[string languageAbbreviation] { get; }
-        IContentClassElementList this[ILanguageVariant languageVariant] { get; }
-        IEnumerable<string> Names { get; }
 
         /// <summary>
         ///     Remove an element from the content class

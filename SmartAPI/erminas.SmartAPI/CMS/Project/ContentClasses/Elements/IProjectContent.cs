@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,26 +14,27 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IProjectContent : IContentClassElement
     {
         bool IsHitList { get; set; }
+
         bool IsNotVisibleOnPublishedPage { get; set; }
+
         bool IsReferenceField { get; set; }
+
+        ILanguageDependentValue<ILanguageVariant> LanguageVariantOfReferencedElement { get; }
+
         IContentClassElement ReferencedElement { get; set; }
     }
 
     internal class ProjectContent : ContentClassElement, IProjectContent
     {
-        private readonly ElementReferenceAttribute _elementReference;
-
         internal ProjectContent(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltislistentry", "eltinvisibleinpage", "eltisreffield");
-            _elementReference = new ElementReferenceAttribute(this);
         }
 
         public override sealed ContentClassCategory Category
@@ -41,28 +42,38 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltislistentry")]
         public bool IsHitList
         {
-            get { return GetAttributeValue<bool>("eltislistentry"); }
-            set { SetAttributeValue("eltislistentry", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinpage")]
         public bool IsNotVisibleOnPublishedPage
         {
-            get { return GetAttributeValue<bool>("eltinvisibleinpage"); }
-            set { SetAttributeValue("eltinvisibleinpage", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltisreffield")]
         public bool IsReferenceField
         {
-            get { return GetAttributeValue<bool>("eltisreffield"); }
-            set { SetAttributeValue("eltisreffield", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguagevariantid", ConverterType = typeof (LanguageVariantConverter))]
+        public ILanguageDependentValue<ILanguageVariant> LanguageVariantOfReferencedElement
+        {
+            get { return GetAttributeValue<ILanguageDependentValue<ILanguageVariant>>(); }
+        }
+
+        [RedDot("__elementreference", ConverterType = typeof (ElementReferenceConverter))]
         public IContentClassElement ReferencedElement
         {
-            get { return _elementReference.Value; }
-            set { _elementReference.Value = value; }
+            get { return GetAttributeValue<IContentClassElement>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

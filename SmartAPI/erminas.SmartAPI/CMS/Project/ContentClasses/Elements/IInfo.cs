@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,8 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -33,8 +32,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         bool IsUsingDataOfPageInTargetContainer { get; set; }
         bool IsUsingMainLink { get; set; }
         bool IsUsingRfc3066 { get; set; }
+        ILanguageVariant LanguageVariantForUrlOfPage { get; set; }
         ISystemLocale Locale { get; set; }
-        IProjectVariant ProjectVariant { get; set; }
+        IProjectVariant ProjectVariantForUrlOfPage { get; set; }
         string Separator { get; set; }
         string UserDefinedDateFormat { get; set; }
     }
@@ -43,9 +43,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Info(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltsubtype", "eltevalcalledpage", "eltuserfc3066", "eltkeywordseparator", "eltformatno",
-                             "eltlcid", "eltformatting", "eltdonothtmlencode", "eltusemainlink", "eltprojectvariantguid",
-                             "eltlanguagevariantguid");
         }
 
         /// <summary>
@@ -61,64 +58,81 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Meta; }
         }
 
+        [RedDot("eltsubtype", ConverterType = typeof (InfoElementConverter))]
         public IInfoAttribute Content
         {
-            get { return ((InfoElementAttribute) GetAttribute("eltsubtype")).Value; }
-            set { ((InfoElementAttribute) GetAttribute("eltsubtype")).Value = value; }
+            get { return GetAttributeValue<IInfoAttribute>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
         public IDateTimeFormat DateFormat
         {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value; }
-            set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
+            get { return GetAttributeValue<IDateTimeFormat>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
-            set { SetAttributeValue("eltdonothtmlencode", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltevalcalledpage")]
         public bool IsUsingDataOfPageInTargetContainer
         {
-            get { return GetAttributeValue<bool>("eltevalcalledpage"); }
-            set { SetAttributeValue("eltevalcalledpage", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltusemainlink")]
         public bool IsUsingMainLink
         {
-            get { return GetAttributeValue<bool>("eltusemainlink"); }
-            set { SetAttributeValue("eltusemainlink", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltuserfc3066")]
         public bool IsUsingRfc3066
         {
-            get { return GetAttributeValue<bool>("eltuserfc3066"); }
-            set { SetAttributeValue("eltuserfc3066", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguagevariantguid")]
+        public ILanguageVariant LanguageVariantForUrlOfPage
+        {
+            get { return GetAttributeValue<ILanguageVariant>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
         public ISystemLocale Locale
         {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
+            get { return GetAttributeValue<ISystemLocale>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public IProjectVariant ProjectVariant
+        [RedDot("eltprojectvariantguid", ConverterType = typeof (ProjectVariantConverter))]
+        public IProjectVariant ProjectVariantForUrlOfPage
         {
-            get { return ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value; }
-            set { ((ProjectVariantAttribute) GetAttribute("eltprojectvariantguid")).Value = value; }
+            get { return GetAttributeValue<IProjectVariant>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltkeywordseparator")]
         public string Separator
         {
-            get { return GetAttributeValue<string>("eltkeywordseparator"); }
-            set { SetAttributeValue("eltkeywordseparator", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltformatting")]
         public string UserDefinedDateFormat
         {
-            get { return GetAttributeValue<string>("eltformatting"); }
-            set { SetAttributeValue("eltformatting", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

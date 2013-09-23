@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -161,7 +161,7 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
 
         private void LoadXml()
         {
-            Name = XmlElement.GetAttributeValue("value");
+            Name = _xmlElement.GetAttributeValue("value");
             InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
         }
     }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,9 +13,8 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -23,110 +22,143 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IImageAnchor : IAnchor
     {
         ImageAlignment Align { get; set; }
-        string AltText { get; set; }
+
+        ILanguageDependentValue<string> AltText { get; }
+
+        string Border { get; set; }
+
+        IFolder Folder { get; set; }
+
         string HSpace { get; set; }
+
+        string Height { get; set; }
+
         string ImageLinkSupplement { get; set; }
+
         bool IsAltPreassignedAutomatically { get; set; }
+
         bool IsBorderAutomaticallyInsertedIntoPage { get; set; }
+
         bool IsHeightAutomaticallyInsertedIntoPage { get; set; }
+
         bool IsWidthAutomaticallyInsertedIntoPage { get; set; }
-        IFile SrcFile { get; set; }
+
+        ILanguageDependentValue<IFile> SrcFile { get; }
+
         string Usemap { get; set; }
+
         string VSpace { get; set; }
+
+        string Width { get; set; }
     }
 
     internal class ImageAnchor : Anchor, IImageAnchor
     {
         internal ImageAnchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace", "eltusermap",
-                             "eltautoheight", "eltautowidth", "eltfolderguid", "eltautoborder", "eltsrcsubdirguid",
-                             "eltimagesupplement", "eltsrc", "eltalt");
-// ReSharper disable ObjectCreationAsStatement
-            new BoolXmlNodeAttribute(this, "eltpresetalt");
-            new StringEnumXmlNodeAttribute<ImageAlignment>(this, "eltalign", ImageAlignmentUtils.ToRQLString,
-                                                           ImageAlignmentUtils.ToImageAlignment);
-// ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("eltalign", ConverterType = typeof (StringEnumConverter<ImageAlignment>))]
         public ImageAlignment Align
         {
-            get { return ((StringEnumXmlNodeAttribute<ImageAlignment>) GetAttribute("eltalign")).Value; }
-            set { ((StringEnumXmlNodeAttribute<ImageAlignment>) GetAttribute("eltalign")).Value = value; }
+            get { return GetAttributeValue<ImageAlignment>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public string AltText
+        [RedDot("eltalt")]
+        public ILanguageDependentValue<string> AltText
         {
-            get { return GetAttributeValue<string>("eltalt"); }
-            set { SetAttributeValue("eltalt", value); }
+            get { return GetAttributeValue<ILanguageDependentValue<string>>(); }
         }
 
+        [RedDot("eltborder")]
+        public string Border
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
+        public IFolder Folder
+        {
+            get { return GetAttributeValue<IFolder>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("elthspace")]
         public string HSpace
         {
-            get { return GetAttributeValue<string>("elthspace"); }
-            set { SetAttributeValue("elthspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltheight")]
+        public string Height
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltimagesupplement")]
         public string ImageLinkSupplement
         {
-            get { return GetAttributeValue<string>("eltimagesupplement"); }
-            set { SetAttributeValue("eltimagesupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltpresetalt")]
         public bool IsAltPreassignedAutomatically
         {
-            get { return GetAttributeValue<bool>("eltpresetalt"); }
-            set { SetAttributeValue("eltpresetalt", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltautoborder")]
         public bool IsBorderAutomaticallyInsertedIntoPage
         {
-            get { return GetAttributeValue<bool>("eltautoborder"); }
-            set { SetAttributeValue("eltautoborder", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltautoheight")]
         public bool IsHeightAutomaticallyInsertedIntoPage
         {
-            get { return GetAttributeValue<bool>("eltautoheight"); }
-            set { SetAttributeValue("eltautoheight", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltautowidth")]
         public bool IsWidthAutomaticallyInsertedIntoPage
         {
-            get { return GetAttributeValue<bool>("eltautowidth"); }
-            set { SetAttributeValue("eltautowidth", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public IFile SrcFile
+        [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value.Name;
-                ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value.Folder;
-            }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
+        [RedDot("eltusermap")]
         public string Usemap
         {
-            get { return GetAttributeValue<string>("eltusermap"); }
-            set { SetAttributeValue("eltusermap", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltvspace")]
         public string VSpace
         {
-            get { return GetAttributeValue<string>("eltvspace"); }
-            set { SetAttributeValue("eltvspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltwidth")]
+        public string Width
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

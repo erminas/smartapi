@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,10 +13,8 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
@@ -33,31 +31,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Image = 1
     }
 
-    public enum BrowseAlignment
-    {
-        NotSet = 0,
-        // ReSharper disable InconsistentNaming
-        top,
-        bottom,
-        middle
-        // ReSharper restore InconsistentNaming
-    }
-
-    public static class BrowseAlignmentUtils
-    {
-        public static BrowseAlignment ToBrowseAlignment(this string value)
-        {
-            return string.IsNullOrEmpty(value)
-                       ? BrowseAlignment.NotSet
-                       : (BrowseAlignment) Enum.Parse(typeof (BrowseAlignment), value);
-        }
-
-        public static string ToRQLString(this BrowseAlignment align)
-        {
-            return align == BrowseAlignment.NotSet ? "" : align.ToString();
-        }
-    }
-
     public interface IBrowse : IContentClassElement
     {
         BrowseAlignment Align { get; set; }
@@ -65,16 +38,17 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         Appearance Appearance { get; set; }
         string Border { get; set; }
         string DefaultValue { get; set; }
-        string Description { get; set; }
+        string DescriptionInCurrentDisplayLanguage { get; set; }
         Direction Direction { get; set; }
+        IFolder Folder { get; set; }
         string HSpace { get; set; }
         string Height { get; set; }
         bool IsAltPreassignedAutomatically { get; set; }
         bool IsLanguageIndependent { get; set; }
         bool IsOnlyPathAndFilenameInserted { get; set; }
         bool IsSyntaxConformingToXHtml { get; set; }
-        IFile SampleImageFile { get; set; }
-        IFile SrcFile { get; set; }
+        ILanguageDependentValue<IFile> SampleImage { get; }
+        ILanguageDependentValue<IFile> SrcFile { get; }
         string Supplement { get; set; }
         string Usemap { get; set; }
         string VSpace { get; set; }
@@ -85,41 +59,34 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Browse(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltlanguageindependent", "eltwidth", "eltheight", "eltborder", "eltvspace", "elthspace",
-                             "eltusermap", "eltsupplement", "eltonlyhrefvalue", "eltxhtmlcompliant", "eltsrc", "eltalt",
-                             "eltsrcsubdirguid", "eltrddescription", "eltrdexample");
-// ReSharper disable ObjectCreationAsStatement
-            new EnumXmlNodeAttribute<Direction>(this, "eltdirection");
-            new EnumXmlNodeAttribute<Appearance>(this, "eltnextpagetype");
-            new StringXmlNodeAttribute(this, "eltdefaultvalue");
-            new BoolXmlNodeAttribute(this, "eltpresetalt");
-            new StringEnumXmlNodeAttribute<BrowseAlignment>(this, "eltalign", BrowseAlignmentUtils.ToRQLString,
-                                                            BrowseAlignmentUtils.ToBrowseAlignment);
-// ReSharper restore ObjectCreationAsStatement
         }
 
+        [RedDot("eltalign", ConverterType = typeof (StringEnumConverter<BrowseAlignment>))]
         public BrowseAlignment Align
         {
-            get { return ((StringEnumXmlNodeAttribute<BrowseAlignment>) GetAttribute("eltalign")).Value; }
-            set { ((StringEnumXmlNodeAttribute<BrowseAlignment>) GetAttribute("eltalign")).Value = value; }
+            get { return GetAttributeValue<BrowseAlignment>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltalt")]
         public string AltText
         {
-            get { return GetAttributeValue<string>("eltalt"); }
-            set { SetAttributeValue("eltalt", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltnextpagetype", ConverterType = typeof (EnumConverter<Appearance>))]
         public Appearance Appearance
         {
-            get { return ((EnumXmlNodeAttribute<Appearance>) GetAttribute("eltnextpagetype")).Value; }
-            set { ((EnumXmlNodeAttribute<Appearance>) GetAttribute("eltnextpagetype")).Value = value; }
+            get { return GetAttributeValue<Appearance>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltborder")]
         public string Border
         {
-            get { return GetAttributeValue<string>("eltborder"); }
-            set { SetAttributeValue("eltborder", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         public override ContentClassCategory Category
@@ -127,125 +94,114 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Structural; }
         }
 
+        [RedDot("eltdefaultvalue")]
         public string DefaultValue
         {
-            get { return GetAttributeValue<string>("eltdefaultvalue"); }
-            set { SetAttributeValue("eltdefaultvalue", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public string Description
+        [RedDot("eltrddescription")]
+        public string DescriptionInCurrentDisplayLanguage
         {
-            get { return GetAttributeValue<string>("eltrddescription"); }
-            set { SetAttributeValue("eltrddescription", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdirection", ConverterType = typeof (EnumConverter<Direction>))]
         public Direction Direction
         {
-            get { return ((EnumXmlNodeAttribute<Direction>) GetAttribute("eltdirection")).Value; }
-            set { ((EnumXmlNodeAttribute<Direction>) GetAttribute("eltdirection")).Value = value; }
+            get { return GetAttributeValue<Direction>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
+        public IFolder Folder
+        {
+            get { return GetAttributeValue<IFolder>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("elthspace")]
         public string HSpace
         {
-            get { return GetAttributeValue<string>("elthspace"); }
-            set { SetAttributeValue("elthspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltheight")]
         public string Height
         {
-            get { return GetAttributeValue<string>("eltheight"); }
-            set { SetAttributeValue("eltheight", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltpresetalt")]
         public bool IsAltPreassignedAutomatically
         {
-            get { return GetAttributeValue<bool>("eltpresetalt"); }
-            set { SetAttributeValue("eltpresetalt", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
-            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
-            set { SetAttributeValue("eltlanguageindependent", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltonlyhrefvalue")]
         public bool IsOnlyPathAndFilenameInserted
         {
-            get { return GetAttributeValue<bool>("eltonlyhrefvalue"); }
-            set { SetAttributeValue("eltonlyhrefvalue", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltxhtmlcompliant")]
         public bool IsSyntaxConformingToXHtml
         {
-            get { return GetAttributeValue<bool>("eltxhtmlcompliant"); }
-            set { SetAttributeValue("eltxhtmlcompliant", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public IFile SampleImageFile
+        [RedDot("__examplefile", ConverterType = typeof (ExampleFileConverter), DependsOn = "eltfolderguid")]
+        public ILanguageDependentValue<IFile> SampleImage
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltrdexample")).Value = value != null ? value.Name : "";
-                ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value != null ? value.Folder : null;
-            }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
-        public IFile SrcFile
+        [RedDot("__srcfile", ConverterType = typeof (SrcFileConverter))]
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value != null ? value.Name : "";
-                if (value != null)
-                {
-                    ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value.Folder;
-                }
-            }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
 
+        [RedDot("eltsupplement")]
         public string Supplement
         {
-            get { return GetAttributeValue<string>("eltsupplement"); }
-            set { SetAttributeValue("eltsupplement", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltusermap")]
         public string Usemap
         {
-            get { return GetAttributeValue<string>("eltusermap"); }
-            set { SetAttributeValue("eltusermap", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltvspace")]
         public string VSpace
         {
-            get { return GetAttributeValue<string>("eltvspace"); }
-            set { SetAttributeValue("eltvspace", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltwidth")]
         public string Width
         {
-            get { return GetAttributeValue<string>("eltwidth"); }
-            set { SetAttributeValue("eltwidth", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -67,6 +67,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public void InvalidateCache()
         {
             _workflowAssignments.InvalidateCache();
+        }
+
+        public override void Refresh()
+        {
+            InvalidateCache();
+            base.Refresh();
         }
 
         public void SetContentWorkflow(IWorkflow workflow, IEnumerable<ILanguageVariant> languageVariants)

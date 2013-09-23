@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,7 +20,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IContainer : IWorkflowAssignments, IContentClassPreassignable
     {
         bool IsDynamic { get; set; }
+
         bool IsTargetContainer { get; set; }
+
         bool IsTransferingContentOfFollowingPages { get; set; }
     }
 
@@ -28,7 +30,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Container(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltistargetcontainer", "eltisdynamic", "eltextendedlist");
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
         }
 
@@ -37,22 +38,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Structural; }
         }
 
+        [RedDot("eltisdynamic")]
         public bool IsDynamic
         {
-            get { return GetAttributeValue<bool>("eltisdynamic"); }
-            set { SetAttributeValue("eltisdynamic", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltistargetcontainer")]
         public bool IsTargetContainer
         {
-            get { return GetAttributeValue<bool>("eltistargetcontainer"); }
-            set { SetAttributeValue("eltistargetcontainer", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltextendedlist")]
         public bool IsTransferingContentOfFollowingPages
         {
-            get { return GetAttributeValue<bool>("eltextendedlist"); }
-            set { SetAttributeValue("eltextendedlist", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
         public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }

@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -24,7 +24,6 @@ using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-
     public interface IPageElementFactory
     {
         IPageElement CreateElement(IProject project, Guid elementGuid, ILanguageVariant languageVariant);
@@ -32,19 +31,21 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
     public class PageElementFactory : IPageElementFactory
     {
-        static PageElementFactory ()
+        static PageElementFactory()
         {
             Instance = new PageElementFactory();
         }
-        
-        public static IPageElementFactory Instance { get; set; }
 
-        private PageElementFactory() {}
+        private PageElementFactory()
+        {
+        }
 
         public IPageElement CreateElement(IProject project, Guid elementGuid, ILanguageVariant languageVariant)
         {
             return PageElement.CreateElement(project, elementGuid, languageVariant);
         }
+
+        public static IPageElementFactory Instance { get; set; }
     }
 
     /// <summary>

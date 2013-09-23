@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,9 +20,13 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface ITextAnchor : IAnchor
     {
         string FontClass { get; set; }
+
         string FontColor { get; set; }
+
         string FontFace { get; set; }
+
         string FontSize { get; set; }
+
         bool IsFontBold { get; set; }
     }
 
@@ -30,37 +34,41 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal TextAnchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltfontclass", "eltfontsize", "eltfontbold", "eltfontface", "eltfontcolor");
         }
 
+        [RedDot("eltfontclass")]
         public string FontClass
         {
-            get { return GetAttributeValue<string>("eltfontclass"); }
-            set { SetAttributeValue("eltfontclass", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontcolor")]
         public string FontColor
         {
-            get { return GetAttributeValue<string>("eltfontcolor"); }
-            set { SetAttributeValue("eltfontcolor", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontface")]
         public string FontFace
         {
-            get { return GetAttributeValue<string>("eltfontface"); }
-            set { SetAttributeValue("eltfontface", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontsize")]
         public string FontSize
         {
-            get { return GetAttributeValue<string>("eltfontsize"); }
-            set { SetAttributeValue("eltfontsize", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltfontbold")]
         public bool IsFontBold
         {
-            get { return GetAttributeValue<bool>("eltfontbold"); }
-            set { SetAttributeValue("eltfontbold", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

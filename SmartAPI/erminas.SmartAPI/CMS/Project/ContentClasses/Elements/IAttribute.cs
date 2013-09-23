@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,20 +13,11 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration.Language;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public enum FileSizeUnit
-    {
-        Bytes = 0,
-        KBytes,
-        MBytes
-    }
-
     public interface IAttribute : IContentClassElement
     {
         IDateTimeFormat DateTimeFormat { get; set; }
@@ -40,15 +31,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     {
         internal Attribute(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltmediatypename", "eltmediatypeattribute", "eltlcid", "eltformatno");
-// ReSharper disable ObjectCreationAsStatement
-            new StringEnumXmlNodeAttribute<FileSizeUnit>(this, "eltformatting", x => x.ToString(),
-                                                         // ReSharper restore ObjectCreationAsStatement
-                                                         //emptybuffer -> workaround for error in server
-                                                         x =>
-                                                         x.Contains("EmptyBuffer")
-                                                             ? default(FileSizeUnit)
-                                                             : (FileSizeUnit) Enum.Parse(typeof (FileSizeUnit), x));
         }
 
         public override ContentClassCategory Category
@@ -56,34 +38,39 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Meta; }
         }
 
+        [RedDot("eltformatno", ConverterType = typeof (DateTimeFormatConverter))]
         public IDateTimeFormat DateTimeFormat
         {
-            get { return ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value; }
-            set { ((DateTimeFormatAttribute) GetAttribute("eltformatno")).Value = value; }
+            get { return GetAttributeValue<IDateTimeFormat>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltformatting", ConverterType = typeof (StringEnumConverter<FileSizeUnit>))]
         public FileSizeUnit FileSizeUnit
         {
-            get { return ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value; }
-            set { ((StringEnumXmlNodeAttribute<FileSizeUnit>) GetAttribute("eltformatting")).Value = value; }
+            get { return GetAttributeValue<FileSizeUnit>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlcid", ConverterType = typeof (LocaleConverter))]
         public ISystemLocale Locale
         {
-            get { return ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value; }
-            set { ((LocaleXmlNodeAttribute) GetAttribute("eltlcid")).Value = value; }
+            get { return GetAttributeValue<ISystemLocale>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltmediatypename")]
         public string ReferencedElementName
         {
-            get { return GetAttributeValue<string>("eltmediatypename"); }
-            set { SetAttributeValue("eltmediatypename", value); }
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltmediatypeattribute", ConverterType = typeof (EnumConverter<MediaTypeAttributeType>))]
         public MediaTypeAttributeType SelectedAttributeType
         {
-            get { return ((EnumXmlNodeAttribute<MediaTypeAttributeType>) GetAttribute("eltmediatypeattribute")).Value; }
-            set { ((EnumXmlNodeAttribute<MediaTypeAttributeType>) GetAttribute("eltmediatypeattribute")).Value = value; }
+            get { return GetAttributeValue<MediaTypeAttributeType>(); }
+            set { SetAttributeValue(value); }
         }
     }
 

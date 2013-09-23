@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -13,29 +13,33 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes;
+using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.Folder;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IBackground : IContentClassElement
     {
+        IFolder Folder { get; set; }
+
         bool IsDragAndDropActivated { get; set; }
+
         bool IsHiddenInProjectStructure { get; set; }
+
         bool IsLanguageIndependent { get; set; }
+
         bool IsNotRelevantForWorklow { get; set; }
+
         bool IsNotUsedInForm { get; set; }
-        IFile SrcFile { get; set; }
+
+        ILanguageDependentValue<IFile> SrcFile { get; }
     }
 
     internal class Background : ContentClassElement, IBackground
     {
         internal Background(IContentClass cc, XmlElement xmlElement) : base(cc, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "elthideinform", "eltinvisibleinclient",
-                             "eltdragdrop", "eltsrcsubdirguid", "eltsrc", "eltfolderguid");
         }
 
         public override ContentClassCategory Category
@@ -43,57 +47,52 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltfolderguid", ConverterType = typeof (FolderConverter))]
+        public IFolder Folder
+        {
+            get { return GetAttributeValue<IFolder>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {
-            get { return GetAttributeValue<bool>("eltdragdrop"); }
-            set { SetAttributeValue("eltdragdrop", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinclient")]
         public bool IsHiddenInProjectStructure
         {
-            get { return GetAttributeValue<bool>("eltinvisibleinclient"); }
-            set { SetAttributeValue("eltinvisibleinclient", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
-            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
-            set { SetAttributeValue("eltlanguageindependent", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
-            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
-            set { SetAttributeValue("eltignoreworkflow", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
-        public IFile SrcFile
+        [RedDot("__file", ConverterType = typeof (SrcFileConverter))]
+        public ILanguageDependentValue<IFile> SrcFile
         {
-            get
-            {
-                var folderAttr = (FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid");
-                string srcName = ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value;
-                if (folderAttr.Value == null || string.IsNullOrEmpty(srcName))
-                {
-                    return null;
-                }
-                return folderAttr.Value.Files.GetByNamePattern(srcName).First(x => x.Name == srcName);
-            }
-
-            set
-            {
-                ((StringXmlNodeAttribute) GetAttribute("eltsrc")).Value = value != null ? value.Name : "";
-                if (value != null)
-                {
-                    ((FolderXmlNodeAttribute) GetAttribute("eltsrcsubdirguid")).Value = value.Folder;
-                }
-            }
+            get { return GetAttributeValue<ILanguageDependentValue<IFile>>(); }
         }
     }
 }

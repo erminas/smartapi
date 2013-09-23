@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using erminas.SmartAPI.CMS;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas.SmartAPI.Utils
@@ -136,6 +137,13 @@ namespace erminas.SmartAPI.Utils
             }
 
             return (XmlElement) nodes[0];
+        }
+
+        public static bool IsAttributeSet(this XmlElement xmlElement, ISessionObject session, string attributeName)
+        {
+            var strValue = xmlElement.GetAttributeValue(attributeName);
+
+            return !string.IsNullOrEmpty(strValue) && strValue != session.Session.SessionKey;
         }
 
         public static bool IsContainingOk(this XmlDocument xmlDoc)

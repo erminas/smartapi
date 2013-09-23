@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -20,6 +20,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface IStandardFieldNonDate : IStandardField
     {
         bool IsDirectEditActivated { get; set; }
+
         bool IsDragAndDropActivated { get; set; }
     }
 
@@ -28,19 +29,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         protected StandardFieldNonDate(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltdirectedit", "eltdragdrop");
         }
 
+        [RedDot("eltdirectedit")]
         public bool IsDirectEditActivated
         {
-            get { return GetAttributeValue<bool>("eltdirectedit"); }
-            set { SetAttributeValue("eltdirectedit", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdragdrop")]
         public bool IsDragAndDropActivated
         {
-            get { return GetAttributeValue<bool>("eltdragdrop"); }
-            set { SetAttributeValue("eltdragdrop", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

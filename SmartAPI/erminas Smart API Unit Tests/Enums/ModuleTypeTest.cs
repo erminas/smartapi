@@ -14,7 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using erminas.SmartAPI.CMS.Administration;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 
 namespace erminas_Smart_API_Unit_Tests.Enums

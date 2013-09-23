@@ -1,4 +1,4 @@
-﻿// Smart API - .Net programmatic access to RedDot servers
+﻿// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
@@ -27,6 +28,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         // ReSharper restore InconsistentNaming
     }
 
+    [EnumConversionHelper]
     public static class BasicAlignmentUtils
     {
         public static BasicAlignment ToBasicAlignment(this string value)

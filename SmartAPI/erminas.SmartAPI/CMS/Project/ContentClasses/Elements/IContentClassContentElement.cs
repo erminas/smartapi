@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -19,12 +19,19 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
     public interface IContentClassContentElement : IContentClassElement, ICanBeRequiredForEditing
     {
-        new void Commit();
+        new void CommitInCurrentLanguage();
+        new void CommitInLanguage(string languageAbbreviation);
+
         bool IsHiddenInProjectStructure { get; set; }
+
         bool IsLanguageIndependent { get; set; }
+
         bool IsNotConvertingCharactersToHtml { get; set; }
+
         bool IsNotRelevantForWorklow { get; set; }
+
         bool IsNotUsedInForm { get; set; }
+
         bool IsNotVisibleOnPublishedPage { get; set; }
     }
 
@@ -33,8 +40,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         protected ContentClassContentElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass, xmlElement)
         {
-            CreateAttributes("eltignoreworkflow", "eltlanguageindependent", "eltrequired", "eltinvisibleinclient",
-                             "eltinvisibleinpage", "elthideinform", "eltdonothtmlencode");
         }
 
         public override sealed ContentClassCategory Category
@@ -42,46 +47,53 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             get { return ContentClassCategory.Content; }
         }
 
+        [RedDot("eltrequired")]
         public bool IsEditingMandatory
         {
-            get { return GetAttributeValue<bool>("eltrequired"); }
-            set { SetAttributeValue("eltrequired", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinclient")]
         public bool IsHiddenInProjectStructure
         {
-            get { return GetAttributeValue<bool>("eltinvisibleinclient"); }
-            set { SetAttributeValue("eltinvisibleinclient", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltlanguageindependent")]
         public bool IsLanguageIndependent
         {
-            get { return GetAttributeValue<bool>("eltlanguageindependent"); }
-            set { SetAttributeValue("eltlanguageindependent", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltdonothtmlencode")]
         public bool IsNotConvertingCharactersToHtml
         {
-            get { return GetAttributeValue<bool>("eltdonothtmlencode"); }
-            set { SetAttributeValue("eltdonothtmlencode", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltignoreworkflow")]
         public bool IsNotRelevantForWorklow
         {
-            get { return GetAttributeValue<bool>("eltignoreworkflow"); }
-            set { SetAttributeValue("eltignoreworkflow", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("elthideinform")]
         public bool IsNotUsedInForm
         {
-            get { return GetAttributeValue<bool>("elthideinform"); }
-            set { SetAttributeValue("elthideinform", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
 
+        [RedDot("eltinvisibleinpage")]
         public bool IsNotVisibleOnPublishedPage
         {
-            get { return GetAttributeValue<bool>("eltinvisibleinpage"); }
-            set { SetAttributeValue("eltinvisibleinpage", value); }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value); }
         }
     }
 }

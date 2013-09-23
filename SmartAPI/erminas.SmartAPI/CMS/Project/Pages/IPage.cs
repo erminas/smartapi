@@ -1,4 +1,4 @@
-// Smart API - .Net programmatic access to RedDot servers
+// SmartAPI - .Net programmatic access to RedDot servers
 //  
 // Copyright (C) 2013 erminas GbR
 // 
@@ -89,7 +89,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     ///         cref="PartialRedDotObject.Refresh" />
     ///     to see them reflected in the status field,
     /// </summary>
-    public interface IPage : ILinkTarget, IPartialRedDotObject, IAttributeContainer, IKeywordAssignable, IDeletable
+    public interface IPage : ILinkTarget, IPartialRedDotObject, IKeywordAssignable, IDeletable, ISessionObject
     {
         DateTime CheckinDate { get; }
 
