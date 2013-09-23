@@ -1,4 +1,13 @@
 SmartAPI Changelog
+2013-09-24: Version 1.0.0.0
+------------------------------------
+API:
+- Content class elements now contain language dependend attributes instead 
+  of having a copy of all content class elements for every language
+- Functionality related to the server manager has been extracted from 
+  ISession and moved into a new IServerManager interface
+- Preliminary authentication package support has been removed and 
+  will be replaced by a fully fleged long term supported solution in one of the next releases
 
 2013-08-29: Version 0.9.9.2 (1.0RC3)
 ------------------------------------
