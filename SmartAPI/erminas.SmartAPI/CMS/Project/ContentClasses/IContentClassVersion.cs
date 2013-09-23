@@ -14,7 +14,6 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.CMS.ServerManagement;
 

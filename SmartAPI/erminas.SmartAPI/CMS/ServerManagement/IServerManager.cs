@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.ServerManagement

@@ -17,7 +17,7 @@ using System;
 using System.Xml;
 using erminas.SmartAPI.Utils;
 
-namespace erminas.SmartAPI.CMS.Administration.Language
+namespace erminas.SmartAPI.CMS
 {
     public interface IDateTimeFormat
     {

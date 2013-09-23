@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;

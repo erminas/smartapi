@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using erminas.SmartAPI.CMS.Administration;
 using erminas.SmartAPI.CMS.ServerManagement;
 
 namespace erminas.SmartAPI.CMS.Project

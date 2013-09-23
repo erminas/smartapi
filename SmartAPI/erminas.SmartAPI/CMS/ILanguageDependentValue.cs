@@ -149,7 +149,8 @@ namespace erminas.SmartAPI.CMS
             {
                 throw new SmartAPIException(Parent.Session.ServerLogin,
                                             string.Format(
-                                                "Unable to assign values for all languages from project {0} to project {1} as the language variants are incompatible"));
+                                                "Unable to assign values for all languages from project {0} to project {1} as the language variants are incompatible",
+                                                value.Parent.Project, _parent.Project));
             }
         }
     }
