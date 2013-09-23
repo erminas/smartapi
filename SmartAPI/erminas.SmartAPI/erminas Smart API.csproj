@@ -100,7 +100,6 @@
     <Compile Include="CMS\ServerManagement\IApplicationServer.cs" />
     <Compile Include="CMS\ServerManagement\IProjects.cs" />
     <Compile Include="CMS\ServerManagement\IServerManager.cs" />
-    <Compile Include="CMS\Project\Authorizations\IAuthorizationPackage.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\BrowseAlignment.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\FileSizeUnit.cs" />
     <Compile Include="CMS\Project\ContentClasses\Elements\Frameborder.cs" />
