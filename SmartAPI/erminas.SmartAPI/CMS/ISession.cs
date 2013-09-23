@@ -245,7 +245,8 @@ namespace erminas.SmartAPI.CMS
     }
 
     /// <summary>
-    ///     Session, representing a connection to a red dot server as a specified user.
+    /// Session, representing a connection to a Open Text WSM Management Server / RedDot CMS server as a specified user. 
+    /// To open a session you need to use the <see cref="SessionBuilder" />.
     /// </summary>
     internal class Session : ISession
     {
