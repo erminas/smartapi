@@ -42,7 +42,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements.Attributes
 
         protected override IFolder RetrieveByGuid(Guid guid)
         {
-            return _contentClass.Project.Folders.AllIncludingSubFolders.First(folder => folder.Guid == guid);
+            return _contentClass.Project.Folders.AllIncludingSubFolders.FirstOrDefault(folder => folder.Guid == guid);
         }
 
         protected override IFolder RetrieveByName(string name)
