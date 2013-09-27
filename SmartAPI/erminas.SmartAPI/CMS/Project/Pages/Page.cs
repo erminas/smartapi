@@ -384,6 +384,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
+        public IPagePublishJob CreatePublishJob()
+        {
+            return new PagePublishJob(this);
+        }
+
         protected override void LoadWholeObject()
         {
             LoadXml();

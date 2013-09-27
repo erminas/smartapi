@@ -53,6 +53,9 @@ namespace erminas.SmartAPI.Utils
         /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// (Optional) Windows authentication information, only needed, when the cms server needs windows authentication before the cms login.
+        /// </summary>
         public NetworkCredential WindowsAuthentication { get; set; }
     }
 }
