@@ -192,7 +192,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return LazyLoad(ref _headline); }
             set
             {
-                //EnsureInitialization();
                 _headline = value;
             }
         }
