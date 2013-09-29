@@ -1,4 +1,16 @@
 SmartAPI Changelog
+
+2013-09-30: Version 1.0.1.0
+------------------------------------
+Features:
+- Added IPage.CreatePublishJob for publishing of single pages/page trees
+
+Optimization:
+- Removed unnecessary page loads on Project.Pages
+
+Other:
+- Removed dead code
+
 2013-09-24: Version 1.0.0.0
 ------------------------------------
 API:

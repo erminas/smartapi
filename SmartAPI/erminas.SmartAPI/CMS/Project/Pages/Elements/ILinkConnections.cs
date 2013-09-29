@@ -152,7 +152,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
                         new Page(Project, curPage.GetGuid(), _element.LanguageVariant)
                             {
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault(),
-                                Headline = curPage.GetAttributeValue("headline")
+                                InitialHeadlineValue = curPage.GetAttributeValue("headline")
                             }
                     select page).ToList();
         }

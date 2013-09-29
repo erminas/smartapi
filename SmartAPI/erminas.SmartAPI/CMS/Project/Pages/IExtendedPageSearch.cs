@@ -241,7 +241,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                         new Page(_project, curPage.GetGuid(), LanguageVariantOfSearchResults)
                             {
                                 Id = curPage.GetIntAttributeValue("id").GetValueOrDefault(),
-                                Headline = curPage.GetAttributeValue("headline"),
+                                InitialHeadlineValue = curPage.GetAttributeValue("headline"),
                                 Status = ((PageState) int.Parse(curPage.GetAttributeValue("status")))
                             },
                         // ReSharper disable PossibleInvalidOperationException

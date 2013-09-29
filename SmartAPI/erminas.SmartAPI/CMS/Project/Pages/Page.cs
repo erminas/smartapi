@@ -187,11 +187,19 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             return Guid.GetHashCode() + 3*LanguageVariant.GetHashCode();
         }
 
+        /// <summary>
+        /// introduced to be able to set the headline value on construction, e.g. in page search or pages list,
+        /// without triggering a complete load of the page while at the same time triggering a page load, if 
+        /// the headline gets set by the user through the Headline property.
+        /// </summary>
+        internal string InitialHeadlineValue { set { _headline = value; } }
+
         public string Headline
         {
             get { return LazyLoad(ref _headline); }
             set
             {
+                EnsureInitialization();
                 _headline = value;
             }
         }
