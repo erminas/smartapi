@@ -253,11 +253,23 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             ContentClass targetCC = CreateCopyInProject(project, targetFolderGuid);
 
+            CopyProjectVariantAssignmentToCC(targetCC);
+
             CopyAttributesToCC(targetCC);
 
             CopyAllElementsToCC(targetCC);
 
             CopyPreassignedKeywordsToCC(targetCC);
+        }
+
+        private void CopyProjectVariantAssignmentToCC(ContentClass targetCC)
+        {
+            var assignments =
+                ProjectVariantAssignments.ToDictionary(
+                    assignment => targetCC.TemplateVariants[assignment.TemplateVariant.Name],
+                    assignment => targetCC.Project.ProjectVariants[assignment.ProjectVariant.Name]);
+
+            targetCC.ProjectVariantAssignments.Assign(assignments);
         }
 
         /// <summary>
@@ -604,7 +616,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
             AddTemplateVariants(template);
 
-            AddProjectVariants(project, template);
+           // AddProjectVariants(project, template);
 
             return CreateContentClass(project, template);
         }
