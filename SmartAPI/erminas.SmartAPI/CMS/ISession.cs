@@ -285,6 +285,7 @@ namespace erminas.SmartAPI.CMS
             Locales = new IndexedCachedList<int, ISystemLocale>(GetLocales, x => x.LCID, Caching.Enabled);
             DialogLocales = new IndexedCachedList<string, IDialogLocale>(GetDialogLocales, x => x.LanguageAbbreviation,
                                                                          Caching.Enabled);
+            
         }
 
         public Session(ServerLogin login,
@@ -315,7 +316,7 @@ namespace erminas.SmartAPI.CMS
         /// <remarks>
         ///     Caching is disabled by default.
         /// </remarks>
-        public IRDList<IAsynchronousProcess> AsynchronousProcesses { get; private set; }
+        public IRDList<IAsynchronousProcess> AsynchronousProcesses { get { return ServerManager.AsynchronousProcesses; } }
 
         public IUser CurrentUser
         {
@@ -617,6 +618,7 @@ namespace erminas.SmartAPI.CMS
 
         internal XmlElement GetUserSessionInfoElement()
         {
+            //TODO das funktioniert nur, wenn man in nem projekt drin ist
             const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
             string reply = ExecuteRQLRaw(SESSION_INFO.RQLFormat(_sessionKeyStr), RQL.IODataFormat.Plain);
 
@@ -773,6 +775,8 @@ namespace erminas.SmartAPI.CMS
                         c.Add(new Uri(baseURL), "NTLM", ServerLogin.WindowsAuthentication);
                         client.Credentials = c;
                     }
+                    
+                    client.Headers.Add("Referer", baseURL);
 
                     string responseText = client.DownloadString(versionURI);
                     Match match = VERSION_REGEXP.Match(responseText);
@@ -900,7 +904,7 @@ namespace erminas.SmartAPI.CMS
                                                     "Could not login");
             }
             LogonGuid = Guid.Parse(loginGuid);
-
+            SessionKey = LogonGuid.ToRQLString();
             LoadSelectedProject(xmlNode.OwnerDocument);
             var loginNode = (XmlElement) xmlNodes[0];
             string userGuidStr = loginNode.GetAttributeValue("userguid");
@@ -912,11 +916,12 @@ namespace erminas.SmartAPI.CMS
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
                                                         "Could not login; Invalid user data");
                 }
-                //ServerManager.Users.Current = new User(this, Guid.Parse(((XmlElement) userNodes[0]).GetAttributeValue("guid")));
+                var xmlElement = ((XmlElement) userNodes[0]);
+                ((Users)ServerManager.Users).Current = new User(this, xmlElement.GetGuid()) { Name = xmlElement.GetAttributeValue("name") };
             }
             else
             {
-                //ServerManager.Users.Current = new User(this, Guid.Parse(loginNode.GetAttributeValue("userguid")));
+                ((Users)ServerManager.Users).Current = new User(this, Guid.Parse(loginNode.GetAttributeValue("userguid")));
             }
         }
 

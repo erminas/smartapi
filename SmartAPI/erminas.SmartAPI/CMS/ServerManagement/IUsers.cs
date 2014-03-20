@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.ServerManagement
     internal class Users : NameIndexedRDList<IUser>, IUsers
     {
         private readonly Session _session;
-        private readonly Lazy<IUser> _user;
+        private Lazy<IUser> _user;
 
         internal Users(Session session, Caching caching) : base(caching)
         {
@@ -57,6 +57,7 @@ namespace erminas.SmartAPI.CMS.ServerManagement
         public IUser Current
         {
             get { return _user.Value; }
+            internal set { _user = new Lazy<IUser>(() => value); }
         }
 
         private IUser GetCurrentUser()

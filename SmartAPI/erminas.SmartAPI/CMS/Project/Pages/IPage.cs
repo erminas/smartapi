@@ -89,7 +89,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     ///         cref="PartialRedDotObject.Refresh" />
     ///     to see them reflected in the status field,
     /// </summary>
-    public interface IPage : ILinkTarget, IPartialRedDotObject, IKeywordAssignable, IDeletable, ISessionObject
+    public interface IPage : ILinkTarget, IPartialRedDotObject, IKeywordAssignable, IDeletable, IDetailedAuthorizable
     {
         DateTime CheckinDate { get; }
 
