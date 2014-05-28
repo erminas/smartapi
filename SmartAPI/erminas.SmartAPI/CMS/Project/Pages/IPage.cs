@@ -109,6 +109,26 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         IIndexedRDList<string, IPageElement> ContentElements { get; }
 
         /// <summary>
+        /// Warning, this is experimental and might change in a future version
+        /// </summary>
+        [Obsolete("This method is experimental and probably will change in a future version")]
+        IPageCopyAndConnectJob CreateCopyAndConnectJob(ILinkElement connectionTarget,
+            PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None);
+
+        /// <summary>
+        /// Copy this page and connect the copy to a target asynchronously.
+        /// Warning, this is experimental and might change in a future version
+        /// </summary>
+        /// <param name="connectionTarget">The target, the copy gets connected to</param>
+        /// <param name="flags">Flags for copying, you can combine multiple flags with the binary or operator</param>
+        /// <example>
+        /// page.CopyAndConnectAsync(list, PageCopyAndConnectFlags.AlsoCopyCompleteTree | PageCopyAndConnectFlags.AdoptFileNames | PageCopyAndConnectFlags.AdoptProjectVariantAssignments);
+        /// </example>
+        [Obsolete("This method is experimental and probably will change in a future version")]
+        void CopyAndConnectAsync(ILinkElement connectionTarget,
+            PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None);
+
+        /// <summary>
         ///     Move the page to the recycle bin, if page has been released yet. Otherwise the page will be deleted from CMS server completely.
         /// </summary>
         new void Delete();

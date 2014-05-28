@@ -80,7 +80,7 @@ namespace erminas.SmartAPI.CMS.Project
         public override void RunSync(TimeSpan maxWait)
         {
             RunAsync();
-            if (Session.ServerVersion < new Version(11, 0))
+            if (false && Session.ServerVersion < new Version(11, 0))
             {
                 //we wait for a copy process to appear and disappear
                 //this doesn't work reliably in newer OpentText/RedDot versions,

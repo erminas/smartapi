@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Xml;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.Utils;
 
@@ -31,8 +32,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
         internal bool IsDisplayingConnectedPagesInTargetContainerOfMainLinkIfAvailable
         {
-            get { return _element.XmlElement.GetBoolAttributeValue("usepagemainlinktargetcontainer").GetValueOrDefault(); }
-            set { _element.XmlElement.SetAttributeValue("usepagemainlinktargetcontainer", value.ToRQLString()); }
+            get { return _element.XmlReadWriteWrapper.GetBoolAttributeValue("usepagemainlinktargetcontainer").GetValueOrDefault(); }
+            set { _element.XmlReadWriteWrapper.SetAttributeValue("usepagemainlinktargetcontainer", value.ToRQLString()); }
         }
 
         internal Pages.Elements.IContainer TargetContainer

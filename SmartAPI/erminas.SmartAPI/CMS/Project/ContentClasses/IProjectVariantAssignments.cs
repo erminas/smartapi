@@ -78,21 +78,30 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             Assign(new Dictionary<ITemplateVariant, IProjectVariant> {{templateVariant, projectVariant}});
         }
 
-        public void Assign(IDictionary<ITemplateVariant, IProjectVariant> assignments)
+        public void Assign(ILookup<ITemplateVariant, IProjectVariant> assignments)
         {
             const string ASSIGN_PROJECT_VARIANT =
-                @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
+              @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
             const string SINGLE_ASSIGNMENT =
-                @"<TEMPLATEVARIANT guid=""{0}""><PROJECTVARIANTS action=""assign""><PROJECTVARIANT donotgenerate=""0"" donotusetidy=""0"" guid=""{1}"" /></PROJECTVARIANTS></TEMPLATEVARIANT>";
+                @"<TEMPLATEVARIANT guid=""{0}""><PROJECTVARIANTS action=""assign"">{1}</PROJECTVARIANTS></TEMPLATEVARIANT>";
+            const string SINGLE_PROJECT_VARIANT =
+                @"<PROJECTVARIANT donotgenerate=""0"" donotusetidy=""0"" guid=""{0}"" />";
+
 
             var builder = new StringBuilder();
             foreach (var curEntry in assignments)
             {
-                builder.Append(SINGLE_ASSIGNMENT.RQLFormat(curEntry.Key, curEntry.Value));
+                var projectVariants = curEntry.Aggregate("", (s, variant) => s + SINGLE_PROJECT_VARIANT.RQLFormat(variant));
+                builder.Append(SINGLE_ASSIGNMENT.RQLFormat(curEntry.Key, projectVariants));
             }
 
             Project.ExecuteRQL(ASSIGN_PROJECT_VARIANT.RQLFormat(_contentClass, builder), RqlType.SessionKeyInProject);
             InvalidateCache();
+        }
+
+        public void Assign(IDictionary<ITemplateVariant, IProjectVariant> assignments)
+        {
+            Assign(assignments.ToLookup(x=>x.Key, x=>x.Value));
         }
 
         public IContentClass ContentClass
@@ -156,6 +165,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     {
         void Assign(ITemplateVariant templateVariant, IProjectVariant projectVariant);
         void Assign(IDictionary<ITemplateVariant, IProjectVariant> assignments);
+        void Assign(ILookup<ITemplateVariant, IProjectVariant> assignments);
         IContentClass ContentClass { get; }
 
         IEnumerable<IProjectVariantAssignment> this[ITemplateVariant templateVariant] { get; }

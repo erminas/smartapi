@@ -200,7 +200,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         private void CopyProjectVariantAssignmentToCC(ContentClass targetCC)
         {
-            var assignment = ProjectVariantAssignments.ToDictionary(x=>targetCC.TemplateVariants.GetByName(x.TemplateVariant.Name), x=>targetCC.Project.ProjectVariants.GetByName(x.ProjectVariant.Name));
+            var assignment = ProjectVariantAssignments.ToLookup(x=>targetCC.TemplateVariants.GetByName(x.TemplateVariant.Name), x=>targetCC.Project.ProjectVariants.GetByName(x.ProjectVariant.Name));
             targetCC.ProjectVariantAssignments.Assign(assignment);
         }
 

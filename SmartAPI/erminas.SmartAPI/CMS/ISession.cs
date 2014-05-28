@@ -250,6 +250,12 @@ namespace erminas.SmartAPI.CMS
     /// </summary>
     internal class Session : ISession
     {
+        static Session()
+        {
+            //allow custom certificates
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) => true;
+        }
+
         private const string RQL_IODATA = "<IODATA>{0}</IODATA>";
         private const string RQL_IODATA_LOGONGUID = @"<IODATA loginguid=""{0}"">{1}</IODATA>";
         private const string RQL_IODATA_SESSIONKEY = @"<IODATA sessionkey=""{1}"" loginguid=""{0}"">{2}</IODATA>";
@@ -561,7 +567,15 @@ namespace erminas.SmartAPI.CMS
                                               textElementGuid == Guid.Empty ? "" : textElementGuid.ToRQLString(),
                                               typeString, HttpUtility.HtmlEncode(content)));
 
-            string resultGuidStr = XElement.Load(new StringReader(rqlResult)).Value;
+            //in version 11.2 the server returns <guid>\r\n, but we are only interested in the guid -> Trim()
+            string resultGuidStr = XElement.Load(new StringReader(rqlResult)).Value.Trim();
+            
+            //result guid is empty, if the value was set to the same value it had before
+            if (string.IsNullOrEmpty(resultGuidStr))
+            {
+                return textElementGuid;
+            }
+
             Guid newGuid;
             if (!Guid.TryParse(resultGuidStr, out newGuid) ||
                 (textElementGuid != Guid.Empty && textElementGuid != newGuid))
@@ -949,8 +963,13 @@ namespace erminas.SmartAPI.CMS
 
                 object error = "x";
                 object resultInfo = "";
-
                 var binding = new BasicHttpBinding();
+
+                var isUsingHttps = ServerLogin.Address.Scheme.ToLowerInvariant() == "https";
+                if (isUsingHttps)
+                {
+                    binding.Security.Mode = BasicHttpSecurityMode.Transport;
+                } 
                 binding.ReaderQuotas.MaxStringContentLength = 2097152*10; //20MB
                 binding.ReaderQuotas.MaxArrayLength = 2097152*10; //20mb
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
@@ -960,7 +979,7 @@ namespace erminas.SmartAPI.CMS
                 if (ServerLogin.WindowsAuthentication != null)
                 {
                     binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
-                    binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                    binding.Security.Mode = isUsingHttps ? BasicHttpSecurityMode.TransportWithMessageCredential : BasicHttpSecurityMode.TransportCredentialOnly;
                 }
 
                 var add = new EndpointAddress(CmsServerConnectionUrl);

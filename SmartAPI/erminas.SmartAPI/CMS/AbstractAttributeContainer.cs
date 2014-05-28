@@ -166,6 +166,8 @@ namespace erminas.SmartAPI.CMS
             _session = session;
         }
 
+        internal XmlReadWriteWrapper XmlReadWriteWrapper { get { return _readWriteWrapper; } }
+
         internal AbstractAttributeContainer(ISession session, XmlElement xmlElement)
         {
             _session = session;

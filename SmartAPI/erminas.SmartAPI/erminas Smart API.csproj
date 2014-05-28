@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="CMS\Project\Authorizations\IAuthorizations.cs" />
     <Compile Include="CMS\Project\IDetailedAuthorizable.cs" />
+    <Compile Include="CMS\Project\Pages\IPageCopyAndConnectJob.cs" />
     <Compile Include="CMS\Project\Pages\IPagePublishJob.cs" />
     <Compile Include="CMS\ServerManagement\IAsynchronousProcess.cs" />
     <Compile Include="CMS\ServerManagement\ServerManagementContext.cs" />
@@ -327,6 +328,7 @@
     <Compile Include="Utils\CachedCollections\IndexedRDList.cs" />
     <Compile Include="Utils\LanguageContext.cs" />
     <Compile Include="Utils\CachedCollections\RDList.cs" />
+    <Compile Include="Utils\LINQExtension.cs" />
     <Compile Include="Utils\StringConversion.cs" />
     <Compile Include="Utils\CachedCollections\IIndexedCachedList.cs" />
     <Compile Include="Utils\CachedCollections\IndexedCachedList.cs" />

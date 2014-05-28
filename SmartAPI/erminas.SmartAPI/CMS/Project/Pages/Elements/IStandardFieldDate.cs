@@ -47,7 +47,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             using (new LanguageContext(LanguageVariant))
             {
                 //TODO testen gegen _value == null und ob das ergebnis mit htmlencode richtig ist
-                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), _value.Date.Subtract(BASE_DATE).Days,
+                var value = _value.Date == default(DateTime)
+                    ? RQL.SESSIONKEY_PLACEHOLDER
+                    : _value.Date.Subtract(BASE_DATE).Days.ToString(CultureInfo.InvariantCulture);
+                Project.ExecuteRQL(string.Format(SAVE_VALUE, Guid.ToRQLString(), value,
                                                  (int) ElementType));
             }
             //TODO check guid

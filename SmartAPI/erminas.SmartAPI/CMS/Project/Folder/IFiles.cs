@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -109,14 +110,26 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             var files = string.Join(string.Empty,
                                     filenameList.Select(s => GetSingleFilenameTemplate().SecureRQLFormat(s)));
             var deleteFiles = GetDeleteFilesStatement(files);
-
-            var xmlDoc = Project.ExecuteRQL(deleteFiles);
-            if (!xmlDoc.IsContainingOk())
+            try
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format(
-                                                "In folder {0}, could not delete one ore more files out of: {1}",
-                                                _folder, string.Join(", ", filenameList)));
+                var xmlDoc = Project.ExecuteRQL(deleteFiles);
+                if (!xmlDoc.IsContainingOk())
+                {
+                    throw new SmartAPIException(Session.ServerLogin,
+                        string.Format(
+                            "In folder {0}, could not delete one ore more files out of: {1}",
+                            _folder, string.Join(", ", filenameList)));
+                }
+            }
+            catch (RQLException e)
+            {
+                //TODO check auf dem aelteren 11er server
+                if (Session.ServerVersion <= new Version(11, 2) ||
+                    !e.Message.Contains(
+                        "ERROR in procedure Files: Object reference not set to an instance of an object."))
+                {
+                    throw;
+                }
             }
         }
 
