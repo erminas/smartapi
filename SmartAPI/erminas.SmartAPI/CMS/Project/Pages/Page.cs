@@ -84,6 +84,18 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public IIndexedRDList<string, IPageElement> ContentElements { get; private set; }
 
+        public IPageCopyAndConnectJob CreateCopyAndConnectJob(ILinkElement connectionTarget,
+            PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None)
+        {
+            return new PageCopyAndConnectJob(this, connectionTarget, flags);
+        }
+
+        public void CopyAndConnectAsync(ILinkElement connectionTarget,
+            PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None)
+        {
+            CreateCopyAndConnectJob(connectionTarget, flags).RunAsync();
+        }
+
         public void Delete()
         {
             DeleteImpl(forceDeletion: true);

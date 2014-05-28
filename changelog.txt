@@ -1,5 +1,12 @@
 SmartAPI Changelog
 
+2014-05-28: Version 1.0.2.0
+------------------------------------
+Features
+- Added support for SSL connections
+- Added initial support for 11.2, but some parts do not work right now due to bugs on OT side
+- Added experimental support for page copy and connect, the interfaces might change in a future version
+
 2013-09-30: Version 1.0.1.0
 ------------------------------------
 Features:
