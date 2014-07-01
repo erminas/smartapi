@@ -215,6 +215,7 @@
     <Compile Include="Exceptions\MissingElementValueException.cs" />
     <Compile Include="Exceptions\MissingKeywordsException.cs" />
     <Compile Include="Exceptions\MissingPrivilegesException.cs" />
+    <Compile Include="Exceptions\NoSuchPageException.cs" />
     <Compile Include="Exceptions\PageStatusException.cs" />
     <Compile Include="Exceptions\RQLException.cs" />
     <Compile Include="Exceptions\PageDeletionException.cs" />
