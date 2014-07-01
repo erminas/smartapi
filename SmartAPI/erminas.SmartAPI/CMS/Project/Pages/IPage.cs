@@ -200,7 +200,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         /// <summary>
         ///     The element this page has as mainlink.
         /// </summary>
-        IPageElement MainLinkElement { get; }
+        ILinkElement MainLinkElement { get; set; }
 
         new string Name { get; set; }
 

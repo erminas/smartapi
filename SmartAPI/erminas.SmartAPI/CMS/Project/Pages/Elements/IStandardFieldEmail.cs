@@ -27,7 +27,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
     [PageElementType(ElementType.StandardFieldEmail)]
     internal class StandardFieldEmail : StandardField<string>, IStandardFieldEmail
     {
-        private Regex _emailVerificationRegex;
+        private static Regex _emailVerificationRegex = new Regex("^[^@]+@[^@]+$");
 
         internal StandardFieldEmail(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -55,7 +55,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 
         private void LoadXml()
         {
-            EnsuredInit(ref _emailVerificationRegex, "eltverifytermregexp", x => new Regex(x));
+          // -> is in javascript regex format  EnsuredInit(ref _emailVerificationRegex, "eltverifytermregexp", x => new Regex(x));
         }
     }
 }

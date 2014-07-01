@@ -28,6 +28,18 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     public interface IPages
     {
         /// <summary>
+        /// Get a page by its guid and its language variant.
+        /// </summary>
+        /// If it does not exists, an exception gets thrown.
+        IPage GetByGuid(Guid pageGuid, ILanguageVariant languageVariant);
+
+        /// <summary>
+        /// Try to get a page by its guid and its language variant.
+        /// </summary>
+        /// <returns>true, if the page exists, false otherwise</returns>
+        bool TryGetByGuid(Guid pageGuid, ILanguageVariant languageVariant, out IPage page);
+
+        /// <summary>
         ///     Create a new page.
         /// </summary>
         /// <param name="cc"> Content class of the page </param>
@@ -108,7 +120,26 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             _project = project;
         }
 
-        /// <summary>
+        public IPage GetByGuid(Guid pageGuid, ILanguageVariant languageVariant)
+        {
+            return new Page(_project, pageGuid, languageVariant).Refreshed();
+        }
+
+        public bool TryGetByGuid(Guid pageGuid, ILanguageVariant languageVariant, out IPage page)
+        {
+            try
+            {
+                page = GetByGuid(pageGuid, languageVariant);
+                return true;
+            }
+            catch (SmartAPIException)
+            {
+                page = null;
+                return false;
+            }
+        }
+
+    /// <summary>
         ///     Create a new page.
         /// </summary>
         /// <param name="cc"> Content class of the page </param>

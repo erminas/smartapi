@@ -35,7 +35,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         private string _headline;
         private int _id;
         private ILanguageVariant _lang;
-        private IPageElement _mainLinkElement;
+        private ILinkElement _mainLinkElement;
         private Guid _mainLinkGuid;
         private PageFlags _pageFlags = PageFlags.Null;
 
@@ -66,10 +66,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public void Commit()
         {
-            const string SAVE_PAGE = @"<PAGE action=""save"" guid=""{0}"" headline=""{1}"" name=""{2}"" />";
+            const string SAVE_PAGE = @"<PAGE action=""save"" guid=""{0}"" headline=""{1}"" name=""{2}"" mainlinkguid=""{3}"" />";
+            var mainlink = MainLinkElement == null ? RQL.SESSIONKEY_PLACEHOLDER : MainLinkElement.Guid.ToRQLString();
+            
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(string.Format(SAVE_PAGE, Guid.ToRQLString(), HttpUtility.HtmlEncode(Headline),
-                                                 HttpUtility.HtmlEncode(Filename)));
+                Project.ExecuteRQL(SAVE_PAGE.RQLFormat(Guid, HttpUtility.HtmlEncode(Headline),
+                                                 HttpUtility.HtmlEncode(Filename), mainlink));
             if (xmlDoc.GetElementsByTagName("PAGE").Count != 1)
             {
                 throw new SmartAPIException(Session.ServerLogin,
@@ -241,7 +243,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public IRDList<ILinkElement> LinkElements { get; private set; }
         public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
 
-        public IPageElement MainLinkElement
+        public ILinkElement MainLinkElement
         {
             get
             {
@@ -253,8 +255,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 {
                     return null;
                 }
-                _mainLinkElement = PageElement.CreateElement(Project, _mainLinkGuid, LanguageVariant);
+                _mainLinkElement = (ILinkElement)PageElement.CreateElement(Project, _mainLinkGuid, LanguageVariant);
                 return _mainLinkElement;
+            }
+
+            set
+            {
+                _mainLinkElement = value;
+                _mainLinkGuid = value != null ? value.Guid : default(Guid);
             }
         }
 
@@ -282,6 +290,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             _contentClass = null;
             _ccGuid = default(Guid);
+            _mainLinkElement = null;
             base.Refresh();
         }
 
@@ -543,8 +552,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         private void LoadXml()
         {
             //TODO schoenere loesung fuer partielles nachladen von pages wegen unterschiedlicher anfragen fuer unterschiedliche infos
-            InitIfPresent(ref _id, "id", int.Parse);
-            EnsuredInit(ref _lang, "languagevariantid", Project.LanguageVariants.Get);
+            try
+            {
+                EnsuredInit(ref _id, "id", int.Parse);
+                EnsuredInit(ref _lang, "languagevariantid", Project.LanguageVariants.Get);
+            }
+            catch (SmartAPIException e)
+            {
+                throw new NoSuchPageException(e);
+            }
             //parentguid seems to be the mainlinkguid
             //InitIfPresent(ref _parentPage, "parentguid", x => new Page(Project, GuidConvert(x), LanguageVariant));
             InitIfPresent(ref _headline, "headline", x => x);
@@ -626,7 +642,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             {
                 DeleteFromRecycleBin();
 
-                Refresh();
+                try { 
+                    Refresh();
+                }
+                catch (NoSuchPageException)
+                {
+                    return;
+                }
                 if (!Exists)
                 {
                     return;
@@ -643,7 +665,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var timeoutTracker = new TimeOutTracker(maxWaitForDeletionInMs);
             do
             {
-                Refresh();
+                try
+                {
+                    Refresh();
+                }
+                catch (NoSuchPageException)
+                {
+                    return;
+                }
                 if (!Exists || Status == PageState.IsInRecycleBin)
                 {
                     return;
