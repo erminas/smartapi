@@ -1,4 +1,14 @@
 SmartAPI Changelog
+2014-07-01: Version 1.0.3.0
+------------------------------------
+Features
+- Added support for setting the MainLinkElement of a page
+- IPage.MainLinkElement now returns a ILinkElement instead of a IPageElement
+- You can now load a page by guid via Project.Pages.GetByGuid
+
+Bugfixes:
+- Support for whitespaces in values of numerical standard fields, just like RedDot
+- IStandardFieldEmail.Value no longer throws an exception on access
 
 2014-05-28: Version 1.0.2.0
 ------------------------------------
