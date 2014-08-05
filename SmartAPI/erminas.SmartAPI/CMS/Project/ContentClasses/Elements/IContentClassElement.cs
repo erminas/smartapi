@@ -15,6 +15,7 @@
 
 using System;
 using System.Globalization;
+using System.Security;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -34,6 +35,15 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         void CommitInCurrentLanguage();
 
         void CommitInLanguage(string languageAbbreviation);
+
+        /// <summary>
+        /// Get/Set the name of the element.
+        /// If you set the name and call Commit(),
+        /// the Elements list cache of the ContentClass gets automatically invalidated,
+        /// so all elements get loaded again, if you access it the next time.
+        /// </summary>
+        /// 
+        new string Name { get; set; }
 
         IContentClass ContentClass { get; set; }
 
@@ -73,13 +83,18 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     /// </remarks>
     internal abstract class ContentClassElement : LanguageDependentPartialRedDotProjectObject, IContentClassElement
     {
+        private string _originalName;
+
         protected ContentClassElement(IContentClass contentClass, XmlElement xmlElement)
             : base(contentClass.Project, xmlElement)
         {
             // CreateAttributes("eltname", LANGUAGEVARIANTID);
             ContentClass = contentClass;
             LoadXml();
+            _originalName = Name;
         }
+
+        public new string Name { get { return base.Name; } set { base.Name = value; } }
 
         /// <summary>
         ///     Element category of the lement
@@ -103,6 +118,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             using (new LanguageContext(Project.LanguageVariants[abbreviation]))
             {
                 var node = GetElementForLanguage(abbreviation).MergedElement;
+                if (Name != _originalName)
+                {
+                    node.SetAttributeValue("eltname", SecurityElement.Escape(Name));
+                }
                 XmlDocument rqlResult =
                     ContentClass.Project.ExecuteRQL(string.Format(COMMIT_ELEMENT, GetSaveString(node)),
                                                     RqlType.SessionKeyInProject);
@@ -122,6 +141,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                     throw new SmartAPIException(Session.ServerLogin,
                                                 string.Format("Could not save changes to {0}", this), e);
                 }
+            }
+            if (Name != _originalName)
+            {
+                _originalName = Name;
+                ContentClass.Elements.InvalidateCache();
             }
         }
 
