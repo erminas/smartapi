@@ -91,6 +91,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             if (string.IsNullOrEmpty(fileName))
             {
                 _file = null;
+                return;
             }
 
             var files = folder.Files.GetByNamePattern(fileName);
