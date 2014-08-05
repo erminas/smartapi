@@ -1,4 +1,13 @@
 SmartAPI Changelog
+2014-xx-xx: Version 1.0.4.0
+------------------------------------
+Features:
+- Added support for the reation of template variants
+- Added support for the renaming of content class elements
+
+Optimizations:
+- Removed unnecessary search in media/image elements, when no filename is set
+
 2014-07-01: Version 1.0.3.0
 ------------------------------------
 Features
