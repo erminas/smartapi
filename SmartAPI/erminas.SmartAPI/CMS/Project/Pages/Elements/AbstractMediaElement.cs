@@ -43,12 +43,21 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         public void Commit()
         {
             const string COMMIT =
-                @"<ELT action=""save"" reddotcacheguid="""" guid=""{0}"" value=""{1}"" {2} extendedinfo=""""></ELT>";
+                @"<ELT action=""save"" reddotcacheguid="""" guid=""{0}"" value=""{1}"" folderguid=""{3}"" {2} extendedinfo=""""></ELT>";
 
-            string rqlStr = Value == null
-                                ? string.Format(COMMIT, Guid.ToRQLString(), RQL.SESSIONKEY_PLACEHOLDER, "")
-                                : string.Format(COMMIT, Guid.ToRQLString(), HttpUtility.HtmlEncode(Value.Name),
-                                                IsFileInSubFolder ? "subdirguid=\"{0}\"".RQLFormat(Value.Folder) : "");
+
+            if (Value == null)
+            {
+                //TODO evtl. folderguid setzen?
+                Project.ExecuteRQL(string.Format(COMMIT, Guid.ToRQLString(), RQL.SESSIONKEY_PLACEHOLDER, "", ""));
+                return;
+            }
+
+            var isInSubFolder = !Project.Folders.ContainsGuid(Value.Folder.Guid);
+            
+            var rqlStr = COMMIT.RQLFormat(this, HttpUtility.HtmlEncode(Value.Name),
+                                                isInSubFolder ? "subdirguid=\"{0}\"".RQLFormat(Value.Folder) : "",
+                                                isInSubFolder ?  ((IAssetManagerFolder)Value.Folder).ParentFolder : Value.Folder);
 
             Project.ExecuteRQL(rqlStr);
         }

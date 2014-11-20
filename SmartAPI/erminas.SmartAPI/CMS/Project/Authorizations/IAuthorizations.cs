@@ -82,6 +82,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         void Commit();
         IGroupAuthorizations GroupAuthorizations { get; }
 
+        new string Name { get; set; }
         /// <summary>
         ///     same as setting Name and Commit();
         /// </summary>
@@ -257,6 +258,7 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         }
 
         public IGroupAuthorizations GroupAuthorizations { get; private set; }
+        public new string Name { get { return base.Name; } set { base.Name = value; } }
 
         public void Rename(string newName)
         {

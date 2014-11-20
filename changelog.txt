@@ -1,12 +1,20 @@
 SmartAPI Changelog
-2014-xx-xx: Version 1.0.4.0
+2014-11-20: Version 1.0.4.0
 ------------------------------------
 Features:
-- Added support for the reation of template variants
+- Added support for the creation of template variants
 - Added support for the renaming of content class elements
+- Added IsUnknownUser property to IUser, to check whether a user is no longer known in the system
+- Added IContentClass.Pages property
 
 Optimizations:
 - Removed unnecessary search in media/image elements, when no filename is set
+
+Bugfixes:
+- Image element: some cases of setting of images from subdirectories did not work
+
+Other:
+- IStandardFieldText now derives from IStandardField<string>
 
 2014-07-01: Version 1.0.3.0
 ------------------------------------
