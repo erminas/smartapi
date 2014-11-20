@@ -63,6 +63,13 @@ namespace erminas.SmartAPI.CMS.ServerManagement
         string Password { set; }
         int PreferredEditor { get; }
 
+        /// <summary>
+        /// Indicates if the user is not (no longer) available in the system.
+        /// For example the content class history might still contain a user which was deleted later on.
+        /// In this case IsUnknownUser will be true, but you can still access its guid.
+        /// </summary>
+        bool IsUnknownUser { get; }
+
         IUserProjects Projects { get; }
 
         UserPofileChangeRestrictions UserPofileChangeRestrictions { get; set; }
@@ -90,6 +97,7 @@ namespace erminas.SmartAPI.CMS.ServerManagement
         private int _preferredEditor;
         private IDialogLocale _userInterfaceLanguage;
         private UserPofileChangeRestrictions _userPofileChangeRestrictions;
+        private bool _isUnknownUser;
 
         public User(ISession session, Guid userGuid) : base(session, userGuid)
         {
@@ -259,6 +267,11 @@ namespace erminas.SmartAPI.CMS.ServerManagement
             get { return LazyLoad(ref _preferredEditor); }
         }
 
+        public bool IsUnknownUser { get{
+           EnsureInitialization();
+            return _isUnknownUser;
+        } private set { _isUnknownUser = value; } }
+
         public IUserProjects Projects { get; private set; }
 
         public UserPofileChangeRestrictions UserPofileChangeRestrictions
@@ -278,13 +291,21 @@ namespace erminas.SmartAPI.CMS.ServerManagement
 
         protected override XmlElement RetrieveWholeObject()
         {
-            const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
-            string answer = Session.ExecuteRQLRaw(String.Format(LOAD_USER, Guid.ToRQLString()),
-                                                  RQL.IODataFormat.LogonGuidOnly);
             var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(answer);
+            try
+            {
+                const string LOAD_USER = @"<ADMINISTRATION><USER action=""load"" guid=""{0}""/></ADMINISTRATION>";
+                string answer = Session.ExecuteRQLRaw(String.Format(LOAD_USER, Guid.ToRQLString()),
+                    RQL.IODataFormat.LogonGuidOnly);
+                xmlDocument.LoadXml(answer);
 
-            return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
+                return (XmlElement) xmlDocument.GetElementsByTagName("USER")[0];
+            }
+            catch ( RQLException e )
+            {
+                IsUnknownUser = true;
+                return xmlDocument.CreateElement("USER");
+            }
         }
 
         private void Init()

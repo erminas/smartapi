@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -21,6 +22,7 @@ using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.CMS.Project.Keywords;
+using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
@@ -60,6 +62,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         IContentClassEditableAreaSettings EditableAreaSettings { get; }
 
         IContentClassElements Elements { get; }
+
+        ICollection<IPage> Pages { get; }
 
         /// <summary>
         ///     Folder that contains the content class.
@@ -243,6 +247,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         public IContentClassEditableAreaSettings EditableAreaSettings { get; private set; }
 
         public IContentClassElements Elements { get; private set; }
+
+        public ICollection<IPage> Pages
+        {
+            get { return Project.Pages.Search(x => x.ContentClass = this).ToList(); }
+        }
 
         /// <summary>
         ///     Folder that contains the content class.

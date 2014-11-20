@@ -13,9 +13,11 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
 
@@ -34,6 +36,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         public IContentClass ContentClass
         {
             get { return _contentClass; }
+        }
+
+        public void CreateTemplateVariant(TemplateVariantCreationOptions options)
+        {
+            if (!options.IsValid)
+            {
+                throw new SmartAPIException(Session.ServerLogin, "Missing Name value for template creation");
+            }
+
+            const string CREATE_TEMPLATE_VARIANT = @"<TEMPLATE action=""assign"" guid=""{0}"">
+<TEMPLATEVARIANTS action=""addnew"">
+<TEMPLATEVARIANT name=""{1}"" description="""" code=""{2}"" fileextension=""{3}"" insertstylesheetinpage=""{4}"" nostartendmarkers=""{5}"" containerpagereference=""{6}"">{2}</TEMPLATEVARIANT>
+</TEMPLATEVARIANTS>
+</TEMPLATE>";
+
+            var command = CREATE_TEMPLATE_VARIANT.SecureRQLFormat(ContentClass, options.Name, options.Data,
+                options.FileExtension, options.IsStylesheetIncludedInHeader, !options.ContainsAreaMarksInPage,
+                options.HasContainerPageReference);
+
+            Project.ExecuteRQL(command, RqlType.SessionKeyInProject);
+
+            InvalidateCache();
         }
 
         public IProject Project
@@ -58,8 +82,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         }
     }
 
+    public class TemplateVariantCreationOptions
+    {
+        public TemplateVariantCreationOptions(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; set; }
+        public string FileExtension { get; set; }
+        public bool IsStylesheetIncludedInHeader { get; set; }
+        public bool HasContainerPageReference { get; set; }
+        public bool ContainsAreaMarksInPage { get; set; }
+        public bool IsValid { get { return Name != null; }}
+        public string Data { get; set; }
+    }
+
     public interface ITemplateVariants : IIndexedRDList<string, ITemplateVariant>, IProjectObject
     {
         IContentClass ContentClass { get; }
+        void CreateTemplateVariant(TemplateVariantCreationOptions options);
     }
 }

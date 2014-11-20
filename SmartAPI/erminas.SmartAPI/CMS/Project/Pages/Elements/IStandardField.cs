@@ -15,11 +15,14 @@
 
 using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project.ContentClasses;
+using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     public interface IStandardField<T> : IValueElement<T>
     {
+      //TODO  T ValueOrDefault { get; }
         string Description { get; }
         string SampleText { get; }
     }
@@ -38,6 +41,10 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             : base(project, guid, languageVariant)
         {
         }
+
+        //TODO public T ValueOrDefault { get{return Value == null ?  ((IStandardField)Page.ContentClass.Elements.GetByName(Name)).DefaultValue:
+        //    Value;
+        //} }
 
         public string Description
         {
