@@ -172,7 +172,8 @@ namespace erminas.SmartAPI.CMS
         string SessionKey { get; }
 
         /// <summary>
-        ///     Set the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
+        /// This is only meant for internal use! It probably won't work as you expect it, so just ignore it ;)
+        /// Set the text content of a (content class) text element. This method exists, because it needs a different RQL element layout than all other queries. 
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="languageVariant"> Language variant for setting the text in </param>
@@ -180,6 +181,7 @@ namespace erminas.SmartAPI.CMS
         /// <param name="typeString"> texttype value </param>
         /// <param name="content"> new value </param>
         /// <returns> Guid of the text element </returns>
+        /// <remarks></remarks>
         Guid SetTextContent(Guid projectGuid, ILanguageVariant languageVariant, Guid textElementGuid, string typeString,
                             string content);
 

@@ -77,17 +77,16 @@ namespace erminas.SmartAPI.CMS.Project
             const string TREE =
                 @"<TREESEGMENT type=""project.4000"" action=""load"" guid=""4AF89E44535511D4BDAB004005312B7C"" descent=""app"" parentguid=""""/>";
             var result = Project.ExecuteRQL(TREE);
-            var guids = this.Select(folder => folder.Guid).ToList();
+            var guids = this.Select(folder => folder.Guid)
+                .ToList();
             return (from XmlElement element in result.GetElementsByTagName("SEGMENT")
                     let curGuid = element.GetGuid()
                     where !guids.Contains(curGuid)
-                    select
-                        (IContentClassFolder)
-                        new ContentClassFolder(_project, curGuid)
-                            {
-                                Name = element.GetAttributeValue("value"),
-                                IsBroken = true
-                            }).ToList();
+                    select (IContentClassFolder) new ContentClassFolder(_project, curGuid)
+                                                 {
+                                                     Name = element.GetAttributeValue("value"),
+                                                     IsBroken = true
+                                                 }).ToList();
         }
 
         private List<IContentClassFolder> GetContentClassFolders()
@@ -97,9 +96,7 @@ namespace erminas.SmartAPI.CMS.Project
             XmlDocument xmlDoc = Session.ExecuteRQLInProjectContext(LIST_CC_FOLDERS_OF_PROJECT, _project.Guid);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
 
-            return
-                (from XmlElement curNode in xmlNodes
-                 select (IContentClassFolder) new ContentClassFolder(_project, curNode)).ToList();
+            return (from XmlElement curNode in xmlNodes select (IContentClassFolder) new ContentClassFolder(_project, curNode)).ToList();
         }
     }
 
@@ -107,8 +104,12 @@ namespace erminas.SmartAPI.CMS.Project
     {
         //IClipboard Clipboard { get; }
         IProjectGroups AssignedGroups { get; }
+
         //IAuthorizationPackages AuthorizationPackages { get; }
         ICategories Categories { get; }
+
+        [VersionIsGreaterThanOrEqual(10)]
+        IProjectClipboard Clipboard { get; }
 
         /// <summary>
         ///     All content class folders, indexed by name. The list is cached by default.
@@ -117,34 +118,15 @@ namespace erminas.SmartAPI.CMS.Project
 
         IContentClasses ContentClasses { get; }
 
-        IProjectCopyJob CreateCopyJob(string newProjectName);
-        IProjectExportJob CreateExportJob(string targetPath);
-
         /// <summary>
         ///     All database connections, indexed by name. The list is cached by default.
         /// </summary>
         IDatabaseConnections DatabaseConnections { get; }
 
         /// <summary>
-        ///     Delete this project and its database on the database server
-        /// </summary>
-        void DeleteWithDatabase(string databaseUser, string password);
-
-        /// <summary>
-        ///     Execute an rql query.
-        /// </summary>
-        /// <param name="query"> The query string (not containing IODATA/PROJECT elements) </param>
-        /// <param name="type"> Determine the attributes of IODATA/PROJECT elements in the query </param>
-        /// <returns> The parsed reply of the RedDot server as XmlDocument </returns>
-        XmlDocument ExecuteRQL(string query, RqlType type = RqlType.SessionKeyInIodata);
-
-        /// <summary>
         ///     All folders, indexed by name. The list is cached by default.
         /// </summary>
         IFolders Folders { get; }
-
-        /// <see cref="CMS.Session.GetTextContent" />
-        string GetTextContent(Guid textElementGuid, ILanguageVariant lang, string typeString);
 
         /// <summary>
         ///     All info attributes in the project, indexed by id. The list is cached by default.
@@ -152,7 +134,9 @@ namespace erminas.SmartAPI.CMS.Project
         IIndexedCachedList<int, IInfoAttribute> InfoAttributes { get; }
 
         bool IsArchivingActive { get; }
+
         bool IsLockedBySystem { get; }
+
         bool IsVersioningActive { get; set; }
 
         /// <summary>
@@ -193,23 +177,6 @@ namespace erminas.SmartAPI.CMS.Project
         IRDList<IPublicationTarget> PublicationTargets { get; }
 
         IRecycleBin RecycleBin { get; }
-        IProject Refreshed();
-
-        /// <summary>
-        ///     Select this project as active project in the current session.
-        /// </summary>
-        void Select();
-
-        /// <summary>
-        ///     Set the project lock.
-        ///     The info message must not be empty, if lock level is different than ProjectLockLevel.None!
-        /// </summary>
-        /// <param name="level">level to set the locking to</param>
-        /// <param name="infoMessage">info message to display to users, MUST NOT BE EMPTY if lock level is different than ProjectLockLevel.None</param>
-        void SetLockLevel(ProjectLockLevel level, string infoMessage);
-
-        /// <see cref="CMS.Session.SetTextContent" />
-        Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString, string content);
 
         /// <summary>
         ///     All Syllables, indexed by guid. The list is cached by default.
@@ -222,16 +189,65 @@ namespace erminas.SmartAPI.CMS.Project
         IProjectUsers Users { get; }
 
         IProjectWorkflows Workflows { get; }
+
+        IProjectCopyJob CreateCopyJob(string newProjectName);
+
+        IProjectExportJob CreateExportJob(string targetPath);
+
+        /// <summary>
+        ///     Delete this project and its database on the database server
+        /// </summary>
+        void DeleteWithDatabase(string databaseUser, string password);
+
+        /// <summary>
+        ///     Execute an rql query.
+        /// </summary>
+        /// <param name="query"> The query string (not containing IODATA/PROJECT elements) </param>
+        /// <param name="type"> Determine the attributes of IODATA/PROJECT elements in the query </param>
+        /// <returns> The parsed reply of the RedDot server as XmlDocument </returns>
+        XmlDocument ExecuteRQL(string query, RqlType type = RqlType.SessionKeyInIodata);
+
+        void ClearPageCache();
+
+        /// <see cref="CMS.Session.GetTextContent" />
+        string GetTextContent(Guid textElementGuid, ILanguageVariant lang, string typeString);
+
+        IProject Refreshed();
+
+        /// <summary>
+        ///     Select this project as active project in the current session.
+        /// </summary>
+        void Select();
+
+        /// <summary>
+        ///     Set the project lock.
+        ///     The info message must not be empty, if lock level is different than ProjectLockLevel.None!
+        /// </summary>
+        /// <param name="level">level to set the locking to</param>
+        /// <param name="infoMessage">
+        ///     info message to display to users, MUST NOT BE EMPTY if lock level is different than
+        ///     ProjectLockLevel.None
+        /// </param>
+        void SetLockLevel(ProjectLockLevel level, string infoMessage);
+
+        /// <see cref="CMS.Session.SetTextContent" />
+        [Obsolete(
+            "This was not meant as public API and will be removed in the next major release. Do NOT use it, it probably won't do what you think it does!"
+            )]
+        Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString, string content);
     }
 
     /// <summary>
-    ///     Represents a RedDot Project. Most (list) properties are lazy loaded and cached by default. That means the actual content (e.g. the folders, content classes etc) is loaded on the first access of the property and then cached, so that subsequent access is done on the local cache. You can change that behaviour through
+    ///     Represents a RedDot Project. Most (list) properties are lazy loaded and cached by default. That means the actual
+    ///     content (e.g. the folders, content classes etc) is loaded on the first access of the property and then cached, so
+    ///     that subsequent access is done on the local cache. You can change that behaviour through
     ///     <see
     ///         cref="ICachedList{T}.IsCachingEnabled" />
     ///     or do a manual refresh of the cache either eagerly (
     ///     <see
     ///         cref="ICachedList{T}.Refresh" />
-    ///     ) or lazy ( <see cref="ICachedList{T}.InvalidateCache" /> . Most of the lists are also indexed on the most frequent access property (mostly Name). See the documentation on the properties for details.
+    ///     ) or lazy ( <see cref="ICachedList{T}.InvalidateCache" /> . Most of the lists are also indexed on the most frequent
+    ///     access property (mostly Name). See the documentation on the properties for details.
     /// </summary>
     internal class Project : PartialRedDotObject, IProject
     {
@@ -239,6 +255,8 @@ namespace erminas.SmartAPI.CMS.Project
         private readonly IPages _pages;
         private bool _isLockedBySystem;
         private ProjectLockLevel _locklevel;
+        private IPage _startPage;
+        private IProjectClipboard _clipboard;
 
         internal Project(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
@@ -255,11 +273,24 @@ namespace erminas.SmartAPI.CMS.Project
             Init();
         }
 
+        internal XmlDocument AllFoldersXmlDocument { get; set; }
+
         //public IClipboard Clipboard { get; private set; }
         public IProjectGroups AssignedGroups { get; private set; }
+
         //public IAuthorizationPackages AuthorizationPackages { get; private set; }
 
         public ICategories Categories { get; private set; }
+
+        [VersionIsGreaterThanOrEqual(10)]
+        public IProjectClipboard Clipboard
+        {
+            get
+            {
+                VersionVerifier.EnsureVersion(Session);
+                return _clipboard;
+            }
+        }
 
         /// <summary>
         ///     All concent class folders, indexed by name. The list is cached by default.
@@ -316,6 +347,12 @@ namespace erminas.SmartAPI.CMS.Project
             }
         }
 
+        public void ClearPageCache()
+        {
+            const string CLEAR_PAGE_CACHE = @"<PBCACHE><CACHE action=""delete""/></PBCACHE>";
+            ExecuteRQL(CLEAR_PAGE_CACHE);
+        }
+
         /// <summary>
         ///     All folders, indexed by guid. The list is cached by default.
         /// </summary>
@@ -337,7 +374,8 @@ namespace erminas.SmartAPI.CMS.Project
             get
             {
                 EnsureInitialization();
-                return XmlElement.GetIntAttributeValue("archive").GetValueOrDefault() == -1;
+                return XmlElement.GetIntAttributeValue("archive")
+                           .GetValueOrDefault() == -1;
             }
         }
 
@@ -352,13 +390,13 @@ namespace erminas.SmartAPI.CMS.Project
             get
             {
                 EnsureInitialization();
-                return XmlElement.GetIntAttributeValue("versioning").GetValueOrDefault() == -1;
+                return XmlElement.GetIntAttributeValue("versioning")
+                           .GetValueOrDefault() == -1;
             }
 
             set
             {
-                const string SET_VERISONING =
-                    @"<ADMINISTRATION><PROJECT action=""save"" guid=""{2}"" versioning=""{3}""/></ADMINISTRATION>";
+                const string SET_VERISONING = @"<ADMINISTRATION><PROJECT action=""save"" guid=""{2}"" versioning=""{3}""/></ADMINISTRATION>";
                 Session.ExecuteRQL(SET_VERISONING.RQLFormat(Session.LogonGuid, Session.CurrentUser, this, value));
             }
         }
@@ -427,7 +465,10 @@ namespace erminas.SmartAPI.CMS.Project
         ///     The info message must not be empty, if lock level is different than ProjectLockLevel.None!
         /// </summary>
         /// <param name="level">level to set the locking to</param>
-        /// <param name="infoMessage">info message to display to users, MUST NOT BE EMPTY if lock level is different than ProjectLockLevel.None</param>
+        /// <param name="infoMessage">
+        ///     info message to display to users, MUST NOT BE EMPTY if lock level is different than
+        ///     ProjectLockLevel.None
+        /// </param>
         public void SetLockLevel(ProjectLockLevel level, string infoMessage)
         {
             if (level != ProjectLockLevel.None && string.IsNullOrEmpty(infoMessage))
@@ -438,21 +479,23 @@ namespace erminas.SmartAPI.CMS.Project
                 @"<ADMINISTRATION><PROJECT action=""save"" guid=""{0}"" inhibitlevel=""{1}"" lockinfo=""{2}""/></ADMINISTRATION>";
 
             var xmlDoc =
-                Session.ExecuteRQL(SET_LOCKLEVEL.RQLFormat(this, (int) level,
+                Session.ExecuteRQL(
+                                   SET_LOCKLEVEL.RQLFormat(
+                                                           this,
+                                                           (int) level,
                                                            level == ProjectLockLevel.None
                                                                ? RQL.SESSIONKEY_PLACEHOLDER
                                                                : SecurityElement.Escape(infoMessage)));
             var project = (XmlElement) xmlDoc.SelectSingleNode("//PROJECT");
-            if (!project.GetAttributeValue("inhibitlevel").Equals(((int) level).ToString(CultureInfo.InvariantCulture)))
+            if (!project.GetAttributeValue("inhibitlevel")
+                     .Equals(((int) level).ToString(CultureInfo.InvariantCulture)))
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not set project lock level to {0}", level));
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not set project lock level to {0}", level));
             }
         }
 
         /// <see cref="CMS.Session.SetTextContent" />
-        public Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString,
-                                   string content)
+        public Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString, string content)
         {
             return Session.SetTextContent(Guid, languageVariant, textElementGuid, typeString, content);
         }
@@ -483,8 +526,6 @@ namespace erminas.SmartAPI.CMS.Project
             return ((Project) Session.ServerManager.Projects.ForCurrentUser.GetByGuid(Guid)).XmlElement;
         }
 
-        internal XmlDocument AllFoldersXmlDocument { get; set; }
-
         private List<IInfoAttribute> GetInfoAttributes()
         {
             const string LOAD_INFO_ELEMENTS = @"<TEMPLATE><INFOELEMENTS action=""list""></INFOELEMENTS></TEMPLATE>";
@@ -495,15 +536,26 @@ namespace erminas.SmartAPI.CMS.Project
                 throw new SmartAPIException(Session.ServerLogin, "Could not load info elements");
             }
             return
-                (from XmlElement info in infos.GetElementsByTagName("PAGEINFO")
-                 select (IInfoAttribute) new InfoAttribute(info)).Union(
-                     (from XmlElement info in infos.GetElementsByTagName("PROJECTINFO")
-                      select (IInfoAttribute) new InfoAttribute(info)))
-                                                                 .Union(
-                                                                     (from XmlElement info in
-                                                                          infos.GetElementsByTagName("SESSIONOBJECT")
-                                                                      select (IInfoAttribute) new InfoAttribute(info)))
-                                                                 .ToList();
+                (from XmlElement info in infos.GetElementsByTagName("PAGEINFO") select (IInfoAttribute) new InfoAttribute(info)).Union(
+                                                                                                                                       (from
+                                                                                                                                            XmlElement
+                                                                                                                                            info
+                                                                                                                                            in
+                                                                                                                                            infos
+                                                                                                                                            .GetElementsByTagName
+                                                                                                                                            (
+                                                                                                                                             "PROJECTINFO")
+                                                                                                                                        select
+                                                                                                                                            (
+                                                                                                                                            IInfoAttribute
+                                                                                                                                            )
+                                                                                                                                            new InfoAttribute
+                                                                                                                                                (
+                                                                                                                                                info)))
+                    .Union(
+                           (from XmlElement info in infos.GetElementsByTagName("SESSIONOBJECT")
+                            select (IInfoAttribute) new InfoAttribute(info)))
+                    .ToList();
         }
 
         private List<IKeyword> GetKeywords()
@@ -512,15 +564,13 @@ namespace erminas.SmartAPI.CMS.Project
             XmlDocument xmlDoc = ExecuteRQL(LIST_KEYWORDS);
             XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
             IEnumerable<Keyword> categoryKeywords = from curCategory in Categories
-                                                    select
-                                                        new Keyword(this, curCategory.Guid)
-                                                            {
-                                                                Name = "[category]",
-                                                                Category = curCategory
-                                                            };
-            return
-                (from XmlElement curNode in xmlNodes select (IKeyword) new Keyword(this, curNode)).Union(
-                    categoryKeywords).ToList();
+                                                    select new Keyword(this, curCategory.Guid)
+                                                           {
+                                                               Name = "[category]",
+                                                               Category = curCategory
+                                                           };
+            return (from XmlElement curNode in xmlNodes select (IKeyword) new Keyword(this, curNode)).Union(categoryKeywords)
+                .ToList();
         }
 
         private List<IPublicationFolder> GetPublicationFolders()
@@ -528,10 +578,12 @@ namespace erminas.SmartAPI.CMS.Project
             const string LIST_PUBLICATION_FOLDERS = @"<PROJECT><EXPORTFOLDERS action=""list"" /></PROJECT>";
 
             XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLICATION_FOLDERS);
-            if (xmlDoc.GetElementsByTagName("EXPORTFOLDERS").Count != 1)
+            if (xmlDoc.GetElementsByTagName("EXPORTFOLDERS")
+                    .Count != 1)
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not retrieve publication folders of project {0}", this));
+                throw new SmartAPIException(
+                    Session.ServerLogin,
+                    string.Format("Could not retrieve publication folders of project {0}", this));
             }
             return (from XmlElement curFolder in xmlDoc.GetElementsByTagName("EXPORTFOLDER")
                     select (IPublicationFolder) new PublicationFolder(this, curFolder.GetGuid())).ToList();
@@ -550,13 +602,13 @@ namespace erminas.SmartAPI.CMS.Project
             const string LIST_PUBLISHING_TARGETS = @"<PROJECT><EXPORTS action=""list""/></PROJECT>";
 
             XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLISHING_TARGETS);
-            return (from XmlElement curElement in xmlDoc.GetElementsByTagName("EXPORT")
-                    select (IPublicationTarget) new PublicationTarget(this, curElement)).ToList();
+            return
+                (from XmlElement curElement in xmlDoc.GetElementsByTagName("EXPORT")
+                 select (IPublicationTarget) new PublicationTarget(this, curElement)).ToList();
         }
 
         private void Init()
         {
-            //Clipboard = new Clipboard(this);
             RecycleBin = new RecycleBin(this);
             PublicationTargets = new RDList<IPublicationTarget>(GetPublicationTargets, Caching.Enabled);
             PublicationFolders = new RDList<IPublicationFolder>(GetPublicationFolders, Caching.Enabled);
@@ -576,6 +628,8 @@ namespace erminas.SmartAPI.CMS.Project
             Categories = new Categories(this);
             Keywords = new RDList<IKeyword>(GetKeywords, Caching.Enabled);
             AssignedGroups = new ProjectGroups(this, Caching.Enabled);
+
+            _clipboard = new ProjectClipboard(this);
 
             //AuthorizationPackages = new AuthorizationPackages(this);
         }

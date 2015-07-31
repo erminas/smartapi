@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils.CachedCollections;
 
@@ -89,9 +90,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     ///         cref="PartialRedDotObject.Refresh" />
     ///     to see them reflected in the status field,
     /// </summary>
-    public interface IPage : ILinkTarget, IPartialRedDotObject, IKeywordAssignable, IDeletable, IDetailedAuthorizable
+    public interface IPage : ILinkTarget, IPartialRedDotProjectObject, IKeywordAssignable, IDeletable, IDetailedAuthorizable
     {
+        DateTime CreateDate { get; }
+
         DateTime CheckinDate { get; }
+
+        DateTime LastChangeDate { get; }
+
+        IUser LastChangeUser { get; }
 
         /// <summary>
         ///     Save changes to headline/filename to the server.
@@ -197,10 +204,17 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         IRDList<ILinkingAndAppearance> LinkedFrom { get; }
 
+        ILinkElement MainParentLinkElement { get; set; }
+
         /// <summary>
-        ///     The element this page has as mainlink.
+        /// WARNING: Use MainParentLinkElement instead! This is atm the main parent link element this page is connected to. In a future version this
+        /// will change, so please use MainParentLink instead.
         /// </summary>
+        [Obsolete("This is the PARENT link of the page, in a future version this will change to the main navigation link element of this page.")]
         ILinkElement MainLinkElement { get; set; }
+
+        [VersionIsGreaterThanOrEqual(9, VersionName = "Version 9")]
+        ILinkElement MainLinkNavigationElement { get; set; }
 
         new string Name { get; set; }
 

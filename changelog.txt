@@ -1,4 +1,24 @@
 SmartAPI Changelog
+
+2015-07-31: Version 1.0.5.0
+------------------------------------
+Features:
+- Added support for editing properties other than template content on template variants
+- Added Project.ClearPageCache() method
+- Add preliminary support for clipboard. Atm only server versions >= 10 are supported and only a limited number of element types
+- Added GetValueOrDefault method to standard fields, which returns the content class default value, if the page element has no own value set
+- Added support for additional properties on IProjectVariantAssignment
+- Made ITransfer an IValueElement with the ability to get/set its value
+- Added properties for creation date/last change date and creation user to IPage
+
+Bugfixes:
+- Resolved some problems regarding page workflows, like Page.Workflow always returning null
+- Resolved IKeyword.Category returning null, if not accessed through a category
+- Adapted SmartAPI to RQL changes in workflow loading in server versions >= 11.2
+
+Other:
+- IPage now inherits IProjectObject
+
 2014-11-20: Version 1.0.4.0
 ------------------------------------
 Features:

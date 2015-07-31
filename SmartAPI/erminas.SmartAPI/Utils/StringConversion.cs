@@ -60,6 +60,7 @@ namespace erminas.SmartAPI.Utils
             return value ? "1" : "0";
         }
 
+        //TODO automatically include enum converters?
         private static object ConvertRQL(object o)
         {
             if (o is Guid)

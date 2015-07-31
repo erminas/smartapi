@@ -19,12 +19,12 @@ using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
 
 namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
-    public interface ITransfer : IPageElement
+    public interface ITransfer : IValueElement<string>
     {
     }
 
     [PageElementType(ElementType.Transfer)]
-    internal class Transfer : PageElement, ITransfer
+    internal class Transfer : AbstractValueElement<string>, ITransfer
     {
         public Transfer(IProject project, Guid guid, ILanguageVariant languageVariant)
             : base(project, guid, languageVariant)
@@ -35,7 +35,17 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
         }
 
-        protected override sealed void LoadWholePageElement()
+        protected override string FromString(string value)
+        {
+            return value;
+        }
+
+        protected override string FromXmlNodeValue(string arg)
+        {
+            return arg;
+        }
+
+        protected override void LoadWholeValueElement()
         {
         }
     }

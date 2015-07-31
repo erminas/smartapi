@@ -21,6 +21,7 @@ using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.Pages.Elements;
 using erminas.SmartAPI.CMS.Project.Workflows;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -30,19 +31,23 @@ namespace erminas.SmartAPI.CMS.Project.Pages
     internal class Page : PartialRedDotProjectObject, IPage
     {
         private Guid _ccGuid;
+        private DateTime _changeDate;
+        private Guid _changeUserGuid;
         private DateTime _checkinDate;
         private IContentClass _contentClass;
+        private DateTime _createDate;
         private string _headline;
         private int _id;
         private ILanguageVariant _lang;
         private ILinkElement _mainLinkElement;
         private Guid _mainLinkGuid;
         private PageFlags _pageFlags = PageFlags.Null;
-
         private PageState _pageState;
         private IPage _parentPage;
         private DateTime _releaseDate;
         private PageReleaseStatus _releaseStatus;
+        private Guid _mainLinkNavigationGuid;
+        private ILinkElement _mainLinkNavigationElement;
 
         internal Page(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -57,25 +62,49 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             InitProperties();
         }
 
+        /// <summary>
+        ///     introduced to be able to set the headline value on construction, e.g. in page search or pages list,
+        ///     without triggering a complete load of the page while at the same time triggering a page load, if
+        ///     the headline gets set by the user through the Headline property.
+        /// </summary>
+        internal string InitialHeadlineValue
+        {
+            set { _headline = value; }
+        }
+
         public IAssignedKeywords AssignedKeywords { get; private set; }
+
+        public DateTime CreateDate
+        {
+            get { return LazyLoad(ref _createDate); }
+        }
 
         public DateTime CheckinDate
         {
             get { return LazyLoad(ref _checkinDate); }
         }
 
+        public DateTime LastChangeDate
+        {
+            get { return LazyLoad(ref _changeDate); }
+        }
+
+        public IUser LastChangeUser
+        {
+            get { return new User(Project.Session, LazyLoad(ref _changeUserGuid)); }
+        }
+
         public void Commit()
         {
             const string SAVE_PAGE = @"<PAGE action=""save"" guid=""{0}"" headline=""{1}"" name=""{2}"" mainlinkguid=""{3}"" />";
             var mainlink = MainLinkElement == null ? RQL.SESSIONKEY_PLACEHOLDER : MainLinkElement.Guid.ToRQLString();
-            
+
             XmlDocument xmlDoc =
-                Project.ExecuteRQL(SAVE_PAGE.RQLFormat(Guid, HttpUtility.HtmlEncode(Headline),
-                                                 HttpUtility.HtmlEncode(Filename), mainlink));
-            if (xmlDoc.GetElementsByTagName("PAGE").Count != 1)
+                Project.ExecuteRQL(SAVE_PAGE.RQLFormat(Guid, HttpUtility.HtmlEncode(Headline), HttpUtility.HtmlEncode(Filename), mainlink));
+            if (xmlDoc.GetElementsByTagName("PAGE")
+                    .Count != 1)
             {
-                throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Could not save changes to page {0}", this));
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not save changes to page {0}", this));
             }
         }
 
@@ -87,20 +116,20 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public IIndexedRDList<string, IPageElement> ContentElements { get; private set; }
 
         public IPageCopyAndConnectJob CreateCopyAndConnectJob(ILinkElement connectionTarget,
-            PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None)
+                                                              PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None)
         {
             return new PageCopyAndConnectJob(this, connectionTarget, flags);
         }
 
-        public void CopyAndConnectAsync(ILinkElement connectionTarget,
-            PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None)
+        public void CopyAndConnectAsync(ILinkElement connectionTarget, PageCopyAndConnectFlags flags = PageCopyAndConnectFlags.None)
         {
-            CreateCopyAndConnectJob(connectionTarget, flags).RunAsync();
+            CreateCopyAndConnectJob(connectionTarget, flags)
+                .RunAsync();
         }
 
         public void Delete()
         {
-            DeleteImpl(forceDeletion: true);
+            DeleteImpl(true);
         }
 
         public void DeleteFromRecycleBin()
@@ -114,13 +143,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 const string MARK_DIRTY =
                     @"<PAGEBUILDER><PAGES sessionkey=""{0}"" action=""pagevaluesetdirty""><PAGE sessionkey=""{0}"" guid=""{1}"" languages=""{2}""/></PAGES></PAGEBUILDER>";
                 Project.Session.ExecuteRQLRaw(
-                    MARK_DIRTY.RQLFormat(Project.Session.SessionKey, this, LanguageVariant.Abbreviation),
-                    RQL.IODataFormat.SessionKeyOnly);
+                                              MARK_DIRTY.RQLFormat(Project.Session.SessionKey, this, LanguageVariant.Abbreviation),
+                                              RQL.IODataFormat.SessionKeyOnly);
 
                 const string LINKING =
                     @"<PAGEBUILDER><LINKING sessionkey=""{0}""><PAGES><PAGE sessionkey=""{0}"" guid=""{1}""/></PAGES></LINKING></PAGEBUILDER>";
-                Project.Session.ExecuteRQLRaw(LINKING.RQLFormat(Project.Session.SessionKey, this),
-                                              RQL.IODataFormat.SessionKeyOnly);
+                Project.Session.ExecuteRQLRaw(LINKING.RQLFormat(Project.Session.SessionKey, this), RQL.IODataFormat.SessionKeyOnly);
             }
             IsInitialized = false;
             _releaseStatus = PageReleaseStatus.NotSet;
@@ -129,7 +157,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public void DeleteIfNotReferenced()
         {
-            DeleteImpl(forceDeletion: false);
+            DeleteImpl(false);
         }
 
         public void DeleteIrrevocably(int maxWaitForDeletionInMs)
@@ -168,21 +196,11 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public void DisconnectFromParent()
         {
-            var link = MainLinkElement as ILinkElement;
+            var link = MainLinkElement;
             if (link != null)
             {
                 link.Connections.Remove(this);
             }
-        }
-
-        public override bool Equals(object other)
-        {
-            if (!(other is IPage) || !base.Equals(other))
-            {
-                return false;
-            }
-
-            return LanguageVariant.Equals(((IPage) other).LanguageVariant);
         }
 
         public bool Exists
@@ -195,18 +213,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get { return Name; }
             set { Name = value; }
         }
-
-        public override int GetHashCode()
-        {
-            return Guid.GetHashCode() + 3*LanguageVariant.GetHashCode();
-        }
-
-        /// <summary>
-        /// introduced to be able to set the headline value on construction, e.g. in page search or pages list,
-        /// without triggering a complete load of the page while at the same time triggering a page load, if 
-        /// the headline gets set by the user through the Headline property.
-        /// </summary>
-        internal string InitialHeadlineValue { set { _headline = value; } }
 
         public string Headline
         {
@@ -229,9 +235,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             get
             {
                 IPageElement result;
-                return ContentElements.TryGetByName(elementName, out result)
-                           ? result
-                           : LinkElements.GetByName(elementName);
+                return ContentElements.TryGetByName(elementName, out result) ? result : LinkElements.GetByName(elementName);
             }
         }
 
@@ -241,8 +245,17 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
 
         public IRDList<ILinkElement> LinkElements { get; private set; }
+
         public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
 
+        public ILinkElement MainParentLinkElement { get { return MainLinkElement; } set { MainLinkElement = value; } }
+
+
+        /// <summary>
+        /// WARNING: Use MainParentLinkElement instead! This is atm the main parent link element this page is connected to. In a future version this
+        /// will change, so please use MainParentLink instead.
+        /// </summary>
+        [Obsolete("This is the PARENT link of the page, in a future version this will change to the main navigation link element of this page.")]
         public ILinkElement MainLinkElement
         {
             get
@@ -251,11 +264,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 {
                     return _mainLinkElement;
                 }
-                if (LazyLoad(ref _mainLinkGuid).Equals(Guid.Empty))
+                if (LazyLoad(ref _mainLinkGuid)
+                    .Equals(Guid.Empty))
                 {
                     return null;
                 }
-                _mainLinkElement = (ILinkElement)PageElement.CreateElement(Project, _mainLinkGuid, LanguageVariant);
+                _mainLinkElement = (ILinkElement) PageElement.CreateElement(Project, _mainLinkGuid, LanguageVariant);
                 return _mainLinkElement;
             }
 
@@ -265,6 +279,34 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 _mainLinkGuid = value != null ? value.Guid : default(Guid);
             }
         }
+
+        [VersionIsGreaterThanOrEqual(9, VersionName = "Version 9")]
+        public ILinkElement MainLinkNavigationElement
+        {
+            get
+            {
+                VersionVerifier.EnsureVersion(Session);
+                if (_mainLinkNavigationElement != null)
+                {
+                    return _mainLinkNavigationElement;
+                }
+                if (LazyLoad(ref _mainLinkNavigationGuid)
+                    .Equals(Guid.Empty))
+                {
+                    return null;
+                }
+                _mainLinkNavigationElement = (ILinkElement)PageElement.CreateElement(Project, _mainLinkNavigationGuid, LanguageVariant);
+                return _mainLinkNavigationElement;
+            }
+
+            set
+            {
+                VersionVerifier.EnsureVersion(Session);
+                _mainLinkNavigationElement = value;
+                _mainLinkNavigationGuid = value != null ? value.Guid : default(Guid);
+            }
+        }
+
 
         public new string Name
         {
@@ -328,8 +370,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-        public void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping,
-                                        Replace replace)
+        public void ReplaceContentClass(IContentClass replacement, IDictionary<string, string> oldToNewMapping, Replace replace)
         {
             const string REPLACE_CC =
                 @"<PAGE action=""changetemplate"" guid=""{0}"" changeall=""{1}"" holdreferences=""1"" holdexportsettings=""1"" holdauthorizations=""1"" holdworkflow=""1""><TEMPLATE originalguid=""{2}"" changeguid=""{3}"">{4}</TEMPLATE></PAGE>";
@@ -339,14 +380,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             var newElements = replacement.Elements;
 
             var unmappedElements = oldElements.Where(element => !oldToNewMapping.ContainsKey(element.Name));
-            var unmappedStr = unmappedElements.Aggregate("",
-                                                         (s, element) =>
-                                                         s +
-                                                         REPLACE_ELEMENT.RQLFormat(element, RQL.SESSIONKEY_PLACEHOLDER));
-            var mappedStr = string.Join("", from entry in oldToNewMapping
-                                            let oldElement = oldElements[entry.Key]
-                                            let newElement = newElements.GetByName(entry.Value)
-                                            select REPLACE_ELEMENT.RQLFormat(oldElement, newElement));
+            var unmappedStr = unmappedElements.Aggregate(
+                                                         "",
+                                                         (s, element) => s + REPLACE_ELEMENT.RQLFormat(element, RQL.SESSIONKEY_PLACEHOLDER));
+            var mappedStr = string.Join(
+                                        "",
+                                        from entry in oldToNewMapping
+                                        let oldElement = oldElements[entry.Key]
+                                        let newElement = newElements.GetByName(entry.Value)
+                                        select REPLACE_ELEMENT.RQLFormat(oldElement, newElement));
 
             var isReplacingAll = replace == Replace.ForAllPagesOfContentClass;
             var query = REPLACE_CC.RQLFormat(this, isReplacingAll, ContentClass, replacement, mappedStr + unmappedStr);
@@ -374,8 +416,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public void SkipWorkflow()
         {
-            const string SKIP_WORKFLOW =
-                @"<PAGE action=""save"" guid=""{0}"" globalsave=""0"" skip=""1"" actionflag=""{1}"" />";
+            const string SKIP_WORKFLOW = @"<PAGE action=""save"" guid=""{0}"" globalsave=""0"" skip=""1"" actionflag=""{1}"" />";
 
             Project.ExecuteRQL(string.Format(SKIP_WORKFLOW, Guid.ToRQLString(), (int) PageReleaseStatus.WorkFlow));
         }
@@ -391,12 +432,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             ReleaseStatus = PageReleaseStatus.WorkFlow;
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} (Id: {1} Guid: {2} Language: {3})", Headline, Id, Guid.ToRQLString(),
-                                 LanguageVariant.Abbreviation);
-        }
-
         public void Undo()
         {
             const string UNDO = @"<PAGE action=""rejecttempsaved"" guid=""{0}"" />";
@@ -407,14 +442,34 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             get
             {
-                return new Workflow(Project,
-                                    ((XmlElement) XmlElement.SelectSingleNode("descendant::WORKFLOW")).GetGuid());
+                var workflowElement = ((XmlElement) XmlElement.SelectSingleNode("descendant::WORKFLOW"));
+                return workflowElement == null ? null : new Workflow(Project, workflowElement.GetGuid());
             }
         }
 
         public IPagePublishJob CreatePublishJob()
         {
             return new PagePublishJob(this);
+        }
+
+        public override bool Equals(object other)
+        {
+            if (!(other is IPage) || !base.Equals(other))
+            {
+                return false;
+            }
+
+            return LanguageVariant.Equals(((IPage) other).LanguageVariant);
+        }
+
+        public override int GetHashCode()
+        {
+            return Guid.GetHashCode() + 3 * LanguageVariant.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} (Id: {1} Guid: {2} Language: {3})", Headline, Id, Guid.ToRQLString(), LanguageVariant.Abbreviation);
         }
 
         protected override void LoadWholeObject()
@@ -426,14 +481,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             using (new LanguageContext(LanguageVariant))
             {
-                const string REQUEST_PAGE = @"<PAGE action=""load"" guid=""{0}""/>";
+                const string REQUEST_PAGE = @"<PAGE action=""load"" guid=""{0}"" option=""extendedinfo""/>";
 
                 XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(REQUEST_PAGE, Guid.ToRQLString()));
                 XmlNodeList pages = xmlDoc.GetElementsByTagName("PAGE");
                 if (pages.Count != 1)
                 {
-                    throw new SmartAPIException(Session.ServerLogin,
-                                                string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
+                    throw new SmartAPIException(Session.ServerLogin, string.Format("Could not load page with guid {0}", Guid.ToRQLString()));
                 }
                 return (XmlElement) pages[0];
             }
@@ -459,7 +513,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 throw new PageStatusException(this, "Could not set release status to " + value);
             }
             var element = (XmlElement) pageElements[0];
-            var flag = (PageReleaseStatus) element.GetIntAttributeValue("actionflag").GetValueOrDefault();
+            var flag = (PageReleaseStatus) element.GetIntAttributeValue("actionflag")
+                                               .GetValueOrDefault();
 
             if (!flag.HasFlag(value) && !IsReleasedIntoWorkflow(value, flag))
             {
@@ -473,14 +528,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             {
                 const string DELETE_PAGE =
                     @"<PAGE action=""delete"" guid=""{0}"" forcedelete2910=""{1}"" forcedelete2911=""{1}""><LANGUAGEVARIANTS><LANGUAGEVARIANT language=""{2}""/></LANGUAGEVARIANTS></PAGE>";
-                XmlDocument xmlDoc =
-                    Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion, LanguageVariant.Abbreviation));
+                XmlDocument xmlDoc = Project.ExecuteRQL(DELETE_PAGE.RQLFormat(this, forceDeletion, LanguageVariant.Abbreviation));
                 if (!xmlDoc.IsContainingOk())
                 {
-                    throw new PageDeletionException(Project.Session.ServerLogin,
-                                                    string.Format("Could not delete page {0}", this));
+                    throw new PageDeletionException(Project.Session.ServerLogin, string.Format("Could not delete page {0}", this));
                 }
-            } catch (RQLException e)
+            }
+            catch (RQLException e)
             {
                 throw new PageDeletionException(e);
             }
@@ -493,8 +547,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             using (new LanguageContext(LanguageVariant))
             {
-                const string LOAD_PAGE_ELEMENTS =
-                    @"<PROJECT><PAGE guid=""{0}""><ELEMENTS action=""load""/></PAGE></PROJECT>";
+                const string LOAD_PAGE_ELEMENTS = @"<PROJECT><PAGE guid=""{0}""><ELEMENTS action=""load""/></PAGE></PROJECT>";
                 XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PAGE_ELEMENTS, Guid.ToRQLString()));
                 return ToElementList(xmlDoc.GetElementsByTagName("ELEMENT"));
             }
@@ -506,8 +559,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             {
                 const string LOAD_LINKS = @"<PAGE guid=""{0}""><LINKS action=""load"" /></PAGE>";
                 XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_LINKS, Guid.ToRQLString()));
-                return (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
-                        select (ILinkElement) PageElement.CreateElement(Project, curNode)).ToList();
+                return
+                    (from XmlElement curNode in xmlDoc.GetElementsByTagName("LINK")
+                     select (ILinkElement) PageElement.CreateElement(Project, curNode)).ToList();
             }
         }
 
@@ -516,13 +570,15 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             const string @LOAD_LINKING = @"<PAGE guid=""{0}""><LINKSFROM action=""load"" /></PAGE>";
 
             var xmlDoc = Project.ExecuteRQL(LOAD_LINKING.RQLFormat(this));
-            return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkingAndAppearance) new LinkingAndAppearance(this, curLink)).ToList();
+            return
+                (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
+                 select (ILinkingAndAppearance) new LinkingAndAppearance(this, curLink)).ToList();
         }
 
         private static IEnumerable<string> GetNames(XmlNodeList elements)
         {
-            return elements.Cast<XmlElement>().Select(x => x.GetAttributeValue("name"));
+            return elements.Cast<XmlElement>()
+                .Select(x => x.GetAttributeValue("name"));
         }
 
         private List<ILinkElement> GetReferencingLinks()
@@ -531,8 +587,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             XmlDocument xmlDoc = Project.ExecuteRQL(LIST_REFERENCES.RQLFormat(this), RqlType.SessionKeyInProject);
 
             return (from XmlElement curLink in xmlDoc.GetElementsByTagName("LINK")
-                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList
-                ();
+                    select (ILinkElement) PageElement.CreateElement(Project, curLink.GetGuid(), LanguageVariant)).ToList();
         }
 
         private void InitProperties()
@@ -570,10 +625,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
             _releaseStatus = ReleaseStatusFromFlags();
 
-            _checkinDate = _xmlElement.GetOADate("checkindate").GetValueOrDefault();
+            _checkinDate = _xmlElement.GetOADate("checkindate")
+                .GetValueOrDefault();
 
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
             InitIfPresent(ref _releaseDate, "releasedate", XmlUtil.ToOADate);
+            InitIfPresent(ref _createDate, "createdate", XmlUtil.ToOADate);
+            InitIfPresent(ref _changeDate, "changeDate", XmlUtil.ToOADate);
+
+            var mainLinkElement = (XmlElement)_xmlElement.GetElementsByTagName("MAINLINK")[0];
+            _mainLinkNavigationGuid = mainLinkElement != null ? mainLinkElement.GetGuid() : Guid.Empty;
         }
 
         private PageReleaseStatus ReleaseStatusFromFlags()
@@ -615,10 +676,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         private List<IPageElement> ToElementList(XmlNodeList elementNodes)
         {
             return
-                (from XmlElement curNode in elementNodes
-                 let element = TryCreateElement(curNode)
-                 where element != null
-                 select element).Cast<IPageElement>().ToList();
+                (from XmlElement curNode in elementNodes let element = TryCreateElement(curNode) where element != null select element)
+                    .Cast<IPageElement>()
+                    .ToList();
         }
 
         private IPageElement TryCreateElement(XmlElement xmlElement)
@@ -626,7 +686,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             try
             {
                 return PageElement.CreateElement(Project, xmlElement);
-            } catch (ArgumentException)
+            }
+            catch (ArgumentException)
             {
                 return null;
             }
@@ -642,7 +703,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             {
                 DeleteFromRecycleBin();
 
-                try { 
+                try
+                {
                     Refresh();
                 }
                 catch (NoSuchPageException)
@@ -655,9 +717,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 }
             } while (!timeOutTracker.HasTimedOut);
 
-            throw new PageDeletionException(Project.Session.ServerLogin,
-                                            string.Format(
-                                                "Timeout while waiting for remove from recycle bin for page {0}", this));
+            throw new PageDeletionException(
+                Project.Session.ServerLogin,
+                string.Format("Timeout while waiting for remove from recycle bin for page {0}", this));
         }
 
         private void WaitUntilPageIsInRecycleBin(TimeSpan maxWaitForDeletionInMs)
@@ -679,10 +741,9 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 }
             } while (!timeoutTracker.HasTimedOut);
 
-            throw new PageDeletionException(Project.Session.ServerLogin,
-                                            string.Format(
-                                                "Timeout while waiting for the page {0} to move into the recycle bin",
-                                                this));
+            throw new PageDeletionException(
+                Project.Session.ServerLogin,
+                string.Format("Timeout while waiting for the page {0} to move into the recycle bin", this));
         }
     }
 }
