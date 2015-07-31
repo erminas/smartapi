@@ -54,15 +54,15 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO">
-      <HintPath>..\..\..\..\git\packages\Microsoft.Bcl.1.1.10\lib\net40\System.IO.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.IO.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
-      <HintPath>..\..\..\..\git\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Runtime.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Threading.Tasks">
-      <HintPath>..\..\..\..\git\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Threading.Tasks.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Threading.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
