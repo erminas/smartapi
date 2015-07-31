@@ -98,7 +98,14 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
         private void LoadXml()
         {
             InitIfPresent(ref _canBeInherited, "inherit", BoolConvert);
-            EnsuredInit(ref _isStructureWorkflow, "structureworkflow", BoolConvert);
+            if (Project.Session.ServerVersion < new Version(11, 2))
+            {
+                EnsuredInit(ref _isStructureWorkflow, "structureworkflow", BoolConvert);
+            }
+            else
+            {
+                EnsuredInit(ref _isStructureWorkflow, "wftype", BoolConvert);
+            }
             InitIfPresent(ref _isGlobal, "global", BoolConvert);
         }
     }

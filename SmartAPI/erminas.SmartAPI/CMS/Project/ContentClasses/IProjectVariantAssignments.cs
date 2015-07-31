@@ -52,6 +52,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         {
             get { return _templateVariant; }
         }
+
+        public bool IsNotUsingTidy { get; internal set; }
+        public bool IsPublishing { get; internal set; }
     }
 
     public interface IProjectVariantAssignment
@@ -59,6 +62,16 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         IContentClass ContentClass { get; }
         IProjectVariant ProjectVariant { get; }
         ITemplateVariant TemplateVariant { get; }
+        bool IsNotUsingTidy { get; }
+        bool IsPublishing { get; }
+    }
+
+    public class ProjectVariantAssignmentSettings
+    {
+        public IProjectVariant ProjectVariant { get; set; }
+        public ITemplateVariant TemplateVariant { get; set; }
+        public bool IsNotUsingTidy { get; set; }
+        public bool IsPublishing { get; set; }
     }
 
     internal class ProjectVariantAssignments : IndexedCachedList<IProjectVariant, IProjectVariantAssignment>,
@@ -73,25 +86,25 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             RetrieveFunc = GetAssignments;
         }
 
-        public void Assign(ITemplateVariant templateVariant, IProjectVariant projectVariant)
+        public void Assign(ITemplateVariant templateVariant, ProjectVariantAssignmentSettings settings)
         {
-            Assign(new Dictionary<ITemplateVariant, IProjectVariant> {{templateVariant, projectVariant}});
+            Assign(new Dictionary<ITemplateVariant, ProjectVariantAssignmentSettings> { { templateVariant, settings } });
         }
 
-        public void Assign(ILookup<ITemplateVariant, IProjectVariant> assignments)
+        public void Assign(ILookup<ITemplateVariant, ProjectVariantAssignmentSettings> assignments)
         {
             const string ASSIGN_PROJECT_VARIANT =
-              @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
+               @"<TEMPLATE guid=""{0}""><TEMPLATEVARIANTS>{1}</TEMPLATEVARIANTS></TEMPLATE>";
             const string SINGLE_ASSIGNMENT =
                 @"<TEMPLATEVARIANT guid=""{0}""><PROJECTVARIANTS action=""assign"">{1}</PROJECTVARIANTS></TEMPLATEVARIANT>";
             const string SINGLE_PROJECT_VARIANT =
-                @"<PROJECTVARIANT donotgenerate=""0"" donotusetidy=""0"" guid=""{0}"" />";
+                @"<PROJECTVARIANT donotgenerate=""{1}"" donotusetidy=""{2}"" guid=""{0}"" />";
 
 
             var builder = new StringBuilder();
             foreach (var curEntry in assignments)
             {
-                var projectVariants = curEntry.Aggregate("", (s, variant) => s + SINGLE_PROJECT_VARIANT.RQLFormat(variant));
+                var projectVariants = curEntry.Aggregate("", (s, variant) => s + SINGLE_PROJECT_VARIANT.RQLFormat(variant.ProjectVariant, !variant.IsPublishing, variant.IsNotUsingTidy));
                 builder.Append(SINGLE_ASSIGNMENT.RQLFormat(curEntry.Key, projectVariants));
             }
 
@@ -99,7 +112,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             InvalidateCache();
         }
 
-        public void Assign(IDictionary<ITemplateVariant, IProjectVariant> assignments)
+        public void Assign(IDictionary<ITemplateVariant, ProjectVariantAssignmentSettings> assignments)
         {
             Assign(assignments.ToLookup(x=>x.Key, x=>x.Value));
         }
@@ -139,7 +152,11 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                                 new ProjectVariantAssignment(_contentClass,
                                                              Project.ProjectVariants.GetByGuid(
                                                                  curElement.GetGuid("projectvariantguid")),
-                                                             new TemplateVariant(_contentClass, curElement.GetGuid())))
+                                                             new TemplateVariant(_contentClass, curElement.GetGuid()))
+                                                             {
+                                                                 IsNotUsingTidy = curElement.GetBoolAttributeValue("donotusetidy").GetValueOrDefault(),
+                                                                 IsPublishing = !curElement.GetBoolAttributeValue("donotgenerate").GetValueOrDefault()
+                                                             })
                         .ToList();
                 }
             } catch (RQLException e)
@@ -163,9 +180,9 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     public interface IProjectVariantAssignments : IProjectObject,
                                                   IIndexedCachedList<IProjectVariant, IProjectVariantAssignment>
     {
-        void Assign(ITemplateVariant templateVariant, IProjectVariant projectVariant);
-        void Assign(IDictionary<ITemplateVariant, IProjectVariant> assignments);
-        void Assign(ILookup<ITemplateVariant, IProjectVariant> assignments);
+        void Assign(ITemplateVariant templateVariant, ProjectVariantAssignmentSettings projectVariant);
+        //void Assign(IDictionary<ITemplateVariant, ProjectVariantAssignmentSettings> assignments);
+        void Assign(ILookup<ITemplateVariant, ProjectVariantAssignmentSettings> assignments);
         IContentClass ContentClass { get; }
 
         IEnumerable<IProjectVariantAssignment> this[ITemplateVariant templateVariant] { get; }

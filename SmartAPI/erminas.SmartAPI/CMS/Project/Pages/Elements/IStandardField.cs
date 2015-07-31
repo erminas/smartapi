@@ -14,6 +14,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
@@ -22,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
 {
     public interface IStandardField<T> : IValueElement<T>
     {
-      //TODO  T ValueOrDefault { get; }
+        T GetValueOrDefault();
         string Description { get; }
         string SampleText { get; }
     }
@@ -42,9 +43,16 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         {
         }
 
-        //TODO public T ValueOrDefault { get{return Value == null ?  ((IStandardField)Page.ContentClass.Elements.GetByName(Name)).DefaultValue:
-        //    Value;
-        //} }
+        public T GetValueOrDefault()
+        {
+            if (!EqualityComparer<T>.Default.Equals(Value, default(T)))
+            {
+                return Value;
+            }
+
+            var defaultValue = ((IStandardField) Page.ContentClass.Elements.GetByName(Name)).DefaultValue.ForCurrentLanguage;
+            return defaultValue != null ? FromString(defaultValue) : default(T);
+        }
 
         public string Description
         {

@@ -25,6 +25,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
     //TODO templatevariant auf attributes umstellen
     public interface ITemplateVariant : IPartialRedDotObject, IProjectObject, IDeletable
     {
+
+        new string Name { get; set; }
         /// <summary>
         ///     Assign this template to a specific project variant
         /// </summary>
@@ -32,7 +34,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         /// <summary>
         /// </summary>
-        bool ContainsAreaMarksInPage { get; }
+        bool ContainsAreaMarksInPage { get; set; }
 
         IContentClass ContentClass { get; }
 
@@ -53,24 +55,30 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         IUser CreationUser { get; }
 
         /// <summary>
-        ///     Content data of the template (template text)
+        ///     Content data of the template (template text). This gets changed immediately on server. No need to call commit afterwards
         /// </summary>
         string Data { get; set; }
 
         /// <summary>
+        /// Commit changes to attriubtes to the server.
+        /// If you change the template content (Data property), you don't need to call this method.
+        /// </summary>
+        void Commit();
+
+        /// <summary>
         ///     Description of the template
         /// </summary>
-        string Description { get; }
+        string Description { get; set; }
 
-        string FileExtension { get; }
+        string FileExtension { get; set;  }
         IRedDotObject Handle { get; }
-        bool HasContainerPageReference { get; }
+        bool HasContainerPageReference { get; set; }
         bool IsLocked { get; }
 
         /// <summary>
         ///     Denoting whether or not a stylesheet should be automatically built into the header area of a page.
         /// </summary>
-        bool IsStylesheetIncludedInHeader { get; }
+        bool IsStylesheetIncludedInHeader { get; set; }
 
         /// <summary>
         ///     Timestamp of the last change to the template
@@ -147,6 +155,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         public bool ContainsAreaMarksInPage
         {
             get { return !LazyLoad(ref _noStartEndMarkers); }
+            set { _noStartEndMarkers = !value; }
         }
 
         public IContentClass ContentClass { get; private set; }
@@ -240,17 +249,41 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
             }
         }
 
+        public void Commit()
+        {
+            const string SAVE_DATA =
+                @"<TEMPLATE action=""save"" guid=""{0}""><TEMPLATEVARIANT guid=""{1}"" name=""{2}"" fileextension=""{3}"" insertstylesheetinpage=""{4}"" nostartendmarkers=""{5}"" containerpagereference=""{6}"" pdforientation=""{7}""/></TEMPLATE>";
+
+            Project.ExecuteRQL(
+                               SAVE_DATA.SecureRQLFormat(
+                                                         ContentClass,
+                                                         this,
+                                                         Name,
+                                                         FileExtension ?? RQL.SESSIONKEY_PLACEHOLDER,
+                                                         IsStylesheetIncludedInHeader,
+                                                         _noStartEndMarkers,
+                                                         HasContainerPageReference,
+                                                         PdfOrientation.ToRQLString()));
+
+
+            Refresh();
+        }
+
         /// <summary>
         ///     Description of the template
         /// </summary>
         public string Description
         {
             get { return LazyLoad(ref _description); }
+            set { _description = value; }
         }
+
+        public new string Name { get { return base.Name; } set { base.Name = value; } }
 
         public string FileExtension
         {
             get { return LazyLoad(ref _fileExtension); }
+            set { _fileExtension = value; }
         }
 
         public IRedDotObject Handle
@@ -261,6 +294,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         public bool HasContainerPageReference
         {
             get { return LazyLoad(ref _hasContainerPageReference); }
+            set { _hasContainerPageReference = value; }
         }
 
         public bool IsLocked
@@ -274,6 +308,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
         public bool IsStylesheetIncludedInHeader
         {
             get { return LazyLoad(ref _isStylesheetIncluded); }
+            set { _isStylesheetIncluded = value; }
         }
 
         /// <summary>

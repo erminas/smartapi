@@ -163,6 +163,21 @@ namespace erminas.SmartAPI.CMS.Project.Keywords
         {
             Name = _xmlElement.GetAttributeValue("value");
             InitIfPresent(ref _category, "categoryguid", x => new Category(Project, Guid.Parse(x)));
+            if (_category == null)
+            {
+                var keywordsNode = XmlElement.ParentNode as XmlElement;
+                if (keywordsNode == null)
+                {
+                    return;
+                }
+                var categoryNode = keywordsNode.ParentNode as XmlElement;
+                if (categoryNode == null || categoryNode.Name != "CATEGORY")
+                {
+                    return;
+                }
+
+                _category = new Category(Project, categoryNode);
+            }
         }
     }
 }

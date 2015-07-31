@@ -245,11 +245,11 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             {
                 return;
             }
-            EnsuredInit(ref _realName, "realname", x => x);
+            EnsuredInit(ref _realName, "realname", x => x ?? "");
             EnsuredInit(ref _type, "type", x => (PublicationFolderType) int.Parse(x));
 
-            InitIfPresent(ref _realVirtualName, "realvirtualname", x => x);
-            InitIfPresent(ref _virtualName, "virtualname", x => x);
+            InitIfPresent(ref _realVirtualName, "realvirtualname", x => x ?? "");
+            InitIfPresent(ref _virtualName, "virtualname", x => x ?? "");
             if (_type == PublicationFolderType.DeliveryServer)
             {
                 InitIfPresent(ref _contentgroup, "contentgroup", x => x);

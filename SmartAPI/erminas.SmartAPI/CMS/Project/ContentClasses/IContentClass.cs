@@ -204,8 +204,14 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
 
         private void CopyProjectVariantAssignmentToCC(ContentClass targetCC)
         {
-            var assignment = ProjectVariantAssignments.ToLookup(x=>targetCC.TemplateVariants.GetByName(x.TemplateVariant.Name), x=>targetCC.Project.ProjectVariants.GetByName(x.ProjectVariant.Name));
-            targetCC.ProjectVariantAssignments.Assign(assignment);
+            var x = 
+                //ProjectVariantAssignments.ToLookup(x=>targetCC.TemplateVariants.GetByName(x.TemplateVariant.Name), 
+                //x=>targetCC.Project.ProjectVariants.GetByName(x.ProjectVariant.Name));
+
+            ProjectVariantAssignments.ToLookup(
+                    assignment => targetCC.TemplateVariants[assignment.TemplateVariant.Name],
+                    assignment => new ProjectVariantAssignmentSettings() { ProjectVariant = targetCC.Project.ProjectVariants[assignment.ProjectVariant.Name], IsPublishing = assignment.IsPublishing, IsNotUsingTidy = assignment.IsNotUsingTidy, TemplateVariant = targetCC.TemplateVariants[assignment.TemplateVariant.Name] });
+            targetCC.ProjectVariantAssignments.Assign(x);
         }
 
         /// <summary>

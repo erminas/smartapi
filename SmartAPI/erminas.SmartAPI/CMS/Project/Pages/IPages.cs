@@ -25,16 +25,38 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Pages
 {
+    public interface IStartPagesValue : ILanguageDependentReadValue<IIndexedRDList<string, IPage>>, ICached
+    {
+        
+    }
+
     public interface IPages
     {
         /// <summary>
-        /// Get a page by its guid and its language variant.
+        ///     All pages of the a specific language variant, indexed by page id. The list is cached by default.
+        /// </summary>
+        /// All Pages get loaded on first access, so this may be very slow for larger projects and you might want to use <see cref="GetByGuid"/> or <see cref="TryGetByGuid"/> instead,
+        /// to only load single pages.
+        IndexedRDList<int, IPage> this[string language] { get; }
+
+        /// <summary>
+        ///     All pages of the current language variant, indexed by page id. The list is cached by default.
+        /// 
+        /// </summary>
+        ///  All Pages get loaded on first access, so this may be very slow for larger projects and you might want to use <see cref="GetByGuid"/> or <see cref="TryGetByGuid"/> instead,
+        /// to only load single pages.
+        IndexedRDList<int, IPage> OfCurrentLanguage { get; }
+
+        IStartPagesValue StartPages { get; }
+
+        /// <summary>
+        ///     Get a page by its guid and its language variant. Does not load all Pages.
         /// </summary>
         /// If it does not exists, an exception gets thrown.
         IPage GetByGuid(Guid pageGuid, ILanguageVariant languageVariant);
 
         /// <summary>
-        /// Try to get a page by its guid and its language variant.
+        ///     Try to get a page by its guid and its language variant.
         /// </summary>
         /// <returns>true, if the page exists, false otherwise</returns>
         bool TryGetByGuid(Guid pageGuid, ILanguageVariant languageVariant, out IPage page);
@@ -69,27 +91,20 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         IPageSearch CreateSearch();
 
         /// <summary>
-        ///     All pages of the a specific language variant, indexed by page id. The list is cached by default.
-        /// </summary>
-        IndexedRDList<int, IPage> this[string language] { get; }
-
-        /// <summary>
-        ///     All pages of the current language variant, indexed by page id. The list is cached by default.
-        /// </summary>
-        IndexedRDList<int, IPage> OfCurrentLanguage { get; }
-
-        /// <summary>
-        ///     Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator parameter and returns the search result.
+        ///     Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator
+        ///     parameter and returns the search result.
         /// </summary>
         /// <param name="configurator"> Action to configure the search </param>
         /// <returns> The search results </returns>
         /// <example>
-        ///     The following code searches for all pages with headline "test": <code>var results = project.SearchForPages(search => search.Headline="test");</code>
+        ///     The following code searches for all pages with headline "test":
+        ///     <code>var results = project.SearchForPages(search => search.Headline="test");</code>
         /// </example>
         IEnumerable<IPage> Search(Action<IPageSearch> configurator = null);
 
         /// <summary>
-        ///     Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured through the configurator parameter and returns the result of the search.
+        ///     Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured
+        ///     through the configurator parameter and returns the result of the search.
         /// </summary>
         /// <param name="configurator"> An action to configure the search </param>
         /// <returns> The search results </returns>
@@ -97,12 +112,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     The following code searches for all pages saved as draft by the current user:
         ///     <code>
         /// <pre>
-        ///     var results = project.SearchForPagesExtended(
-        ///     search => search.AddPredicate(
-        ///     new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)
-        ///     )
-        ///     );
-        /// </pre>
+        ///             var results = project.SearchForPagesExtended(
+        ///             search => search.AddPredicate(
+        ///             new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft,
+        ///             PageStatusPredicate.UserType.CurrentUser)
+        ///             )
+        ///             );
+        ///         </pre>
         ///      </code>
         /// </example>
         List<ResultGroup> SearchExtended(Action<IExtendedPageSearch> configurator = null);
@@ -114,10 +130,17 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             new Dictionary<string, IndexedRDList<int, IPage>>();
 
         private readonly IProject _project;
+        private readonly IStartPagesValue _startPage;
 
         public Pages(IProject project)
         {
             _project = project;
+            _startPage = new StartPagesValue(project);
+        }
+
+        public IStartPagesValue StartPages
+        {
+            get { return _startPage; }
         }
 
         public IPage GetByGuid(Guid pageGuid, ILanguageVariant languageVariant)
@@ -139,7 +162,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             }
         }
 
-    /// <summary>
+        /// <summary>
         ///     Create a new page.
         /// </summary>
         /// <param name="cc"> Content class of the page </param>
@@ -162,8 +185,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             const string CREATE_AND_LINK_PAGE = @"<LINK action=""assign"" guid=""{0}"">{1}</LINK>";
             XmlDocument xmlDoc =
-                _project.ExecuteRQL(string.Format(CREATE_AND_LINK_PAGE, linkGuid.ToRQLString(),
-                                                  PageCreationString(cc, headline)));
+                _project.ExecuteRQL(string.Format(CREATE_AND_LINK_PAGE, linkGuid.ToRQLString(), PageCreationString(cc, headline)));
             return CreatePageFromCreationReply(xmlDoc);
         }
 
@@ -202,12 +224,14 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
 
         /// <summary>
-        ///     Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator parameter and returns the search result.
+        ///     Convenience function for simple page searches. Creates a PageSearch object, configures it through the configurator
+        ///     parameter and returns the search result.
         /// </summary>
         /// <param name="configurator"> Action to configure the search </param>
         /// <returns> The search results </returns>
         /// <example>
-        ///     The following code searches for all pages with headline "test": <code>var results = project.SearchForPages(search => search.Headline="test");</code>
+        ///     The following code searches for all pages with headline "test":
+        ///     <code>var results = project.SearchForPages(search => search.Headline="test");</code>
         /// </example>
         public IEnumerable<IPage> Search(Action<IPageSearch> configurator = null)
         {
@@ -221,7 +245,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
 
         /// <summary>
-        ///     Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured through the configurator parameter and returns the result of the search.
+        ///     Convenience funtion for extended page searches. Creates a new PageSearchExtended object which gets configured
+        ///     through the configurator parameter and returns the result of the search.
         /// </summary>
         /// <param name="configurator"> An action to configure the search </param>
         /// <returns> The search results </returns>
@@ -229,12 +254,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         ///     The following code searches for all pages saved as draft by the current user:
         ///     <code>
         /// <pre>
-        ///     var results = project.SearchForPagesExtended(
-        ///     search => search.AddPredicate(
-        ///     new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft, PageStatusPredicate.UserType.CurrentUser)
-        ///     )
-        ///     );
-        /// </pre>
+        ///             var results = project.SearchForPagesExtended(
+        ///             search => search.AddPredicate(
+        ///             new PageStatusPredicate(PageStatusPredicate.PageStatusType.SavedAsDraft,
+        ///             PageStatusPredicate.UserType.CurrentUser)
+        ///             )
+        ///             );
+        ///         </pre>
         ///      </code>
         /// </example>
         public List<ResultGroup> SearchExtended(Action<IExtendedPageSearch> configurator = null)
@@ -254,7 +280,8 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             {
                 var pageItem = (XmlElement) xmlDoc.GetElementsByTagName("PAGE")[0];
                 return new Page(_project, pageItem);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 throw new SmartAPIException(_project.Session.ServerLogin, "Could not create page", e);
             }
@@ -265,13 +292,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             const string LIST_PAGES = @"<PROJECT><PAGES action=""list""/></PROJECT>";
             XmlDocument xmlDoc = _project.ExecuteRQL(LIST_PAGES);
             return (from XmlElement curPage in xmlDoc.GetElementsByTagName("PAGE")
-                    select
-                        (IPage)
-                        new Page(_project, curPage.GetGuid(), _project.LanguageVariants.Current)
-                            {
-                                InitialHeadlineValue = curPage.GetAttributeValue("headline"),
-                                Id = curPage.GetIntAttributeValue("id").GetValueOrDefault()
-                            }).ToList();
+                    select (IPage) new Page(_project, curPage.GetGuid(), _project.LanguageVariants.Current)
+                                   {
+                                       InitialHeadlineValue = curPage.GetAttributeValue("headline"),
+                                       Id = curPage.GetIntAttributeValue("id")
+                                           .GetValueOrDefault()
+                                   }).ToList();
         }
 
         private IndexedRDList<int, IPage> GetPagesForLanguageVariant(string language)
@@ -279,13 +305,18 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             ILanguageVariant languageVariant = _project.LanguageVariants[language];
             using (new LanguageContext(languageVariant))
             {
-                return _pagesByLanguage.GetOrAdd(language, () => new IndexedRDList<int, IPage>(() =>
-                    {
-                        using (new LanguageContext(languageVariant))
-                        {
-                            return GetPages();
-                        }
-                    }, x => x.Id, Caching.Enabled));
+                return _pagesByLanguage.GetOrAdd(
+                                                 language,
+                                                 () => new IndexedRDList<int, IPage>(
+                                                           () =>
+                                                           {
+                                                               using (new LanguageContext(languageVariant))
+                                                               {
+                                                                   return GetPages();
+                                                               }
+                                                           },
+                                                           x => x.Id,
+                                                           Caching.Enabled));
             }
         }
 
@@ -293,10 +324,91 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         {
             const string PAGE_CREATION_STRING = @"<PAGE action=""addnew"" templateguid=""{0}"" {1}/>";
 
-            string headlineString = headline == null
-                                        ? ""
-                                        : string.Format(@"headline=""{0}""", HttpUtility.HtmlEncode(headline));
+            string headlineString = headline == null ? "" : string.Format(@"headline=""{0}""", HttpUtility.HtmlEncode(headline));
             return string.Format(PAGE_CREATION_STRING, cc.Guid.ToRQLString(), headlineString);
+        }
+
+     
+    }
+
+    internal class StartPagesValue : IStartPagesValue
+    {
+        private readonly IProject _project;
+        private readonly Dictionary<ILanguageVariant, IIndexedRDList<string, IPage>> _startPagesByLanguageVariant = new Dictionary<ILanguageVariant, IIndexedRDList<string, IPage>>();
+        private Guid[] _startPageGuids;
+
+        public StartPagesValue(IProject project)
+        {
+            _project = project;
+        }
+
+        public IPartialRedDotProjectObject Parent
+        {
+            get
+            {
+                throw new InvalidOperationException("StartPage has no parent");
+            }
+        }
+
+        public IIndexedRDList<string, IPage> ForCurrentLanguage
+        {
+            get { return ((ILanguageDependentReadValue < IIndexedRDList<string, IPage>>)(this))[_project.LanguageVariants.Current]; }
+        }
+
+        public IIndexedRDList<string, IPage> ForMainLanguage
+        {
+            get { return ((ILanguageDependentReadValue<IIndexedRDList<string, IPage>>)(this))[_project.LanguageVariants.Main]; }
+        }
+
+        IIndexedRDList<string, IPage> ILanguageDependentReadValue<IIndexedRDList<string, IPage>>.this[ILanguageVariant languageVariant]
+        {
+            get
+            {
+
+                return _startPagesByLanguageVariant.GetOrAdd(languageVariant, ()=>GetStartPages(languageVariant));//startPageGuids == null ? new IndexedRDList<string, IPage>(()=>new List<IPage>(), x=>x.Headline, Caching.Enabled) : _startPagesByLanguageVariant.GetOrAdd(languageVariant, ()=>GetStartPages(languageVariant));
+            }
+        }
+
+        IIndexedRDList<string, IPage> ILanguageDependentReadValue<IIndexedRDList<string, IPage>>.this[string languageAbbreviation]
+        {
+            get { return ((ILanguageDependentReadValue<IIndexedRDList<string, IPage>>)(this))[_project.LanguageVariants[languageAbbreviation]]; }
+        }
+
+        private IIndexedRDList<string, IPage> GetStartPages(ILanguageVariant languageVariant)
+        {
+            return new IndexedRDList<string, IPage>(()=>Refreshed(languageVariant), x=>x.Headline, Caching.Enabled);
+        }
+
+        private List<IPage> Refreshed(ILanguageVariant languageVariant)
+        {
+            Refresh();
+            return _startPageGuids.Select(x => _project.Pages.GetByGuid(x, languageVariant)).ToList();
+        }
+
+        private void EnsureInitialization()
+        {
+            if (_startPageGuids == null)
+            {
+                const string LOAD_DINGS = @"<LINK guid=""{0}""><PAGES action=""list"" /></LINK>";
+                var doc = _project.ExecuteRQL(LOAD_DINGS.RQLFormat("00000000000000000000000000000001"));
+
+                var pageElements = doc.GetElementsByTagName("PAGE");
+                _startPageGuids = pageElements.Cast<XmlElement>()
+                    .Select(XmlUtil.GetGuid)
+                    .ToArray();
+            }
+        }
+
+        public void InvalidateCache()
+        {
+            _startPageGuids = null;
+            _startPagesByLanguageVariant.Clear();
+        }
+
+        public void Refresh()
+        {
+            InvalidateCache();
+            EnsureInitialization();
         }
     }
 }
