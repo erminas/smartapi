@@ -109,5 +109,15 @@ namespace erminas.SmartAPI.Utils
             var s = o as string;
             return s != null ? SecurityElement.Escape(s) : ConvertRQL(o);
         }
+
+        public static string ReplaceFirst(this string text, string search, string replace)
+        {
+            var pos = text.IndexOf(search, StringComparison.InvariantCulture);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        }
     }
 }

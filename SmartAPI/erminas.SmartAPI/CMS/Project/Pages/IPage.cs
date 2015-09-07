@@ -84,6 +84,12 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         Null = -1
     }
 
+    public enum PreviewHtmlType
+    {
+        Raw = 0,
+        AddCmsBaseUrlToHeadSection
+    }
+
     /// <summary>
     ///     Wrapper for the RedDot Page object. If status changes occur, you have to call
     ///     <see
@@ -287,5 +293,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         IWorkflow Workflow { get; }
 
         IPagePublishJob CreatePublishJob();
+
+        string GetPreviewHtml(PreviewHtmlType previewType);
     }
 }
