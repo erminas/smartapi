@@ -98,7 +98,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 var str = "Could not create element '" + elementName + "' of type '" + typeStr + "'";
 
                 LOGGER.Error(str + ": " + e.Message);
-                throw new SmartAPIException(Session.ServerLogin, str, e);
+                var ex = new SmartAPIException(Session.ServerLogin, str, e);
+                ex.Data["elementNode"] = curElementNode.OuterXml;
+
+                throw ex;
             }
         }
 
@@ -108,7 +111,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses
                 @"<PROJECT><TEMPLATE action=""load"" guid=""{0}""><ELEMENTS childnodesasattributes=""1"" action=""load""/><TEMPLATEVARIANTS action=""list""/></TEMPLATE></PROJECT>";
             var xmlDoc = _contentClass.Project.ExecuteRQL(LOAD_CC_ELEMENTS.RQLFormat(_contentClass));
 
-            var elementChildren = xmlDoc.GetElementsByTagName("ELEMENT");
+            var elementChildren = xmlDoc.GetSingleElement("ELEMENTS").GetElementsByTagName("ELEMENT");
             return (from XmlElement curElementNode in elementChildren select CreateElement(curElementNode)).ToList();
         }
 

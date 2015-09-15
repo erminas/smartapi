@@ -23,7 +23,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             RetrieveFunc = GetPublicationSettings;
         }
 
-        public IPublicationPackage PublicationPackage { get; }
+        public IPublicationPackage PublicationPackage { get; private set; }
 
         public ISession Session
         {

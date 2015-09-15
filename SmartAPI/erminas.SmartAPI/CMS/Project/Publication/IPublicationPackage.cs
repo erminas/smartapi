@@ -31,7 +31,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             ExportSettings = new PublicationSettings(this);
         }
 
-        public IPublicationSettings ExportSettings { get; }
+        public IPublicationSettings ExportSettings { get; private set; }
 
         protected override void LoadWholeObject()
         {

@@ -469,7 +469,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             if (previewType == PreviewHtmlType.AddCmsBaseUrlToHeadSection)
             {
                 //TODO this is a very naive approach, e.g. head isn't necessarily there or could be in a comment above a real head element
-                answer.ReplaceFirst(
+                answer = answer.ReplaceFirst(
                                     "<head>",
                                     string.Format("<head>\n\t<base href=\"{0}/WebClient/\"/>\n", Project.Session.ServerLogin.Address));
             }
