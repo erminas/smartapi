@@ -225,6 +225,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         LinkType LinkType { get; }
         ILinkTarget Reference { get; set; }
         void Remove(IPage page);
-        void Set(ILinkTarget page, Linking linking);
+        void Set(ILinkTarget linkTarget, Linking linkingType);
     }
 }

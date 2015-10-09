@@ -71,7 +71,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CMS\Project\Authorizations\IAuthorizations.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\IReferencePreassignable.cs" />
+    <Compile Include="CMS\Project\ContentClasses\Elements\ReferencePreassignment.cs" />
     <Compile Include="CMS\Project\IDetailedAuthorizable.cs" />
+    <Compile Include="CMS\Project\IReferencePreassignTarget.cs" />
     <Compile Include="CMS\Project\Pages\IPageCopyAndConnectJob.cs" />
     <Compile Include="CMS\Project\Pages\IPagePublishJob.cs" />
     <Compile Include="CMS\Project\Publication\IPublicationSettings.cs" />

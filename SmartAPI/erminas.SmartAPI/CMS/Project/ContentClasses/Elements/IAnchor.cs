@@ -18,12 +18,8 @@ using erminas.SmartAPI.CMS.Converter;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IAnchor : IWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable
+    public interface IAnchor : IWorkflowAssignments, ICanBeRequiredForEditing, IContentClassPreassignable, IReferencePreassignable, IReferencePreassignTarget
     {
-        new void CommitInCurrentLanguage();
-
-        new void CommitInLanguage(string languageAbbreviation);
-
         string DescriptionInCurrentDisplayLanguage { get; set; }
 
         ILanguageDependentValue<string> ExampleText { get; }
@@ -59,16 +55,28 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         string Supplement { get; set; }
 
         string Value { get; set; }
+
+        new void CommitInCurrentLanguage();
+
+        new void CommitInLanguage(string languageAbbreviation);
     }
 
     internal class Anchor : AbstractWorkflowAssignments, IAnchor
     {
+        private readonly ReferencePreassignment _referencePreassignment;
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
 
         protected Anchor(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
+            _referencePreassignment = new ReferencePreassignment(this);
+        }
+
+        public override void Refresh()
+        {
+            _referencePreassignment.InvalidateCache();
+            base.Refresh();
         }
 
         public override ContentClassCategory Category
@@ -179,7 +187,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; }
 
         public Pages.Elements.IContainer PreassignedTargetContainer
         {
@@ -206,6 +214,12 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         {
             get { return GetAttributeValue<string>(); }
             set { SetAttributeValue(value); }
+        }
+
+        public IReferencePreassignTarget PreassignedReference
+        {
+            get { return _referencePreassignment.Target; }
+            set { _referencePreassignment.Target = value; }
         }
     }
 }

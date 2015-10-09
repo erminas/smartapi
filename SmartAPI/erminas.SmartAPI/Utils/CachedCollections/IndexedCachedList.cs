@@ -27,8 +27,7 @@ namespace erminas.SmartAPI.Utils.CachedCollections
         private readonly Func<T, TK> _indexFunc;
         private Dictionary<TK, T> _index = new Dictionary<TK, T>();
 
-        public IndexedCachedList(Func<List<T>> retrieveFunc, Func<T, TK> indexFunc, Caching caching)
-            : base(retrieveFunc, caching)
+        public IndexedCachedList(Func<List<T>> retrieveFunc, Func<T, TK> indexFunc, Caching caching) : base(retrieveFunc, caching)
         {
             _indexFunc = indexFunc;
         }
@@ -48,10 +47,27 @@ namespace erminas.SmartAPI.Utils.CachedCollections
                     _index.Clear();
                     if (value != null)
                     {
-                        _index = value.ToDictionary(_indexFunc);
+                        //TODO hier auf duplikate pruefen bei fehler und bessere exception ausgeben
+                        try
+                        {
+                            _index = value.ToDictionary(_indexFunc);
+                        }
+                        catch (ArgumentException e)
+                        {
+                            ThrowDuplicatesException(value, e);
+                        }
                     }
                 }
             }
+        }
+
+        private void ThrowDuplicatesException(List<T> value, ArgumentException e)
+        {
+            var duplicates = value.GroupBy(_indexFunc)
+                .Where(g => g.Count() > 1)
+                .Select(y => y.Key)
+                .ToArray();
+            throw new Exception("Duplicate key/s: " + string.Join(", ", duplicates), e);
         }
 
         #region IIndexedCachedList<TK,T> Members
@@ -67,8 +83,13 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             EnsureListIsLoaded();
             try
             {
-                return IsCachingEnabled ? _index[key] : List.First(x => _indexFunc(x).Equals(key));
-            } catch (InvalidOperationException e)
+                return IsCachingEnabled
+                           ? _index[key]
+                           : List.First(
+                                        x => _indexFunc(x)
+                                                 .Equals(key));
+            }
+            catch (InvalidOperationException e)
             {
                 throw new KeyNotFoundException(String.Format("No element with key '{0}' found", key), e);
             }
@@ -80,7 +101,14 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             {
                 if (value && !base.IsCachingEnabled && List != null)
                 {
-                    _index = List.ToDictionary(_indexFunc);
+                    try
+                    {
+                        _index = List.ToDictionary(_indexFunc);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        ThrowDuplicatesException(List, e);
+                    }
                 }
                 else
                 {
@@ -107,13 +135,20 @@ namespace erminas.SmartAPI.Utils.CachedCollections
 
         public bool TryGet(TK key, out T obj)
         {
+            if (key == null)
+            {
+                obj = null;
+                return false;
+            }
             EnsureListIsLoaded();
             if (IsCachingEnabled)
             {
                 return _index.TryGetValue(key, out obj);
             }
 
-            obj = List.FirstOrDefault(x => _indexFunc(x).Equals(key));
+            obj = List.FirstOrDefault(
+                                      x => _indexFunc(x)
+                                               .Equals(key));
             return obj != null;
         }
 

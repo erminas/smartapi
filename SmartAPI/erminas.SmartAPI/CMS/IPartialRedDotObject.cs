@@ -97,7 +97,7 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///     Indicates, wether the object is already completly initialized (true) or not (false).
         /// </summary>
-        protected bool IsInitialized { get; set; }
+        public bool IsInitialized { get; set; }
 
         /// <summary>
         ///     If the object or a variable already is initialized, returns the variable value, otherwise calls <code>LoadXml(RetrieveWholeObject())</code> to initialized the object. And returns the variable value afterwards;

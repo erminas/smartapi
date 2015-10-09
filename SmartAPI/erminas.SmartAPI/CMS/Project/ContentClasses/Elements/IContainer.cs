@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IContainer : IWorkflowAssignments, IContentClassPreassignable
+    public interface IContainer : IWorkflowAssignments, IContentClassPreassignable, IReferencePreassignable, IReferencePreassignTarget
     {
         bool IsDynamic { get; set; }
 
@@ -28,14 +28,29 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
     internal class Container : AbstractWorkflowAssignments, IContainer
     {
+        private readonly ReferencePreassignment _referencePreassignment;
+
         internal Container(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
+            _referencePreassignment = new ReferencePreassignment(this);
+        }
+
+        public override void Refresh()
+        {
+            _referencePreassignment.InvalidateCache();
+            base.Refresh();
         }
 
         public override ContentClassCategory Category
         {
             get { return ContentClassCategory.Structural; }
+        }
+
+        public IReferencePreassignTarget PreassignedReference
+        {
+            get { return _referencePreassignment.Target; }
+            set { _referencePreassignment.Target = value; }
         }
 
         [RedDot("eltisdynamic")]
@@ -59,6 +74,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; }
     }
 }
