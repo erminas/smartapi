@@ -84,13 +84,19 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         Null = -1
     }
 
+    public enum PreviewHtmlType
+    {
+        Raw = 0,
+        AddCmsBaseUrlToHeadSection
+    }
+
     /// <summary>
     ///     Wrapper for the RedDot Page object. If status changes occur, you have to call
     ///     <see
     ///         cref="PartialRedDotObject.Refresh" />
     ///     to see them reflected in the status field,
     /// </summary>
-    public interface IPage : ILinkTarget, IPartialRedDotProjectObject, IKeywordAssignable, IDeletable, IDetailedAuthorizable
+    public interface IPage : ILinkTarget, IPartialRedDotProjectObject, IKeywordAssignable, IDeletable, IDetailedAuthorizable, IReferencePreassignTarget
     {
         DateTime CreateDate { get; }
 
@@ -287,5 +293,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         IWorkflow Workflow { get; }
 
         IPagePublishJob CreatePublishJob();
+
+        string GetPreviewHtml(PreviewHtmlType previewType);
     }
 }

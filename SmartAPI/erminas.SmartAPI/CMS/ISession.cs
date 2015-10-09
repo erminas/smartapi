@@ -61,7 +61,7 @@ namespace erminas.SmartAPI.CMS
             _moduleName = element.GetAttributeValue("moduledescription");
             _loginDate = element.GetOADate("logindate").GetValueOrDefault();
             _lastActionDate = element.GetOADate("lastactiondate").GetValueOrDefault();
-            _loginGuid = element.GetGuid();
+            element.TryGetGuid(out _loginGuid);
         }
 
         public DateTime LastActionDate
@@ -771,7 +771,7 @@ namespace erminas.SmartAPI.CMS
             {
                 if (e.ErrorCode != ErrorCode.RDError101)
                 {
-                    throw;
+                    throw e;
                 }
                 xmlDoc.LoadXml(e.Response);
             }
@@ -1038,8 +1038,9 @@ namespace erminas.SmartAPI.CMS
                 sessionToReplace = null;
                 return false;
             }
+            Guid loginGuid;
             sessionToReplace =
-                sessionReplacementSelector(from XmlElement curLogin in xmlDoc.GetElementsByTagName("LOGIN")
+                sessionReplacementSelector(from XmlElement curLogin in xmlDoc.GetElementsByTagName("LOGIN") where curLogin.TryGetGuid(out loginGuid)
                                            select new RunningSessionInfo(curLogin));
 
             return sessionToReplace != null;

@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 {
-    public interface IList : IWorkflowAssignments, IContentClassPreassignable
+    public interface IList : IWorkflowAssignments, IContentClassPreassignable, IReferencePreassignable, IReferencePreassignTarget
     {
         string FontClass { get; set; }
 
@@ -46,16 +46,30 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     internal class List : AbstractWorkflowAssignments, IList
     {
         private readonly TargetContainerPreassignment _targetContainerPreassignment;
+        private readonly ReferencePreassignment _referencePreassignment;
 
         internal List(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
             _targetContainerPreassignment = new TargetContainerPreassignment(this);
             PreassignedContentClasses = new PreassignedContentClassesAndPageDefinitions(this);
+            _referencePreassignment = new ReferencePreassignment(this);
+        }
+
+        public override void Refresh()
+        {
+            _referencePreassignment.InvalidateCache();
+            base.Refresh();
         }
 
         public override sealed ContentClassCategory Category
         {
             get { return ContentClassCategory.Structural; }
+        }
+
+        public IReferencePreassignTarget PreassignedReference
+        {
+            get { return _referencePreassignment.Target; }
+            set { _referencePreassignment.Target = value; }
         }
 
         [RedDot("eltfontclass")]

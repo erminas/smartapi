@@ -41,13 +41,13 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         private ILanguageVariant _lang;
         private ILinkElement _mainLinkElement;
         private Guid _mainLinkGuid;
+        private ILinkElement _mainLinkNavigationElement;
+        private Guid _mainLinkNavigationGuid;
         private PageFlags _pageFlags = PageFlags.Null;
         private PageState _pageState;
         private IPage _parentPage;
         private DateTime _releaseDate;
         private PageReleaseStatus _releaseStatus;
-        private Guid _mainLinkNavigationGuid;
-        private ILinkElement _mainLinkNavigationElement;
 
         internal Page(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
@@ -248,14 +248,19 @@ namespace erminas.SmartAPI.CMS.Project.Pages
 
         public IRDList<ILinkingAndAppearance> LinkedFrom { get; private set; }
 
-        public ILinkElement MainParentLinkElement { get { return MainLinkElement; } set { MainLinkElement = value; } }
-
+        public ILinkElement MainParentLinkElement
+        {
+            get { return MainLinkElement; }
+            set { MainLinkElement = value; }
+        }
 
         /// <summary>
-        /// WARNING: Use MainParentLinkElement instead! This is atm the main parent link element this page is connected to. In a future version this
-        /// will change, so please use MainParentLink instead.
+        ///     WARNING: Use MainParentLinkElement instead! This is atm the main parent link element this page is connected to. In
+        ///     a future version this
+        ///     will change, so please use MainParentLink instead.
         /// </summary>
-        [Obsolete("This is the PARENT link of the page, in a future version this will change to the main navigation link element of this page.")]
+        [Obsolete(
+            "This is the PARENT link of the page, in a future version this will change to the main navigation link element of this page.")]
         public ILinkElement MainLinkElement
         {
             get
@@ -295,7 +300,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 {
                     return null;
                 }
-                _mainLinkNavigationElement = (ILinkElement)PageElement.CreateElement(Project, _mainLinkNavigationGuid, LanguageVariant);
+                _mainLinkNavigationElement = (ILinkElement) PageElement.CreateElement(Project, _mainLinkNavigationGuid, LanguageVariant);
                 return _mainLinkNavigationElement;
             }
 
@@ -306,7 +311,6 @@ namespace erminas.SmartAPI.CMS.Project.Pages
                 _mainLinkNavigationGuid = value != null ? value.Guid : default(Guid);
             }
         }
-
 
         public new string Name
         {
@@ -450,6 +454,26 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         public IPagePublishJob CreatePublishJob()
         {
             return new PagePublishJob(this);
+        }
+
+        //TODO versionguid?
+        public string GetPreviewHtml(PreviewHtmlType previewType = PreviewHtmlType.Raw)
+        {
+            const string PREVIEW =
+                "<PREVIEW mode=\"0\" projectguid=\"{0}\" versionguid=\"\" url=\"./PreviewHandler.ashx\" querystring=\"Action=RedDot&amp;Mode=0&amp;PageGuid={1}&amp;WithCache=1&amp;Type=page&amp;Isolated=1&amp;PageLocked=0&amp;Rights1=-33673217&amp;isArchivedPage=0&amp;\"   isolated=\"0\"   templateguid=\"{2}\" rights1=\"-33673217\"  />";
+
+            var answer = Project.Session.ExecuteRQLRaw(
+                                                       PREVIEW.RQLFormat(Project, this, ContentClass),
+                                                       RQL.IODataFormat.SessionKeyAndLogonGuid);
+
+            if (previewType == PreviewHtmlType.AddCmsBaseUrlToHeadSection)
+            {
+                //TODO this is a very naive approach, e.g. head isn't necessarily there or could be in a comment above a real head element
+                answer = answer.ReplaceFirst(
+                                    "<head>",
+                                    string.Format("<head>\n\t<base href=\"{0}/WebClient/\"/>\n", Project.Session.ServerLogin.Address));
+            }
+            return answer;
         }
 
         public override bool Equals(object other)
@@ -633,7 +657,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             InitIfPresent(ref _createDate, "createdate", XmlUtil.ToOADate);
             InitIfPresent(ref _changeDate, "changeDate", XmlUtil.ToOADate);
 
-            var mainLinkElement = (XmlElement)_xmlElement.GetElementsByTagName("MAINLINK")[0];
+            var mainLinkElement = (XmlElement) _xmlElement.GetElementsByTagName("MAINLINK")[0];
             _mainLinkNavigationGuid = mainLinkElement != null ? mainLinkElement.GetGuid() : Guid.Empty;
         }
 

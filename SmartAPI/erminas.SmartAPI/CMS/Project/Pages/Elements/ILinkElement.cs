@@ -28,4 +28,5 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
         ILinkConnections Connections { get; }
         LinkType LinkType { get; }
     }
+
 }

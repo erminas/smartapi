@@ -22,12 +22,12 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project.Publication
 {
-    public interface IPublicationSetting : IRedDotObject, IProjectObject
+    public interface IPublicationSetting : IRedDotObject, IProjectObject, IDeletable
     {
         IIndexedRDList<string, IPublicationFolderSetting> ExportFolderSettings { get; }
         ILanguageVariant LanguageVariant { get; }
         IProjectVariant ProjectVariant { get; }
-        IPublicationPackage PublicationPackage { get; set; }
+        IPublicationPackage PublicationPackage { get;}
         IEnumerable<IPublicationTarget> PublishingTargets { get; }
         void SetPublishingTargetsAndCommit(List<IPublicationTarget> newTargets);
     }
@@ -36,13 +36,14 @@ namespace erminas.SmartAPI.CMS.Project.Publication
     {
         private readonly NameIndexedRDList<IPublicationFolderSetting> _exportFolderSettings;
         private List<IPublicationTarget> _publishingTargets;
+        private readonly IPublicationSettings _publicationSettings;
 
-        internal PublicationSetting(IPublicationPackage package, XmlElement xmlElement)
-            : base(package.Project, xmlElement)
+        internal PublicationSetting(IPublicationSettings settings, XmlElement xmlElement)
+            : base(settings.Project, xmlElement)
         {
             _exportFolderSettings = new NameIndexedRDList<IPublicationFolderSetting>(LoadExportFolderSettings,
                                                                                      Caching.Enabled);
-            PublicationPackage = package;
+            _publicationSettings = settings;
             LoadXml();
         }
 
@@ -54,7 +55,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         public ILanguageVariant LanguageVariant { get; private set; }
         public IProjectVariant ProjectVariant { get; private set; }
 
-        public IPublicationPackage PublicationPackage { get; set; }
+        public IPublicationPackage PublicationPackage { get { return _publicationSettings.PublicationPackage; } }
 
         public IEnumerable<IPublicationTarget> PublishingTargets
         {
@@ -120,6 +121,14 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             _publishingTargets = (from XmlElement curTarget in exportTargets
                                   select (IPublicationTarget) new PublicationTarget(Project, curTarget.GetGuid()))
                 .ToList();
+        }
+
+        public void Delete()
+        {
+            const string DELETE = @"<PROJECT><EXPORTSETTING action=""deletesetting"" packetguid=""{0}"" guid=""{1}""/></PROJECT>";
+            Project.ExecuteRQL(DELETE.RQLFormat(PublicationPackage, this));
+
+            _publicationSettings.InvalidateCache();
         }
     }
 }

@@ -1,5 +1,19 @@
 SmartAPI Changelog
 
+2015-07-31: Version 1.0.6.0
+------------------------------------
+Features:
+- Added support for creation/deletion of publication settings in publication packages
+- Added IPage.GetPreviewHtml() to get the preview html code of a page
+- Added IProject.OnlineUsers to get the users currently logged into the project
+- Added reference preassignment for structural elements
+
+Bugfixes:
+- Multiple fixes for problems with server version 11.2.2.1090
+
+Other:
+- Better error messages for some rare cases
+
 2015-07-31: Version 1.0.5.0
 ------------------------------------
 Features:

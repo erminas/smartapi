@@ -25,6 +25,7 @@ using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.CMS.Project.Publication;
+using erminas.SmartAPI.CMS.ServerManagement;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -132,6 +133,12 @@ namespace erminas.SmartAPI.CMS.Project
         ///     All info attributes in the project, indexed by id. The list is cached by default.
         /// </summary>
         IIndexedCachedList<int, IInfoAttribute> InfoAttributes { get; }
+
+        /// <summary>
+        /// Get users currently logged into this project
+        /// Requires you to have ServerManager rights.
+        /// </summary>
+        IIndexedRDList<string, IUser> OnlineUsers { get; }
 
         bool IsArchivingActive { get; }
 
@@ -291,6 +298,8 @@ namespace erminas.SmartAPI.CMS.Project
                 return _clipboard;
             }
         }
+
+        public IIndexedRDList<string, IUser> OnlineUsers { get; private set; }
 
         /// <summary>
         ///     All concent class folders, indexed by name. The list is cached by default.
@@ -629,9 +638,24 @@ namespace erminas.SmartAPI.CMS.Project
             Keywords = new RDList<IKeyword>(GetKeywords, Caching.Enabled);
             AssignedGroups = new ProjectGroups(this, Caching.Enabled);
 
+            OnlineUsers = new NameIndexedRDList<IUser>(GetOnlineUsers, Caching.Enabled);
+
             _clipboard = new ProjectClipboard(this);
 
             //AuthorizationPackages = new AuthorizationPackages(this);
+        }
+
+        private List<IUser> GetOnlineUsers()
+        {
+            const string LIST_ONLINE_USERS = @"<ADMINISTRATION><USERS action=""connectlist"" projectguid=""{0}""/></ADMINISTRATION>";
+            var doc = ExecuteRQL(LIST_ONLINE_USERS.RQLFormat(this));
+
+            var userElements = doc.GetElementsByTagName("USER").Cast<XmlElement>();
+            //most attributes are here, but not all (e.g. description)
+            //therefor we only init with guid and load the user on demand later.
+            //TODO a better solution would be to have a partial initialized user object,
+            //which doesn't need to be loaded again, if the available properties are accessed
+            return userElements.Select(x=>new User(Session, x.GetGuid())).Cast<IUser>().ToList();
         }
 
         private void LoadXml()
