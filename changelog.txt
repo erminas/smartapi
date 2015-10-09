@@ -1,6 +1,6 @@
 SmartAPI Changelog
 
-2015-07-31: Version 1.0.6.0
+2015-10-09: Version 1.0.6.0
 ------------------------------------
 Features:
 - Added support for creation/deletion of publication settings in publication packages
