@@ -74,6 +74,6 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
             set { SetAttributeValue(value); }
         }
 
-        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; }
+        public PreassignedContentClassesAndPageDefinitions PreassignedContentClasses { get; private set; }
     }
 }
