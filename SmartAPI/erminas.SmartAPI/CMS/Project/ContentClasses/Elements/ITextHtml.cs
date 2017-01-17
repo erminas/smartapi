@@ -59,6 +59,10 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
     public interface ITextHtml : IText
     {
         EditorSettings TextEditorSettings { get; set; }
+
+        string FixedStyleSheet { get; set; }
+
+        bool IncludeStyleSheetInPageHeader { get; set; }
     }
 
     internal class TextHtml : Text, ITextHtml
@@ -72,6 +76,20 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         public EditorSettings TextEditorSettings
         {
             get { return GetAttributeValue<EditorSettings>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltstylesheetdata")]
+        public string FixedStyleSheet
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("eltinsertstylesheetinpage")]
+        public bool IncludeStyleSheetInPageHeader
+        {
+            get { return GetAttributeValue<bool>(); }
             set { SetAttributeValue(value); }
         }
     }
