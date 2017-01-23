@@ -157,7 +157,9 @@ namespace erminas.SmartAPI.CMS
                 {"ignoreglobalworkflow", "Not relevant for global content workflow"},
                 {"keywordrequired", "Keyword required"},
                 {"requiredcategory", "Keyword required from category"},
-                {"selectinnewpage", "Available via the shortcut menu in SmartEdit"}
+                {"selectinnewpage", "Available via the shortcut menu in SmartEdit"},
+                {"eltstylesheetdata", "Assign fixed style sheet"},
+                {"eltinsertstylesheetinpage", "Include style sheet in page header"}
             };
 
         public static string GetDescriptionForElement(string name)
