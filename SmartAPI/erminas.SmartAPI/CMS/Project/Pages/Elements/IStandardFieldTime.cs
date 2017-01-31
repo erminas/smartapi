@@ -64,9 +64,23 @@ namespace erminas.SmartAPI.CMS.Project.Pages.Elements
             }
         }
 
+        /// <summary>
+        /// Creates the value of the standard field time from the xml node value which can be in the format
+        /// hh:mm:ss or OADate (double value)
+        /// </summary>
+        /// <param name="value">Value from the xml node</param>
+        /// <returns>Time parsed from the xml node</returns>
         protected override TimeSpan FromXmlNodeValue(string value)
         {
-            return value.ToOADate().TimeOfDay;
+            // There are two different format, either hh:mm:ss or as OADate (double value)
+            if (value.Contains(":"))
+            {
+                return TimeSpan.Parse(value.Replace(",", "."), CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                return value.ToOADate().TimeOfDay;
+            }
         }
 
         protected override string GetXmlNodeValue()
