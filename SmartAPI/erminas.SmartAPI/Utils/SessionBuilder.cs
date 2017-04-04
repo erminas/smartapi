@@ -25,7 +25,7 @@ namespace erminas.SmartAPI.Utils
     /// </summary>
     public class SessionBuilder
     {
-        public SessionBuilder(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid)
+        public SessionBuilder(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid = default(Guid))
         {
             Login = login;
             LoginGuid = loginGuid;
@@ -35,6 +35,11 @@ namespace erminas.SmartAPI.Utils
 
         public SessionBuilder()
         {
+        }
+
+        public static ISession GetExistingSession(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid = default(Guid))
+        {
+            return new SessionBuilder(login, loginGuid, sessionKey, projectGuid).CreateSession();
         }
 
         public static ISession CreateOrReplaceOldestSession(ServerLogin login)

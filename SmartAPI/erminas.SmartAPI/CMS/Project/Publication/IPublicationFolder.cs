@@ -28,10 +28,12 @@ namespace erminas.SmartAPI.CMS.Project.Publication
     {
         void Commit();
         string ContentGroup { get; set; }
+
+        new string Name { get; set; }
         PublicationFolderContentType ContentTypeValue { get; set; }
         PublicationFolderContextInfoPreparationType ContextInfoPreparation { get; set; }
         string ContextTags { get; set; }
-        void CreateInProject(IProject project, Guid parentFolderGuid);
+        IPublicationFolder CreateInProject(IProject project, Guid parentFolderGuid);
         bool DoCreateLog { get; set; }
         bool DoIndexForFulltextSearch { get; set; }
         bool DoReleaseAfterImport { get; set; }
@@ -78,6 +80,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             PUBLISHED_PAGES_NODE.SetAttributeValue("name", "Published pages");
             PUBLISHED_PAGES_NODE.SetAttributeValue("guid", PUBLISHED_PAGES_GUID_STRING);
         }
+
+        public new string Name { get { return base.Name; } set { base.Name = value; } }
 
         public PublicationFolder(string name, PublicationFolderType type) : base(null)
         {
@@ -130,7 +134,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
             set { _contexttags = value; }
         }
 
-        public void CreateInProject(IProject project, Guid parentFolderGuid)
+        public IPublicationFolder CreateInProject(IProject project, Guid parentFolderGuid)
         {
             const string CREATE_STRING =
                 @"<PROJECT><EXPORTFOLDER action=""assign"" guid=""{0}""><EXPORTFOLDER action=""addnew"" name=""{1}"" type=""{2}"" {3} /></EXPORTFOLDER></PROJECT>";
@@ -139,7 +143,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                 project.ExecuteRQL(string.Format(CREATE_STRING, parentFolderGuid.ToRQLString(), Name, ((int) _type),
                                                  SaveParameters()));
 
-            reply.GetElementsByTagName("EXPORTFOLDER");
+            var newFolderElement = (XmlElement)reply.GetElementsByTagName("EXPORTFOLDER")[0];
+            return new PublicationFolder(project, newFolderElement.GetGuid());
         }
 
         public void Delete()
@@ -370,7 +375,7 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
     public enum PublicationFolderContentType
     {
-        HTML,
+        HTML = 0,
         XML,
         XSL,
         SCRIPT,

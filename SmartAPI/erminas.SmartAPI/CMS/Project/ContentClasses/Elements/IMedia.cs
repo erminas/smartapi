@@ -50,12 +50,21 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         ILanguageDependentValue<IFile> SampleFile { get; }
         ILanguageDependentValue<IFile> SrcFile { get; }
         TargetFormat TargetFormat { get; set; }
+
+        string DescriptionInCurrentDisplayLanguage { get; set; }
     }
 
     internal class Media : ContentClassElement, IMedia
     {
         internal Media(IContentClass contentClass, XmlElement xmlElement) : base(contentClass, xmlElement)
         {
+        }
+
+        [RedDot("eltrddescription")]
+        public string DescriptionInCurrentDisplayLanguage
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
         }
 
         [RedDot("eltmaxpicheight")]

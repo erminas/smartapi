@@ -55,6 +55,21 @@ namespace erminas.SmartAPI.CMS.Project.Pages
         }
     }
 
+    public class FilenameFilter : AbstractPageSearchFilter
+    {
+        public readonly string Value;
+
+        public FilenameFilter(string value)
+        {
+            Value = value;
+        }
+
+        public override string ToSearchItemString()
+        {
+            return ToSearchItemStringInternal("filename", Value, "like");
+        }
+    }
+
     public class HeadlineFilter : AbstractPageSearchFilter
     {
         #region OperatorType enum

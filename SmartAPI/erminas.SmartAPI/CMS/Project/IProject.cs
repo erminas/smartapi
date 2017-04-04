@@ -101,6 +101,48 @@ namespace erminas.SmartAPI.CMS.Project
         }
     }
 
+    public interface IPublicationFolders : IRDList<IPublicationFolder>
+    {
+        [Obsolete("Only for testing purposes, API part of parent folder will change before real release")]
+        IPublicationFolder Create(string name, PublicationFolderType type, Guid parentFolderGuid);
+    }
+
+    internal class PublicationFolders :  RDList<IPublicationFolder>, IPublicationFolders
+    {
+        private readonly IProject _project;
+
+        public PublicationFolders(IProject project) : base(Caching.Enabled)
+        {
+            _project = project;
+            RetrieveFunc = GetPublicationFolders;
+        }
+
+        public IPublicationFolder Create(string name, PublicationFolderType type, Guid parentFolderGuid)
+        {
+            var folder = new PublicationFolder(name, type);
+            var resultFolder = folder.CreateInProject(_project, parentFolderGuid);
+            InvalidateCache();
+
+            return resultFolder;
+        }
+
+        private List<IPublicationFolder> GetPublicationFolders()
+        {
+            const string LIST_PUBLICATION_FOLDERS = @"<PROJECT><EXPORTFOLDERS action=""list"" /></PROJECT>";
+
+            XmlDocument xmlDoc = _project.ExecuteRQL(LIST_PUBLICATION_FOLDERS);
+            if (xmlDoc.GetElementsByTagName("EXPORTFOLDERS")
+                    .Count != 1)
+            {
+                throw new SmartAPIException(
+                    _project.Session.ServerLogin,
+                    string.Format("Could not retrieve publication folders of project {0}", this));
+            }
+            return (from XmlElement curFolder in xmlDoc.GetElementsByTagName("EXPORTFOLDER")
+                    select (IPublicationFolder)new PublicationFolder(_project, curFolder.GetGuid())).ToList();
+        }
+    }
+
     public interface IProject : IPartialRedDotObject, ISessionObject
     {
         //IClipboard Clipboard { get; }
@@ -171,7 +213,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     All publication folders
         /// </summary>
-        IRDList<IPublicationFolder> PublicationFolders { get; }
+        IPublicationFolders PublicationFolders { get; }
 
         /// <summary>
         ///     All publication packages
@@ -441,7 +483,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// <summary>
         ///     All publication folders
         /// </summary>
-        public IRDList<IPublicationFolder> PublicationFolders { get; private set; }
+        public IPublicationFolders PublicationFolders { get; private set; }
 
         /// <summary>
         ///     All publication packages
@@ -582,21 +624,7 @@ namespace erminas.SmartAPI.CMS.Project
                 .ToList();
         }
 
-        private List<IPublicationFolder> GetPublicationFolders()
-        {
-            const string LIST_PUBLICATION_FOLDERS = @"<PROJECT><EXPORTFOLDERS action=""list"" /></PROJECT>";
-
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLICATION_FOLDERS);
-            if (xmlDoc.GetElementsByTagName("EXPORTFOLDERS")
-                    .Count != 1)
-            {
-                throw new SmartAPIException(
-                    Session.ServerLogin,
-                    string.Format("Could not retrieve publication folders of project {0}", this));
-            }
-            return (from XmlElement curFolder in xmlDoc.GetElementsByTagName("EXPORTFOLDER")
-                    select (IPublicationFolder) new PublicationFolder(this, curFolder.GetGuid())).ToList();
-        }
+        
 
         private List<IPublicationPackage> GetPublicationPackages()
         {
@@ -620,7 +648,7 @@ namespace erminas.SmartAPI.CMS.Project
         {
             RecycleBin = new RecycleBin(this);
             PublicationTargets = new RDList<IPublicationTarget>(GetPublicationTargets, Caching.Enabled);
-            PublicationFolders = new RDList<IPublicationFolder>(GetPublicationFolders, Caching.Enabled);
+            PublicationFolders = new PublicationFolders(this);
             PublicationPackages = new RDList<IPublicationPackage>(GetPublicationPackages, Caching.Enabled);
             InfoAttributes = new IndexedCachedList<int, IInfoAttribute>(GetInfoAttributes, x => x.Id, Caching.Enabled);
 

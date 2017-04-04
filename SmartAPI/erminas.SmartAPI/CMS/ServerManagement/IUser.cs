@@ -14,6 +14,8 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.CMS.Project;
 using erminas.SmartAPI.Exceptions;
@@ -39,6 +41,72 @@ namespace erminas.SmartAPI.CMS.ServerManagement
     {
         CtrlAndMouseButton = 0,
         MouseButtonOnly = 1
+    }
+
+    public interface IUserProjectGroupAssignment : ISessionObject
+    {
+        IProject Project { get; }
+        IList<IGroup> Groups { get; }
+
+        IUser User { get; }
+    }
+
+    public interface IUserProjectGroups : IIndexedCachedList<string, IUserProjectGroupAssignment>, ISessionObject
+    {
+        
+    }
+
+    public class UserProjectGroups : IndexedCachedList<string, IUserProjectGroupAssignment>, IUserProjectGroups
+    {
+        private IUser _user;
+
+        internal UserProjectGroups(IUser user, Caching caching) : base(assignment => assignment.Project.Name, caching)
+        {
+            _user = user;
+            Session = _user.Session;
+            RetrieveFunc = GetProjectGroupAssignments;
+        }
+
+        public ISession Session { get; private set; }
+
+        private List<IUserProjectGroupAssignment> GetProjectGroupAssignments()
+        {
+            const string LIST_USER_PROJECTS = @"<ADMINISTRATION><USER guid=""{0}""><PROJECTS action=""listgroups"" /></USER></ADMINISTRATION>";
+
+            var xmlDoc = Session.ExecuteRQL(LIST_USER_PROJECTS.RQLFormat(User));
+            var projectEntries = xmlDoc.GetElementsByTagName("PROJECT");
+            return (from XmlElement assignmentElement in xmlDoc.GetElementsByTagName("PROJECT")
+                    select (IUserProjectGroupAssignment) new UserProjectGroupAssignment(_user, Session.ServerManager.Projects.GetByGuid(assignmentElement.GetGuid()), GetGroups(assignmentElement))).ToList();
+        }
+
+        private IList<IGroup> GetGroups(XmlElement assignmentElement)
+        {
+            return (from XmlElement groupElement in assignmentElement.GetElementsByTagName("GROUP") where groupElement.GetBoolAttributeValue("checked").GetValueOrDefault(true)
+              select (IGroup) new Group(Session, groupElement.GetGuid())).ToList();
+        }
+
+        public IUser User { get { return _user;} }
+    }
+
+    public class UserProjectGroupAssignment : IUserProjectGroupAssignment 
+    {
+        private readonly ISession _session;
+        private readonly IUser _user;
+        private readonly IList<IGroup> _groups;
+        private readonly IProject _project;
+        public UserProjectGroupAssignment(IUser user, IProject project, IList<IGroup> groups)
+        {
+            _project = project;
+            _user = user;
+            _session = _user.Session;
+            _groups = groups;
+        }
+
+        public ISession Session { get { return _session; } }
+        public IProject Project { get { return _project; } }
+        public IList<IGroup> Groups { get { return _groups; }}
+
+        public IUser User { get { return _user; } }
     }
 
     public interface IUser : IPartialRedDotObject, ISessionObject, IDeletable
@@ -71,6 +139,8 @@ namespace erminas.SmartAPI.CMS.ServerManagement
         bool IsUnknownUser { get; }
 
         IUserProjects Projects { get; }
+
+        IUserProjectGroups ProjectGroups { get; }
 
         UserPofileChangeRestrictions UserPofileChangeRestrictions { get; set; }
     }
@@ -273,6 +343,7 @@ namespace erminas.SmartAPI.CMS.ServerManagement
         } private set { _isUnknownUser = value; } }
 
         public IUserProjects Projects { get; private set; }
+        public IUserProjectGroups ProjectGroups { get; private set; }
 
         public UserPofileChangeRestrictions UserPofileChangeRestrictions
         {
@@ -312,6 +383,7 @@ namespace erminas.SmartAPI.CMS.ServerManagement
         {
             Projects = new UserProjects(this, Caching.Enabled);
             ModuleAssignment = new UserModuleAssignment(this);
+            ProjectGroups = new UserProjectGroups(this, Caching.Enabled);
         }
 
         private void LoadXml()

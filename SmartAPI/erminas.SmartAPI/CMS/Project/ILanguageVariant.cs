@@ -14,10 +14,13 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml;
+using erminas.SmartAPI.CMS.Converter;
+using erminas.SmartAPI.Exceptions;
+using erminas.SmartAPI.Utils;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public interface ILanguageVariant : IRedDotObject, IProjectObject
+    public interface ILanguageVariant : IRedDotObject, IProjectObject, IDeletable
     {
         string Abbreviation { get; }
         bool IsCurrentLanguageVariant { get; }
@@ -52,6 +55,9 @@ namespace erminas.SmartAPI.CMS.Project
             get { return _isMainLanguage; }
         }
 
+        [RedDot("textdirection", ConverterType = typeof(StringEnumConverter<TextDirection>))]
+        public TextDirection TextDirection { get { return GetAttributeValue<TextDirection>(); } }
+
         public void Select()
         {
             Project.LanguageVariants.Current = this;
@@ -62,6 +68,16 @@ namespace erminas.SmartAPI.CMS.Project
             InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
             InitIfPresent(ref _abbreviation, "language", x => x);
             InitIfPresent(ref _isMainLanguage, "ismainlanguage", BoolConvert);
+        }
+
+        public void Delete()
+        {
+            const string DELETE_LANGUAGE_VARIANT = @"<LANGUAGEVARIANTS action=""delete""><LANGUAGEVARIANT guid=""{0}"" /></LANGUAGEVARIANTS>";
+            var xmlDoc = Project.ExecuteRQL(DELETE_LANGUAGE_VARIANT.RQLFormat(this));
+            if (!xmlDoc.IsContainingOk())
+            {
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete language variant {0}", this));
+            }
         }
     }
 }

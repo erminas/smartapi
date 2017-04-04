@@ -36,6 +36,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
         private List<IContentClass> _contentClasses;
         private bool _isDirty = true;
         private List<IPageDefinition> _pageDefinitions;
+        private bool _isAlsoApplyingRestriction;
 
         internal PreassignedContentClassesAndPageDefinitions(IContentClassPreassignable element)
         {
@@ -49,6 +50,29 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                                                                        pageDefinitions =>
                                                                        Set(ContentClasses, pageDefinitions), Add, Remove);
             PageDefinitions = new Preassigned<IPageDefinition>(pageDefinitionModifier);
+        }
+
+        public bool IsAlsoApplyingContentClassRestrictionToConnectingExistingPages
+        {
+            get
+            {
+                if (_isDirty)
+                {
+                    Refresh();
+                }
+
+                return _isAlsoApplyingRestriction;
+            }
+            set
+            {
+                if (value == IsAlsoApplyingContentClassRestrictionToConnectingExistingPages)
+                {
+                    return;
+                }
+                _isAlsoApplyingRestriction = value; 
+
+                Set(ContentClasses, PageDefinitions);
+            }
         }
 
         public Preassigned<IContentClass> ContentClasses { get; private set; }
@@ -104,6 +128,8 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
                 @"<TEMPLATELIST action=""load"" linkguid=""{0}"" assigntemplates=""1"" withpagedefinitions=""1""/>";
 
             var xmlDoc = Element.ContentClass.Project.ExecuteRQL(LOAD_PREASSIGNMENT.RQLFormat(Element));
+            _isAlsoApplyingRestriction = ((XmlElement)xmlDoc.SelectSingleNode("//TEMPLATES"))
+                .GetBoolAttributeValue("extendedrestriction").GetValueOrDefault();
             contentClasses = xmlDoc.SelectNodes("//TEMPLATE[@selectinnewpage='1']");
             pageDefinitions = xmlDoc.SelectNodes("//PAGEDEFINITION[@selectinnewpage='1']");
         }
@@ -172,7 +198,7 @@ namespace erminas.SmartAPI.CMS.Project.ContentClasses.Elements
 
             const string SET_PREASSIGNMENT_ENVELOPE =
                 @"<TEMPLATE><ELEMENT action=""assign"" guid=""{0}""><TEMPLATES extendedrestriction=""{1}"">{2}</TEMPLATES></ELEMENT></TEMPLATE>";
-            string assignmentQuery = SET_PREASSIGNMENT_ENVELOPE.RQLFormat(Element, false, assignments);
+            string assignmentQuery = SET_PREASSIGNMENT_ENVELOPE.RQLFormat(Element, IsAlsoApplyingContentClassRestrictionToConnectingExistingPages, assignments);
             return assignmentQuery;
         }
 

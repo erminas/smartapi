@@ -23,12 +23,19 @@ namespace erminas.SmartAPI.CMS.Project.Folder
     internal class AssetManagerFolder : BaseFolder, IAssetManagerFolder
     {
         private readonly IAssetManagerFolder _parentFolder;
+        private string _path;
 
         public AssetManagerFolder(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             _parentFolder = null;
             SubFolders = new SubFolders(this, Caching.Enabled);
             Files = new AssetManagerFiles(this, Caching.Enabled);
+            LoadXml();
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _path, "path",x=>x);
         }
 
         public AssetManagerFolder(IAssetManagerFolder parentFolder, XmlElement xmlElement)
@@ -37,6 +44,13 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             _parentFolder = parentFolder;
             SubFolders = new EmptySubFolders(this);
             Files = new AssetManagerFiles(this, Caching.Enabled);
+            LoadXml();
+        }
+
+        protected override void LoadWholeObject()
+        {
+            base.LoadWholeObject();
+            LoadXml();
         }
 
         public void CreateSubfolder(string name, string description, string filesystemDirectoryName)
@@ -91,6 +105,8 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public ISubFolders SubFolders { get; private set; }
 
+        public string FilesystemPath { get { return _path; } }
+
         public override FolderType Type
         {
             get { return FolderType.AssetManager; }
@@ -113,5 +129,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         IAssetManagerFolder ParentFolder { get; }
         AssetManagerFolderStorageType StorageType { get; }
         ISubFolders SubFolders { get; }
+
+        string FilesystemPath { get; }
     }
 }

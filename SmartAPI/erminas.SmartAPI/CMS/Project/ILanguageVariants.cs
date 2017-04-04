@@ -26,6 +26,11 @@ namespace erminas.SmartAPI.CMS.Project
     {
         ILanguageVariant Current { get; set; }
         ILanguageVariant Main { get; }
+
+
+        //TODO support for email?
+        void Create(string name, ISystemLocale locale, ICharset charset, bool useRfcLanguageIdForDeliveryServer = false, TextDirection textDirection = TextDirection.LeftToRight, ILanguageVariant adoptContentFrom = null,
+            ILanguageVariant adtopWorkflowFrom = null);
     }
 
     internal class LanguageVariants : IndexedRDList<string, ILanguageVariant>, ILanguageVariants
@@ -76,6 +81,25 @@ namespace erminas.SmartAPI.CMS.Project
         public ILanguageVariant Main
         {
             get { return this.First(variant => variant.IsMainLanguage); }
+        }
+
+        //TODO use configuration object?
+        public void Create(string name, ISystemLocale locale, ICharset charset, bool useRfcLanguageIdForDeliveryServer = false, TextDirection textDirection = TextDirection.LeftToRight, ILanguageVariant adoptContentFrom = null,
+            ILanguageVariant adtopWorkflowFrom = null)
+        {
+            const string CREATE_LANGUAGE_VARIANT =
+                @"<LANGUAGEVARIANT action=""addnew"" name=""{0}"" language=""{1}"" defaultlanguagevariant=""0"" codetable=""{2}"" rfclanguageid=""{3}"" userfclanguageidfordeliveryserver=""{4}"" languagefrom=""{5}"" contentworkflowlanguagefrom=""{6}"" textdirection=""{7}"" />";
+
+            var response = Project.ExecuteRQL(CREATE_LANGUAGE_VARIANT.RQLFormat(name, locale.LanguageAbbreviation, charset.Codepage,
+                locale.RFCLanguageId, useRfcLanguageIdForDeliveryServer, adtopWorkflowFrom, adoptContentFrom,
+                textDirection));
+
+            if (response.GetElementsByTagName("LANGUAGEVARIANT").Count == 0)
+            {
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not create language variant '{0}' for project {1}", name, Project));
+            }
+
+            InvalidateCache();
         }
 
         public IProject Project

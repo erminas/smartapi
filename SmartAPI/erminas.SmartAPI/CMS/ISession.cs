@@ -39,61 +39,75 @@ namespace erminas.SmartAPI.CMS
 {
     public class RunningSessionInfo
     {
-        private readonly DateTime _lastActionDate;
-        private readonly DateTime _loginDate;
         private readonly Guid _loginGuid;
-        private readonly string _moduleName;
-        private readonly string _projectName;
 
         public RunningSessionInfo(Guid loginGuid, string projectName, string moduleName, DateTime loginDate,
-                                  DateTime lastActionDate)
+            DateTime lastActionDate)
         {
             _loginGuid = loginGuid;
-            _projectName = projectName;
-            _moduleName = moduleName;
-            _loginDate = loginDate;
-            _lastActionDate = lastActionDate;
+            ProjectName = projectName;
+            ModuleName = moduleName;
+            LoginDate = loginDate;
+            LastActionDate = lastActionDate;
         }
 
         internal RunningSessionInfo(XmlElement element)
         {
-            _projectName = element.GetAttributeValue("projectname");
-            _moduleName = element.GetAttributeValue("moduledescription");
-            _loginDate = element.GetOADate("logindate").GetValueOrDefault();
-            _lastActionDate = element.GetOADate("lastactiondate").GetValueOrDefault();
+            ProjectName = element.GetAttributeValue("projectname");
+            ModuleName = element.GetAttributeValue("moduledescription");
+            LoginDate = element.GetOADate("logindate").GetValueOrDefault();
+            LastActionDate = element.GetOADate("lastactiondate").GetValueOrDefault();
             element.TryGetGuid(out _loginGuid);
         }
 
-        public DateTime LastActionDate
-        {
-            get { return _lastActionDate; }
-        }
+        public DateTime LastActionDate { get; }
 
-        public DateTime LoginDate
-        {
-            get { return _loginDate; }
-        }
+        public DateTime LoginDate { get; }
 
         public Guid LoginGuid
         {
             get { return _loginGuid; }
         }
 
-        public string ModuleName
-        {
-            get { return _moduleName; }
-        }
+        public string ModuleName { get; }
 
-        public string ProjectName
-        {
-            get { return _projectName; }
-        }
+        public string ProjectName { get; }
     }
 
     public interface ISession : IDisposable
     {
         IUser CurrentUser { get; }
         IndexedCachedList<string, IDialogLocale> DialogLocales { get; }
+
+        /// <summary>
+        ///     All locales, indexed by LCID. The list is cached by default.
+        /// </summary>
+        IIndexedCachedList<int, ISystemLocale> Locales { get; }
+
+        /// <summary>
+        ///     All charset, indexed by codepage. The list is cached by default.
+        /// </summary>
+        IIndexedCachedList<int, ICharset> Charsets { get; }
+
+        Guid LogonGuid { get; }
+
+        /// <summary>
+        ///     Get/Set the currently selected project.
+        /// </summary>
+        IProject SelectedProject { get; set; }
+
+        /// <summary>
+        ///     Login information of the session
+        /// </summary>
+        ServerLogin ServerLogin { get; }
+
+        IServerManager ServerManager { get; }
+
+        Version ServerVersion { get; }
+
+        string SessionKey { get; }
+
+        ISystemLocale StandardLocale { get; }
 
         XmlDocument ExecuteRQL(string query, RQL.IODataFormat format);
 
@@ -123,7 +137,8 @@ namespace erminas.SmartAPI.CMS
         string ExecuteRQLRaw(string query, RQL.IODataFormat ioDataFormat);
 
         /// <summary>
-        ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
+        ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than
+        ///     all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="lang"> Language variant to get the text from </param>
@@ -131,13 +146,6 @@ namespace erminas.SmartAPI.CMS
         /// <param name="typeString"> texttype value </param>
         /// <returns> text content of the element </returns>
         string GetTextContent(Guid projectGuid, ILanguageVariant lang, Guid elementGuid, string typeString);
-
-        /// <summary>
-        ///     All locales, indexed by LCID. The list is cached by default.
-        /// </summary>
-        IIndexedCachedList<int, ISystemLocale> Locales { get; }
-
-        Guid LogonGuid { get; }
 
         /// <summary>
         ///     Select a project. Subsequent queries will be executed in the context of this project.
@@ -152,28 +160,13 @@ namespace erminas.SmartAPI.CMS
         /// <exception cref="Exception">Thrown, if the project could not get selected.</exception>
         void SelectProject(IProject project);
 
-        /// <summary>
-        ///     Get/Set the currently selected project.
-        /// </summary>
-        IProject SelectedProject { get; set; }
-
         void SendMailFromCurrentUserAccount(EMail mail);
         void SendMailFromSystemAccount(EMail mail);
 
         /// <summary>
-        ///     Login information of the session
-        /// </summary>
-        ServerLogin ServerLogin { get; }
-
-        IServerManager ServerManager { get; }
-
-        Version ServerVersion { get; }
-
-        string SessionKey { get; }
-
-        /// <summary>
-        /// This is only meant for internal use! It probably won't work as you expect it, so just ignore it ;)
-        /// Set the text content of a (content class) text element. This method exists, because it needs a different RQL element layout than all other queries. 
+        ///     This is only meant for internal use! It probably won't work as you expect it, so just ignore it ;)
+        ///     Set the text content of a (content class) text element. This method exists, because it needs a different RQL
+        ///     element layout than all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="languageVariant"> Language variant for setting the text in </param>
@@ -183,29 +176,35 @@ namespace erminas.SmartAPI.CMS
         /// <returns> Guid of the text element </returns>
         /// <remarks></remarks>
         Guid SetTextContent(Guid projectGuid, ILanguageVariant languageVariant, Guid textElementGuid, string typeString,
-                            string content);
-
-        ISystemLocale StandardLocale { get; }
+            string content);
 
         /// <summary>
         ///     Waits for an asynchronous process to finish.
-        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
+        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process
+        ///     to disappear from the process list.
         ///     The async processes get checked every second, for other retry periods, use
         ///     <see
         ///         cref="WaitForAsyncProcess(System.TimeSpan,System.TimeSpan,System.Predicate{ServerManagement.ServerManager.AsynchronousProcess})" />
         ///     instead.
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
-        /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
+        /// <param name="processPredicate">
+        ///     Gets checked for every process in the list to determine the process to wait for (must
+        ///     return true for it and only for it)
+        /// </param>
         void WaitForAsyncProcess(TimeSpan maxWait, Predicate<IAsynchronousProcess> processPredicate);
 
         /// <summary>
         ///     Waits for an asynchronous process to finish.
-        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
+        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process
+        ///     to disappear from the process list.
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
         /// <param name="retry">Determines how often the async processes should be checked</param>
-        /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
+        /// <param name="processPredicate">
+        ///     Gets checked for every process in the list to determine the process to wait for (must
+        ///     return true for it and only for it)
+        /// </param>
         void WaitForAsyncProcess(TimeSpan maxWait, TimeSpan retry, Predicate<IAsynchronousProcess> processPredicate);
     }
 
@@ -227,7 +226,8 @@ namespace erminas.SmartAPI.CMS
             SessionKeyAndLogonGuid,
 
             /// <summary>
-            ///     Use the logon guid in the IODATA element and insert a PROJECT element with the session key. The query gets inserted into the PROJECT element
+            ///     Use the logon guid in the IODATA element and insert a PROJECT element with the session key. The query gets inserted
+            ///     into the PROJECT element
             /// </summary>
             SessionKeyInProjectElement,
 
@@ -247,17 +247,11 @@ namespace erminas.SmartAPI.CMS
     }
 
     /// <summary>
-    /// Session, representing a connection to a Open Text WSM Management Server / RedDot CMS server as a specified user. 
-    /// To open a session you need to use the <see cref="SessionBuilder" />.
+    ///     Session, representing a connection to a Open Text WSM Management Server / RedDot CMS server as a specified user.
+    ///     To open a session you need to use the <see cref="SessionBuilder" />.
     /// </summary>
     internal class Session : ISession
     {
-        static Session()
-        {
-            //allow custom certificates
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) => true;
-        }
-
         private const string RQL_IODATA = "<IODATA>{0}</IODATA>";
         private const string RQL_IODATA_LOGONGUID = @"<IODATA loginguid=""{0}"">{1}</IODATA>";
         private const string RQL_IODATA_SESSIONKEY = @"<IODATA sessionkey=""{1}"" loginguid=""{0}"">{2}</IODATA>";
@@ -287,36 +281,48 @@ namespace erminas.SmartAPI.CMS
         private string _loginGuidStr;
         private string _sessionKeyStr;
 
+        static Session()
+        {
+            //allow custom certificates
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) => true;
+        }
+
         private Session()
         {
             ServerManager = new ServerManager(this);
             Locales = new IndexedCachedList<int, ISystemLocale>(GetLocales, x => x.LCID, Caching.Enabled);
             DialogLocales = new IndexedCachedList<string, IDialogLocale>(GetDialogLocales, x => x.LanguageAbbreviation,
-                                                                         Caching.Enabled);
-            
+                Caching.Enabled);
+            Charsets = new IndexedCachedList<int, ICharset>(GetCharsets, x => x.Codepage, Caching.Enabled);
         }
 
         public Session(ServerLogin login,
-                       Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector) : this()
+            Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo> sessionReplacementSelector) : this()
         {
             ServerLogin = login;
             Login(sessionReplacementSelector);
         }
 
         /// <summary>
-        ///     Create an session object for an already existing session on the server, e.g. when opening a plugin from within a running session.
+        ///     Create an session object for an already existing session on the server, e.g. when opening a plugin from within a
+        ///     running session.
         /// </summary>
-        public Session(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid) : this()
+        public Session(ServerLogin login, Guid loginGuid, string sessionKey, Guid projectGuid = default(Guid)) : this()
         {
             ServerLogin = login;
             _loginGuidStr = loginGuid.ToRQLString();
             _sessionKeyStr = sessionKey;
 
             InitConnection();
-            XmlElement sessionInfo = GetUserSessionInfoElement();
+            var sessionInfo = GetUserSessionInfoElement();
             SelectedProjectGuid = sessionInfo.GetGuid("projectguid");
-            SelectProject(projectGuid);
+            if ((projectGuid != default(Guid)) && (SelectedProjectGuid != projectGuid))
+            {
+                SelectProject(projectGuid);
+            }
         }
+
+        public IIndexedCachedList<int, ICharset> Charsets { get; private set; }
 
         /// <summary>
         ///     The asynchronous processes running on the server. The list is _NOT_ cached by default.
@@ -324,14 +330,21 @@ namespace erminas.SmartAPI.CMS
         /// <remarks>
         ///     Caching is disabled by default.
         /// </remarks>
-        public IRDList<IAsynchronousProcess> AsynchronousProcesses { get { return ServerManager.AsynchronousProcesses; } }
+        public IRDList<IAsynchronousProcess> AsynchronousProcesses
+        {
+            get { return ServerManager.AsynchronousProcesses; }
+        }
+
+        public Guid SelectedProjectGuid { get; private set; }
+
+        private string CmsServerConnectionUrl { get; set; }
 
         public IUser CurrentUser
         {
             get { return ServerManager.Users.Current; }
         }
 
-        public IndexedCachedList<string, IDialogLocale> DialogLocales { get; private set; }
+        public IndexedCachedList<string, IDialogLocale> DialogLocales { get; }
 
         /// <summary>
         ///     Close session on the server and disconnect
@@ -345,7 +358,7 @@ namespace erminas.SmartAPI.CMS
                 // invalidate this object
                 LogonGuid = default(Guid);
             }
-                // ReSharper disable EmptyGeneralCatchClause
+            // ReSharper disable EmptyGeneralCatchClause
             catch
                 // ReSharper restore EmptyGeneralCatchClause
             {
@@ -355,19 +368,20 @@ namespace erminas.SmartAPI.CMS
 
         public XmlDocument ExecuteRQL(string query, RQL.IODataFormat format)
         {
-            string result = ExecuteRQLRaw(query, format);
+            var result = ExecuteRQLRaw(query, format);
             return ParseRQLResult(this, result);
         }
 
         public XmlDocument ExecuteRQL(string query)
         {
-            string result = ExecuteRQLRaw(query, RQL.IODataFormat.LogonGuidOnly);
+            var result = ExecuteRQLRaw(query, RQL.IODataFormat.LogonGuidOnly);
             try
             {
                 var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 throw new SmartAPIException(ServerLogin, "Illegal response from server", e);
             }
@@ -376,20 +390,20 @@ namespace erminas.SmartAPI.CMS
         public XmlDocument ExecuteRQLInProjectContext(string query, Guid projectGuid)
         {
             SelectProject(projectGuid);
-            string result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyAndLogonGuid);
+            var result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyAndLogonGuid);
             return ParseRQLResult(this, result);
         }
 
         public XmlDocument ExecuteRQLInProjectContextAndEmbeddedInProjectElement(string query, Guid projectGuid)
         {
             SelectProject(projectGuid);
-            string result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyInProjectElement);
+            var result = ExecuteRQLRaw(query, RQL.IODataFormat.SessionKeyInProjectElement);
             return ParseRQLResult(this, result);
         }
 
         public string ExecuteRQLRaw(string query, RQL.IODataFormat ioDataFormat)
         {
-            string tmpQuery = query.Replace(RQL.SESSIONKEY_PLACEHOLDER, "#" + _sessionKeyStr);
+            var tmpQuery = query.Replace(RQL.SESSIONKEY_PLACEHOLDER, "#" + _sessionKeyStr);
             string rqlQuery;
             switch (ioDataFormat)
             {
@@ -413,13 +427,14 @@ namespace erminas.SmartAPI.CMS
                     rqlQuery = string.Format(RQL_IODATA_SESSIONKEY_ONLY, _sessionKeyStr, tmpQuery);
                     break;
                 default:
-                    throw new ArgumentException(String.Format("Unknown RQL.IODataFormat: {0}", ioDataFormat));
+                    throw new ArgumentException(string.Format("Unknown RQL.IODataFormat: {0}", ioDataFormat));
             }
             return SendRQLToServer(rqlQuery);
         }
 
         /// <summary>
-        ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
+        ///     Get the text content of a text element. This method exists, because it needs a different RQL element layout than
+        ///     all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="lang"> Language variant to get the text from </param>
@@ -434,13 +449,15 @@ namespace erminas.SmartAPI.CMS
             lang.Select();
             return
                 SendRQLToServer(string.Format(LOAD_TEXT_CONTENT, _loginGuidStr, _sessionKeyStr,
-                                              elementGuid.ToRQLString(), typeString));
+                    elementGuid.ToRQLString(), typeString));
         }
 
         /// <summary>
         ///     All locales, indexed by LCID. The list is cached by default.
         /// </summary>
-        public IIndexedCachedList<int, ISystemLocale> Locales { get; private set; }
+        public IIndexedCachedList<int, ISystemLocale> Locales { get; }
+        
+
 
         public Guid LogonGuid
         {
@@ -466,7 +483,8 @@ namespace erminas.SmartAPI.CMS
                     ExecuteRQLRaw(
                         string.Format(RQL_SELECT_PROJECT, _loginGuidStr, projectGuid.ToRQLString().ToUpperInvariant()),
                         RQL.IODataFormat.LogonGuidOnly);
-            } catch (RQLException e)
+            }
+            catch (RQLException e)
             {
                 exception = e;
                 result = e.Response;
@@ -474,7 +492,7 @@ namespace erminas.SmartAPI.CMS
 
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(result);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("SERVER");
+            var xmlNodes = xmlDoc.GetElementsByTagName("SERVER");
             if (xmlNodes.Count > 0)
             {
                 SessionKey = ((XmlElement) xmlNodes[0]).GetAttributeValue("key");
@@ -483,8 +501,8 @@ namespace erminas.SmartAPI.CMS
             }
 
             throw new SmartAPIException(ServerLogin,
-                                        String.Format("Couldn't select project {0}", projectGuid.ToRQLString()),
-                                        exception);
+                string.Format("Couldn't select project {0}", projectGuid.ToRQLString()),
+                exception);
         }
 
         /// <summary>
@@ -505,13 +523,11 @@ namespace erminas.SmartAPI.CMS
             get
             {
                 return ServerManager.Users.Current.ModuleAssignment.IsServerManager
-                           ? ServerManager.Projects.FirstOrDefault(x => x.Guid == SelectedProjectGuid)
-                           : ServerManager.Projects.ForCurrentUser.FirstOrDefault(x => x.Guid == SelectedProjectGuid);
+                    ? ServerManager.Projects.FirstOrDefault(x => x.Guid == SelectedProjectGuid)
+                    : ServerManager.Projects.ForCurrentUser.FirstOrDefault(x => x.Guid == SelectedProjectGuid);
             }
             set { SelectProject(value); }
         }
-
-        public Guid SelectedProjectGuid { get; private set; }
 
         public void SendMailFromCurrentUserAccount(EMail mail)
         {
@@ -520,8 +536,8 @@ namespace erminas.SmartAPI.CMS
 
         public void SendMailFromSystemAccount(EMail mail)
         {
-            IApplicationServer server = ServerManager.ApplicationServers.First();
-            string fromAddress = server.From;
+            var server = ServerManager.ApplicationServers.First();
+            var fromAddress = server.From;
 
             SendEmail(fromAddress, mail);
         }
@@ -529,9 +545,9 @@ namespace erminas.SmartAPI.CMS
         /// <summary>
         ///     Login information of the session
         /// </summary>
-        public ServerLogin ServerLogin { get; private set; }
+        public ServerLogin ServerLogin { get; }
 
-        public IServerManager ServerManager { get; private set; }
+        public IServerManager ServerManager { get; }
 
         public Version ServerVersion { get; private set; }
 
@@ -549,7 +565,8 @@ namespace erminas.SmartAPI.CMS
         }
 
         /// <summary>
-        ///     Set the text content of a text element. This method exists, because it needs a different RQL element layout than all other queries.
+        ///     Set the text content of a text element. This method exists, because it needs a different RQL element layout than
+        ///     all other queries.
         /// </summary>
         /// <param name="projectGuid"> Guid of the project containing the element </param>
         /// <param name="languageVariant"> Language variant for setting the text in </param>
@@ -558,20 +575,20 @@ namespace erminas.SmartAPI.CMS
         /// <param name="content"> new value </param>
         /// <returns> Guid of the text element </returns>
         public Guid SetTextContent(Guid projectGuid, ILanguageVariant languageVariant, Guid textElementGuid,
-                                   string typeString, string content)
+            string typeString, string content)
         {
             const string SAVE_TEXT_CONTENT =
                 @"<IODATA loginguid=""{0}"" format=""1"" sessionkey=""{1}""><PROJECT><TEXT action=""save"" guid=""{2}"" texttype=""{3}"" >{4}</TEXT></PROJECT></IODATA>";
             SelectProject(projectGuid);
             languageVariant.Select();
-            string rqlResult =
+            var rqlResult =
                 SendRQLToServer(string.Format(SAVE_TEXT_CONTENT, _loginGuidStr, _sessionKeyStr,
-                                              textElementGuid == Guid.Empty ? "" : textElementGuid.ToRQLString(),
-                                              typeString, HttpUtility.HtmlEncode(content)));
+                    textElementGuid == Guid.Empty ? "" : textElementGuid.ToRQLString(),
+                    typeString, HttpUtility.HtmlEncode(content)));
 
             //in version 11.2 the server returns <guid>\r\n, but we are only interested in the guid -> Trim()
-            string resultGuidStr = XElement.Load(new StringReader(rqlResult)).Value.Trim();
-            
+            var resultGuidStr = XElement.Load(new StringReader(rqlResult)).Value.Trim();
+
             //result guid is empty, if the value was set to the same value it had before
             if (string.IsNullOrEmpty(resultGuidStr))
             {
@@ -580,7 +597,7 @@ namespace erminas.SmartAPI.CMS
 
             Guid newGuid;
             if (!Guid.TryParse(resultGuidStr, out newGuid) ||
-                (textElementGuid != Guid.Empty && textElementGuid != newGuid))
+                ((textElementGuid != Guid.Empty) && (textElementGuid != newGuid)))
             {
                 throw new SmartAPIException(ServerLogin, "Could not set text for: {0}".RQLFormat(textElementGuid));
             }
@@ -594,14 +611,18 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         ///     Waits for an asynchronous process to finish.
-        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
+        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process
+        ///     to disappear from the process list.
         ///     The async processes get checked every second, for other retry periods, use
         ///     <see
         ///         cref="WaitForAsyncProcess(System.TimeSpan,System.TimeSpan,System.Predicate{ServerManagement.ServerManager.AsynchronousProcess})" />
         ///     instead.
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
-        /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
+        /// <param name="processPredicate">
+        ///     Gets checked for every process in the list to determine the process to wait for (must
+        ///     return true for it and only for it)
+        /// </param>
         public void WaitForAsyncProcess(TimeSpan maxWait, Predicate<IAsynchronousProcess> processPredicate)
         {
             var retryEverySecond = new TimeSpan(0, 0, 1);
@@ -610,33 +631,50 @@ namespace erminas.SmartAPI.CMS
 
         /// <summary>
         ///     Waits for an asynchronous process to finish.
-        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process to disappear from the process list.
+        ///     This is done by waiting for the process to spawn (or have it available on start) and then waiting for the process
+        ///     to disappear from the process list.
         /// </summary>
         /// <param name="maxWait">Maximum time span to wait for the process to complete</param>
         /// <param name="retry">Determines how often the async processes should be checked</param>
-        /// <param name="processPredicate">Gets checked for every process in the list to determine the process to wait for (must return true for it and only for it)</param>
+        /// <param name="processPredicate">
+        ///     Gets checked for every process in the list to determine the process to wait for (must
+        ///     return true for it and only for it)
+        /// </param>
         public void WaitForAsyncProcess(TimeSpan maxWait, TimeSpan retry,
-                                        Predicate<IAsynchronousProcess> processPredicate)
+            Predicate<IAsynchronousProcess> processPredicate)
         {
             Predicate<IRDList<IAsynchronousProcess>> pred = list => list.Any(process => processPredicate(process));
 
             //wait for the async process to spawn first and then wait until it is done
 
-            DateTime start = DateTime.Now;
+            var start = DateTime.Now;
             var retryEvery50ms = new TimeSpan(0, 0, 0, 0, 50);
             AsynchronousProcesses.WaitFor(pred, maxWait, retryEvery50ms);
 
-            TimeSpan timeLeft = maxWait - (DateTime.Now - start);
+            var timeLeft = maxWait - (DateTime.Now - start);
             timeLeft = timeLeft.TotalMilliseconds > 0 ? timeLeft : new TimeSpan(0, 0, 0);
 
             AsynchronousProcesses.WaitFor(list => !pred(list), timeLeft, retry);
+        }
+
+        //TODO check which versions support this
+        private List<ICharset> GetCharsets()
+        {
+            const string LOAD_CHARSETS =
+                @"<ADMINISTRATION><CHARSETS action=""list"" type=""stdgenerate"" lng=""{0}"" /></ADMINISTRATION>";
+            var resultStr = ExecuteRQLRaw(LOAD_CHARSETS.RQLFormat(StandardLocale.LanguageAbbreviation),
+                RQL.IODataFormat.LogonGuidOnly);
+            var xmlDoc = ParseRQLResult(this, resultStr);
+
+            return (from XmlElement curElement in xmlDoc.GetElementsByTagName("CHARSET")
+                select (ICharset) new Charset(this, curElement)).ToList();
         }
 
         internal XmlElement GetUserSessionInfoElement()
         {
             //TODO das funktioniert nur, wenn man in nem projekt drin ist
             const string SESSION_INFO = @"<PROJECT sessionkey=""{0}""><USER action=""sessioninfo""/></PROJECT>";
-            string reply = ExecuteRQLRaw(SESSION_INFO.RQLFormat(_sessionKeyStr), RQL.IODataFormat.Plain);
+            var reply = ExecuteRQLRaw(SESSION_INFO.RQLFormat(_sessionKeyStr), RQL.IODataFormat.Plain);
 
             var doc = new XmlDocument();
             doc.LoadXml(reply);
@@ -664,7 +702,8 @@ namespace erminas.SmartAPI.CMS
             {
                 xmlDoc.LoadXml(result);
                 return xmlDoc;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 throw new SmartAPIException(session.ServerLogin, "Illegal response from server", e);
             }
@@ -676,10 +715,10 @@ namespace erminas.SmartAPI.CMS
         }
 
         private void CheckLoginResponse(XmlDocument xmlDoc,
-                                        Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
-                                            sesssionReplacementSelector)
+            Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
+                sesssionReplacementSelector)
         {
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
+            var xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
 
             if (xmlNodes.Count > 0)
             {
@@ -689,17 +728,15 @@ namespace erminas.SmartAPI.CMS
             {
                 // didn't get a valid logon xml node
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
-                                                    "Could not login.");
+                    "Could not login.");
             }
         }
 
-        private string CmsServerConnectionUrl { get; set; }
-
         private static string ExtractMessagesWithInnerExceptions(Exception e)
         {
-            Exception curException = e;
+            var curException = e;
             var builder = new StringBuilder();
-            string linePrefix = "";
+            var linePrefix = "";
             while (curException != null)
             {
                 builder.Append(linePrefix);
@@ -715,31 +752,31 @@ namespace erminas.SmartAPI.CMS
         private List<IDialogLocale> GetDialogLocales()
         {
             const string LOAD_DIALOG_LANGUAGES = @"<DIALOG action=""listlanguages"" orderby=""2""/>";
-            string resultStr = ExecuteRQLRaw(LOAD_DIALOG_LANGUAGES, RQL.IODataFormat.LogonGuidOnly);
-            XmlDocument xmlDoc = ParseRQLResult(this, resultStr);
+            var resultStr = ExecuteRQLRaw(LOAD_DIALOG_LANGUAGES, RQL.IODataFormat.LogonGuidOnly);
+            var xmlDoc = ParseRQLResult(this, resultStr);
 
             return (from XmlElement curElement in xmlDoc.GetElementsByTagName("LIST")
-                    select (IDialogLocale) new DialogLocale(this, curElement)).ToList();
+                select (IDialogLocale) new DialogLocale(this, curElement)).ToList();
         }
 
         private XmlElement GetForceLoginXmlNode(PasswordAuthentication pa, Guid oldLoginGuid)
         {
             LOG.InfoFormat("User login will be forced. Old login guid was: {0}", oldLoginGuid.ToRQLString());
             //hide user password in log message
-            string rql = string.Format(RQL_IODATA, RQL_LOGIN_FORCE.RQLFormat(pa.Username, pa.Password, oldLoginGuid));
-            string debugRQLOutput = string.Format(RQL_IODATA,
-                                                  RQL_LOGIN_FORCE.RQLFormat(pa.Username, "*****", oldLoginGuid));
-            string result = SendRQLToServer(rql, debugRQLOutput);
+            var rql = string.Format(RQL_IODATA, RQL_LOGIN_FORCE.RQLFormat(pa.Username, pa.Password, oldLoginGuid));
+            var debugRQLOutput = string.Format(RQL_IODATA,
+                RQL_LOGIN_FORCE.RQLFormat(pa.Username, "*****", oldLoginGuid));
+            var result = SendRQLToServer(rql, debugRQLOutput);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(result);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
+            var xmlNodes = xmlDoc.GetElementsByTagName("LOGIN");
             return (XmlElement) (xmlNodes.Count > 0 ? xmlNodes[0] : null);
         }
 
         private List<ISystemLocale> GetLocales()
         {
             const string LOAD_LOCALES = @"<LANGUAGE action=""list""/>";
-            XmlDocument xmlDoc = ExecuteRQL(LOAD_LOCALES);
+            var xmlDoc = ExecuteRQL(LOAD_LOCALES);
             var languages = xmlDoc.GetElementsByTagName("LANGUAGES")[0] as XmlElement;
             if (languages == null)
             {
@@ -747,27 +784,28 @@ namespace erminas.SmartAPI.CMS
             }
 
             return
-                (from XmlElement item in languages.GetElementsByTagName("LIST")
-                 select (ISystemLocale) new SystemLocale(this, item)).ToList();
+            (from XmlElement item in languages.GetElementsByTagName("LIST")
+                select (ISystemLocale) new SystemLocale(this, item)).ToList();
         }
 
         private XmlDocument GetLoginResponse()
         {
-            PasswordAuthentication authData = ServerLogin.AuthData;
-            string rql = string.Format(RQL_IODATA,
-                                       string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username),
-                                                     HttpUtility.HtmlEncode(authData.Password)));
+            var authData = ServerLogin.AuthData;
+            var rql = string.Format(RQL_IODATA,
+                string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username),
+                    HttpUtility.HtmlEncode(authData.Password)));
 
             //hide password in log messages
-            string debugOutputRQL = string.Format(RQL_IODATA,
-                                                  string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username),
-                                                                "*****"));
+            var debugOutputRQL = string.Format(RQL_IODATA,
+                string.Format(RQL_LOGIN, HttpUtility.HtmlEncode(authData.Username),
+                    "*****"));
             var xmlDoc = new XmlDocument();
             try
             {
-                string result = SendRQLToServer(rql, debugOutputRQL);
+                var result = SendRQLToServer(rql, debugOutputRQL);
                 xmlDoc.LoadXml(result);
-            } catch (RQLException e)
+            }
+            catch (RQLException e)
             {
                 if (e.ErrorCode != ErrorCode.RDError101)
                 {
@@ -780,7 +818,7 @@ namespace erminas.SmartAPI.CMS
 
         private Version GetServerVersion(string baseURL)
         {
-            string versionURI = baseURL + "ioVersionInfo.asp";
+            var versionURI = baseURL + "ioVersionInfo.asp";
             try
             {
                 using (var client = new WebClient())
@@ -791,39 +829,42 @@ namespace erminas.SmartAPI.CMS
                         c.Add(new Uri(baseURL), "NTLM", ServerLogin.WindowsAuthentication);
                         client.Credentials = c;
                     }
-                    
+
                     client.Headers.Add("Referer", baseURL);
 
-                    string responseText = client.DownloadString(versionURI);
-                    Match match = VERSION_REGEXP.Match(responseText);
+                    var responseText = client.DownloadString(versionURI);
+                    var match = VERSION_REGEXP.Match(responseText);
                     if (match.Groups.Count != 4)
                     {
                         throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
-                                                            "Could not retrieve version info of RedDot server at " +
-                                                            baseURL + "\n" + responseText);
+                            "Could not retrieve version info of RedDot server at " +
+                            baseURL + "\n" + responseText);
                     }
 
                     return new Version(match.Groups[3].Value);
                 }
-            } catch (RedDotConnectionException)
+            }
+            catch (RedDotConnectionException)
             {
                 throw;
-            } catch (WebException e)
+            }
+            catch (WebException e)
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
-                                                    "Could not retrieve version info of RedDot server at " + baseURL +
-                                                    "\n" + e.Message, e);
-            } catch (Exception e)
+                    "Could not retrieve version info of RedDot server at " + baseURL +
+                    "\n" + e.Message, e);
+            }
+            catch (Exception e)
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.Unknown,
-                                                    "Could not retrieve version info of RedDot server at " + baseURL +
-                                                    "\n" + e.Message, e);
+                    "Could not retrieve version info of RedDot server at " + baseURL +
+                    "\n" + e.Message, e);
             }
         }
 
         private void InitConnection()
         {
-            string baseURL = ServerLogin.Address.ToString();
+            var baseURL = ServerLogin.Address.ToString();
             if (!baseURL.EndsWith("/"))
             {
                 baseURL += "/";
@@ -831,8 +872,8 @@ namespace erminas.SmartAPI.CMS
             ServerVersion = ServerLogin.ManualVersionOverride ?? GetServerVersion(baseURL);
             CmsServerConnectionUrl = baseURL +
                                      (ServerVersion.Major < 11
-                                          ? "webservice/RDCMSXMLServer.WSDL"
-                                          : "WebService/RQLWebService.svc");
+                                         ? "webservice/RDCMSXMLServer.WSDL"
+                                         : "WebService/RQLWebService.svc");
         }
 
         private static bool IsProjectUnavailbaleException(Exception e)
@@ -850,16 +891,17 @@ namespace erminas.SmartAPI.CMS
                 return;
             }
 
-            string projectStr = lastModule.GetAttributeValue("project");
+            var projectStr = lastModule.GetAttributeValue("project");
             if (!string.IsNullOrEmpty(projectStr))
             {
                 try
                 {
                     SelectProject(Guid.Parse(projectStr));
-                } catch (SmartAPIException e)
+                }
+                catch (SmartAPIException e)
                 {
                     if (IsProjectUnavailbaleException(e) ||
-                        (e.InnerException != null && IsProjectUnavailbaleException(e.InnerException)))
+                        ((e.InnerException != null) && IsProjectUnavailbaleException(e.InnerException)))
                     {
                         SelectedProjectGuid = Guid.Empty;
                     }
@@ -875,7 +917,7 @@ namespace erminas.SmartAPI.CMS
         {
             InitConnection();
 
-            XmlDocument xmlDoc = GetLoginResponse();
+            var xmlDoc = GetLoginResponse();
 
             CheckLoginResponse(xmlDoc, sessionReplacementSelector);
 
@@ -889,55 +931,59 @@ namespace erminas.SmartAPI.CMS
         }
 
         private void ParseLoginResponse(XmlNodeList xmlNodes, PasswordAuthentication authData, XmlDocument xmlDoc,
-                                        Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
-                                            sessionReplacementSelector)
+            Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
+                sessionReplacementSelector)
         {
             // check if already logged in
             var xmlNode = (XmlElement) xmlNodes[0];
-            string oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
+            var oldLoginGuid = CheckAlreadyLoggedIn(xmlNode);
             if (oldLoginGuid != "")
             {
                 RunningSessionInfo sessionToReplace;
-                if (sessionReplacementSelector == null ||
+                if ((sessionReplacementSelector == null) ||
                     !TryGetSessionInfo(xmlDoc, sessionReplacementSelector, out sessionToReplace))
                 {
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.AlreadyLoggedIn,
-                                                        "User is already logged in and no open session was selected to get replaced");
+                        "User is already logged in and no open session was selected to get replaced");
                 }
                 xmlNode = GetForceLoginXmlNode(authData, sessionToReplace.LoginGuid);
                 if (xmlNode == null)
                 {
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
-                                                        "Could not force login.");
+                        "Could not force login.");
                 }
             }
 
             // here xmlNode has a valid login guid
-            string loginGuid = xmlNode.GetAttributeValue("guid");
+            var loginGuid = xmlNode.GetAttributeValue("guid");
             if (string.IsNullOrEmpty(loginGuid))
             {
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
-                                                    "Could not login");
+                    "Could not login");
             }
             LogonGuid = Guid.Parse(loginGuid);
             SessionKey = LogonGuid.ToRQLString();
             LoadSelectedProject(xmlNode.OwnerDocument);
             var loginNode = (XmlElement) xmlNodes[0];
-            string userGuidStr = loginNode.GetAttributeValue("userguid");
+            var userGuidStr = loginNode.GetAttributeValue("userguid");
             if (string.IsNullOrEmpty(userGuidStr))
             {
-                XmlNodeList userNodes = xmlDoc.GetElementsByTagName("USER");
+                var userNodes = xmlDoc.GetElementsByTagName("USER");
                 if (userNodes.Count != 1)
                 {
                     throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.CouldNotLogin,
-                                                        "Could not login; Invalid user data");
+                        "Could not login; Invalid user data");
                 }
-                var xmlElement = ((XmlElement) userNodes[0]);
-                ((Users)ServerManager.Users).Current = new User(this, xmlElement.GetGuid()) { Name = xmlElement.GetAttributeValue("name") };
+                var xmlElement = (XmlElement) userNodes[0];
+                ((Users) ServerManager.Users).Current = new User(this, xmlElement.GetGuid())
+                {
+                    Name = xmlElement.GetAttributeValue("name")
+                };
             }
             else
             {
-                ((Users)ServerManager.Users).Current = new User(this, Guid.Parse(loginNode.GetAttributeValue("userguid")));
+                ((Users) ServerManager.Users).Current = new User(this,
+                    Guid.Parse(loginNode.GetAttributeValue("userguid")));
             }
         }
 
@@ -970,8 +1016,9 @@ namespace erminas.SmartAPI.CMS
                 var isUsingHttps = ServerLogin.Address.Scheme.ToLowerInvariant() == "https";
                 if (isUsingHttps)
                 {
+                    LOG.Warn("setting mode to transport");
                     binding.Security.Mode = BasicHttpSecurityMode.Transport;
-                } 
+                }
                 binding.ReaderQuotas.MaxStringContentLength = 2097152*10; //20MB
                 binding.ReaderQuotas.MaxArrayLength = 2097152*10; //20mb
                 binding.MaxReceivedMessageSize = 2097152*10; //20mb
@@ -980,8 +1027,11 @@ namespace erminas.SmartAPI.CMS
 
                 if (ServerLogin.WindowsAuthentication != null)
                 {
+                    LOG.Warn("setting mode to win auth");
                     binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
-                    binding.Security.Mode = isUsingHttps ? BasicHttpSecurityMode.TransportWithMessageCredential : BasicHttpSecurityMode.TransportCredentialOnly;
+                    binding.Security.Mode = isUsingHttps
+                        ? BasicHttpSecurityMode.TransportWithMessageCredential
+                        : BasicHttpSecurityMode.TransportCredentialOnly;
                 }
 
                 var add = new EndpointAddress(CmsServerConnectionUrl);
@@ -1000,12 +1050,12 @@ namespace erminas.SmartAPI.CMS
                     //var res = channel.Execute(new ExecuteRequest(rqlQuery, error, resultInfo));
                     //var result = res.Result;
 
-                    string result = client.Execute(rqlQuery, ref error, ref resultInfo);
-                    string errorStr = (error ?? "").ToString();
+                    var result = client.Execute(rqlQuery, ref error, ref resultInfo);
+                    var errorStr = (error ?? "").ToString();
                     if (!string.IsNullOrEmpty(errorStr))
                     {
                         var exception = new RQLException(ServerLogin.Name, errorStr, result);
-                        if (exception.ErrorCode == ErrorCode.NoRight || exception.ErrorCode == ErrorCode.RDError110)
+                        if ((exception.ErrorCode == ErrorCode.NoRight) || (exception.ErrorCode == ErrorCode.RDError110))
                         {
                             throw new MissingPrivilegesException(exception);
                         }
@@ -1013,25 +1063,27 @@ namespace erminas.SmartAPI.CMS
                     }
                     LOG.DebugFormat("Received RQL [{0}]: {1}", ServerLogin.Name, result);
                     return result;
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
-                    string msg = ExtractMessagesWithInnerExceptions(e);
+                    var msg = ExtractMessagesWithInnerExceptions(e);
                     LOG.Error(msg);
                     LOG.Debug(e.StackTrace);
                     throw;
                 }
-            } catch (EndpointNotFoundException e)
+            }
+            catch (EndpointNotFoundException e)
             {
                 LOG.ErrorFormat("Server not found: {0}", CmsServerConnectionUrl);
                 throw new RedDotConnectionException(RedDotConnectionException.FailureTypes.ServerNotFound,
-                                                    string.Format(@"Server ""{0}"" not found", CmsServerConnectionUrl),
-                                                    e);
+                    string.Format(@"Server ""{0}"" not found", CmsServerConnectionUrl),
+                    e);
             }
         }
 
         private static bool TryGetSessionInfo(XmlDocument xmlDoc,
-                                              Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
-                                                  sessionReplacementSelector, out RunningSessionInfo sessionToReplace)
+            Func<IEnumerable<RunningSessionInfo>, RunningSessionInfo>
+                sessionReplacementSelector, out RunningSessionInfo sessionToReplace)
         {
             if (sessionReplacementSelector == null)
             {
@@ -1040,8 +1092,9 @@ namespace erminas.SmartAPI.CMS
             }
             Guid loginGuid;
             sessionToReplace =
-                sessionReplacementSelector(from XmlElement curLogin in xmlDoc.GetElementsByTagName("LOGIN") where curLogin.TryGetGuid(out loginGuid)
-                                           select new RunningSessionInfo(curLogin));
+                sessionReplacementSelector(from XmlElement curLogin in xmlDoc.GetElementsByTagName("LOGIN")
+                    where curLogin.TryGetGuid(out loginGuid)
+                    select new RunningSessionInfo(curLogin));
 
             return sessionToReplace != null;
         }
@@ -1065,23 +1118,23 @@ namespace erminas.SmartAPI.CMS
         {
             var stack = new StackTrace();
             // ReSharper disable PossibleNullReferenceException
-            StackFrame stackFrame = stack.GetFrames()[1];
+            var stackFrame = stack.GetFrames()[1];
             // ReSharper restore PossibleNullReferenceException
-            MethodBase methodBase = stackFrame.GetMethod();
+            var methodBase = stackFrame.GetMethod();
             MemberInfo info = methodBase;
             if (methodBase.IsSpecialName && (methodBase.Name.StartsWith("get_") || methodBase.Name.StartsWith("set_")))
             {
                 // ReSharper disable PossibleNullReferenceException
                 info = methodBase.DeclaringType.GetProperty(methodBase.Name.Substring(4),
-                                                            //the .Substring strips get_/set_ prefixes that get generated for properties
-                                                            // ReSharper restore PossibleNullReferenceException
-                                                            BindingFlags.DeclaredOnly | BindingFlags.Public |
-                                                            BindingFlags.Instance | BindingFlags.NonPublic);
+                    //the .Substring strips get_/set_ prefixes that get generated for properties
+                    // ReSharper restore PossibleNullReferenceException
+                    BindingFlags.DeclaredOnly | BindingFlags.Public |
+                    BindingFlags.Instance | BindingFlags.NonPublic);
             }
 
-            object[] lessThanAttributes = info.GetCustomAttributes(typeof (VersionIsLessThan), false);
-            object[] greaterOrEqualAttributes = info.GetCustomAttributes(typeof (VersionIsGreaterThanOrEqual), false);
-            if (lessThanAttributes.Count() != 1 && greaterOrEqualAttributes.Count() != 1)
+            var lessThanAttributes = info.GetCustomAttributes(typeof(VersionIsLessThan), false);
+            var greaterOrEqualAttributes = info.GetCustomAttributes(typeof(VersionIsGreaterThanOrEqual), false);
+            if ((lessThanAttributes.Count() != 1) && (greaterOrEqualAttributes.Count() != 1))
             {
                 throw new SmartAPIInternalException(string.Format("Missing version constraint attributes on {0}", info));
             }
@@ -1089,15 +1142,15 @@ namespace erminas.SmartAPI.CMS
             if (lessThanAttributes.Any())
             {
                 lessThanAttributes.Cast<VersionIsLessThan>()
-                                  .First()
-                                  .Validate(session.ServerLogin, session.ServerVersion, info.Name);
+                    .First()
+                    .Validate(session.ServerLogin, session.ServerVersion, info.Name);
             }
 
             if (greaterOrEqualAttributes.Any())
             {
                 greaterOrEqualAttributes.Cast<VersionIsGreaterThanOrEqual>()
-                                        .First()
-                                        .Validate(session.ServerLogin, session.ServerVersion, info.Name);
+                    .First()
+                    .Validate(session.ServerLogin, session.ServerVersion, info.Name);
             }
         }
     }
