@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel;
 using System.Xml;
 using erminas.SmartAPI.CMS.Converter;
 using erminas.SmartAPI.Exceptions;
@@ -22,26 +23,39 @@ namespace erminas.SmartAPI.CMS.Project
 {
     public interface ILanguageVariant : IRedDotObject, IProjectObject, IDeletable
     {
-        string Abbreviation { get; }
+        new string Name { get; set; }
+        string Abbreviation { get; set; }
+
+        string RFCLanguageId { get; set; }
         bool IsCurrentLanguageVariant { get; }
-        bool IsMainLanguage { get; }
+        bool IsMainLanguage { get; set; }
         void Select();
+
+        void Commit();
     }
 
     internal class LanguageVariant : RedDotProjectObject, ILanguageVariant
     {
-        private string _abbreviation;
         private bool _isCurrentLanguageVariant;
-        private bool _isMainLanguage;
 
         internal LanguageVariant(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
             LoadXml();
         }
 
+        [RedDot("name")]
+        public string Name
+        {
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value); }
+        }
+
+        [RedDot("language")]
         public string Abbreviation
         {
-            get { return _abbreviation; }
+
+            get { return GetAttributeValue<string>(); }
+            set { SetAttributeValue(value);}
         }
 
         public bool IsCurrentLanguageVariant
@@ -49,11 +63,16 @@ namespace erminas.SmartAPI.CMS.Project
             get { return _isCurrentLanguageVariant; }
             internal set { _isCurrentLanguageVariant = value; }
         }
-
+        
+        [RedDot("ismainlanguage")]
         public bool IsMainLanguage
         {
-            get { return _isMainLanguage; }
+            get { return GetAttributeValue<bool>(); }
+            set { SetAttributeValue(value);}
         }
+
+        [RedDot("rfclanguageid")]
+        public string RFCLanguageId{ get { return GetAttributeValue<string>(); } set{SetAttributeValue(value);} }
 
         [RedDot("textdirection", ConverterType = typeof(StringEnumConverter<TextDirection>))]
         public TextDirection TextDirection { get { return GetAttributeValue<TextDirection>(); } }
@@ -66,17 +85,30 @@ namespace erminas.SmartAPI.CMS.Project
         private void LoadXml()
         {
             InitIfPresent(ref _isCurrentLanguageVariant, "checked", BoolConvert);
-            InitIfPresent(ref _abbreviation, "language", x => x);
-            InitIfPresent(ref _isMainLanguage, "ismainlanguage", BoolConvert);
         }
 
         public void Delete()
         {
             const string DELETE_LANGUAGE_VARIANT = @"<LANGUAGEVARIANTS action=""delete""><LANGUAGEVARIANT guid=""{0}"" /></LANGUAGEVARIANTS>";
-            var xmlDoc = Project.ExecuteRQL(DELETE_LANGUAGE_VARIANT.RQLFormat(this));
+            var xmlDoc = Project.ExecuteRQL(DELETE_LANGUAGE_VARIANT.RQLFormat(Guid.ToRQLString()), RqlType.SessionKeyInProject);
             if (!xmlDoc.IsContainingOk())
             {
                 throw new SmartAPIException(Session.ServerLogin, string.Format("Could not delete language variant {0}", this));
+            }
+        }
+
+        public void Commit()
+        {
+            var saveString = GetSaveString(XmlReadWriteWrapper.MergedElement);
+            //TODO is das mit default beim schreiben nur bei neueren versionen  so?
+            saveString = saveString.Replace("ismainlanguage", "defaultlanguagevariant");
+            var xmlDoc = Project.ExecuteRQL(saveString, RqlType.SessionKeyInProject);
+
+            Project.LanguageVariants.InvalidateCache();
+
+            if (xmlDoc.GetElementsByTagName("LANGUAGEVARIANT").Count != 1)
+            {
+                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not change language variant {0}", this));
             }
         }
     }

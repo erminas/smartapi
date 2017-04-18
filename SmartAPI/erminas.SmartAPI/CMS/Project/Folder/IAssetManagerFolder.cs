@@ -13,7 +13,9 @@
 // You should have received a copy of the GNU General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project.Authorizations;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
 using erminas.SmartAPI.Utils.CachedCollections;
@@ -22,34 +24,22 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 {
     internal class AssetManagerFolder : BaseFolder, IAssetManagerFolder
     {
-        private readonly IAssetManagerFolder _parentFolder;
         private string _path;
 
         public AssetManagerFolder(IProject project, XmlElement xmlElement) : base(project, xmlElement)
         {
-            _parentFolder = null;
+            ParentFolder = null;
             SubFolders = new SubFolders(this, Caching.Enabled);
             Files = new AssetManagerFiles(this, Caching.Enabled);
             LoadXml();
         }
 
-        private void LoadXml()
-        {
-            InitIfPresent(ref _path, "path",x=>x);
-        }
-
         public AssetManagerFolder(IAssetManagerFolder parentFolder, XmlElement xmlElement)
             : base(parentFolder.Project, xmlElement)
         {
-            _parentFolder = parentFolder;
+            ParentFolder = parentFolder;
             SubFolders = new EmptySubFolders(this);
             Files = new AssetManagerFiles(this, Caching.Enabled);
-            LoadXml();
-        }
-
-        protected override void LoadWholeObject()
-        {
-            base.LoadWholeObject();
             LoadXml();
         }
 
@@ -58,7 +48,7 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             if (ParentFolder != null)
             {
                 throw new SmartAPIException(Session.ServerLogin,
-                                            string.Format("Can not create subfolder in another subfolder ({0}).", this));
+                    string.Format("Can not create subfolder in another subfolder ({0}).", this));
             }
 
             const string CREATE_SUBFOLDER =
@@ -90,38 +80,66 @@ namespace erminas.SmartAPI.CMS.Project.Folder
 
         public bool IsSubFolder
         {
-            get { return _parentFolder != null; }
+            get { return ParentFolder != null; }
         }
 
-        public IAssetManagerFolder ParentFolder
-        {
-            get { return _parentFolder; }
-        }
+        public IAssetManagerFolder ParentFolder { get; }
 
         public AssetManagerFolderStorageType StorageType
         {
-            get { return (AssetManagerFolderStorageType) XmlElement.GetIntAttributeValue("savetype").GetValueOrDefault(); }
+            get
+            {
+                return (AssetManagerFolderStorageType) XmlElement.GetIntAttributeValue("savetype").GetValueOrDefault();
+            }
         }
 
-        public ISubFolders SubFolders { get; private set; }
+        public ISubFolders SubFolders { get; }
 
-        public string FilesystemPath { get { return _path; } }
+        public string FilesystemPath
+        {
+            get { return _path; }
+        }
 
         public override FolderType Type
         {
             get { return FolderType.AssetManager; }
+        }
+
+        private void LoadXml()
+        {
+            InitIfPresent(ref _path, "path", x => x);
+        }
+
+        protected override void LoadWholeObject()
+        {
+            base.LoadWholeObject();
+            LoadXml();
+        }
+
+        public void SetFolderAuthorizationPackage(IAuthorizationPackage authorizationPackage)
+        {
+            if (authorizationPackage == null)
+            {
+                throw new NotImplementedException(
+                    "Removing folder authorization packages is not supported at the moment");
+            }
+
+            const string ASSIGN_AUTH_PACKAGE =
+                @"<AUTHORIZATION><FOLDER guid=""{0}""><AUTHORIZATIONPACKET action=""assign"" guid=""{1}"" /></FOLDER></AUTHORIZATION>";
+
+            Project.ExecuteRQL(ASSIGN_AUTH_PACKAGE.RQLFormat(this, authorizationPackage));
         }
     }
 
     public enum AssetManagerFolderStorageType
     {
         Database = 0,
-        FileSystem = 2
+        FileSystem = 2,
+        Asset = 6
     }
 
     public interface IAssetManagerFolder : IFolder
     {
-        void CreateSubfolder(string name, string description, string filesystemDirectoryName);
         new IAssetManagerFiles Files { get; }
         bool IsDatabaseFolder { get; }
         bool IsFileSystemFolder { get; }
@@ -130,6 +148,9 @@ namespace erminas.SmartAPI.CMS.Project.Folder
         AssetManagerFolderStorageType StorageType { get; }
         ISubFolders SubFolders { get; }
 
+        void SetFolderAuthorizationPackage(IAuthorizationPackage authorizationPackage);
+
         string FilesystemPath { get; }
+        void CreateSubfolder(string name, string description, string filesystemDirectoryName);
     }
 }

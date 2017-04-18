@@ -68,8 +68,9 @@ namespace erminas.SmartAPI.CMS.Project.Folder
             switch (folderType.Value)
             {
                 case 0:
-                    var isAssetManagerFolder = element.GetBoolAttributeValue("catalog").GetValueOrDefault();
-                    if (!isAssetManagerFolder)
+                    //TODO create enum for catalog, 0 = file, 1 = assetmanager, 2 = asset?
+                    var catalog = element.GetIntAttributeValue("catalog").GetValueOrDefault();
+                    if (catalog == 0)
                     {
                         return new FileFolder(project, element);
                     }

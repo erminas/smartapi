@@ -12,6 +12,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
         void Add(IProjectVariant projectVariant, ILanguageVariant languageVariant);
 
+        void Add(IProjectVariant projectVariant, ILanguageVariant languageVariant, IPublicationSetting copySettingFrom);
+
         void Remove(IProjectVariant projectVariant, ILanguageVariant languageVariant);
     }
 
@@ -41,6 +43,17 @@ namespace erminas.SmartAPI.CMS.Project.Publication
                 @"<PROJECT><EXPORTSETTING action=""save"" guid=""{0}"" projectvariantguid=""{1}"" languagevariantguid=""{2}"" copyguid="""" /></PROJECT>";
 
             var doc = Project.ExecuteRQL(ADD.RQLFormat(PublicationPackage, projectVariant, languageVariant.Guid.ToRQLString()));
+            //TODO check answer?
+
+            InvalidateCache();
+        }
+
+        public void Add(IProjectVariant projectVariant, ILanguageVariant languageVariant, IPublicationSetting copySettingFrom)
+        {
+            const string ADD =
+                @"<PROJECT><EXPORTSETTING action=""save"" guid=""{0}"" projectvariantguid=""{1}"" languagevariantguid=""{2}"" copyguid=""{3}{4}"" /></PROJECT>";
+
+            var doc = Project.ExecuteRQL(ADD.RQLFormat(PublicationPackage, projectVariant, languageVariant.Guid.ToRQLString(), copySettingFrom.ProjectVariant, copySettingFrom.LanguageVariant.Guid.ToRQLString()));
             //TODO check answer?
 
             InvalidateCache();

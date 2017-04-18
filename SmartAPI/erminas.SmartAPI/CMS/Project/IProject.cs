@@ -19,9 +19,9 @@ using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Xml;
+using erminas.SmartAPI.CMS.Project.Authorizations;
 using erminas.SmartAPI.CMS.Project.ContentClasses;
 using erminas.SmartAPI.CMS.Project.ContentClasses.Elements;
-using erminas.SmartAPI.CMS.Project.Folder;
 using erminas.SmartAPI.CMS.Project.Keywords;
 using erminas.SmartAPI.CMS.Project.Pages;
 using erminas.SmartAPI.CMS.Project.Publication;
@@ -32,117 +32,6 @@ using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.Project
 {
-    public enum ProjectLockLevel
-    {
-        None = 0,
-        All = -1,
-        Admin = 1,
-        SiteBuilder = 2,
-        Editor = 3,
-        Author = 4,
-        Visitor = 5,
-        Publisher = 16,
-        AdminAndPublisher = 17
-    };
-
-    public interface IContentClassFolders : IIndexedRDList<string, IContentClassFolder>, IProjectObject
-    {
-        IIndexedRDList<string, IContentClassFolder> Broken { get; }
-    }
-
-    internal class ContentClassFolders : NameIndexedRDList<IContentClassFolder>, IContentClassFolders
-    {
-        private readonly Project _project;
-
-        internal ContentClassFolders(Project project, Caching caching) : base(caching)
-        {
-            _project = project;
-            RetrieveFunc = GetContentClassFolders;
-            Broken = new NameIndexedRDList<IContentClassFolder>(GetBrokenFolders, Caching.Enabled);
-        }
-
-        public IIndexedRDList<string, IContentClassFolder> Broken { get; private set; }
-
-        public IProject Project
-        {
-            get { return _project; }
-        }
-
-        public ISession Session
-        {
-            get { return _project.Session; }
-        }
-
-        private List<IContentClassFolder> GetBrokenFolders()
-        {
-            const string TREE =
-                @"<TREESEGMENT type=""project.4000"" action=""load"" guid=""4AF89E44535511D4BDAB004005312B7C"" descent=""app"" parentguid=""""/>";
-            var result = Project.ExecuteRQL(TREE);
-            var guids = this.Select(folder => folder.Guid)
-                .ToList();
-            return (from XmlElement element in result.GetElementsByTagName("SEGMENT")
-                    let curGuid = element.GetGuid()
-                    where !guids.Contains(curGuid)
-                    select (IContentClassFolder) new ContentClassFolder(_project, curGuid)
-                                                 {
-                                                     Name = element.GetAttributeValue("value"),
-                                                     IsBroken = true
-                                                 }).ToList();
-        }
-
-        private List<IContentClassFolder> GetContentClassFolders()
-        {
-            const string LIST_CC_FOLDERS_OF_PROJECT = @"<TEMPLATEGROUPS action=""load"" />";
-            //TODO project.execute
-            XmlDocument xmlDoc = Session.ExecuteRQLInProjectContext(LIST_CC_FOLDERS_OF_PROJECT, _project.Guid);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("GROUP");
-
-            return (from XmlElement curNode in xmlNodes select (IContentClassFolder) new ContentClassFolder(_project, curNode)).ToList();
-        }
-    }
-
-    public interface IPublicationFolders : IRDList<IPublicationFolder>
-    {
-        [Obsolete("Only for testing purposes, API part of parent folder will change before real release")]
-        IPublicationFolder Create(string name, PublicationFolderType type, Guid parentFolderGuid);
-    }
-
-    internal class PublicationFolders :  RDList<IPublicationFolder>, IPublicationFolders
-    {
-        private readonly IProject _project;
-
-        public PublicationFolders(IProject project) : base(Caching.Enabled)
-        {
-            _project = project;
-            RetrieveFunc = GetPublicationFolders;
-        }
-
-        public IPublicationFolder Create(string name, PublicationFolderType type, Guid parentFolderGuid)
-        {
-            var folder = new PublicationFolder(name, type);
-            var resultFolder = folder.CreateInProject(_project, parentFolderGuid);
-            InvalidateCache();
-
-            return resultFolder;
-        }
-
-        private List<IPublicationFolder> GetPublicationFolders()
-        {
-            const string LIST_PUBLICATION_FOLDERS = @"<PROJECT><EXPORTFOLDERS action=""list"" /></PROJECT>";
-
-            XmlDocument xmlDoc = _project.ExecuteRQL(LIST_PUBLICATION_FOLDERS);
-            if (xmlDoc.GetElementsByTagName("EXPORTFOLDERS")
-                    .Count != 1)
-            {
-                throw new SmartAPIException(
-                    _project.Session.ServerLogin,
-                    string.Format("Could not retrieve publication folders of project {0}", this));
-            }
-            return (from XmlElement curFolder in xmlDoc.GetElementsByTagName("EXPORTFOLDER")
-                    select (IPublicationFolder)new PublicationFolder(_project, curFolder.GetGuid())).ToList();
-        }
-    }
-
     public interface IProject : IPartialRedDotObject, ISessionObject
     {
         //IClipboard Clipboard { get; }
@@ -177,8 +66,8 @@ namespace erminas.SmartAPI.CMS.Project
         IIndexedCachedList<int, IInfoAttribute> InfoAttributes { get; }
 
         /// <summary>
-        /// Get users currently logged into this project
-        /// Requires you to have ServerManager rights.
+        ///     Get users currently logged into this project
+        ///     Requires you to have ServerManager rights.
         /// </summary>
         IIndexedRDList<string, IUser> OnlineUsers { get; }
 
@@ -239,6 +128,8 @@ namespace erminas.SmartAPI.CMS.Project
 
         IProjectWorkflows Workflows { get; }
 
+        IAuthorizationPackages AuthorizationPackages { get; }
+
         IProjectCopyJob CreateCopyJob(string newProjectName);
 
         IProjectExportJob CreateExportJob(string targetPath);
@@ -281,8 +172,8 @@ namespace erminas.SmartAPI.CMS.Project
 
         /// <see cref="CMS.Session.SetTextContent" />
         [Obsolete(
-            "This was not meant as public API and will be removed in the next major release. Do NOT use it, it probably won't do what you think it does!"
-            )]
+             "This was not meant as public API and will be removed in the next major release. Do NOT use it, it probably won't do what you think it does!"
+         )]
         Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString, string content);
     }
 
@@ -300,25 +191,23 @@ namespace erminas.SmartAPI.CMS.Project
     /// </summary>
     internal class Project : PartialRedDotObject, IProject
     {
-        private readonly IContentClasses _contentClasses;
-        private readonly IPages _pages;
+        private IProjectClipboard _clipboard;
         private bool _isLockedBySystem;
         private ProjectLockLevel _locklevel;
         private IPage _startPage;
-        private IProjectClipboard _clipboard;
 
         internal Project(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
-            _contentClasses = new ContentClasses.ContentClasses(this);
-            _pages = new Pages.Pages(this);
+            ContentClasses = new ContentClasses.ContentClasses(this);
+            Pages = new Pages.Pages(this);
             LoadXml();
             Init();
         }
 
         internal Project(ISession session, Guid guid) : base(session, guid)
         {
-            _contentClasses = new ContentClasses.ContentClasses(this);
-            _pages = new Pages.Pages(this);
+            ContentClasses = new ContentClasses.ContentClasses(this);
+            Pages = new Pages.Pages(this);
             Init();
         }
 
@@ -348,10 +237,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// </summary>
         public IContentClassFolders ContentClassFolders { get; private set; }
 
-        public IContentClasses ContentClasses
-        {
-            get { return _contentClasses; }
-        }
+        public IContentClasses ContentClasses { get; }
 
         public IProjectCopyJob CreateCopyJob(string newProjectName)
         {
@@ -397,6 +283,8 @@ namespace erminas.SmartAPI.CMS.Project
                     throw new ArgumentException(string.Format("Unknown query type: {0}", type));
             }
         }
+
+        public IAuthorizationPackages AuthorizationPackages { get; private set; }
 
         public void ClearPageCache()
         {
@@ -447,7 +335,8 @@ namespace erminas.SmartAPI.CMS.Project
 
             set
             {
-                const string SET_VERISONING = @"<ADMINISTRATION><PROJECT action=""save"" guid=""{2}"" versioning=""{3}""/></ADMINISTRATION>";
+                const string SET_VERISONING =
+                    @"<ADMINISTRATION><PROJECT action=""save"" guid=""{2}"" versioning=""{3}""/></ADMINISTRATION>";
                 Session.ExecuteRQL(SET_VERISONING.RQLFormat(Session.LogonGuid, Session.CurrentUser, this, value));
             }
         }
@@ -470,10 +359,7 @@ namespace erminas.SmartAPI.CMS.Project
             get { return LazyLoad(ref _locklevel); }
         }
 
-        public IPages Pages
-        {
-            get { return _pages; }
-        }
+        public IPages Pages { get; }
 
         /// <summary>
         ///     All project variants, indexed by name. The list is cached by default.
@@ -522,7 +408,7 @@ namespace erminas.SmartAPI.CMS.Project
         /// </param>
         public void SetLockLevel(ProjectLockLevel level, string infoMessage)
         {
-            if (level != ProjectLockLevel.None && string.IsNullOrEmpty(infoMessage))
+            if ((level != ProjectLockLevel.None) && string.IsNullOrEmpty(infoMessage))
             {
                 throw new SmartAPIException(Session.ServerLogin, "Info message for project locking must not be empty");
             }
@@ -531,22 +417,24 @@ namespace erminas.SmartAPI.CMS.Project
 
             var xmlDoc =
                 Session.ExecuteRQL(
-                                   SET_LOCKLEVEL.RQLFormat(
-                                                           this,
-                                                           (int) level,
-                                                           level == ProjectLockLevel.None
-                                                               ? RQL.SESSIONKEY_PLACEHOLDER
-                                                               : SecurityElement.Escape(infoMessage)));
+                    SET_LOCKLEVEL.RQLFormat(
+                        this,
+                        (int) level,
+                        level == ProjectLockLevel.None
+                            ? RQL.SESSIONKEY_PLACEHOLDER
+                            : SecurityElement.Escape(infoMessage)));
             var project = (XmlElement) xmlDoc.SelectSingleNode("//PROJECT");
             if (!project.GetAttributeValue("inhibitlevel")
-                     .Equals(((int) level).ToString(CultureInfo.InvariantCulture)))
+                .Equals(((int) level).ToString(CultureInfo.InvariantCulture)))
             {
-                throw new SmartAPIException(Session.ServerLogin, string.Format("Could not set project lock level to {0}", level));
+                throw new SmartAPIException(Session.ServerLogin,
+                    string.Format("Could not set project lock level to {0}", level));
             }
         }
 
         /// <see cref="CMS.Session.SetTextContent" />
-        public Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString, string content)
+        public Guid SetTextContent(Guid textElementGuid, ILanguageVariant languageVariant, string typeString,
+            string content)
         {
             return Session.SetTextContent(Guid, languageVariant, textElementGuid, typeString, content);
         }
@@ -580,68 +468,70 @@ namespace erminas.SmartAPI.CMS.Project
         private List<IInfoAttribute> GetInfoAttributes()
         {
             const string LOAD_INFO_ELEMENTS = @"<TEMPLATE><INFOELEMENTS action=""list""></INFOELEMENTS></TEMPLATE>";
-            XmlDocument xmlDoc = ExecuteRQL(LOAD_INFO_ELEMENTS);
+            var xmlDoc = ExecuteRQL(LOAD_INFO_ELEMENTS);
             var infos = xmlDoc.GetElementsByTagName("INFOELEMENTS")[0] as XmlElement;
             if (infos == null)
             {
                 throw new SmartAPIException(Session.ServerLogin, "Could not load info elements");
             }
             return
-                (from XmlElement info in infos.GetElementsByTagName("PAGEINFO") select (IInfoAttribute) new InfoAttribute(info)).Union(
-                                                                                                                                       (from
-                                                                                                                                            XmlElement
-                                                                                                                                            info
-                                                                                                                                            in
-                                                                                                                                            infos
-                                                                                                                                            .GetElementsByTagName
-                                                                                                                                            (
-                                                                                                                                             "PROJECTINFO")
-                                                                                                                                        select
-                                                                                                                                            (
-                                                                                                                                            IInfoAttribute
-                                                                                                                                            )
-                                                                                                                                            new InfoAttribute
-                                                                                                                                                (
-                                                                                                                                                info)))
+                (from XmlElement info in infos.GetElementsByTagName("PAGEINFO")
+                        select (IInfoAttribute) new InfoAttribute(info)).Union(
+                        from
+                        XmlElement
+                        info
+                        in
+                        infos
+                            .GetElementsByTagName
+                            (
+                                "PROJECTINFO")
+                        select
+                        (
+                        IInfoAttribute
+                        )
+                        new InfoAttribute
+                        (
+                            info))
                     .Union(
-                           (from XmlElement info in infos.GetElementsByTagName("SESSIONOBJECT")
-                            select (IInfoAttribute) new InfoAttribute(info)))
+                        from XmlElement info in infos.GetElementsByTagName("SESSIONOBJECT")
+                        select (IInfoAttribute) new InfoAttribute(info))
                     .ToList();
         }
 
         private List<IKeyword> GetKeywords()
         {
             const string LIST_KEYWORDS = "<PROJECT><CATEGORY><KEYWORDS action=\"list\" /></CATEGORY></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_KEYWORDS);
-            XmlNodeList xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
-            IEnumerable<Keyword> categoryKeywords = from curCategory in Categories
-                                                    select new Keyword(this, curCategory.Guid)
-                                                           {
-                                                               Name = "[category]",
-                                                               Category = curCategory
-                                                           };
-            return (from XmlElement curNode in xmlNodes select (IKeyword) new Keyword(this, curNode)).Union(categoryKeywords)
-                .ToList();
+            var xmlDoc = ExecuteRQL(LIST_KEYWORDS);
+            var xmlNodes = xmlDoc.GetElementsByTagName("KEYWORD");
+            var categoryKeywords = from curCategory in Categories
+                select new Keyword(this, curCategory.Guid)
+                {
+                    Name = "[category]",
+                    Category = curCategory
+                };
+            return
+                (from XmlElement curNode in xmlNodes select (IKeyword) new Keyword(this, curNode)).Union(
+                        categoryKeywords)
+                    .ToList();
         }
 
-        
 
         private List<IPublicationPackage> GetPublicationPackages()
         {
             const string LIST_PUBLICATION_PACKAGES = @"<PROJECT><EXPORTPACKET action=""list""/></PROJECT>";
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLICATION_PACKAGES);
+            var xmlDoc = ExecuteRQL(LIST_PUBLICATION_PACKAGES);
             return (from XmlElement curPackage in xmlDoc.GetElementsByTagName("EXPORTPACKET")
-                    select (IPublicationPackage) new PublicationPackage(this, curPackage.GetGuid())).ToList();
+                select (IPublicationPackage) new PublicationPackage(this, curPackage.GetGuid())).ToList();
         }
 
         private List<IPublicationTarget> GetPublicationTargets()
         {
             const string LIST_PUBLISHING_TARGETS = @"<PROJECT><EXPORTS action=""list""/></PROJECT>";
 
-            XmlDocument xmlDoc = ExecuteRQL(LIST_PUBLISHING_TARGETS);
+            var xmlDoc = ExecuteRQL(LIST_PUBLISHING_TARGETS);
             return
-                (from XmlElement curElement in xmlDoc.GetElementsByTagName("EXPORT")
-                 select (IPublicationTarget) new PublicationTarget(this, curElement)).ToList();
+            (from XmlElement curElement in xmlDoc.GetElementsByTagName("EXPORT")
+                select (IPublicationTarget) new PublicationTarget(this, curElement.GetGuid())).ToList();
         }
 
         private void Init()
@@ -670,12 +560,13 @@ namespace erminas.SmartAPI.CMS.Project
 
             _clipboard = new ProjectClipboard(this);
 
-            //AuthorizationPackages = new AuthorizationPackages(this);
+            AuthorizationPackages = new AuthorizationPackages(this);
         }
 
         private List<IUser> GetOnlineUsers()
         {
-            const string LIST_ONLINE_USERS = @"<ADMINISTRATION><USERS action=""connectlist"" projectguid=""{0}""/></ADMINISTRATION>";
+            const string LIST_ONLINE_USERS =
+                @"<ADMINISTRATION><USERS action=""connectlist"" projectguid=""{0}""/></ADMINISTRATION>";
             var doc = ExecuteRQL(LIST_ONLINE_USERS.RQLFormat(this));
 
             var userElements = doc.GetElementsByTagName("USER").Cast<XmlElement>();
@@ -683,7 +574,7 @@ namespace erminas.SmartAPI.CMS.Project
             //therefor we only init with guid and load the user on demand later.
             //TODO a better solution would be to have a partial initialized user object,
             //which doesn't need to be loaded again, if the available properties are accessed
-            return userElements.Select(x=>new User(Session, x.GetGuid())).Cast<IUser>().ToList();
+            return userElements.Select(x => new User(Session, x.GetGuid())).Cast<IUser>().ToList();
         }
 
         private void LoadXml()
@@ -707,7 +598,7 @@ namespace erminas.SmartAPI.CMS.Project
         ///     Insert the session key as attribute in the iodata element
         /// </summary>
         SessionKeyInIodata
-    };
+    }
 
     public enum NewProjectType
     {

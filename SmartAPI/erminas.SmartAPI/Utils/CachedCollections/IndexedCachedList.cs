@@ -24,6 +24,9 @@ namespace erminas.SmartAPI.Utils.CachedCollections
     /// </summary>
     public class IndexedCachedList<TK, T> : CachedList<T>, IIndexedCachedList<TK, T> where T : class
     {
+        //TODO temporary hack to stay API compatible while still allowing multiple locales with the same LCID
+        private readonly bool _allowDuplicates;
+
         private readonly Func<T, TK> _indexFunc;
         private Dictionary<TK, T> _index = new Dictionary<TK, T>();
 
@@ -37,6 +40,13 @@ namespace erminas.SmartAPI.Utils.CachedCollections
             _indexFunc = indexFunc;
         }
 
+        //TODO temporary hack to stay API compatible while still allowing multiple locales with the same LCID
+        internal IndexedCachedList(Func<List<T>> retrieveFunc, Func<T, TK> indexFunc, Caching caching,
+            bool allowDuplicates) : this(retrieveFunc, indexFunc, caching)
+        {
+            _allowDuplicates = allowDuplicates;
+        }
+
         protected override List<T> List
         {
             set
@@ -47,13 +57,26 @@ namespace erminas.SmartAPI.Utils.CachedCollections
                     _index.Clear();
                     if (value != null)
                     {
-                        //TODO hier auf duplikate pruefen bei fehler und bessere exception ausgeben
                         try
                         {
                             _index = value.ToDictionary(_indexFunc);
                         }
                         catch (ArgumentException e)
                         {
+                            if (_allowDuplicates)
+                            {
+                                //TODO temporary hack to stay API compatible while still allowing multiple locales with the same LCID
+                                _index = new Dictionary<TK, T>();
+                                foreach (var curEntry in value)
+                                {
+                                    var curKey = _indexFunc(curEntry);
+                                    if (!_index.ContainsKey(curKey))
+                                    {
+                                        _index[curKey] = curEntry;
+                                    }
+                                }
+                                return;
+                            }
                             ThrowDuplicatesException(value, e);
                         }
                     }

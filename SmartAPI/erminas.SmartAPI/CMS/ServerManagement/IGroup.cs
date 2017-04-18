@@ -14,17 +14,26 @@
 // If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using erminas.SmartAPI.Exceptions;
 using erminas.SmartAPI.Utils;
+using erminas.SmartAPI.Utils.CachedCollections;
 
 namespace erminas.SmartAPI.CMS.ServerManagement
 {
     public interface IGroup : IPartialRedDotObject, IDeletable, ISessionObject
     {
-        void Commit();
         string EMailAdress { get; set; }
         new string Name { get; set; }
+
+        /// <summary>
+        ///     All users in this group, indexed by name. The list is cached by default.
+        /// </summary>
+        IIndexedRDList<string, IUser> Users { get; }
+
+        void Commit();
     }
 
     public static class GroupFactory
@@ -41,11 +50,13 @@ namespace erminas.SmartAPI.CMS.ServerManagement
 
         internal Group(ISession session, XmlElement xmlElement) : base(session, xmlElement)
         {
+            Init();
             LoadXml();
         }
 
         internal Group(ISession session, Guid guid) : base(session, guid)
         {
+            Init();
         }
 
         public void Commit()
@@ -88,6 +99,32 @@ namespace erminas.SmartAPI.CMS.ServerManagement
                 EnsureInitialization();
                 base.Name = value;
             }
+        }
+
+        public IIndexedRDList<string, IUser> Users { get; private set; }
+
+        private void Init()
+        {
+            Users = new NameIndexedRDList<IUser>(GetUsers, Caching.Enabled);
+        }
+
+        private List<IUser> GetUsers()
+        {
+            const string LOAD_USERS =
+                @"<ADMINISTRATION><GROUP guid=""{0}""><USERS action=""list""/></GROUP></ADMINISTRATION>";
+            var xmlDoc = Session.ExecuteRQL(LOAD_USERS.RQLFormat(this));
+
+            var userElements = xmlDoc.GetElementsByTagName("USER");
+            return
+            (from XmlElement curUser in userElements
+                select
+                (IUser)
+                new User(Session, curUser.GetGuid())
+                {
+                    Name = curUser.GetName(),
+                    FullName = curUser.GetAttributeValue("fullname"),
+                    EMail = curUser.GetAttributeValue("email")
+                }).ToList();
         }
 
         protected override void LoadWholeObject()

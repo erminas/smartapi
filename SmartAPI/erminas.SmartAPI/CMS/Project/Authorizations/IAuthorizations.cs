@@ -104,6 +104,8 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         IIndexedCachedList<string, IAuthorizationPackage> ForLinks { get; }
         IIndexedCachedList<string, IAuthorizationPackage> ForPages { get; }
         IIndexedCachedList<string, IAuthorizationPackage> Standard { get; }
+
+        IIndexedCachedList<string, IAuthorizationPackage> ForFolders { get; }
     }
 
     public enum AuthorizationType
@@ -128,7 +130,10 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
             ForElements = new NameIndexedRDList<IAuthorizationPackage>(GetForElements, Caching.Enabled);
             ForPages = new NameIndexedRDList<IAuthorizationPackage>(GetForPages, Caching.Enabled);
             Standard = new NameIndexedRDList<IAuthorizationPackage>(GetStandard, Caching.Enabled);
+            ForFolders = new NameIndexedRDList<IAuthorizationPackage>(GetForFolders, Caching.Enabled);
         }
+
+        public IIndexedCachedList<string, IAuthorizationPackage> ForFolders { get; private set; }
 
         public void CreateDetailForElement(IPageElement pageElement, string name)
         {
@@ -233,6 +238,11 @@ namespace erminas.SmartAPI.CMS.Project.Authorizations
         private List<IAuthorizationPackage> GetForPages()
         {
             return GetAuthorizationPackages(AuthorizationType.DetailedPage);
+        }
+
+        private List<IAuthorizationPackage> GetForFolders()
+        {
+            return GetAuthorizationPackages(AuthorizationType.Folder);
         }
 
         private List<IAuthorizationPackage> GetStandard()

@@ -29,8 +29,8 @@ namespace erminas.SmartAPI.CMS.Project
 
 
         //TODO support for email?
-        void Create(string name, ISystemLocale locale, ICharset charset, bool useRfcLanguageIdForDeliveryServer = false, TextDirection textDirection = TextDirection.LeftToRight, ILanguageVariant adoptContentFrom = null,
-            ILanguageVariant adtopWorkflowFrom = null);
+        void Create(string name, ISystemLocale locale, ICharset charset, bool useFullRfcLanguageIdForDeliveryServer = false, TextDirection textDirection = TextDirection.LeftToRight, ILanguageVariant adoptContentFrom = null,
+            ILanguageVariant adoptWorkflowFrom = null);
     }
 
     internal class LanguageVariants : IndexedRDList<string, ILanguageVariant>, ILanguageVariants
@@ -84,15 +84,15 @@ namespace erminas.SmartAPI.CMS.Project
         }
 
         //TODO use configuration object?
-        public void Create(string name, ISystemLocale locale, ICharset charset, bool useRfcLanguageIdForDeliveryServer = false, TextDirection textDirection = TextDirection.LeftToRight, ILanguageVariant adoptContentFrom = null,
-            ILanguageVariant adtopWorkflowFrom = null)
+        public void Create(string name, ISystemLocale locale, ICharset charset, bool useFullRfcLanguageIdForDeliveryServer = false, TextDirection textDirection = TextDirection.LeftToRight, ILanguageVariant adoptContentFrom = null,
+            ILanguageVariant adoptWorkflowFrom = null)
         {
             const string CREATE_LANGUAGE_VARIANT =
                 @"<LANGUAGEVARIANT action=""addnew"" name=""{0}"" language=""{1}"" defaultlanguagevariant=""0"" codetable=""{2}"" rfclanguageid=""{3}"" userfclanguageidfordeliveryserver=""{4}"" languagefrom=""{5}"" contentworkflowlanguagefrom=""{6}"" textdirection=""{7}"" />";
 
             var response = Project.ExecuteRQL(CREATE_LANGUAGE_VARIANT.RQLFormat(name, locale.LanguageAbbreviation, charset.Codepage,
-                locale.RFCLanguageId, useRfcLanguageIdForDeliveryServer, adtopWorkflowFrom, adoptContentFrom,
-                textDirection));
+                locale.RFCLanguageId, useFullRfcLanguageIdForDeliveryServer, adoptWorkflowFrom, adoptContentFrom,
+                textDirection), RqlType.SessionKeyInProject);
 
             if (response.GetElementsByTagName("LANGUAGEVARIANT").Count == 0)
             {

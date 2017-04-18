@@ -290,7 +290,9 @@ namespace erminas.SmartAPI.CMS
         private Session()
         {
             ServerManager = new ServerManager(this);
-            Locales = new IndexedCachedList<int, ISystemLocale>(GetLocales, x => x.LCID, Caching.Enabled);
+            //TODO there can be multiple locales with the same lcid, this is a temporary hack to stay api compatible
+            Locales = new IndexedCachedList<int, ISystemLocale>(GetLocales, x => x.LCID, Caching.Enabled, true);
+
             DialogLocales = new IndexedCachedList<string, IDialogLocale>(GetDialogLocales, x => x.LanguageAbbreviation,
                 Caching.Enabled);
             Charsets = new IndexedCachedList<int, ICharset>(GetCharsets, x => x.Codepage, Caching.Enabled);

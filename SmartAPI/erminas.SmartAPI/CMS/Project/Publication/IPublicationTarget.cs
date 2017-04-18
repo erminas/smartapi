@@ -23,6 +23,9 @@ namespace erminas.SmartAPI.CMS.Project.Publication
     {
         PublicationTargetType Type { get; }
         string UrlPrefix { get; }
+
+        string ProjectNameInDeliveryServer { get; set; }
+        void Commit();
     }
 
     internal class PublicationTarget : PartialRedDotProjectObject, IPublicationTarget
@@ -37,6 +40,27 @@ namespace erminas.SmartAPI.CMS.Project.Publication
 
         public PublicationTarget(IProject project, Guid guid) : base(project, guid)
         {
+        }
+
+        [RedDot("cpsprojectname")]
+        public string ProjectNameInDeliveryServer
+        {
+            get
+            {
+                return GetAttributeValue<string>();
+            }
+            set
+            {
+                SetAttributeValue(value);
+            }
+        }
+
+        public void Commit()
+        {
+            var save = GetSaveString(XmlReadWriteWrapper.MergedElement);
+            const string SAVE_TARGET = @"<PROJECT>{0}</PROJECT>";
+
+            Project.ExecuteRQL(string.Format(SAVE_TARGET, save));
         }
 
         public PublicationTargetType Type
@@ -58,8 +82,8 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         {
             const string LOAD_PUBLISHING_TARGET = @"<EXPORT guid=""{0}"" action=""load""/>";
 
-            XmlDocument xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLISHING_TARGET, Guid.ToRQLString()),
-                                                    RqlType.SessionKeyInProject);
+            var xmlDoc = Project.ExecuteRQL(string.Format(LOAD_PUBLISHING_TARGET, Guid.ToRQLString()),
+                RqlType.SessionKeyInProject);
             return (XmlElement) xmlDoc.GetElementsByTagName("EXPORT")[0];
         }
 
@@ -77,5 +101,5 @@ namespace erminas.SmartAPI.CMS.Project.Publication
         Directory = 6206,
         LiveServer = 6207,
         Sftp = 6208
-    };
+    }
 }
