@@ -655,7 +655,7 @@ namespace erminas.SmartAPI.CMS.Project.Pages
             InitIfPresent(ref _mainLinkGuid, "mainlinkguid", GuidConvert);
             InitIfPresent(ref _releaseDate, "releasedate", XmlUtil.ToOADate);
             InitIfPresent(ref _createDate, "createdate", XmlUtil.ToOADate);
-            InitIfPresent(ref _changeDate, "changeDate", XmlUtil.ToOADate);
+            InitIfPresent(ref _changeDate, "changedate", XmlUtil.ToOADate);
 
             var mainLinkElement = (XmlElement) _xmlElement.GetElementsByTagName("MAINLINK")[0];
             _mainLinkNavigationGuid = mainLinkElement != null ? mainLinkElement.GetGuid() : Guid.Empty;
