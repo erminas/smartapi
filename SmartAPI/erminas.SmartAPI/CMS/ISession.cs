@@ -837,36 +837,29 @@ namespace erminas.SmartAPI.CMS
 
         private static bool IsProjectUnavailbaleException(Exception e)
         {
-            return
-                e.Message.Contains(
-                    "The project you have selected is no longer available. Please select a different project via the Main Menu.");
+            return e.Message.Contains("The project you have selected is no longer available. Please select a different project via the Main Menu.");
         }
 
-        private void LoadSelectedProject(XmlDocument xmlDoc)
+        private void LoadSelectedProject(XmlNode xmlDoc)
         {
             var lastModule = (XmlElement) xmlDoc.SelectSingleNode("/IODATA/USER/LASTMODULES/MODULE[@last='1']");
-            if (lastModule == null)
-            {
-                return;
-            }
+            var projectStr = lastModule?.GetAttributeValue("project");
 
-            string projectStr = lastModule.GetAttributeValue("project");
-            if (!string.IsNullOrEmpty(projectStr))
+            if (string.IsNullOrEmpty(projectStr)) return;
+
+            try
             {
-                try
+                SelectProject(Guid.Parse(projectStr));
+            }
+            catch (SmartAPIException e)
+            {
+                if (IsProjectUnavailbaleException(e) || e.InnerException != null && IsProjectUnavailbaleException(e.InnerException))
                 {
-                    SelectProject(Guid.Parse(projectStr));
-                } catch (SmartAPIException e)
+                    SelectedProjectGuid = Guid.Empty;
+                }
+                else
                 {
-                    if (IsProjectUnavailbaleException(e) ||
-                        (e.InnerException != null && IsProjectUnavailbaleException(e.InnerException)))
-                    {
-                        SelectedProjectGuid = Guid.Empty;
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
         }
