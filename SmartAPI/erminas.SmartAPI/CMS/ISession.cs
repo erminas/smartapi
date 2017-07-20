@@ -837,7 +837,9 @@ namespace erminas.SmartAPI.CMS
 
         private static bool IsProjectUnavailbaleException(Exception e)
         {
-            return e.Message.Contains("The project you have selected is no longer available. Please select a different project via the Main Menu.");
+            return e.Message.Contains("The project you have selected is no longer available. Please select a different project via the Main Menu.") ||
+                   e.Message.Contains("Access to this project has been denied, because you are not assigned to it.") || 
+                   e.Message.Contains("Ihnen wird der Zugang zu diesem Projekt verweigert, da Sie ihm nicht zugewiesen sind.");
         }
 
         private void LoadSelectedProject(XmlNode xmlDoc)
