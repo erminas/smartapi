@@ -83,7 +83,7 @@ namespace erminas.SmartAPI.CMS.Project.Workflows
 
         protected override XmlElement RetrieveWholeObject()
         {
-            const string LOAD_WORKFLOW = @"<WORKFLOW action=""load"" guid=""{0}""/>";
+            const string LOAD_WORKFLOW = @"<WORKFLOW action=""load"" guid=""{0}"" option=""complete""/>";
 
             return
                 (XmlElement)
